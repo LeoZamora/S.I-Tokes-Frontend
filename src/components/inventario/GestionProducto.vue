@@ -302,7 +302,7 @@ export default {
         this.data.form.stockMin = product.stockMin
         this.data.form.fechaRegistro = product.fechaRegistro,
         this.data.form.usuarioRegistro = product.usuarioRegistro
-        this.data.form.estado = product.estado
+        this.data.form.estado = product.estado 
       }
       this.dialog = true
     },
@@ -382,9 +382,6 @@ export default {
     },
 
     convertirImagen(archivo) {
-      console.log(archivo);
-
-      // Si no seleccionaron archivo, salir
       if (!archivo) return;
 
       // Si es múltiple, toma el primero
@@ -393,7 +390,6 @@ export default {
       const lector = new FileReader();
       lector.onload = () => {
         this.data.form.imgBase64 = lector.result;
-        console.log('Imagen en Base64:', this.data.form.imgBase64);
       };
       lector.readAsDataURL(file);
     }

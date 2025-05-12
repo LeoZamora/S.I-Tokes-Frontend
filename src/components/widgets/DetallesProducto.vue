@@ -17,10 +17,6 @@
             <v-window-item>
               <v-row class="mt-4" dense>
                 <!-- Imagen del Producto -->
-                <v-col cols="12" class="text-center mb-4">
-                  <v-img class="rounded-lg elevation-3" :src="producto.imgBase64" height="200" cover></v-img>
-                </v-col>
-
                 <v-col cols="12" md="6" class="mb-2">
                   <div class="d-flex align-center">
                     <v-icon class="me-2" color="red-darken-4">mdi-truck</v-icon>
@@ -55,77 +51,85 @@
 
             <!-- Detalles del Producto -->
             <v-window-item>
-              <v-row class="mt-4" dense>
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-barcode</v-icon>
-                    <strong>Código:</strong>
-                  </div>
-                  <div class="ms-6">{{ producto.codigo }}</div>
+              <v-row class="mt-2" dense>
+                <v-col cols="12" sm="4" class="text-center mb-2">
+                  <v-img class="rounded-lg elevation-3" :src="producto.imgBase64" height="160" cover></v-img>
                 </v-col>
+                
+                <v-col cols="12" sm="8">
+                  <v-row dense>
+                    <v-col cols="6" sm="4" class="py-1">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-barcode</v-icon>
+                        <span class="text-caption"><strong>Código:</strong></span>
+                      </div>
+                      <div class="ms-6 text-caption">{{ producto.codigo }}</div>
+                    </v-col>
 
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-tag</v-icon>
-                    <strong>Nombre:</strong>
-                  </div>
-                  <div class="ms-6">{{ producto.nombre }}</div>
-                </v-col>
+                    <v-col cols="6" sm="4" class="py-1">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-tag</v-icon>
+                        <span class="text-caption"><strong>Nombre:</strong></span>
+                      </div>
+                      <div class="ms-6 text-caption">{{ producto.nombre }}</div>
+                    </v-col>
 
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-currency-usd</v-icon>
-                    <strong>Precio:</strong>
-                  </div>
-                  <div class="ms-6">${{ producto.precio }}</div>
-                </v-col>
+                    <v-col cols="6" sm="4" class="py-1">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-currency-usd</v-icon>
+                        <span class="text-caption"><strong>Precio:</strong></span>
+                      </div>
+                      <div class="ms-6 text-caption">${{ producto.precio }}</div>
+                    </v-col>
 
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-folder-outline</v-icon>
-                    <strong>Categoría:</strong>
-                  </div>
-                  <div class="ms-6">{{ producto.categoria }}</div>
-                </v-col>
+                    <v-col cols="6" sm="4" class="py-1">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-folder-outline</v-icon>
+                        <span class="text-caption"><strong>Categoría:</strong></span>
+                      </div>
+                      <div class="ms-6 text-caption">{{ producto.categoria }}</div>
+                    </v-col>
 
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-shape-outline</v-icon>
-                    <strong>Tipo:</strong>
-                  </div>
-                  <div class="ms-6">{{ producto.tipo }}</div>
-                </v-col>
+                    <v-col cols="6" sm="4" class="py-1">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-shape-outline</v-icon>
+                        <span class="text-caption"><strong>Tipo:</strong></span>
+                      </div>
+                      <div class="ms-6 text-caption">{{ producto.tipo }}</div>
+                    </v-col>
 
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-warehouse</v-icon>
-                    <strong>Stock Inicial:</strong>
-                  </div>
-                  <div class="ms-6">{{ producto.stock }}</div>
-                </v-col>
+                    <v-col cols="6" sm="4" class="py-1">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-warehouse</v-icon>
+                        <span class="text-caption"><strong>Stock:</strong></span>
+                      </div>
+                      <div class="ms-6 text-caption">{{ producto.stock }}</div>
+                    </v-col>
 
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-check-circle-outline</v-icon>
-                    <strong>Estado:</strong>
-                  </div>
-                  <div class="ms-6">{{ producto.estado }}</div>
-                </v-col>
+                    <v-col cols="6" sm="4" class="py-1">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-check-circle-outline</v-icon>
+                        <span class="text-caption"><strong>Estado:</strong></span>
+                      </div>
+                      <div class="ms-6 text-caption">{{ producto.estado }}</div>
+                    </v-col>
 
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-account</v-icon>
-                    <strong>Registrado por:</strong>
-                  </div>
-                  <div class="ms-6">{{ producto.usuarioRegistro }}</div>
-                </v-col>
+                    <v-col cols="6" sm="4" class="py-1">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-account</v-icon>
+                        <span class="text-caption"><strong>Registrado por:</strong></span>
+                      </div>
+                      <div class="ms-6 text-caption">{{ producto.usuarioRegistro }}</div>
+                    </v-col>
 
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-calendar</v-icon>
-                    <strong>Fecha Registro:</strong>
-                  </div>
-                  <div class="ms-6">{{ producto.fechaRegistro }}</div>
+                    <v-col cols="6" sm="4" class="py-1">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-calendar</v-icon>
+                        <span class="text-caption"><strong>Fecha:</strong></span>
+                      </div>
+                      <div class="ms-6 text-caption">{{ producto.fechaRegistro }}</div>
+                    </v-col>
+                  </v-row>
                 </v-col>
               </v-row>
             </v-window-item>
@@ -219,18 +223,15 @@ export default {
     },
 
     agregarProveedor() {
-      // Validación simple
       if (!this.nuevoProveedor.nombre) {
         alert('Por favor ingrese el nombre del proveedor')
         return
       }
 
-      // Si no existe aún el array, lo inicializamos
       if (!this.producto.proveedoresSecundarios) {
         this.producto.proveedoresSecundarios = []
       }
 
-      // Agrega solo el objeto con nombre, teléfono y correo
       this.producto.proveedoresSecundarios.push({ 
         nombre: this.nuevoProveedor.nombre, 
         telefono: this.nuevoProveedor.telefono, 
