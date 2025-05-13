@@ -6,10 +6,10 @@
         <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf">
             <v-list-subheader><small class="font-weight-bold">DASHBOARD</small></v-list-subheader>
             <v-list-item prepend-icon="mdi-home" color="red-darken-4" title="Inicio" :lines="true" rounded class="mx-2" value="Inicio"/>
-            <v-list-subheader><small class="font-weight-bold">MOVIIENTOS</small></v-list-subheader>
+            <v-list-subheader><small class="font-weight-bold">MOVIMIENTOS</small></v-list-subheader>
             <v-list-group prepend-icon="mdi-cash-register">
                 <template v-slot:activator="{ props }">
-                    <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="red-darken-4" class="mx-2" title="Venta"/>
+                    <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="red-darken-4" class="mx-2" title="Ventas"/>
                 </template>
                 <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.ventasActions" 
                     :key="i" :value="title" @click="nameTab(title)">
@@ -18,14 +18,14 @@
             </v-list-group>
             <v-list-group prepend-icon="mdi-cart-arrow-down">
                 <template v-slot:activator="{ props }">
-                    <v-list-item v-bind="props" rounded value="Compra" :lines="true" color="red-darken-4" class="mx-2" title="Compra"/>
+                    <v-list-item v-bind="props" rounded value="Compra" :lines="true" color="red-darken-4" class="mx-2" title="Compras"/>
                 </template>
-                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.campraActions" 
+                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.compraActions"
                     :key="i" :value="title" @click="nameTab(title)">
                     <small>- {{ title }}</small>
                 </v-list-item>
             </v-list-group>
-            <v-list-subheader><small class="font-weight-bold">ADMINISTRAR</small></v-list-subheader>
+            <v-list-subheader><small class="font-weight-bold">GESTIÓN GENERAL</small></v-list-subheader>
             <v-list-group prepend-icon="mdi-package-variant">
                 <template v-slot:activator="{ props }">
                     <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="red-darken-4" class="mx-2" title="Inventario"/>
@@ -35,6 +35,25 @@
                     <small>- {{ title }}</small>
                 </v-list-item>
             </v-list-group>
+          <v-list-group prepend-icon="mdi-account-group">
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="red-darken-4" class="mx-2" title="Clientes"/>
+            </template>
+            <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.clientes"
+                         :key="i" :value="title" @click="nameTab(title)">
+              <small>- {{ title }}</small>
+            </v-list-item>
+          </v-list-group>
+          <v-list-subheader><small class="font-weight-bold">GESTIÓN DEL SISTEMA</small></v-list-subheader>
+          <v-list-group prepend-icon="mdi-shield-account">
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="red-darken-4" class="mx-2" title="Accesos"/>
+            </template>
+            <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.accesos"
+                         :key="i" :value="title" @click="nameTab(title)">
+              <small>- {{ title }}</small>
+            </v-list-item>
+          </v-list-group>
         </v-list>
         <template v-slot:append>
             <v-divider class="mx-4" />
@@ -93,13 +112,26 @@ export default {
     const data = reactive({
       drawer: true,
       ventasActions: [
-        ['Registrar venta'],
+        ['Facturación'],
+        ['Cuentas por cobrar'],
       ],
-      campraActions: [
-        ['Registrar compra'],
+      compraActions: [
+        ['Tipos de proveedor'],
+        ['Proveedores'],
+        ['Órdenes de compra']
       ],
       managerStock: [
-        ['Gestión de Productos']
+        ['Categorías de producto'],
+        ['Productos'],
+        ['Movimientos']
+      ],
+      clientes: [
+        ['Categorías de cliente'],
+        ['Clientes'],
+      ],
+      accesos: [
+        ['Roles'],
+        ['Usuarios'],
       ],
       selectedItems: ['Inicio'],
       nameTabs: [],
