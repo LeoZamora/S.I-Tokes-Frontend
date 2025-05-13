@@ -11,7 +11,7 @@ const routes = createRouter({
         component: () => import('@/components/pages/HomeApp.vue')
     }, {
         path: '/gestion-inventario',
-        name: 'Gestión de Productos',
+        name: 'Productos',
         component: () => import('@/components/inventario/GestionProducto.vue'),
         meta: {
             keepAlive: true

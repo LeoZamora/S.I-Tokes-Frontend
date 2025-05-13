@@ -9,7 +9,7 @@
         <!-- Título -->
         <div class="text-h6 font-weight-bold d-flex align-center">
           <v-icon class="me-2" color="red-darken-4">mdi-package-variant</v-icon>
-          Gestión de Inventario
+          Productos
         </div>
       </div>
 
@@ -190,11 +190,13 @@ export default {
       products: [{
         id: 1,
         codigo: 'PROD-001',
-        nombre: 'Laptop HP EliteBook',
+        nombre: 'Mesa de mármol 10x20',
         precio: 1250.99,
-        categoria: 'Electrónica',
-        tipo: 'Nuevo',
-        stock: 15,
+        categoria: 'Mesas',
+        subCategoria: 'Mesas de noche',
+        tipo: 'Producto físico',
+        stock: 2,
+        stockMin: 2,
         fechaRegistro: '2023-05-15',
         usuarioRegistro: 'admin',
         estado: 'Activo'
@@ -202,11 +204,13 @@ export default {
       {
         id: 2,
         codigo: 'PROD-002',
-        nombre: 'Mouse Inalámbrico',
-        precio: 25.50,
-        categoria: 'Electrónica',
-        tipo: 'Nuevo',
-        stock: 42,
+        nombre: 'Gabinetes de madera estilo cocina',
+        precio: 2500.50,
+        categoria: 'Gabinetes',
+        subCategoria: 'Gabinetes de cocina',
+        tipo: 'Producto físico',
+        stock: 3,
+        stockMin: 2,
         fechaRegistro: '2023-05-10',
         usuarioRegistro: 'admin',
         estado: 'Activo'
@@ -233,8 +237,7 @@ export default {
         direccion: 'Km 7 Carretera Masaya, Managua, Nicaragua'
       },
       categorias: [
-        'Electrónica', 'Alimentos', 'Bebidas', 'Limpieza', 
-        'Papelería', 'Ropa', 'Juguetes', 'Hogar', 'Otros'
+        'Roperos', 'Mesas', 'Gabinetes de cocina', 'Otros'
       ],
       tipos: [
         'Nuevo', 'Usado', 'Reacondicionado', 'Importado', 'Nacional'
