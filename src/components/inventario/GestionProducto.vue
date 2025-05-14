@@ -67,8 +67,8 @@
 
     <!-- Diálogo para agregar/editar -->
     <v-dialog v-model="dialog" max-width="600" persistent>
-      <v-card class="w-100 border mb-6" elevation="0">
-        <v-card-title class="text-h5 text-center pa-1 font-weight-bold">
+      <v-card class="w-100 rounded-lg mb-6" elevation="0">
+        <v-card-title class="text-h5 text-center pa-1 font-weight-bold bg-red-darken-4">
           <v-icon>mdi-package-variant</v-icon>
           Inventario - Registro de Productos
         </v-card-title>
@@ -121,6 +121,8 @@
               <v-col cols="12" md="12">
                 <v-file-input density="compact" variant="outlined" label="Selecciona una imagen" accept="image/*" @update:model-value="convertirImagen" prepend-inner-icon="mdi-image" />
               </v-col>
+
+              <v-divider></v-divider>
 
               <v-col cols="12" class="d-flex justify-end pt-6">
                 <v-btn color="grey" variant="outlined" hide-details class="mr-4" @click="closeDialog()" prepend-icon="mdi-broom">

@@ -1,11 +1,12 @@
 <template>
   <v-layout>
-    <v-app id="app" class="w-100 h-100">
-      <AppBar @toggle-drawer="toggleDrawer"/>
-      <v-navigation-drawer id="drawer" v-model="data.drawer" :location="isMobile ? 'bottom' : 'start'" class="position-fixed">
+    <LoginAuth v-if="!isLoggeInd"/>
+    <v-app v-else id="app" class="w-100 h-100">
+      <AppBar @toggle-drawer="toggleDrawer" @nameRoute="nameTab" @logout="clearApp"/>
+      <v-navigation-drawer id="drawer" v-model="data.drawer" class="position-fixed">
         <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf">
             <v-list-subheader><small class="font-weight-bold">DASHBOARD</small></v-list-subheader>
-            <v-list-item prepend-icon="mdi-home" color="red-darken-4" title="Inicio" :lines="true" rounded class="mx-2" value="Inicio"/>
+            <v-list-item prepend-icon="mdi-home" color="red-darken-4" title="Inicio" :lines="true" rounded class="mx-2" value="Inicio" @click="clearApp()"/>
             <v-list-subheader><small class="font-weight-bold">MOVIMIENTOS</small></v-list-subheader>
             <v-list-group prepend-icon="mdi-cash-register">
                 <template v-slot:activator="{ props }">
@@ -40,17 +41,7 @@
               <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="red-darken-4" class="mx-2" title="Clientes"/>
             </template>
             <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.clientes"
-                         :key="i" :value="title" @click="nameTab(title)">
-              <small>- {{ title }}</small>
-            </v-list-item>
-          </v-list-group>
-          <v-list-subheader><small class="font-weight-bold">GESTIÓN DEL SISTEMA</small></v-list-subheader>
-          <v-list-group prepend-icon="mdi-shield-account">
-            <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="red-darken-4" class="mx-2" title="Accesos"/>
-            </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.accesos"
-                         :key="i" :value="title" @click="nameTab(title)">
+              :key="i" :value="title" @click="nameTab(title)">
               <small>- {{ title }}</small>
             </v-list-item>
           </v-list-group>
@@ -82,6 +73,8 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import AppBar from './components/layout/AppBar.vue'
 import TabsRoutes from './components/widgets/TabsRoutes.vue';
+import LoginAuth from './components/login/LoginAuth.vue';
+import { useStore } from './store';
 
 export default {
   mounted() {
@@ -95,6 +88,8 @@ export default {
     }
   },
   setup() {
+    const store = useStore()
+    const isLoggeInd = computed(() => store.isLoggedIn)
     const screenWidth = ref(window.innerWidth)
     const isMobile = computed(() => screenWidth.value < 600)
     const updateScreen = () => {
@@ -142,7 +137,8 @@ export default {
 
     return {
       data,
-      isMobile
+      isMobile,
+      isLoggeInd
     }
   },
 
@@ -169,11 +165,20 @@ export default {
 
       this.$router.push({ name: name })
     },
+
+    clearApp() {
+      this.$router.push({ path: '/' })
+      this.data.nameTabs = []
+      this.data.nameCurrentTab = ''
+      this.data.activeTab = null
+      this.data.visible = false
+    }
   },
 
   components: {
     AppBar,
-    TabsRoutes
+    TabsRoutes,
+    LoginAuth
   }
 }
 </script>
