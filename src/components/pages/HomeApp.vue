@@ -11,5 +11,17 @@ export default {
 </script>
 
 <style scoped>
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#logo {
+  animation: slideInFromRight 2s;
+}
 
 </style>

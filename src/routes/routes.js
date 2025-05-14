@@ -1,3 +1,4 @@
+import { useStore } from '@/store'
 import {
     createWebHistory,
     createRouter
@@ -8,13 +9,18 @@ const routes = createRouter({
     routes: [{
         path: '/',
         name: 'Home',
-        component: () => import('@/components/pages/HomeApp.vue')
+        component: () => import('@/components/pages/HomeApp.vue'),
+        meta: {
+            title: 'Inicio | T O K E S'
+        }
     }, {
-        path: '/gestion-inventario',
+        path: '/gestion-productos',
         name: 'Productos',
         component: () => import('@/components/inventario/GestionProducto.vue'),
         meta: {
-            keepAlive: true
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'Productos | T O K E S'
         }
     }],
 
@@ -27,6 +33,19 @@ const routes = createRouter({
             }
         }
     }
+})
+
+routes.beforeEach((to, from, next) => {
+    const store = useStore()
+    const isLoggedIn = store.isLoggedIn
+    const defaultTitle = 'T O K E S'
+    if (!isLoggedIn) {
+        document.title = defaultTitle
+    } else {
+        document.title = to.meta.title
+    }
+
+    !isLoggedIn && to.meta.requiredAuth ? next({ path: '/' }) : next()
 })
 
 export default routes

@@ -1,62 +1,26 @@
 <template>
   <div>
-    <v-dialog v-model="localShow" max-width="700">
-      <v-card class="rounded-xl">
-        <v-card-title class="font-weight-bold text-center bg-red-darken-4 text-white rounded-t-xl">
+    <v-dialog v-model="localShow" max-width="750">
+      <v-card class="rounded-lg">
+        <v-card-title class="font-weight-bold text-center bg-red-darken-4 text-white">
           <v-icon class="me-2">mdi-eye</v-icon> Detalles del Producto
         </v-card-title>
 
         <v-tabs v-model="tab" color="red-darken-4" density="compact" class="mt-2">
-          <v-tab height="25" density="compact" class="border custom-border"><small>Detalles del Proveedor</small></v-tab>
           <v-tab height="25" density="compact" class="border custom-border"><small>Detalles del Producto</small></v-tab>
+          <v-tab height="25" density="compact" class="border custom-border"><small>Detalles del Proveedor</small></v-tab>
         </v-tabs>
-
+        <v-divider class="custom-margin"/>
         <v-card-text>
           <v-window v-model="tab">
-            <!-- Detalles del Proveedor -->
-            <v-window-item>
-              <v-row class="mt-4" dense>
-                <!-- Imagen del Producto -->
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-truck</v-icon>
-                    <strong>Proveedor Principal:</strong>
-                  </div>
-                  <div class="ms-6">{{ proveedor.nombre || 'N/A' }}</div>
-                </v-col>
-
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex justify-space-between align-center">
-                    <div class="d-flex align-center">
-                      <v-icon class="me-2" color="red-darken-4">mdi-truck-delivery</v-icon>
-                      <strong>Proveedores Secundarios:</strong>
-                    </div>
-                    <v-btn color="indigo-darken-4" icon="mdi-plus" variant="elevated" size="small" @click="abrirModalProveedor" />
-                  </div>
-                  <ul class="ms-6 mt-2" v-if="producto.proveedoresSecundarios && producto.proveedoresSecundarios.length">
-                    <li v-for="(prov, index) in producto.proveedoresSecundarios" :key="index">{{ prov.nombre }}</li>
-                  </ul>
-                  <span class="ms-6" v-else>N/A</span>
-                </v-col>
-
-                <v-col cols="12" md="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-cube-outline</v-icon>
-                    <strong>Stock Mínimo:</strong>
-                  </div>
-                  <div class="ms-6">{{ producto.stockMinimo || 'N/A' }}</div>
-                </v-col>
-              </v-row>
-            </v-window-item>
-
             <!-- Detalles del Producto -->
             <v-window-item>
-              <v-row class="mt-2" dense>
+              <v-row class="mt-2 d-flex justify-space-between align-center" dense>
                 <v-col cols="12" sm="4" class="text-center mb-2">
-                  <v-img class="rounded-lg elevation-3" :src="producto.imgBase64" height="160" cover></v-img>
+                  <v-img class="rounded-lg border" :src="producto.imgBase64" height="160" cover></v-img>
                 </v-col>
                 
-                <v-col cols="12" sm="8">
+                <v-col cols="12" sm="8" class="d-flex justify-center align-center">
                   <v-row dense>
                     <v-col cols="6" sm="4" class="py-1">
                       <div class="d-flex align-center">
@@ -134,6 +98,43 @@
               </v-row>
             </v-window-item>
 
+            <!-- Detalles del Proveedor -->
+            <v-window-item>
+              <v-row class="mt-4" dense>
+                <!-- Imagen del Producto -->
+                <v-col cols="12" md="6" class="mb-2">
+                  <div class="d-flex align-center">
+                    <v-icon class="me-2" color="red-darken-4">mdi-truck</v-icon>
+                    <strong>Proveedor Principal:</strong>
+                  </div>
+                  <div class="ms-6">{{ proveedor.nombre || 'N/A' }}</div>
+                </v-col>
+
+                <v-col cols="12" md="6" class="mb-2">
+                  <div class="d-flex justify-space-between align-center">
+                    <div class="d-flex align-center">
+                      <v-icon class="me-2" color="red-darken-4">mdi-truck-delivery</v-icon>
+                      <strong>Proveedores Secundarios:</strong>
+                    </div>
+                    <v-btn color="indigo-darken-4" icon="mdi-plus" variant="elevated" size="small" @click="abrirModalProveedor" />
+                  </div>
+                  <ul class="ms-6 mt-2" v-if="producto.proveedoresSecundarios && producto.proveedoresSecundarios.length">
+                    <li v-for="(prov, index) in producto.proveedoresSecundarios" :key="index">{{ prov.nombre }}</li>
+                  </ul>
+                  <span class="ms-6" v-else>N/A</span>
+                </v-col>
+
+                <v-col cols="12" md="6" class="mb-2">
+                  <div class="d-flex align-center">
+                    <v-icon class="me-2" color="red-darken-4">mdi-cube-outline</v-icon>
+                    <strong>Stock Mínimo:</strong>
+                  </div>
+                  <div class="ms-6">{{ producto.stockMinimo || 'N/A' }}</div>
+                </v-col>
+              </v-row>
+            </v-window-item>
+
+
           </v-window>
         </v-card-text>
 
@@ -147,8 +148,8 @@
 
     <!-- MODAL PARA AGREGAR PROVEEDOR SECUNDARIO -->
     <v-dialog v-model="modalProveedor" max-width="500">
-      <v-card class="rounded-xl">
-        <v-card-title class="font-weight-bold text-center bg-red-darken-4 text-white rounded-t-xl">
+      <v-card class="rounded-lg">
+        <v-card-title class="font-weight-bold text-center bg-red-darken-4 text-white">
           <v-icon class="mr-2">mdi-account-plus</v-icon>
           Agregar Proveedor Secundario
         </v-card-title>
@@ -248,5 +249,9 @@ export default {
 .custom-border{
   border-top-left-radius: 5px !important;
   border-top-right-radius: 5px !important;
+}
+
+.custom-margin{
+  margin-top: -10px;
 }
 </style>
