@@ -3,32 +3,41 @@
     <!-- Encabezado y botón de agregar -->
     <v-card class="border" elevation="0" rounded="0">
     <!-- Encabezado -->
-    <v-card-title class="d-flex align-center justify-space-between pa-2">
-      <!-- Logo + Título -->
-      <div class="d-flex align-center">
-        <!-- Título -->
-        <div class="text-h6 font-weight-bold d-flex align-center">
-          <v-icon class="me-2" color="red-darken-4">mdi-package-variant</v-icon>
-          Productos
+      <template v-slot:prepend>
+        <div class="d-flex align-center">
+          <!-- Título -->
+          <div class="text-h6 font-weight-bold d-flex align-center">
+            <v-icon class="me-2" color="red-darken-4">mdi-package-variant</v-icon>
+            Productos
+          </div>
         </div>
-      </div>
+      </template>
+      <template v-slot:append>
+        <v-btn class="bg-red-darken-4 rounded-" @click="openDialog('create')">
+          <v-icon>mdi-plus</v-icon>
+          <v-tooltip activator="parent" location="left">Agregar Producto</v-tooltip> 
+        </v-btn>
+      </template> 
+      <v-divider />
 
-      <!-- Botón de añadir -->
-      <v-btn class="bg-indigo-darken-4" @click="openDialog('create')" variant="elevated" elevation="2">
-        <v-icon>mdi-plus</v-icon>
-        <v-tooltip activator="parent" location="left">Agregar Producto</v-tooltip> 
-      </v-btn>
-    </v-card-title>
-
-    <!-- Buscador -->
-    <v-card-actions class="pa-2">
-      <v-text-field color="red-darken-4" density="compact" variant="outlined" v-model="search" append-inner-icon="mdi-magnify" label="Buscar productos"
-        hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
-    </v-card-actions>
+      <v-row class="pa-2" dense>
+        <v-col cols="6" md="6" sm="6">
+          <v-text-field color="red-darken-4" density="compact" variant="outlined" v-model="search" append-inner-icon="mdi-magnify" label="Buscar productos"
+            hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
+        </v-col>
+        <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
+            <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
+                <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+            <v-btn icon color="grey" size="small" variant="text" class="border">
+                <v-icon>mdi-broom</v-icon>
+            </v-btn>
+        </v-col>
+      </v-row>
     </v-card>
     <!-- Tabla de productos -->
     <v-card elevation="0" class="border" rounded="0">
-      <v-data-table :headers="headers" :items="data.products" :items-per-page="10" :search="search">
+      <v-data-table :headers="data.headers" :items="data.products" :items-per-page="10" :search="search">
         <template v-slot:item.precio="{ item }">
           {{ formatCurrency(item.precio) }}
         </template>
@@ -46,13 +55,13 @@
         <template v-slot:item.actions="{ item }">
           <v-tooltip text="Editar" location="top">
             <template v-slot:activator="{ props }">
-              <v-icon v-bind="props" color="green" class="mr-3" @click="openDialog('edit', item)" >mdi-pencil</v-icon>
+              <v-icon v-bind="props" color="green" class="mr-1" @click="openDialog('edit', item)" >mdi-pencil</v-icon>
             </template>
           </v-tooltip>
           
           <v-tooltip text="Eliminar" location="top">
             <template v-slot:activator="{ props }">
-              <v-icon v-bind="props" color="error" class="mr-3" @click="confirmDelete(item)">mdi-delete</v-icon>
+              <v-icon v-bind="props" color="error" class="mr-1" @click="confirmDelete(item)">mdi-delete</v-icon>
             </template>
           </v-tooltip>
 
@@ -72,63 +81,52 @@
           <v-icon>mdi-package-variant</v-icon>
           Inventario - Registro de Productos
         </v-card-title>
-
         <v-divider></v-divider>
-
         <v-card-text class="pt-4">
           <v-form class="w-100" ref="form" @submit.prevent="handleSave(data.form)">
             <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" sm="6">
                 <v-text-field color="red-darken-4" v-model="data.form.codigo" label="Código" :rules="[rules.required]" variant="outlined" 
                   hide-details density="compact" clearable prepend-inner-icon="mdi-barcode"/>
               </v-col>
 
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" sm="6">
                 <v-text-field color="red-darken-4" v-model="data.form.nombre" label="Nombre" :rules="[rules.required, rules.minLength(3)]"  variant="outlined" 
                   hide-details density="compact" clearable prepend-inner-icon="mdi-text-box" />
               </v-col>
-
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" sm="6">
                 <v-text-field color="red-darken-4" v-model="data.form.precio" label="Precio" :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" prefix="$" type="number" step="0.01" prepend-inner-icon="mdi-currency-usd" />
               </v-col>
-
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" sm="6">
                 <v-select v-model="data.form.categoria" label="Categoría" :items="data.categorias" :rules="[rules.required]"
                   variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
               </v-col>
-
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" sm="6">
                 <v-select v-model="data.form.subcategoria" label="Sub categoría" :items="data.categorias" :rules="[rules.required]"
                   variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
               </v-col>
-
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" sm="6">
                 <v-select  v-model="data.form.tipo" label="Tipo" :items="data.tipos" :rules="[rules.required]" variant="outlined" 
                   hide-details density="compact" prepend-inner-icon="mdi-tag" />
               </v-col>
-
-              <v-col cols="12" md="6">
+              <v-col cols="6" md="6" sm="6">
                 <v-text-field color="red-darken-4" v-model="data.form.stock" label="Stock" :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
-
-              <v-col cols="12" md="6">
+              <v-col cols="6" md="6" sm="6">
                 <v-text-field color="red-darken-4" v-model="data.form.stockMin" label="Stock Mínimo" :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
-
               <v-col cols="12" md="12">
-                <v-file-input density="compact" variant="outlined" label="Selecciona una imagen" accept="image/*" @update:model-value="convertirImagen" prepend-inner-icon="mdi-image" />
+                <v-file-input density="compact" variant="outlined" label="Selecciona una imagen" accept="image/*" @update:model-key="convertirImagen" prepend-inner-icon="mdi-image" />
               </v-col>
-
               <v-divider></v-divider>
-
               <v-col cols="12" class="d-flex justify-end pt-6">
-                <v-btn color="grey" variant="outlined" hide-details class="mr-4" @click="closeDialog()" prepend-icon="mdi-broom">
+                <v-btn color="grey" variant="outlined" class="mr-4" @click="closeDialog()">
                   Cerrar
                 </v-btn>
-                <v-btn color="red-darken-4" type="submit" prepend-icon="mdi-content-save" >
+                <v-btn color="red-darken-4" type="submit" >
                   Guardar
                 </v-btn>
               </v-col>
@@ -145,13 +143,11 @@
           <v-icon color="red-darken-4">mdi-delete</v-icon>
           <span>Confirmar Eliminación</span>
         </v-card-title>
-
         <v-divider class="mx-4"/>
-        
         <v-card-text class="text-center">
           ¿Estás seguro de que deseas eliminar el producto "{{ productToDelete.nombre }}"?
         </v-card-text>
-        
+        <v-divider class="mx-4"/>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="grey" @click="deleteDialog = false">Cancelar</v-btn>
@@ -166,7 +162,7 @@
 
 <script>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import DetallesProducto from '../widgets/DetallesProducto.vue'
+import DetallesProducto from './DetallesProducto.vue'
 
 export default {
   components: {
@@ -175,9 +171,9 @@ export default {
   
   setup() {
     const screenWidth = ref(window.innerWidth)
-    const isMobile = computed(() => screenWidth.value < 600)
+    const isMobile = computed(() => screenWidth.key < 600)
     const updateScreen = () => {
-      screenWidth.value = window.innerWidth
+      screenWidth.key = window.innerWidth
     }
 
     onMounted(() => {
@@ -217,6 +213,19 @@ export default {
         usuarioRegistro: 'admin',
         estado: 'Activo'
       }],
+      headers: [
+        { title: 'Acciones', key: 'actions', sortable: false, align: 'center' },
+        { title: 'Código', key: 'codigo', align: 'center' },
+        { title: 'Nombre', key: 'nombre' },
+        { title: 'Precio', key: 'precio', align: 'center' },
+        { title: 'Categoría', key: 'categoria', align: 'center' },
+        { title: 'Sub categoría', key: 'subCategoria', align: 'center' },
+        { title: 'Tipo', key: 'tipo' },
+        { title: 'Stock', key: 'stock', align: 'center', width: 1 },
+        { title: 'Stock Min', key: 'stockMin', align: 'center', width: 1  },
+        { title: 'Fecha Registro', key: 'fechaRegistro', align: 'center' },
+        { title: 'Estado', key: 'estado', align: 'center' },
+      ],
       form: {
         id: 1,
         codigo: '',
@@ -265,23 +274,10 @@ export default {
       dialogMode: 'create',
       selectedProduct: null,
       productToDelete: null,
-      headers: [
-        { title: 'Código', value: 'codigo', align: 'center' },
-        { title: 'Nombre', value: 'nombre' },
-        { title: 'Precio', value: 'precio', align: 'center' },
-        { title: 'Categoría', value: 'categoria', align: 'center' },
-        { title: 'Sub categoría', value: 'subCategoria', align: 'center' },
-        { title: 'Tipo', value: 'tipo' },
-        { title: 'Stock', value: 'stock', align: 'center' },
-        { title: 'Stock Min', value: 'stockMin', align: 'center' },
-        { title: 'Fecha Registro', value: 'fechaRegistro', align: 'center' },
-        { title: 'Estado', value: 'estado', align: 'center' },
-        { title: 'Acciones', value: 'actions', sortable: false, align: 'center' }
-      ],
       rules: {
-        required: value => !!value || 'Campo requerido',
-        minLength: min => value => (value && value.length >= min) || `Mínimo ${min} caracteres`,
-        numeric: value => !isNaN(parseFloat(value)) || 'Debe ser un número válido'
+        required: key => !!key || 'Campo requerido',
+        minLength: min => key => (key && key.length >= min) || `Mínimo ${min} caracteres`,
+        numeric: key => !isNaN(parseFloat(key)) || 'Debe ser un número válido'
       }
     }
   },
@@ -317,8 +313,8 @@ export default {
       this.data.productDialog = obj
     },
 
-    closeDialogDet(value) {
-      this.data.showDialog = value
+    closeDialogDet(key) {
+      this.data.showDialog = key
     },
     
     closeDialog() {
@@ -360,11 +356,11 @@ export default {
       this.deleteDialog = false
     },
     
-    formatCurrency(value) {
+    formatCurrency(key) {
       return new Intl.NumberFormat('es-MX', {
         style: 'currency',
         currency: 'MXN'
-      }).format(value)
+      }).format(key)
     },
     
     formatDate(dateString) {

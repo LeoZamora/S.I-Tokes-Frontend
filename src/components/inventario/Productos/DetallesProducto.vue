@@ -19,7 +19,7 @@
                 <v-col cols="12" sm="4" class="text-center mb-2">
                   <v-img class="rounded-lg border" :src="producto.imgBase64" height="160" cover></v-img>
                 </v-col>
-                
+
                 <v-col cols="12" sm="8" class="d-flex justify-center align-center">
                   <v-row dense>
                     <v-col cols="6" sm="4" class="py-1">
@@ -109,7 +109,6 @@
                   </div>
                   <div class="ms-6">{{ proveedor.nombre || 'N/A' }}</div>
                 </v-col>
-
                 <v-col cols="12" md="6" class="mb-2">
                   <div class="d-flex justify-space-between align-center">
                     <div class="d-flex align-center">
@@ -123,7 +122,6 @@
                   </ul>
                   <span class="ms-6" v-else>N/A</span>
                 </v-col>
-
                 <v-col cols="12" md="6" class="mb-2">
                   <div class="d-flex align-center">
                     <v-icon class="me-2" color="red-darken-4">mdi-cube-outline</v-icon>
@@ -133,13 +131,9 @@
                 </v-col>
               </v-row>
             </v-window-item>
-
-
           </v-window>
         </v-card-text>
-
         <v-divider></v-divider>
-
         <v-card-actions class="justify-end">
           <v-btn color="grey" variant="outlined" @click="closeDialog">Cerrar</v-btn>
         </v-card-actions>

@@ -16,11 +16,20 @@ const routes = createRouter({
     }, {
         path: '/gestion-productos',
         name: 'Productos',
-        component: () => import('@/components/inventario/GestionProducto.vue'),
+        component: () => import('@/components/inventario/Productos/GestionProducto.vue'),
         meta: {
             keepAlive: true,
             requiredAuth: true,
             title: 'Productos | T O K E S'
+        }
+    }, {
+        path: '/facturacion',
+        name: 'Facturacion',
+        component: () => import('@/components/movimientos/Ventas/FacturacionVentas.vue'),
+        meta: {
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'Facturación | T O K E S'
         }
     }],
 
