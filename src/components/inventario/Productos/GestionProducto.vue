@@ -55,19 +55,19 @@
         <template v-slot:item.actions="{ item }">
           <v-tooltip text="Editar" location="top">
             <template v-slot:activator="{ props }">
-              <v-icon v-bind="props" color="green" class="mr-1" @click="openDialog('edit', item)" >mdi-pencil</v-icon>
+              <v-icon v-bind="props" size="small" color="green" class="mr-1" @click="openDialog('edit', item)" >mdi-pencil</v-icon>
             </template>
           </v-tooltip>
           
           <v-tooltip text="Eliminar" location="top">
             <template v-slot:activator="{ props }">
-              <v-icon v-bind="props" color="error" class="mr-1" @click="confirmDelete(item)">mdi-delete</v-icon>
+              <v-icon v-bind="props" size="small" color="error" class="mr-1" @click="confirmDelete(item)">mdi-delete</v-icon>
             </template>
           </v-tooltip>
 
           <v-tooltip text="Ver" location="top">
             <template v-slot:activator="{ props }">
-              <v-icon v-bind="props" color="indigo-darken-4" @click="openDialogDet(item)">mdi-eye</v-icon>
+              <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialogDet(item)">mdi-eye</v-icon>
             </template>
           </v-tooltip>
         </template>

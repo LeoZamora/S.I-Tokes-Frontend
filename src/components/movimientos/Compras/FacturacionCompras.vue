@@ -7,14 +7,14 @@
                     <!-- Título -->
                     <div class="text-h6 font-weight-bold d-flex align-center">
                     <v-icon class="me-2" color="red-darken-4">mdi-package-variant</v-icon>
-                        Facturación
+                        Órdenes de Compras
                     </div>
                 </div>
             </template>
             <template v-slot:append>
                 <v-btn class="bg-red-darken-4 rounded-" @click="openDialog()">
                     <v-icon>mdi-plus</v-icon>
-                    <v-tooltip activator="parent" location="left">Nueva Factura</v-tooltip> 
+                    <v-tooltip activator="parent" location="left">Nueva Órden</v-tooltip> 
                 </v-btn>
             </template>
             <v-divider /> 
@@ -72,40 +72,33 @@
 
             </v-card-actions>
         </v-card>
-        <NuevaFactura :show="data.visibleDialog" @closeDialog="closeDialog"/>
+        <NuevaFacturaCompras :show="data.visibleDialog" @closeDialog="closeDialog"/>
     </div>
 </template>
 
 <script>
 import { formatters } from '@/helpers/formatters.js';
 import { reactive } from 'vue';
-import NuevaFactura from './NuevaFactura.vue';
+import NuevaFacturaCompras from './NuevaFacturaCompras.vue';
 
 export default {
     components: {
-        NuevaFactura
+        NuevaFacturaCompras
     },
 
     setup() {
         const data = reactive({
             header: [
                 {title: '', key: 'opc', align: 'center',},
-                {title: 'Nº Factura', key: 'numFactura', align: 'center'},
-                {title: 'Cliente', key: 'cliente', align: 'center'},
+                {title: 'Nº Órden', key: 'numFactura', align: 'center'},
+                {title: 'Proveedor', key: 'cliente', align: 'center'},
                 {title: 'Vendedor', key: 'vendedor', align: 'center'},
                 {title: 'Fecha', key: 'fecha', align: 'center'},
                 {title: 'Monto', key: 'monto', align: 'center'},
                 {title: 'Observaciones', key: 'observaiones', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
             ],
-            facturas: [{
-                numFactura: '0001',
-                cliente: 'Cliente Prueba',
-                vendedor: 'Vendedor Prueba',
-                fecha: '01/01/2025',
-                monto: 2000,
-                estado: 'Activo'
-            }],
+            facturas: [],
             visibleDialog: false
         })
 

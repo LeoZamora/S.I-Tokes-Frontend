@@ -19,10 +19,10 @@
             </v-list-group>
             <v-list-group prepend-icon="mdi-cart-arrow-down">
                 <template v-slot:activator="{ props }">
-                    <v-list-item v-bind="props" rounded value="Compra" :lines="true" color="red-darken-4" class="mx-2" title="Compras"/>
+                    <v-list-item v-bind="props" rounded value="Compras  " :lines="true" color="red-darken-4" class="mx-2" title="Compras"/>
                 </template>
-                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.compraActions"
-                    :key="i" :value="title" @click="nameTab(title)">
+                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in data.compraActions"
+                    :key="i" :value="title" @click="nameTab(route)">
                     <small>- {{ title }}</small>
                 </v-list-item>
             </v-list-group>
@@ -114,7 +114,7 @@ export default {
       compraActions: [
         ['Tipos de proveedor'],
         ['Proveedores'],
-        ['Órdenes de compra']
+        ['Órdenes de compra', 'Ordenes']
       ],
       managerStock: [
         ['Categorías  Productos'],
