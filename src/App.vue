@@ -12,8 +12,8 @@
                 <template v-slot:activator="{ props }">
                     <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="red-darken-4" class="mx-2" title="Ventas"/>
                 </template>
-                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.ventasActions" 
-                    :key="i" :value="title" @click="nameTab(title)">
+                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in data.ventasActions" 
+                    :key="i" :value="title" @click="nameTab(route)">
                     <small>- {{ title }}</small>
                 </v-list-item>
             </v-list-group>
@@ -52,7 +52,7 @@
                 <h6 class="mt-2">
                     Muebleria - copyright @{{ new Date().getFullYear() }}
                 </h6>
-                <h6> Version 1.0.0 </h6>
+                <h6> Version {{ data.version }} </h6>
             </div>
         </template>
       </v-navigation-drawer>
@@ -74,6 +74,7 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import AppBar from './components/layout/AppBar.vue'
 import TabsRoutes from './components/widgets/TabsRoutes.vue';
 import LoginAuth from './components/login/LoginAuth.vue';
+import environment from './helpers/environment.js';
 import { useStore } from './store';
 
 export default {
@@ -107,8 +108,8 @@ export default {
     const data = reactive({
       drawer: true,
       ventasActions: [
-        ['Facturación'],
-        ['Cuentas por cobrar'],
+        ['Facturación', 'Facturacion'],
+        ['Cuentas por Cobrar', 'CPC'],
       ],
       compraActions: [
         ['Tipos de proveedor'],
@@ -116,12 +117,12 @@ export default {
         ['Órdenes de compra']
       ],
       managerStock: [
-        ['Categorías de producto'],
+        ['Categorías  Productos'],
         ['Productos'],
         ['Movimientos']
       ],
       clientes: [
-        ['Categorías de cliente'],
+        ['Categorías Clientes'],
         ['Clientes'],
       ],
       accesos: [
@@ -133,6 +134,7 @@ export default {
       nameCurrentTab: '',
       activeTab: null,
       visible: false,
+      version: environment.version
     })
 
     return {
