@@ -31,6 +31,15 @@ const routes = createRouter({
             requiredAuth: true,
             title: 'Facturación | T O K E S'
         }
+    }, {
+        path: '/ordenes',
+        name: 'Ordenes',
+        component: () => import('@/components/movimientos/Compras/FacturacionCompras.vue'),
+        meta: {
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'Compras | T O K E S'
+        }
     }],
 
     scrollBehavior(to, from, savePosition) {

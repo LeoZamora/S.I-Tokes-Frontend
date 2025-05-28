@@ -1,8 +1,8 @@
 <template>
-    <v-dialog v-model="localShow" max-width="800" persistent>
+    <v-dialog v-model="localShow" max-width="850" persistent>
         <v-card id="diag-fact">
             <v-card-title class="bg-red-darken-4 d-flex align-center">
-                <h5><v-icon>mdi-file-document-outline</v-icon> NUEVA FACTURA</h5>
+                <h5><v-icon>mdi-file-document-outline</v-icon>NUEVA ÓRDEN</h5>
                 <v-spacer />
                 <v-btn icon size="small" color="white" variant="tonal" @click="closeDialog()">
                     <v-icon>mdi-close</v-icon>
@@ -12,9 +12,9 @@
             <v-divider />
             <v-card-text id="body-card" class="">
                 <v-row class="pb-0">
-                    <v-col cols="6" md="6" sm="6" class="d-flex justify-start align-center pb-0">
-                        <small class="mr-2">Nº Factura: </small>
-                        <strong>{{ data.factura.numFactura }}</strong>
+                    <v-col cols="6" md="3" sm="3" class="d-flex justify-start align-center pb-0">
+                        <small class="mr-2">Nº Órden: </small>
+                        <strong>{{ data.factura.numOrden }}</strong>
                     </v-col>
                     <v-col cols="6" md="3" sm="3" class="d-flex justify-start align-center pb-0">
                         <div class="d-flex justify-end align-center">
@@ -22,7 +22,7 @@
                             <small><strong>{{ data.factura.emision }}</strong></small>
                         </div>
                     </v-col>
-                    <v-col cols="12" md="3" sm="3" class="d-flex justify-start align-center pb-0">
+                    <v-col cols="12" md="6" sm="6" class="d-flex justify-space-around align-center pb-0">
                         <div class="d-flex align-center">
                             <v-checkbox v-model="data.nio" color="indigo" density="compact" class="label" hide-details>
                                 <template v-slot:label>
@@ -34,6 +34,11 @@
                                     <span id="checkLabel">Dólares</span>
                                 </template>
                             </v-checkbox>
+                            <v-checkbox v-model="data.impt" color="indigo" density="compact" class="label" hide-details>
+                                <template v-slot:label>
+                                    <span id="checkLabel">Imptos.</span>
+                                </template>
+                            </v-checkbox>
                         </div>
                     </v-col>
                 </v-row>
@@ -42,15 +47,15 @@
                     <v-divider/>
                 </v-card-subtitle>
                 <v-row>
-                    <v-col cols="12" md="4" sm="6">
-                        <v-text-field prepend-inner-icon="mdi-account" density="compact" variant="outlined" hide-details label="Cliente" placeholder="ingrese el nombre del client" 
+                    <v-col cols="12" md="4" sm="6" class="py-1">
+                        <v-autocomplete prepend-inner-icon="mdi-account" density="compact" variant="outlined" hide-details label="Proveedor" placeholder="ingrese el proveedor" 
                             persistent-placeholder/>
                     </v-col>
-                    <v-col cols="12" md="4" sm="6">
-                        <v-text-field prepend-inner-icon="mdi-card-account-details" density="compact" variant="outlined" hide-details label="Cédula Cliente" placeholder="ingrese su cédula" 
+                    <v-col cols="12" md="4" sm="6" class="py-1">
+                        <v-text-field prepend-inner-icon="mdi-card-account-details" density="compact" variant="outlined" hide-details label="RUC Proveedor" placeholder="ingrese su ruc" 
                             persistent-placeholder/>
                     </v-col>
-                    <v-col cols="12" md="4" sm="6">
+                    <v-col cols="12" md="4" sm="6" class="py-1">
                         <v-text-field prepend-inner-icon="mdi-account-cog" density="compact" variant="outlined" hide-details label="Empleado" placeholder="empleado de registro" 
                             persistent-placeholder/>
                     </v-col>
@@ -60,15 +65,28 @@
                     <v-divider/>
                 </v-card-subtitle>
                 <v-row>
-                    <v-col cols="12" md="4" sm="6">
+                    <v-col cols="12" md="4" sm="6" class="py-1">
                         <v-autocomplete prepend-inner-icon="mdi-tag" density="compact" variant="outlined" hide-details label="Categoría" placeholder="categoría del producto" 
                             persistent-placeholder/>
                     </v-col>
-                    <v-col cols="12" md="4" sm="6">
+                    <v-col cols="12" md="4" sm="6" class="py-1">
                         <v-autocomplete prepend-inner-icon="mdi-shopping" density="compact" variant="outlined" hide-details label="Productos" placeholder="productos a agregar" 
                             persistent-placeholder/>
                     </v-col>
-                    <v-col cols="12" md="4" sm="12" class="d-flex justify-end align-center py-0">
+                    <v-col cols="12" md="4" sm="6" class="py-1">
+                        <v-autocomplete prepend-inner-icon="mdi-file-outline" density="compact" variant="outlined" hide-details label="Fact. Proveedor" placeholder="factura del proveedor" 
+                            persistent-placeholder/>
+                    </v-col>
+                    <v-col cols="12" md="6" sm="6" class="d-flex justify-space-around align-center">
+                        <v-radio-group inline color="green" density="compact" hide-details label="Seleccione el tipo de anticipo">
+                            <v-radio v-for="(item, i) in data.radioBtn" :key="i" density="compact" :value="item.value">
+                                <template v-slot:label>
+                                    <span id="checkLabel">{{ item.label }}</span>
+                                </template>
+                            </v-radio>
+                        </v-radio-group>
+                    </v-col>
+                    <v-col cols="12" md="6" sm="6" class="d-flex justify-end align-center py-0">
                         <v-btn icon color="red-darken-4" size="small" variant="tonal">
                             <v-icon>mdi-plus</v-icon>
                             <v-tooltip activator="parent" location="bottom">Agregar Producto</v-tooltip>
@@ -99,9 +117,9 @@
                             <small class="mr-2">Sub Total: </small>
                             <strong>{{ formatedCurrency(data.factura.subTotal, data.fomates.nio) }}</strong>
                         </div>
-                        <div class="d-flex justify-end align-center">
-                            <small class="mr-2">Iva: </small>
-                            <strong>{{ formatedCurrency(data.factura.iva, data.fomates.nio) }}</strong>
+                        <div v-if="data.impt" class="d-flex justify-end align-center">
+                            <small class="mr-2">Imptos: </small>
+                            <strong>{{ formatedCurrency(data.factura.imp, data.fomates.nio) }}</strong>
                         </div>
                         <div class="d-flex justify-end align-center">
                             <small class="mr-2">TOTAL: </small>
@@ -113,7 +131,6 @@
                         </div>
                     </v-col>
                 </v-row>
-
             </v-card-text>
 
             <v-divider/>
@@ -154,21 +171,27 @@ export default {
                 {title: '', key: 'opc', align: 'center'},
                 {title: 'Código', key: 'codigo', align: 'center'},
                 {title: 'Producto', key: 'producto', align: 'center'},
+                {title: 'Bodega', key: 'bodega', align: 'center'},
                 {title: 'Cantidad', key: 'codigo', align: 'center'},
                 {title: 'Precio Unit.', key: 'precio', align: 'center'},
                 {title: 'Dscto. %.', key: 'dscto', align: 'center'},
                 {title: 'SubTotal', key: 'subtotal', align: 'center'},
             ],
             factura: {
-                numFactura: "001",
+                numOrden: "001",
                 emision: '01/01/2025',
                 subTotal: 0.00,
-                iva: 0.00,
+                imp: 0.00,
                 total: 0.00,
                 usdTotal: 0.00
             },
+            radioBtn: [
+                {label: 'Al recibir productos', value: 'recibir'},
+                {label: 'Inmediatamente', value: 'inmediato'},
+            ],
             nio: true,
             usd: false,
+            impt: false,
             fomates: {
                 nio: 'NIO', 
                 usd: 'USD'
