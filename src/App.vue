@@ -31,8 +31,8 @@
                 <template v-slot:activator="{ props }">
                     <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="red-darken-4" class="mx-2" title="Inventario"/>
                 </template>
-                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.managerStock" 
-                    :key="i" :value="title" @click="nameTab(title)">
+                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in data.managerStock" 
+                    :key="i" :value="title" @click="nameTab(route)">
                     <small>- {{ title }}</small>
                 </v-list-item>
             </v-list-group>
@@ -116,9 +116,9 @@ export default {
         ['Órdenes de compra', 'Ordenes']
       ],
       managerStock: [
-        ['Categorías  Productos'],
-        ['Productos'],
-        ['Movimientos']
+        ['Categorías  Productos', 'Categorias'],
+        ['Productos', 'Productos'],
+        ['Movimientos', 'Movimientos']
       ],
       clientes: [
         ['Categorías Clientes'],

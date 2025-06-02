@@ -21,12 +21,13 @@
                     <v-tooltip activator="parent" location="left">Agregar Proveedores</v-tooltip> 
                 </v-btn>
             </template>
-            <v-card-text class="px-0">
+            <v-divider />
+            <v-card-text class="py-2 px-0">
                 <v-row dense class="px-0" style="margin: 0;">
-                    <v-col cols="6" sm="6" md="3">
-                        <v-text-field density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
+                    <v-col cols="6" sm="6" md="6">
+                        <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
                     </v-col>
-                    <v-col cols="6" md="3" sm="6">
+                    <!-- <v-col cols="6" md="3" sm="6">
                         <v-text-field color="indigo-darken-4" variant="outlined" append-inner-icon="mdi-calendar" 
                             density="compact" label="Fecha Desde" v-model="dateDesde" readonly  @click="data.menuDesde = true" 
                             placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
@@ -41,8 +42,8 @@
                         <v-dialog v-model="data.menuHasta" width="auto">
                             <v-date-picker color="indigo-darken-4" v-model="dateHastaFormatted" />
                         </v-dialog>
-                    </v-col>
-                    <v-col cols="6" md="3" sm="6" class="d-flex justify-end align-center">
+                    </v-col> -->
+                    <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
                         <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
                             <v-icon>mdi-magnify</v-icon>
                         </v-btn>
@@ -58,7 +59,13 @@
                     <span class="mx-6 text-grey font-weight-bold">Proveedores</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :mobile="isMobile" class="border" :headers="data.headers" density="compact" :items="data.items">
+                <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" :headers="data.headers" density="compact" :items="data.items">
+                    <template v-slot:item.fechaRegistro="{ item }">
+                        <div>{{ formateDate(item.fechaRegistro) }}</div>
+                    </template>
+                    <template v-slot:item.tipoProveedor="{ item }">
+                        <div>{{ item.idTipoProveedorNavigation.nombre }}</div>
+                    </template>
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
@@ -78,13 +85,19 @@
                             </template>
                         </v-tooltip>
                     </template>
+                    <template v-slot:item.estado="{ item }">
+                        <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
+                    </template>
                 </v-data-table>
-                <v-card-subtitle class="d-flex align-center text-center mb-2">
+                <v-card-subtitle class="d-flex align-center text-center my-2">
                     <v-divider /> 
                     <span class="mx-6 text-grey font-weight-bold">Tipo de Proveedores</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :mobile="isMobile" class="border" :headers="data.headers" density="compact" :items="data.items">
+                <v-data-table :loading="data.loadingTipo" :search="data.search" :mobile="isMobile" class="border" :headers="data.headersTipoProv" density="compact" :items="data.itemsTipoProv">
+                    <template v-slot:item.fechaRegistro="{ item }">
+                        <div>{{ formateDate(item.fechaRegistro) }}</div>
+                    </template>
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
@@ -104,14 +117,18 @@
                             </template>
                         </v-tooltip>
                     </template>
+                    <template v-slot:item.estado="{ item }">
+                        <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
+                    </template>
                 </v-data-table>
             </v-card-text>
         </v-card>
 
         <NewProveedor :show="data.newProv.show" :editar="data.newProv.editar" :title="data.newProv.title" 
-            :orden="data.newProv.item" :ver="data.newProv.ver" @closeDialog="closeDialog"/>
+            :prov="data.newProv.item" :ver="data.newProv.ver" @closeDialog="closeDialog"/>
         <NewTipoProv :show="data.newTipoProv.show" :editar="data.newTipoProv.editar" :title="data.newTipoProv.title" 
-            :orden="data.newTipoProv.item" :ver="data.newTipoProv.ver" @closeDialog="closeDialogTipoProv"/>
+            :prov="data.newTipoProv.item" :ver="data.newTipoProv.ver" @closeDialog="closeDialogTipoProv"/>
+        
     </div>
 </template>
 
@@ -119,8 +136,15 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import NewProveedor from './dialogsCompras/NewProveedor.vue';
 import NewTipoProv from './dialogsCompras/NewTipoProv.vue';
+import RequestHttp from '@/services/requestHttp';
+import { formatters } from '@/helpers/formatters';
 
 export default {
+    mounted() {
+        this.getProveedores()
+        this.getTipoProveedores()
+    },
+
     components: {
         NewProveedor,
         NewTipoProv
@@ -151,24 +175,21 @@ export default {
         const data = reactive({
             headers: [
                 {title: '', key: 'opc', align: 'center'},
+                {title: 'Proveedor', key: 'nombre', align: 'center'},
                 {title: 'T. Proveedor', key: 'tipoProveedor', align: 'center'},
-                {title: 'Proveedor', key: 'proveedor', align: 'center'},
-                {title: 'RUC', key: 'ruc', align: 'center'},
+                {title: 'Departamento', key: 'departamento', align: 'center'},
                 {title: 'Teléfono', key: 'telefono', align: 'center'},
-                {title: 'Email', key: 'email', align: 'center'},
                 {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
             ],
-            items: [{
-                tipoProveedor: 'Principal',
-                proveedor: 'Proveedor Prueba',
-                telefono: '23055678',
-                ruc: 'J024428500024',
-                email: 'proveedor03@gmail.com',
-                fechaRegistro: '01/06/2025',
-                estado: true
-            }],
-            headersTipoProv: [],
+            items: [],
+            headersTipoProv: [
+                {title: '', key: 'opc', align: 'center'},
+                {title: 'Tipo Proveedor', key: 'nombre', align: 'center'},
+                {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
+                {title: 'Observaciones', key: 'observaciones', align: 'center'},
+                {title: 'Estado', key: 'estado', align: 'center'},
+            ],
             itemsTipoProv: [],
             newProv: {
                 show: false,
@@ -184,9 +205,12 @@ export default {
                 title: '',
                 item: {}
             },
-
+            search: null,
             menuDesde: false,
             menuHasta: false,
+            loading: false, 
+            loadingTipo: false,
+            requestHttp: new RequestHttp()
         })
 
         return {
@@ -200,6 +224,26 @@ export default {
     },
 
     methods: {
+        async getProveedores() {
+            this.data.items = []
+            this.data.loading = true
+            const result = await this.data.requestHttp.getProveedores()
+            this.data.loading = false
+            result.map(item => {
+                this.data.items.push(item)
+            })
+        },
+
+        async getTipoProveedores() {
+            this.data.itemsTipoProv = []
+            this.data.loadingTipo = true
+            const result = await this.data.requestHttp.getTipoProveedores()
+            this.data.loadingTipo = false
+            result.map(item => {
+                this.data.itemsTipoProv.push(item)
+            })
+        },
+
         openDialog(comp, type, item = null) {
             if (comp === 'prov') {
                 this.data.newProv.show = true
@@ -242,16 +286,27 @@ export default {
             }
         },
 
+        formateDate(dateString) {
+            const value = formatters.formatDate(dateString)
+            return value
+        },
+
         closeDialog(val) {
             this.data.newProv.show = val
             this.data.newProv.item = {}
             this.data.newProv.title = ''
+            this.data.newProv.editar = false
+            this.data.newProv.ver = false
+            this.getProveedores()
         },
 
         closeDialogTipoProv (val) {
             this.data.newTipoProv.show = val
             this.data.newTipoProv.item = {}
             this.data.newTipoProv.title = ''
+            this.data.newTipoProv.editar = false
+            this.data.newTipoProv.ver = false
+            this.getTipoProveedores()
         }
     }
 }

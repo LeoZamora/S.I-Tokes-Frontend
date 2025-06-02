@@ -21,7 +21,7 @@
       <v-divider />
 
       <v-row class="pa-2" dense>
-        <v-col cols="6" md="3" sm="3">
+        <!-- <v-col cols="6" md="3" sm="3">
             <v-text-field color="red-darken-4" variant="outlined" append-inner-icon="mdi-calendar" 
               density="compact" label="Fecha Creación" v-model="dateDesde" readonly  @click="data.menuDesde = true" 
               placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
@@ -36,12 +36,12 @@
             <v-dialog v-model="data.menuHasta" width="auto">
               <v-date-picker color="red-darken-4" v-model="dateHastaFormatted" />
             </v-dialog>
-        </v-col>
-        <v-col cols="12" md="3" sm="3">
+        </v-col> -->
+        <v-col cols="6" md="6" sm="6">
             <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
               hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
         </v-col>
-        <v-col cols="12" md="3" sm="3" class="d-flex justify-end align-center">
+        <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
             <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
@@ -53,7 +53,7 @@
     </v-card>
     <!-- Tabla de productos -->
     <v-card elevation="0" class="border" rounded="0">
-      <v-data-table :headers="data.headers" :items="data.products" :items-per-page="10" :search="search">
+      <v-data-table class="font" density="compact" :headers="data.headers" :items="data.products" :items-per-page="10" :search="search" :loading="data.loading">
         <template v-slot:item.precio="{ item }">
           {{ formatCurrency(item.precio) }}
         </template>
@@ -63,8 +63,8 @@
         </template>
         
         <template v-slot:item.estado="{ item }">
-          <v-chip :color="getStatusColor(item.estado)" small>
-            {{ item.estado }}
+          <v-chip :color="item.estado ? 'green' : 'error' " small>
+            {{ item.estado ? 'Activo' : 'Inactivo' }}
           </v-chip>
         </template>
         
@@ -77,7 +77,7 @@
           
           <v-tooltip text="Eliminar" location="top">
             <template v-slot:activator="{ props }">
-              <v-icon v-bind="props" size="small" color="error" class="mr-1" @click="confirmDelete(item)">mdi-delete</v-icon>
+              <v-icon v-bind="props" size="small" color="error" class="mr-1" @click="showAlert(item)">mdi-delete</v-icon>
             </template>
           </v-tooltip>
 
@@ -99,7 +99,7 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="pt-4">
-          <v-form class="w-100" ref="form" @submit.prevent="handleSave(data.form)">
+          <v-form class="w-100" ref="form">
             <v-row dense>
               <v-col cols="12" md="6" sm="6">
                 <v-text-field color="red-darken-4" v-model="data.form.codigo" label="Código" 
@@ -127,17 +127,11 @@
                   hide-details density="compact" step="0.01" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-select v-model="data.form.categoria" label="Categoría" :items="data.categorias" 
-                  :rules="[rules.required]"
-                  variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
+                <v-select v-model="data.form.idSubCatProd" label="Sub categoría" :items="data.subCategorias" 
+                  :rules="[rules.required]" variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-select v-model="data.form.idSubCatProd" label="Sub categoría" :items="data.categorias" 
-                  :rules="[rules.required]"
-                  variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
-              </v-col>
-              <v-col cols="12" md="6" sm="6">
-                <v-select  v-model="data.form.tipoProducto" label="Tipo Producto" :rules="[rules.required]" variant="outlined" 
+                <v-text-field v-model="data.form.tipoProducto" label="Tipo Producto" :rules="[rules.required]" variant="outlined" 
                   hide-details density="compact" prepend-inner-icon="mdi-tag" />
               </v-col>
               <v-col cols="6" md="6" sm="6">
@@ -150,12 +144,12 @@
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
-              <v-col cols="12" md="12" sm="12">
+              <v-col cols="12" md="6" sm="6">
                 <v-file-input density="compact" variant="outlined" label="Selecciona una imagen" accept="image/*" 
-                  @update:model-key="convertirImagen" prepend-inner-icon="mdi-image" />
+                  @update:model-value="convertirImagen" prepend-inner-icon="mdi-image" />
               </v-col>
               <v-col cols="12" md="12" sm="12">
-                <v-textarea v-model="data.form.observaciones" density="compact" variant="outlined" label="Observaciones" prepend-inner-icon="mdi-text" />
+                <v-textarea v-model="data.observaciones" density="compact" variant="outlined" label="Observaciones" prepend-inner-icon="mdi-text" />
               </v-col>
             </v-row>
           </v-form>
@@ -165,44 +159,34 @@
           <v-btn color="grey" variant="outlined" @click="closeDialog()">
             Cerrar
           </v-btn>
-          <v-btn class="bg-red-darken-4" type="submit" >
+          <v-btn class="bg-red-darken-4" @click="handleSave(data.form)">
             Guardar
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- Diálogo de confirmación para eliminar -->
-    <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded="xl">
-        <v-card-title class="text-h6 font-weight-bold d-flex justify-center align-center">
-          <v-icon color="red-darken-4">mdi-delete</v-icon>
-          <span>Confirmar Eliminación</span>
-        </v-card-title>
-        <v-divider class="mx-4"/>
-        <v-card-text class="text-center">
-          ¿Estás seguro de que deseas eliminar el producto "{{ productToDelete.nombre }}"?
-        </v-card-text>
-        <v-divider class="mx-4"/>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="grey" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" @click="deleteProduct">Eliminar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <DetallesProducto :show="data.showDialog" :proveedor="data.proveedor" :producto="data.productDialog" @cerrarDialog="closeDialogDet"/>
+    <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
   </div>
 </template>
 
 <script>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { utilsFunctions } from '@/helpers/utilFunctions'
 import DetallesProducto from './modalsProductos/DetallesProducto.vue'
+import RequestHttp from '@/services/requestHttp'
+import AlertComp from '@/components/widgets/AlertComp.vue'
 
 export default {
+  mounted() {
+    this.getCategorias()
+    this.getProductos()
+  },
+
   components: {
-    DetallesProducto
+    DetallesProducto,
+    AlertComp
   },
   
   setup() {
@@ -223,83 +207,51 @@ export default {
     const dateHasta = computed(() => {
       return dateHastaFormatted.value ? new Date(dateHastaFormatted.value).toLocaleDateString() : null;
     })
-
+    
     const dateDesde = computed(() => {
       return dateDesdeFormatted.value ? new Date(dateDesdeFormatted.value).toLocaleDateString() : null;
     })
 
     const data = reactive({
-      products: [{
-        id: 1,
-        codigo: 'PROD-001',
-        nombre: 'Mesa de mármol 10x20',
-        precio: 1250.99,
-        costo: 1250.99,
-        categoria: 'Mesas',
-        subCategoria: 'Mesas de noche',
-        tipo: 'Producto físico',
-        fechaRegistro: '2023-05-15',
-        usuarioRegistro: 'admin',
-        estado: 'Activo'
-      },
-      {
-        id: 2,
-        codigo: 'PROD-002',
-        nombre: 'Gabinetes de madera estilo cocina',
-        precio: 2500.50,
-        categoria: 'Gabinetes',
-        subCategoria: 'Gabinetes de cocina',
-        tipoProducto: 'Producto físico',
-        fechaRegistro: '2023-05-10',
-        usuarioRegistro: 'admin',
-        estado: 'Activo'
-      }],
+      products: [],
       headers: [
         { title: 'Acciones', key: 'actions', sortable: false, align: 'center' },
         { title: 'Código', key: 'codigo', align: 'center' },
-        { title: 'Und. Medida', key: 'idUnidadMedida' },
         { title: 'Nombre', key: 'nombre', align: 'center' },
         { title: 'Precio', key: 'precio', align: 'center' },
-        { title: 'Costo', key: 'Costo', align: 'center' },
-        { title: 'Categoría', key: 'categoria', align: 'center' },
-        { title: 'Sub categoría', key: 'idSubCatProd', align: 'center' },
-        { title: 'Tipo Producto', key: 'tipoProducto', align: 'center' },
+        { title: 'Costo', key: 'costo', align: 'center' },
+        { title: 'Stock', key: 'cantidadTotal', align: 'center' },
+        { title: 'Stock Min', key: 'cantidadMinima', align: 'center' },
+        { title: 'Sub categoría', key: 'categoria', align: 'center' },
         { title: 'Fecha Registro', key: 'fechaRegistro', align: 'center' },
         { title: 'Estado', key: 'estado', align: 'center' },
       ],
+      subCategorias: [],
       form: {
         codigo: null,
         nombre: null,
         precio: 0,
         costo: 0,
-        categoria: null,
         idSubCatProd: null,
-        idUnidadMedida: null,
+        idUnidadMedida: 1,
         tipoProducto: null,
         cantidadTotal: 0,
         cantidadMinima: 0,
-        usuarioRegistro: '',
         imagen: null,
-        observaciones: null,
-        usuarioRegistro: null
+        usuarioRegistro: 'admin'
       },
+      observaciones: null,
+      selectedProduct: null,
       proveedor: {
         nombre: 'Distribuidora Central S.A.',
         telefono: '+505 8888-8888',
         email: 'contacto@distribuidoracentral.com',
         direccion: 'Km 7 Carretera Masaya, Managua, Nicaragua'
       },
-      categorias: [
-        'Roperos', 'Mesas', 'Gabinetes de cocina', 'Otros'
-      ],
-      tipos: [
-        'Nuevo', 'Usado', 'Reacondicionado', 'Importado', 'Nacional'
-      ],
-      estadosProducto: [
-        'Activo', 'Inactivo', 'Descontinuado'
-      ],
+      loading: false,
       showDialog: false,
-      productDialog: null,
+      viewAlert: false,
+      requestHttp: new RequestHttp()
     })
     
     return { 
@@ -335,9 +287,42 @@ export default {
   },
   
   methods: {
+    async getCategorias() {
+      this.data.subCategorias = []
+      this.data.loading = true
+      const result = await this.data.requestHttp.getSubCategorias()
+      this.data.loading = false
+      if (result !== null) {
+        result.map(item => {
+          this.data.subCategorias.push({title: item.categoriaProducto, value: item.idSubCatProd})
+        })
+        
+      } else {
+        throw new Error('Error en la solicitud')
+      }
+    },    
+
+    async getProductos() {
+      this.data.products = []
+      this.data.loading = true
+      const result = await this.data.requestHttp.getProductos()
+      this.data.loading = false
+
+      if (result !== null) {
+        const promises = result.map(async (item) => {
+          const categoria = await this.data.requestHttp.getByIdSubCategorias(item.idSubCatProd)
+          return {...item, categoria: categoria.nombre}
+        })
+        this.data.products = await Promise.all(promises)
+      } else {
+        throw new Error('Error en la solicitud')
+      }
+    },
+
     openDialog(mode, product = null) {
       this.dialogMode = mode
       if (product) {
+        this.selectedProduct = product.idProducto
         this.data.form.codigo = product.codigo
         this.data.form.costo = product.costo
         this.data.form.categoria = product.categoria
@@ -369,37 +354,72 @@ export default {
       this.data.form = {}
     },
     
-    handleSave(productData) {
+    async handleSave(productData) {
+      this.data.form.costo = Number(this.data.form.costo)
+      this.data.form.precio = Number(this.data.form.precio)
+      this.data.form.cantidadMinima = Number(this.data.form.cantidadMinima)
+      this.data.form.cantidadTotal = Number(this.data.form.cantidadTotal)
+      const valid = utilsFunctions.objectValidate(productData)
+      this.data.form.imagen = null
+
       if (this.dialogMode === 'create') {
-        // Agregar nuevo producto con ID único
-        const newProduct = {
-          ...productData,
-          id: Math.max(...this.data.products.map(p => p.id), 0) + 1,
-          usuarioRegistro: 'current_user', // Aquí deberías usar el usuario real
-          fechaRegistro: new Date().toISOString().split('T')[0]
+        if (!valid) {
+          alert('Complete toda la informacion')
+          return
         }
-        this.data.products.push(newProduct)
+
+        try {
+          const result = await this.data.requestHttp.postProducto(productData)
+          if (result !== null) {
+            alert('Registro Guardado')
+            this.getProductos()
+          } else {
+            alert('Error al guardar el producto')
+          }
+        } catch (error) {
+          throw new Error('Error en la solicitud', error)
+        }
+
       } else {
-        // Actualizar producto existente
-        const index = this.data.products.findIndex(p => p.id === productData.id)
-        if (index !== -1) {
-          this.data.products.splice(index, 1, productData)
+        if (!valid) {
+          alert('Complete toda la informacion')
+          return
+        }
+        try {
+          const result = await this.data.requestHttp.putProductos(productData, this.selectedProduct)
+          if (result !== null) {
+            alert('Registro Editado')
+            this.getProductos()
+          } else {
+            alert('Error al guardar el producto')
+          }
+        } catch (error) {
+          throw new Error('Error en la solicitud', error)
         }
       }
       this.closeDialog()
     },
     
-    confirmDelete(product) {
-      this.productToDelete = product
-      this.deleteDialog = true
-    },
-    
-    deleteProduct() {
-      let i = this.data.products.indexOf(this.productToDelete);
-      if (i !== -1) {
-        this.data.products.splice(i, 1); // Corrige el uso de `splice`
+    deleteAction(val) {
+      if (val === true) {
+        this.deleteItem()
       }
-      this.deleteDialog = false
+      this.data.viewAlert = false
+    },
+
+    showAlert(item){
+      this.data.viewAlert = true
+      this.data.selectedProduct = item.idProducto
+    },
+
+    async deleteItem() {
+        const result = await this.data.requestHttp.deleteProducto(this.data.selectedProduct)
+        if (result !== null) {
+          alert('Producto Eliminado')
+          this.getProductos()
+        } else {
+          alert('No se pudo eliminar el registro')
+        }
     },
     
     formatCurrency(key) {
@@ -437,6 +457,7 @@ export default {
       lector.onload = () => {
         this.data.form.imagen = lector.result;
       };
+
       lector.readAsDataURL(file);
     }
   }
@@ -447,5 +468,9 @@ export default {
 
 .v-card-title {
   border-radius: 4px 4px 0 0;
+}
+
+.font{
+  font-size: 12px !important;
 }
 </style>
