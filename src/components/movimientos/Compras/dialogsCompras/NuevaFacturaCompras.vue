@@ -2,7 +2,7 @@
     <v-dialog v-model="localShow" max-width="850" persistent>
         <v-card id="diag-fact">
             <v-card-title class="bg-red-darken-4 d-flex align-center">
-                <h5><v-icon>mdi-file-document-outline</v-icon>NUEVA ÓRDEN</h5>
+                <h5><v-icon>mdi-file-document-outline</v-icon>{{ localTitle }}</h5>
                 <v-spacer />
                 <v-btn icon size="small" color="white" variant="tonal" @click="closeDialog()">
                     <v-icon>mdi-close</v-icon>
@@ -12,17 +12,17 @@
             <v-divider />
             <v-card-text id="body-card" class="">
                 <v-row class="pb-0">
-                    <v-col cols="6" md="3" sm="3" class="d-flex justify-start align-center pb-0">
+                    <v-col cols="6" md="4" sm="4" class="d-flex justify-start align-center pb-0">
                         <small class="mr-2">Nº Órden: </small>
                         <strong>{{ data.factura.numOrden }}</strong>
                     </v-col>
-                    <v-col cols="6" md="3" sm="3" class="d-flex justify-start align-center pb-0">
+                    <v-col cols="6" md="4" sm="4" class="d-flex justify-start align-center pb-0">
                         <div class="d-flex justify-end align-center">
                             <small class="mr-2">Emision: </small>
-                            <small><strong>{{ data.factura.emision }}</strong></small>
+                            <small><strong>{{ localEdit ? '' : formatedDate(data.nowDate) }}</strong></small>
                         </div>
                     </v-col>
-                    <v-col cols="12" md="6" sm="6" class="d-flex justify-space-around align-center pb-0">
+                    <v-col cols="12" md="4" sm="4" class="d-flex justify-space-around align-center pb-0">
                         <div class="d-flex align-center">
                             <v-checkbox v-model="data.nio" color="indigo" density="compact" class="label" hide-details>
                                 <template v-slot:label>
@@ -78,7 +78,7 @@
                             persistent-placeholder/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="d-flex justify-space-around align-center">
-                        <v-radio-group inline color="green" density="compact" hide-details label="Seleccione el tipo de anticipo">
+                        <v-radio-group inline color="green" density="compact" hide-details label="Seleccione una opción">
                             <v-radio v-for="(item, i) in data.radioBtn" :key="i" density="compact" :value="item.value">
                                 <template v-slot:label>
                                     <span id="checkLabel">{{ item.label }}</span>
@@ -132,7 +132,6 @@
                     </v-col>
                 </v-row>
             </v-card-text>
-
             <v-divider/>
             <v-card-actions>
                 <v-btn color="grey" variant="outlined" @click="closeDialog()">
@@ -156,15 +155,39 @@ export default {
             type: Boolean,
             required: true,
             default: true
+        },
+        editar: {
+            type: Boolean,
+            required: false
+        },
+        orden: {
+            type: Object,
+            required: false
+        },
+        title: {
+            type: String,
+            required: true
         }
     },
 
     setup(props) {
         const localShow = ref(props.show)
-
+        const localEdit = ref(props.editar)
+        const localOrden = ref(props.orden)
+        const localTitle = ref(props.orden)
         watch(() => props.show, (newValue) => {
             localShow.value = newValue
         })
+        watch(() => props.editar, (val) => {
+            localEdit.value = val
+        })
+        watch(() => props.orden, (val) => {
+            localOrden.value = val
+        })
+        watch(() => props.title, (val) => {
+            localTitle.value = val
+        })
+
 
         const data = reactive({
             headers: [
@@ -192,6 +215,7 @@ export default {
             nio: true,
             usd: false,
             impt: false,
+            nowDate: new Date(),
             fomates: {
                 nio: 'NIO', 
                 usd: 'USD'
@@ -200,6 +224,9 @@ export default {
 
         return {
             localShow,
+            localEdit,
+            localTitle,
+            localOrden,
             data
         }
     },
@@ -207,6 +234,11 @@ export default {
     methods: {
         formatedCurrency(key, currency) {
             const value = formatters.formatCurrency(key, currency)
+            return value
+        },
+
+        formatedDate(dataString) {
+            const value = formatters.formatDate(dataString)
             return value
         },
 

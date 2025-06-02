@@ -21,16 +21,32 @@
       <v-divider />
 
       <v-row class="pa-2" dense>
-        <v-col cols="6" md="6" sm="6">
-          <v-text-field color="red-darken-4" density="compact" variant="outlined" v-model="search" append-inner-icon="mdi-magnify" label="Buscar productos"
-            hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
+        <v-col cols="6" md="3" sm="3">
+            <v-text-field color="red-darken-4" variant="outlined" append-inner-icon="mdi-calendar" 
+              density="compact" label="Fecha Creación" v-model="dateDesde" readonly  @click="data.menuDesde = true" 
+              placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
+            <v-dialog v-model="data.menuDesde" width="auto">
+              <v-date-picker color="red-darken-4" v-model="dateDesdeFormatted" />
+            </v-dialog>
         </v-col>
-        <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
+        <v-col cols="6" md="3" sm="3">
+            <v-text-field color="red-darken-4" variant="outlined" append-inner-icon="mdi-calendar" density="compact" 
+              label="Fecha Vencimiento" v-model="dateHasta" readonly  @click="data.menuHasta = true" 
+              placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
+            <v-dialog v-model="data.menuHasta" width="auto">
+              <v-date-picker color="red-darken-4" v-model="dateHastaFormatted" />
+            </v-dialog>
+        </v-col>
+        <v-col cols="12" md="3" sm="3">
+            <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
+              hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
+        </v-col>
+        <v-col cols="12" md="3" sm="3" class="d-flex justify-end align-center">
             <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
-                <v-icon>mdi-magnify</v-icon>
+              <v-icon>mdi-magnify</v-icon>
             </v-btn>
             <v-btn icon color="grey" size="small" variant="text" class="border">
-                <v-icon>mdi-broom</v-icon>
+              <v-icon>mdi-broom</v-icon>
             </v-btn>
         </v-col>
       </v-row>
@@ -76,7 +92,7 @@
 
     <!-- Diálogo para agregar/editar -->
     <v-dialog v-model="dialog" max-width="600" persistent>
-      <v-card class="w-100 rounded-lg mb-6" elevation="0">
+      <v-card class="w-100 mb-6" elevation="0">
         <v-card-title class="text-h5 text-center pa-1 font-weight-bold bg-red-darken-4">
           <v-icon>mdi-package-variant</v-icon>
           Inventario - Registro de Productos
@@ -84,55 +100,75 @@
         <v-divider></v-divider>
         <v-card-text class="pt-4">
           <v-form class="w-100" ref="form" @submit.prevent="handleSave(data.form)">
-            <v-row>
+            <v-row dense>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="red-darken-4" v-model="data.form.codigo" label="Código" :rules="[rules.required]" variant="outlined" 
+                <v-text-field color="red-darken-4" v-model="data.form.codigo" label="Código" 
+                  :rules="[rules.required]" variant="outlined" 
                   hide-details density="compact" clearable prepend-inner-icon="mdi-barcode"/>
               </v-col>
-
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="red-darken-4" v-model="data.form.nombre" label="Nombre" :rules="[rules.required, rules.minLength(3)]"  variant="outlined" 
+                <v-text-field color="red-darken-4" v-model="data.form.nombre" label="Nombre" 
+                  :rules="[rules.required, rules.minLength(3)]"  variant="outlined" 
                   hide-details density="compact" clearable prepend-inner-icon="mdi-text-box" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="red-darken-4" v-model="data.form.precio" label="Precio" :rules="[rules.required, rules.numeric]" variant="outlined" 
-                  hide-details density="compact" prefix="$" type="number" step="0.01" prepend-inner-icon="mdi-currency-usd" />
+                <v-text-field color="red-darken-4" v-model="data.form.precio" label="Precio" 
+                  :rules="[rules.required, rules.numeric]" variant="outlined" 
+                  hide-details density="compact" type="number" step="0.01" prepend-inner-icon="mdi-currency-usd" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-select v-model="data.form.categoria" label="Categoría" :items="data.categorias" :rules="[rules.required]"
+                <v-text-field color="red-darken-4" v-model="data.form.costo" label="Costo" 
+                  :rules="[rules.required, rules.numeric]" variant="outlined" 
+                  hide-details density="compact" type="number" step="0.01" prepend-inner-icon="mdi-cash" />
+              </v-col>
+              <v-col cols="12" md="6" sm="6">
+                <v-autocomplete color="red-darken-4" label="Und. Medidad" v-model="data.form.idUnidadMedida"
+                  :rules="[rules.required, rules.numeric]" variant="outlined" 
+                  hide-details density="compact" step="0.01" />
+              </v-col>
+              <v-col cols="12" md="6" sm="6">
+                <v-select v-model="data.form.categoria" label="Categoría" :items="data.categorias" 
+                  :rules="[rules.required]"
                   variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-select v-model="data.form.subcategoria" label="Sub categoría" :items="data.categorias" :rules="[rules.required]"
+                <v-select v-model="data.form.idSubCatProd" label="Sub categoría" :items="data.categorias" 
+                  :rules="[rules.required]"
                   variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-select  v-model="data.form.tipo" label="Tipo" :items="data.tipos" :rules="[rules.required]" variant="outlined" 
+                <v-select  v-model="data.form.tipoProducto" label="Tipo Producto" :rules="[rules.required]" variant="outlined" 
                   hide-details density="compact" prepend-inner-icon="mdi-tag" />
               </v-col>
               <v-col cols="6" md="6" sm="6">
-                <v-text-field color="red-darken-4" v-model="data.form.stock" label="Stock" :rules="[rules.required, rules.numeric]" variant="outlined" 
+                <v-text-field color="red-darken-4" v-model="data.form.cantidadTotal" label="Stock" 
+                  :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
               <v-col cols="6" md="6" sm="6">
-                <v-text-field color="red-darken-4" v-model="data.form.stockMin" label="Stock Mínimo" :rules="[rules.required, rules.numeric]" variant="outlined" 
+                <v-text-field color="red-darken-4" v-model="data.form.cantidadMinima" label="Stock Mínimo" 
+                  :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
-              <v-col cols="12" md="12">
-                <v-file-input density="compact" variant="outlined" label="Selecciona una imagen" accept="image/*" @update:model-key="convertirImagen" prepend-inner-icon="mdi-image" />
+              <v-col cols="12" md="12" sm="12">
+                <v-file-input density="compact" variant="outlined" label="Selecciona una imagen" accept="image/*" 
+                  @update:model-key="convertirImagen" prepend-inner-icon="mdi-image" />
               </v-col>
-              <v-divider></v-divider>
-              <v-col cols="12" class="d-flex justify-end pt-6">
-                <v-btn color="grey" variant="outlined" class="mr-4" @click="closeDialog()">
-                  Cerrar
-                </v-btn>
-                <v-btn color="red-darken-4" type="submit" >
-                  Guardar
-                </v-btn>
+              <v-col cols="12" md="12" sm="12">
+                <v-textarea v-model="data.form.observaciones" density="compact" variant="outlined" label="Observaciones" prepend-inner-icon="mdi-text" />
               </v-col>
             </v-row>
           </v-form>
         </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-btn color="grey" variant="outlined" @click="closeDialog()">
+            Cerrar
+          </v-btn>
+          <v-btn class="bg-red-darken-4" type="submit" >
+            Guardar
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -162,7 +198,7 @@
 
 <script>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import DetallesProducto from './DetallesProducto.vue'
+import DetallesProducto from './modalsProductos/DetallesProducto.vue'
 
 export default {
   components: {
@@ -175,13 +211,21 @@ export default {
     const updateScreen = () => {
       screenWidth.key = window.innerWidth
     }
-
     onMounted(() => {
       window.addEventListener('resize', updateScreen)
     })
-
     onUnmounted(() => {
       window.addEventListener('resize', updateScreen)
+    })
+
+    const dateHastaFormatted = ref(null)
+    const dateDesdeFormatted = ref(null)
+    const dateHasta = computed(() => {
+      return dateHastaFormatted.value ? new Date(dateHastaFormatted.value).toLocaleDateString() : null;
+    })
+
+    const dateDesde = computed(() => {
+      return dateDesdeFormatted.value ? new Date(dateDesdeFormatted.value).toLocaleDateString() : null;
     })
 
     const data = reactive({
@@ -190,11 +234,10 @@ export default {
         codigo: 'PROD-001',
         nombre: 'Mesa de mármol 10x20',
         precio: 1250.99,
+        costo: 1250.99,
         categoria: 'Mesas',
         subCategoria: 'Mesas de noche',
         tipo: 'Producto físico',
-        stock: 2,
-        stockMin: 2,
         fechaRegistro: '2023-05-15',
         usuarioRegistro: 'admin',
         estado: 'Activo'
@@ -206,9 +249,7 @@ export default {
         precio: 2500.50,
         categoria: 'Gabinetes',
         subCategoria: 'Gabinetes de cocina',
-        tipo: 'Producto físico',
-        stock: 3,
-        stockMin: 2,
+        tipoProducto: 'Producto físico',
         fechaRegistro: '2023-05-10',
         usuarioRegistro: 'admin',
         estado: 'Activo'
@@ -216,30 +257,31 @@ export default {
       headers: [
         { title: 'Acciones', key: 'actions', sortable: false, align: 'center' },
         { title: 'Código', key: 'codigo', align: 'center' },
-        { title: 'Nombre', key: 'nombre' },
+        { title: 'Und. Medida', key: 'idUnidadMedida' },
+        { title: 'Nombre', key: 'nombre', align: 'center' },
         { title: 'Precio', key: 'precio', align: 'center' },
+        { title: 'Costo', key: 'Costo', align: 'center' },
         { title: 'Categoría', key: 'categoria', align: 'center' },
-        { title: 'Sub categoría', key: 'subCategoria', align: 'center' },
-        { title: 'Tipo', key: 'tipo' },
-        { title: 'Stock', key: 'stock', align: 'center', width: 1 },
-        { title: 'Stock Min', key: 'stockMin', align: 'center', width: 1  },
+        { title: 'Sub categoría', key: 'idSubCatProd', align: 'center' },
+        { title: 'Tipo Producto', key: 'tipoProducto', align: 'center' },
         { title: 'Fecha Registro', key: 'fechaRegistro', align: 'center' },
         { title: 'Estado', key: 'estado', align: 'center' },
       ],
       form: {
-        id: 1,
-        codigo: '',
-        nombre: '',
+        codigo: null,
+        nombre: null,
         precio: 0,
-        categoria: '',
-        subcategoria: '',
-        tipo: '',
-        stock: 0,
-        stockMin: 0,
-        fechaRegistro: '',
+        costo: 0,
+        categoria: null,
+        idSubCatProd: null,
+        idUnidadMedida: null,
+        tipoProducto: null,
+        cantidadTotal: 0,
+        cantidadMinima: 0,
         usuarioRegistro: '',
-        estado: 'Activo',
-        imgBase64: null
+        imagen: null,
+        observaciones: null,
+        usuarioRegistro: null
       },
       proveedor: {
         nombre: 'Distribuidora Central S.A.',
@@ -262,7 +304,11 @@ export default {
     
     return { 
       data,
-      isMobile
+      isMobile,
+      dateDesde,
+      dateDesdeFormatted,
+      dateHasta,
+      dateHastaFormatted
     }
   },
   
@@ -293,17 +339,17 @@ export default {
       this.dialogMode = mode
       if (product) {
         this.data.form.codigo = product.codigo
+        this.data.form.costo = product.costo
         this.data.form.categoria = product.categoria
         this.data.form.nombre = product.nombre
         this.data.form.precio = product.precio
         this.data.form.categoria = product.categoria
-        this.data.form.subcategoria = product.subcategoria
-        this.data.form.tipo = product.tipo
-        this.data.form.stock = product.stock
-        this.data.form.stockMin = product.stockMin
-        this.data.form.fechaRegistro = product.fechaRegistro,
+        this.data.form.idSubCatProd = product.idSubCatProd
+        this.data.form.tipoProducto = product.tipoProducto
+        this.data.form.cantidadTotal = product.cantidadTotal
+        this.data.form.cantidadMinima = product.cantidadMinima
         this.data.form.usuarioRegistro = product.usuarioRegistro
-        this.data.form.estado = product.estado 
+        this.data.form.imagen = product.imagen
       }
       this.dialog = true
     },
@@ -384,13 +430,12 @@ export default {
 
     convertirImagen(archivo) {
       if (!archivo) return;
-
       // Si es múltiple, toma el primero
       const file = Array.isArray(archivo) ? archivo[0] : archivo;
 
       const lector = new FileReader();
       lector.onload = () => {
-        this.data.form.imgBase64 = lector.result;
+        this.data.form.imagen = lector.result;
       };
       lector.readAsDataURL(file);
     }

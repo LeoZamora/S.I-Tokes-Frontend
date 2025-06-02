@@ -40,6 +40,15 @@ const routes = createRouter({
             requiredAuth: true,
             title: 'Compras | T O K E S'
         }
+    }, {
+        path: '/proveedores',
+        name: 'Proveedores',
+        component: () => import('@/components/movimientos/Compras/ProveedoresComp.vue'),
+        meta: {
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'Proveedores | T O K E S'
+        }
     }],
 
     scrollBehavior(to, from, savePosition) {

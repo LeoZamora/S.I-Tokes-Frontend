@@ -112,8 +112,7 @@ export default {
         ['Cuentas por Cobrar', 'CPC'],
       ],
       compraActions: [
-        ['Tipos de proveedor'],
-        ['Proveedores'],
+        ['Proveedores', 'Proveedores'],
         ['Órdenes de compra', 'Ordenes']
       ],
       managerStock: [

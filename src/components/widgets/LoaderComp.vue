@@ -12,7 +12,7 @@
     </div>
 </template>
   
-  <script>
+<script>
 import { reactive } from 'vue';
 
   export default {
