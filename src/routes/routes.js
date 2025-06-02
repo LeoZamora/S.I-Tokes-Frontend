@@ -49,6 +49,15 @@ const routes = createRouter({
             requiredAuth: true,
             title: 'Proveedores | T O K E S'
         }
+    }, {
+        path: '/categorias',
+        name: 'Categorias',
+        component: () => import('@/components/inventario/Categorias/CategoriasProductos.vue'),
+        meta: {
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'Categorías | T O K E S'
+        }
     }],
 
     scrollBehavior(to, from, savePosition) {
