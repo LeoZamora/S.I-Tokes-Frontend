@@ -19,27 +19,11 @@
             </template>
             <v-divider /> 
             <v-row class="pa-2" dense>
-                <v-col cols="6" md="3" sm="3">
-                    <v-text-field color="indigo-darken-4" variant="outlined" append-inner-icon="mdi-calendar" 
-                        density="compact" label="Fecha Desde" v-model="dateDesde" readonly  @click="data.menuDesde = true" 
-                        placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-                    <v-dialog v-model="data.menuDesde" width="auto">
-                        <v-date-picker color="indigo-darken-4" v-model="dateDesdeFormatted" />
-                    </v-dialog>
-                </v-col>
-                <v-col cols="6" md="3" sm="3">
-                    <v-text-field color="indigo-darken-4" variant="outlined" append-inner-icon="mdi-calendar" density="compact" 
-                        label="Fecha Hasta" v-model="dateHasta" readonly  @click="data.menuHasta = true" 
-                            placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-                    <v-dialog v-model="data.menuHasta" width="auto">
-                        <v-date-picker color="indigo-darken-4" v-model="dateHastaFormatted" />
-                    </v-dialog>
-                </v-col>
-                <v-col cols="12" md="3" sm="3">
+                <v-col cols="6" md="6" sm="6">
                     <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
                         hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
                 </v-col>
-                <v-col cols="12" md="3" sm="3" class="d-flex justify-end align-center">
+                <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
                     <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
                         <v-icon>mdi-magnify</v-icon>
                     </v-btn>

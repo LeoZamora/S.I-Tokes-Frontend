@@ -65,6 +65,7 @@
 
 <script>
 import { formatters } from '@/helpers/formatters';
+import { utilsFunctions } from '@/helpers/utilFunctions';
 import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
 
@@ -148,7 +149,7 @@ export default {
                 departamento: null,
                 municipio: null,
                 direccion: null,
-                usuarioRegistro: 'admin'
+                usuarioRegistro: 1
             },
             idProv: localProv.value.idProveedor,
             tipoProveedor: [],
@@ -167,26 +168,35 @@ export default {
 
     methods: {
         async handleSave() {
+            const valid = utilsFunctions.objectValidate(this.data.dataProveedor)
             if (!this.localEdit) {
-                console.log(this.data.dataProveedor);
-                
-                const result = await this.data.requestHttp.postProveedor(this.data.dataProveedor)
-    
-                if (result !== null) {
-                    alert('Registro Guardado')
-                    this.$emit('closeDialog', false)
-                    this.localEdit = false
+                if (valid) {                    
+                    const result = await this.data.requestHttp.postProveedor(this.data.dataProveedor)
+        
+                    if (result !== null) {
+                        alert('Registro Guardado')
+                        this.$emit('closeDialog', false)
+                        this.localEdit = false
+                    } else {
+                        alert('No se pudo guardar el registro')
+                    }
                 } else {
-                    alert('No se pudo guardar el registro')
+                    alert('Complete toda la información')
+                    return
                 }
             } else {
-                const result = await this.data.requestHttp.putCategorias(this.data.dataProveedor, this.data.idProv)
-                if (result !== null) {
-                    alert('Registro Editado')
-                    this.$emit('closeDialog', false)
-                    this.localEdit = false
+                if (valid && this.data.idProv) {
+                    const result = await this.data.requestHttp.putCategorias(this.data.dataProveedor, this.data.idProv)
+                    if (result !== null) {
+                        alert('Registro Editado')
+                        this.$emit('closeDialog', false)
+                        this.localEdit = false
+                    } else {
+                        alert('No se pudo editar el registro')
+                    }
                 } else {
-                    alert('No se pudo editar el registro')
+                    alert('Complete toda la información')
+                    return
                 }
             }
         },

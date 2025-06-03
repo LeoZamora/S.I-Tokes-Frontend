@@ -39,7 +39,7 @@
                 <v-btn color="grey" variant="outlined" @click="closeDialog()">
                     Cancelar
                 </v-btn>
-                <v-btn class="bg-red-darken-4">
+                <v-btn class="bg-red-darken-4" @click="handleSave()">
                     Guardar
                 </v-btn>
             </v-card-actions>
@@ -49,6 +49,7 @@
 
 <script>
 import { formatters } from '@/helpers/formatters';
+import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
 
 export default {
@@ -88,6 +89,11 @@ export default {
         })
         watch(() => props.editar, (val) => {
             localEdit.value = val
+            if (val === true) {
+                data.dataProveedor.nombre = localProv.value.nombre
+                data.dataProveedor.observaciones = localProv.value.observaciones
+                data.idTipoProv = localProv.value.idTipoProveedor
+            }
         })
         watch(() => props.prov, (val) => {
             localProv.value = val
@@ -97,6 +103,10 @@ export default {
         })
         watch(() => props.ver, (val) => {
             localView.value = val
+            if (val === true) {
+                data.dataProveedor.nombre = localProv.value.nombre
+                data.dataProveedor.observaciones = localProv.value.observaciones
+            }
         })
 
         const data = reactive({
@@ -104,8 +114,10 @@ export default {
             dataProveedor: {
                 nombre: null,
                 observaciones: null,
-                usuarioRegistro: null
-            }
+                usuarioRegistro: 'admin'
+            },
+            idTipoProv: null,
+            requestHttp: new RequestHttp()
         })
 
         return {
@@ -119,6 +131,37 @@ export default {
     },
 
     methods: {
+        async handleSave() {
+            if (!this.data.dataProveedor.nombre) {
+                alert('Complete la informacion')
+                return
+            }
+            if (!this.localEdit) {
+                const result = await this.data.requestHttp.postTipoProveedor(this.data.dataProveedor)
+    
+                if (result !== null) {
+                    alert('Registro Guardado')
+                    this.$emit('closeDialog', false)
+                    this.localEdit = false
+                } else {
+                    alert('No se pudo guardar el registro')
+                }
+            } else {
+                if (!this.data.idTipoProv) {
+                    alert('Elija una categoria')
+                    return
+                }
+                const result = await this.data.requestHttp.putTipoProveedor(this.data.dataProveedor, this.data.idTipoProv)
+                if (result !== null) {
+                    alert('Registro Editado')
+                    this.$emit('closeDialog', false)
+                    this.localEdit = false
+                } else {
+                    alert('No se pudo editar el registro')
+                }
+            }
+        },
+
         formatedDate(dataString) {
             const value = formatters.formatDate(dataString)
             return value

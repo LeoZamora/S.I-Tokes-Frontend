@@ -11,33 +11,26 @@
             </v-card-title>
             <v-divider />
             <v-card-text id="body-card" >
-                <v-card-subtitle class="d-flex align-center text-center mb-4">
+                <v-card-subtitle class="d-flex align-center mb-2">
                     <small class="font-weight-bold">GENERALES</small>
-                    <v-divider/>
+                    <v-spacer />
+                    <v-chip size="small" :color="data.orden.estado ? 'green' : 'errror'" :text="data.orden.estado ? 'Activa' : 'Inactiva'" />
                 </v-card-subtitle>
                 <v-row>
                     <v-col cols="12" md="12" sm="12">
                         <div class="d-flex justify-space-between align-center mb-1">
                             <small class="text-grey"> Nº orden:</small>
-                            <small><strong>{{ data.orden.numorden }}</strong></small>
+                            <small><strong>{{ data.orden.noOrden }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey"><strong>C$</strong> Córdobas:</small>
-                            <small><strong>{{ data.nio ? 'Si' : 'No' }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Dólares:</small>
-                            <small><strong>{{ data.usd ? 'Si' : 'No' }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Imptos:</small>
-                            <small><strong>{{ data.usd ? 'Si' : 'No' }}</strong></small>
+                            <small class="text-grey">Aprobada:</small>
+                            <small><strong>{{ data.orden.aprobada ? 'SI' : 'NO' }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
                             <small class="text-grey">Fecha Registro:</small>
                             <small><strong>{{ formateDate(data.orden.fechaRegistro) }}</strong></small>
                         </div>
-                        <v-card-subtitle class="d-flex align-center text-center my-4">
+                        <v-card-subtitle class="d-flex align-center text-center my-2">
                             <v-divider/>
                         </v-card-subtitle>
                         <div class="d-flex justify-space-between align-center mb-1">
@@ -45,16 +38,8 @@
                             <small><strong>{{ data.orden.proveedor }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Ruc Prov:</small>
-                            <small><strong>{{ data.orden.rucProveedor }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Factura Prov:</small>
-                            <small><strong>{{ data.orden.facturaProv }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
                             <small class="text-grey">Emp. Registro:</small>
-                            <small><strong>{{ data.orden.empleado }}</strong></small>
+                            <small><strong>{{ data.orden.usuarioRegistro }}</strong></small>
                         </div>
                     </v-col>
                 </v-row>
@@ -64,43 +49,31 @@
                 </v-card-subtitle>
                 <v-row>
                     <v-col cols="12" sm="12" md="12">
-                        <v-data-table class="border rounded font" density="compact" :headers="data.headers">
-                            <template v-slot:item.opc>
-                                <v-tooltip text="Eliminar" location="top">
-                                    <template v-slot:activator="{ props }">
-                                        <v-icon v-bind="props" color="error" class="mr-1">mdi-delete</v-icon>
-                                    </template>
-                                </v-tooltip>
+                        <v-data-table hide-default-footer class="border rounded font" density="compact" :headers="data.headers" :items="data.items">
+                            <template v-slot:item.costoUnitario="{ item }">
+                                <div>{{ formatedCurrency(item.costoUnitario, data.fomates.nio) }}</div>
                             </template>
-                            <template v-slot:item.precio="{ item }">
-                                <div>{{ formatedCurrency(item.precio) }}</div>
+                            <template v-slot:item.subTotal="{ item }">
+                                <div>{{ formatedCurrency(item.subTotal, data.fomates.nio) }}</div>
                             </template>
                         </v-data-table>
                     </v-col>
                     <v-col cols="12" md="6" sm="6">
-                        <v-textarea density="compact" variant="outlined" hide-details label="Observaciones" placeholder="ingrese algunos detalles de la orden" 
-                            persistent-placeholder rows="3"/>                        
+                        <v-textarea v-model="data.orden.observaciones" density="compact" variant="outlined" hide-details label="Observaciones" placeholder="ingrese algunos detalles de la orden" 
+                            persistent-placeholder rows="2" readonly/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="d-flex flex-column justify-end align-end">
                         <div class="d-flex justify-end align-center">
                             <small class="mr-2">Sub Total: </small>
-                            <strong>{{ formatedCurrency(data.orden.subTotal, data.fomates.nio) }}</strong>
+                            <strong>{{ formatedCurrency(data.factura.subTotal, data.fomates.nio) }}</strong>
                         </div>
                         <div class="d-flex justify-end align-center">
-                            <small class="mr-2">Iva: </small>
-                            <strong>{{ formatedCurrency(data.orden.iva, data.fomates.nio) }}</strong>
+                            <small class="mr-2">Total: </small>
+                            <strong>{{ formatedCurrency(data.factura.total, data.fomates.nio) }}</strong>
                         </div>
                         <div class="d-flex justify-end align-center">
-                            <small class="mr-2">Imptos: </small>
-                            <strong>{{ formatedCurrency(data.orden.imp, data.fomates.nio) }}</strong>
-                        </div>
-                        <div class="d-flex justify-end align-center">
-                            <small class="mr-2">TOTAL: </small>
-                            <strong>{{ formatedCurrency(data.orden.total, data.fomates.nio) }}</strong>
-                        </div>
-                        <div v-if="data.usd" class="d-flex justify-end align-center">
-                            <small class="mr-2">TOTAL $: </small>
-                            <strong>{{ formatedCurrency(data.orden.usdTotal, data.fomates.usd) }}</strong>
+                            <small class="mr-2">Total $: </small>
+                            <strong>{{ formatedCurrency(data.factura.usdTotal, data.fomates.usd) }}</strong>
                         </div>
                     </v-col>
                 </v-row>
@@ -119,6 +92,7 @@
 
 <script>
 import { formatters } from '@/helpers/formatters';
+import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
 
 export default {
@@ -136,43 +110,89 @@ export default {
     setup(props) {
         const localShow = ref(props.show)
         const localOrden = ref(props.orden)
-        watch(() => props.show, (newValue) => {
+        
+        watch(() => props.show, async (newValue) => {
             localShow.value = newValue
+            if (newValue) {
+                const result = await data.requestHttp.getByIdCompra(localOrden.value.idCompra)
+                const proveedor = await data.requestHttp.getByIdProveedor(result.idProveedor)
+                
+                console.log(result);
+                data.items = []
+                data.idOrden = result.idCompra
+                data.orden.idProveedor = result.idProveedor
+                data.orden.noOrden = result.noOrden
+                data.orden.aprobada = result.aprobada
+                data.orden.observaciones = result.observaciones
+                data.orden.usuarioRegistro = result.usuarioRegistro
+                data.orden.fechaRegistro = result.fechaRegistro
+                data.orden.estado = result.estado
+                data.orden.proveedor = proveedor.nombre
+                result.detalleCompras.map(async (item) => {
+                    const product = await data.requestHttp.getByIdProducto(item.idProducto)
+                    data.items.push({
+                        idCompra: item.idCompra,
+                        idProducto: item.idProducto, 
+                        cantidad: item.cantidad,
+                        costoUnitario: item.costoUnitario,
+                        observaciones: item.observaciones,
+                        subTotal: item.cantidad * item.costoUnitario,
+                        producto: product.nombre
+                    })
+                    calcularTotals()
+                })
+            }
         })
+        const  calcularTotals = () => {
+            let subTotal = 0
+            data.factura.subTotal = 0
+            data.factura.total = 0
+            data.factura.usdTotal = 0
+
+            data.items.forEach(item => {
+                subTotal += item.subTotal
+            })
+
+            data.factura.subTotal = subTotal
+            data.factura.total = data.factura.subTotal
+            data.factura.usdTotal = data.factura.total/36.4263
+        }
         watch(() => props.orden, (val) => {
             localOrden.value = val
-            console.log(val);  
         })
 
         const data = reactive({
             headers: [
-                {title: 'Código', key: 'codigo', align: 'center'},
                 {title: 'Producto', key: 'producto', align: 'center'},
-                {title: 'Cantidad', key: 'codigo', align: 'center'},
-                {title: 'Precio Unit.', key: 'precio', align: 'center'},
-                {title: 'Dscto. %.', key: 'dscto', align: 'center'},
-                {title: 'SubTotal', key: 'subtotal', align: 'center'},
+                {title: 'Cantidad', key: 'cantidad', align: 'center'},
+                {title: 'Precio Unit.', key: 'costoUnitario', align: 'center'},
+                {title: 'SubTotal', key: 'subTotal', align: 'center'},
             ],
+            items: [],
             orden: {
-                numorden: 0,
-                fechaRegistro: 'xx/xx/xxxx',
-                proveedor: '',
-                rucProveedor: '',
-                facturaProv: '',
-                empleado: '',
+                noOrden: null,
+                idProveedor: null,
+                proveedor: null,
+                aprobada: false,
+                observaciones: null,
+                usuarioRegistro: null,
+                fechaRegistro: null,
+                estado: null,
+                detalle: []
+            },
+            factura: {
                 subTotal: 0.00,
-                iva: 0.00,
-                imp: 0.00,
                 total: 0.00,
                 usdTotal: 0.00
             },
             nio: true,
             usd: false,
-            impts: false,
+            idOrden: null,
             fomates: {
                 nio: 'NIO', 
                 usd: 'USD'
-            }
+            },
+            requestHttp: new RequestHttp()
         })
 
         return {

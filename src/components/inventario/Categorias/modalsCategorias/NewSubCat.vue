@@ -139,8 +139,6 @@ export default {
 
     methods: {
         async handleSave() {
-            console.log(this.data.dataSubCat);
-            
             if (!this.data.dataSubCat.idCategoriaProducto || !this.data.dataSubCat.nombre) {
                 alert('Complete la informacion')
                 return
