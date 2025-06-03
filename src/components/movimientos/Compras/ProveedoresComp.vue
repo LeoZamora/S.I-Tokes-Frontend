@@ -27,22 +27,6 @@
                     <v-col cols="6" sm="6" md="6">
                         <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
                     </v-col>
-                    <!-- <v-col cols="6" md="3" sm="6">
-                        <v-text-field color="indigo-darken-4" variant="outlined" append-inner-icon="mdi-calendar" 
-                            density="compact" label="Fecha Desde" v-model="dateDesde" readonly  @click="data.menuDesde = true" 
-                            placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-                        <v-dialog v-model="data.menuDesde" width="auto">
-                            <v-date-picker color="indigo-darken-4" v-model="dateDesdeFormatted" />
-                        </v-dialog>
-                    </v-col>
-                    <v-col cols="6" md="3" sm="6">
-                        <v-text-field color="indigo-darken-4" variant="outlined" append-inner-icon="mdi-calendar" density="compact" 
-                            label="Fecha Hasta" v-model="dateHasta" readonly  @click="data.menuHasta = true" 
-                                placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-                        <v-dialog v-model="data.menuHasta" width="auto">
-                            <v-date-picker color="indigo-darken-4" v-model="dateHastaFormatted" />
-                        </v-dialog>
-                    </v-col> -->
                     <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
                         <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
                             <v-icon>mdi-magnify</v-icon>
@@ -75,7 +59,7 @@
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="error" class="mr-1">mdi-delete</v-icon>
+                                <v-icon v-bind="props" size="small" color="error" @click="showAlert(item)" class="mr-1">mdi-delete</v-icon>
                             </template>
                         </v-tooltip>
 
@@ -107,7 +91,7 @@
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="error" class="mr-1">mdi-delete</v-icon>
+                                <v-icon v-bind="props" size="small" @click="showAlert(item)" color="error" class="mr-1">mdi-delete</v-icon>
                             </template>
                         </v-tooltip>
 
@@ -128,16 +112,17 @@
             :prov="data.newProv.item" :ver="data.newProv.ver" @closeDialog="closeDialog"/>
         <NewTipoProv :show="data.newTipoProv.show" :editar="data.newTipoProv.editar" :title="data.newTipoProv.title" 
             :prov="data.newTipoProv.item" :ver="data.newTipoProv.ver" @closeDialog="closeDialogTipoProv"/>
-        
+        <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
     </div>
 </template>
 
 <script>
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { formatters } from '@/helpers/formatters';
 import NewProveedor from './dialogsCompras/NewProveedor.vue';
 import NewTipoProv from './dialogsCompras/NewTipoProv.vue';
 import RequestHttp from '@/services/requestHttp';
-import { formatters } from '@/helpers/formatters';
+import AlertComp from '@/components/widgets/AlertComp.vue';
 
 export default {
     mounted() {
@@ -147,7 +132,8 @@ export default {
 
     components: {
         NewProveedor,
-        NewTipoProv
+        NewTipoProv,
+        AlertComp
     },
 
     setup() {
@@ -161,15 +147,6 @@ export default {
         })
         onUnmounted(() => {
             window.addEventListener('resize', updateScreen)
-        })
-
-        const dateHastaFormatted = ref(null)
-        const dateDesdeFormatted = ref(null)
-        const dateHasta = computed(() => {
-            return dateHastaFormatted.value ? new Date(dateHastaFormatted.value).toLocaleDateString() : null;
-        })
-        const dateDesde = computed(() => {
-            return dateDesdeFormatted.value ? new Date(dateDesdeFormatted.value).toLocaleDateString() : null;
         })
 
         const data = reactive({
@@ -205,20 +182,18 @@ export default {
                 title: '',
                 item: {}
             },
+            selectedItem: null,
             search: null,
             menuDesde: false,
             menuHasta: false,
             loading: false, 
             loadingTipo: false,
+            viewAlert: false,
             requestHttp: new RequestHttp()
         })
 
         return {
             isMobile,
-            dateDesde,
-            dateDesdeFormatted,
-            dateHasta,
-            dateHastaFormatted,
             data
         }
     },
@@ -289,6 +264,41 @@ export default {
         formateDate(dateString) {
             const value = formatters.formatDate(dateString)
             return value
+        },
+
+        deleteAction(val) {
+            if (val === true) {
+                this.deleteItem()
+            }
+            this.data.viewAlert = false
+        },
+
+        showAlert(item){
+            this.data.viewAlert = true
+            this.data.selectedItem = item
+        },
+
+        async deleteItem() {
+            console.log(this.data.selectedItem);
+            
+            if (this.data.selectedItem.idProveedor) {
+                const result = await this.data.requestHttp.deleteProveedor(this.data.selectedItem.idProveedor)
+                if (result !== null) {
+                    alert('Proveedor Eliminado')
+                    this.getProveedores()
+                } else {
+                    alert('No se pudo eliminar el registro')
+                }
+            } else {
+                
+                const result = await this.data.requestHttp.deleteTipoProveedor(this.data.selectedItem.idTipoProveedor)
+                if (result !== null) {
+                    alert('Registro Eliminado')
+                    this.getTipoProveedores()
+                } else {
+                    alert('No se pudo eliminar el registro')
+                }
+            }
         },
 
         closeDialog(val) {

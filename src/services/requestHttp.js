@@ -242,6 +242,102 @@ class RequestHttp {
             return null
         }
     }
+
+    // PROVEEDOR PRODUCTO
+    async getProveedorProductos() {
+        try {
+            const result  = await axios.get(endPoints.getProveedorProducto)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getByIdProveedorProducto(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getProveedorProducto}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postProveedorProducto(data) {
+        try {
+            const result  = await axios.post(endPoints.postProveedorProducto, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async putProveedorProducto(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putProveedorProducto}/${id}`, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async deleteProveedorProducto(id) {
+        try {
+            const result  = await axios.delete(`${endPoints.deleteProveedorProducto}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+
+    // COMPRAS
+    async getCompras() {
+        try {
+            const result  = await axios.get(endPoints.getCompra)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getByIdCompra(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getCompra}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postCompra(data) {
+        try {
+            const result  = await axios.post(endPoints.postCompra, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async putCompra(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putCompra}/${id}`, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async deleteCompra(id) {
+        try {
+            const result  = await axios.delete(`${endPoints.deleteCompra}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
 }
 
 export default RequestHttp

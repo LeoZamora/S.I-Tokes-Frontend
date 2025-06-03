@@ -22,7 +22,17 @@ const endPoints = {
     getTipoProveedor: 'api/TipoProveedor',
     postTipoProveedor: 'api/TipoProveedor',
     putTipoProveedor: 'api/TipoProveedor',
-    deleteTipoProveedor: 'api/TipoProveedor'
+    deleteTipoProveedor: 'api/TipoProveedor',
+
+    getProveedorProducto: 'api/ProveedorProducto',
+    postProveedorProducto: 'api/ProveedorProducto',
+    putProveedorProducto: 'api/ProveedorProducto',
+    deleteProveedorProducto: 'api/ProveedorProducto',
+
+    getCompra: 'api/Compra',
+    postCompra: 'api/Compra',
+    putCompra: 'api/Compra',
+    deleteCompra: 'api/Compra',
 }
 
 export default endPoints

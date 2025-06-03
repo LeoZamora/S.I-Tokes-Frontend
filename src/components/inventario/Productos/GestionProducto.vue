@@ -21,22 +21,6 @@
       <v-divider />
 
       <v-row class="pa-2" dense>
-        <!-- <v-col cols="6" md="3" sm="3">
-            <v-text-field color="red-darken-4" variant="outlined" append-inner-icon="mdi-calendar" 
-              density="compact" label="Fecha Creación" v-model="dateDesde" readonly  @click="data.menuDesde = true" 
-              placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-            <v-dialog v-model="data.menuDesde" width="auto">
-              <v-date-picker color="red-darken-4" v-model="dateDesdeFormatted" />
-            </v-dialog>
-        </v-col>
-        <v-col cols="6" md="3" sm="3">
-            <v-text-field color="red-darken-4" variant="outlined" append-inner-icon="mdi-calendar" density="compact" 
-              label="Fecha Vencimiento" v-model="dateHasta" readonly  @click="data.menuHasta = true" 
-              placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-            <v-dialog v-model="data.menuHasta" width="auto">
-              <v-date-picker color="red-darken-4" v-model="dateHastaFormatted" />
-            </v-dialog>
-        </v-col> -->
         <v-col cols="6" md="6" sm="6">
             <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
               hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
@@ -166,7 +150,7 @@
       </v-card>
     </v-dialog>
 
-    <DetallesProducto :show="data.showDialog" :proveedor="data.proveedor" :producto="data.productDialog" @cerrarDialog="closeDialogDet"/>
+    <DetallesProducto :show="data.showDialog" :producto="data.productDialog" @cerrarDialog="closeDialogDet"/>
     <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
   </div>
 </template>
@@ -180,7 +164,7 @@ import AlertComp from '@/components/widgets/AlertComp.vue'
 
 export default {
   mounted() {
-    this.getCategorias()
+    this.getSubCategorias()
     this.getProductos()
   },
 
@@ -200,16 +184,6 @@ export default {
     })
     onUnmounted(() => {
       window.addEventListener('resize', updateScreen)
-    })
-
-    const dateHastaFormatted = ref(null)
-    const dateDesdeFormatted = ref(null)
-    const dateHasta = computed(() => {
-      return dateHastaFormatted.value ? new Date(dateHastaFormatted.value).toLocaleDateString() : null;
-    })
-    
-    const dateDesde = computed(() => {
-      return dateDesdeFormatted.value ? new Date(dateDesdeFormatted.value).toLocaleDateString() : null;
     })
 
     const data = reactive({
@@ -242,12 +216,6 @@ export default {
       },
       observaciones: null,
       selectedProduct: null,
-      proveedor: {
-        nombre: 'Distribuidora Central S.A.',
-        telefono: '+505 8888-8888',
-        email: 'contacto@distribuidoracentral.com',
-        direccion: 'Km 7 Carretera Masaya, Managua, Nicaragua'
-      },
       loading: false,
       showDialog: false,
       viewAlert: false,
@@ -257,10 +225,6 @@ export default {
     return { 
       data,
       isMobile,
-      dateDesde,
-      dateDesdeFormatted,
-      dateHasta,
-      dateHastaFormatted
     }
   },
   
@@ -287,14 +251,14 @@ export default {
   },
   
   methods: {
-    async getCategorias() {
+    async getSubCategorias() {
       this.data.subCategorias = []
       this.data.loading = true
       const result = await this.data.requestHttp.getSubCategorias()
       this.data.loading = false
       if (result !== null) {
         result.map(item => {
-          this.data.subCategorias.push({title: item.categoriaProducto, value: item.idSubCatProd})
+          this.data.subCategorias.push({title: item.nombre, value: item.idSubCatProd})
         })
         
       } else {

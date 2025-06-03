@@ -27,25 +27,6 @@
                     <v-col cols="6" sm="6" md="6">
                         <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
                     </v-col>
-                    <!-- <v-col cols="6" md="3" sm="6">
-                        <v-text-field color="indigo-darken-4" variant="outlined" append-inner-icon="mdi-calendar" 
-                            density="compact" label="Fecha Desde" v-model="dateDesde" readonly  @click="data.menuDesde = true" 
-                            placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-                        <v-dialog v-model="data.menuDesde" width="auto">
-                            <v-date-picker color="indigo-darken-4" v-model="dateDesdeFormatted" />
-                        </v-dialog>
-                    </v-col>
-                    <v-col cols="6" md="3" sm="6">
-                        <v-text-field color="indigo-darken-4" variant="outlined" append-inner-icon="mdi-calendar" density="compact" 
-                            label="Fecha Hasta" v-model="dateHasta" readonly  @click="data.menuHasta = true" 
-                                placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-                        <v-dialog v-model="data.menuHasta" width="auto">
-                            <v-date-picker color="indigo-darken-4" v-model="dateHastaFormatted" />
-                        </v-dialog>
-                    </v-col> -->
-                    <!-- <v-col cols="6" sm="6" md="3">
-                        <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
-                    </v-col> -->
                     <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
                         <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getCategorias()">
                             <v-icon>mdi-refresh</v-icon>
@@ -131,15 +112,6 @@ export default {
             window.addEventListener('resize', updateScreen)
         })
 
-        const dateHastaFormatted = ref(null)
-        const dateDesdeFormatted = ref(null)
-        const dateHasta = computed(() => {
-            return dateHastaFormatted.value ? new Date(dateHastaFormatted.value).toLocaleDateString() : null;
-        })
-        const dateDesde = computed(() => {
-            return dateDesdeFormatted.value ? new Date(dateDesdeFormatted.value).toLocaleDateString() : null;
-        })
-
         const data = reactive({
             headers: [
                 {title: '', key: 'opc', align: 'center'},
@@ -166,18 +138,12 @@ export default {
             loading: false,
             selectedItem: null,
             search: null,
-            menuDesde: false,
-            menuHasta: false,
             viewAlert: false,
             requestHttp: new RequestHttp()
         })
 
         return {
             isMobile,
-            dateDesde,
-            dateDesdeFormatted,
-            dateHasta,
-            dateHastaFormatted,
             data
         }
     },
@@ -188,11 +154,10 @@ export default {
             this.data.loading = true
             const result = await this.data.requestHttp.getCategorias()
             const result2 = await this.data.requestHttp.getSubCategorias()
-            console.log(result2);
-            
             this.data.loading = false
             if (result !== null) {
                 result.map(item => {
+                    console.log(item);
                     this.data.items.push({
                         idCategoriaProducto: item.idCategoriaProducto,
                         tipo: 'Categoría',
@@ -204,6 +169,8 @@ export default {
                     })
                 })
                 result2.map(item => {
+                    console.log(item);
+                    
                     this.data.items.push({
                         idSubCatProd: item.idSubCatProd,
                         idCategoriaProducto: item.idCategoriaProducto,

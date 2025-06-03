@@ -19,27 +19,11 @@
             </template>
             <v-divider /> 
             <v-row class="pa-2" dense>
-                <v-col cols="6" md="3" sm="3">
-                    <v-text-field color="indigo-darken-4" variant="outlined" append-inner-icon="mdi-calendar" 
-                        density="compact" label="Fecha Desde" v-model="dateDesde" readonly  @click="data.menuDesde = true" 
-                        placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-                    <v-dialog v-model="data.menuDesde" width="auto">
-                        <v-date-picker color="indigo-darken-4" v-model="dateDesdeFormatted" />
-                    </v-dialog>
-                </v-col>
-                <v-col cols="6" md="3" sm="3">
-                    <v-text-field color="indigo-darken-4" variant="outlined" append-inner-icon="mdi-calendar" density="compact" 
-                        label="Fecha Hasta" v-model="dateHasta" readonly  @click="data.menuHasta = true" 
-                            placeholder="dd/mm/yyyy" persistent-placeholder hide-details/>
-                    <v-dialog v-model="data.menuHasta" width="auto">
-                        <v-date-picker color="indigo-darken-4" v-model="dateHastaFormatted" />
-                    </v-dialog>
-                </v-col>
-                <v-col cols="12" md="3" sm="3">
+                <v-col cols="6" md="6" sm="6">
                     <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
                         hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
                 </v-col>
-                <v-col cols="12" md="3" sm="3" class="d-flex justify-end align-center">
+                <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
                     <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
                         <v-icon>mdi-magnify</v-icon>
                     </v-btn>
@@ -55,12 +39,15 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :headers="data.header" :items="data.ordenes" class="border" density="compact">
-                    <template v-slot:item.monto="{ item }">
-                        <div>{{ formatedCurrency(item.monto) }}</div>
+                <v-data-table :headers="data.header" :items="data.ordenes" class="border font" density="compact">
+                    <template v-slot:item.total="{ item }">
+                        <div>{{ formatedCurrency(item.total) }}</div>
                     </template>
-                    <template v-slot:item.fecha="{ item }">
-                        <div>{{ formatedDate(item.fecha) }}</div>
+                    <template v-slot:item.fechaRegistro="{ item }">
+                        <div>{{ formatedDate(item.fechaRegistro) }}</div>
+                    </template>
+                    <template v-slot:item.aprobada="{ item }">
+                        <div>{{ item.aprobada ? 'SI' : 'NO' }}</div>
                     </template>
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
@@ -82,8 +69,8 @@
                         </v-tooltip>
                     </template>
                     <template v-slot:item.estado="{ item }">
-                        <v-chip :color="getStatusColor(item.estado)" small>
-                            {{ item.estado }}
+                        <v-chip :color="item.estado ? 'green' : 'error'" small>
+                            {{ item.estado ? 'Activo' : 'Inactivo' }}
                         </v-chip>
                     </template>
                 </v-data-table>
@@ -100,42 +87,32 @@ import { formatters } from '@/helpers/formatters.js';
 import { reactive, computed, ref } from 'vue';
 import NuevaFacturaCompras from './dialogsCompras/NuevaFacturaCompras.vue';
 import ViewOrdenes from './dialogsCompras/ViewOrdenes.vue';
+import RequestHttp from '@/services/requestHttp';
 
 export default {
+    mounted() {
+        this.getOrdenes()    
+    },
+
     components: {
         NuevaFacturaCompras,
         ViewOrdenes
     },
 
     setup() {
-        const dateHastaFormatted = ref(null)
-        const dateDesdeFormatted = ref(null)
-        const dateHasta = computed(() => {
-            return dateHastaFormatted.value ? new Date(dateHastaFormatted.value).toLocaleDateString() : null;
-        })
-
-        const dateDesde = computed(() => {
-            return dateDesdeFormatted.value ? new Date(dateDesdeFormatted.value).toLocaleDateString() : null;
-        })
         const data = reactive({
             header: [
                 {title: '', key: 'opc', align: 'center',},
-                {title: 'Nº Órden', key: 'numFactura', align: 'center'},
+                {title: 'Nº Órden', key: 'noOrden', align: 'center'},
                 {title: 'Proveedor', key: 'proveedor', align: 'center'},
-                {title: 'Vendedor', key: 'vendedor', align: 'center'},
+                {title: 'Vendedor', key: 'usuarioRegistro', align: 'center'},
+                {title: 'Aprobada', key: 'aprobada', align: 'center'},
+                {title: 'Monto', key: 'total', align: 'center'},
                 {title: 'FechaRegistro', key: 'fechaRegistro', align: 'center'},
-                {title: 'Monto', key: 'monto', align: 'center'},
                 {title: 'Observaciones', key: 'observaciones', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
             ],
-            ordenes: [{
-                numFactura: 12456,
-                proveedor: 'Proveedor Prueba',
-                fechaRegistro: 'xx/xx/xxxx',
-                monto: 3000,
-                observaciones: 'Prueba',
-                estado: 'Activo'
-            }],
+            ordenes: [],
             compra: {
                 show: false,
                 editar: false,
@@ -146,20 +123,25 @@ export default {
                 show: false,
                 item: {}
             },
-            menuDesde: false,
-            menuHasta: false,
+            requestHttp: new RequestHttp()
         })
 
         return {
             data,
-            dateDesde,
-            dateHasta,
-            dateDesdeFormatted,
-            dateHastaFormatted
         }
     },
 
     methods: {
+        async getOrdenes() {
+            this.data.ordenes = []
+            const result = await this.data.requestHttp.getCompras()
+            if (result !== null) {
+                result.map(item => {
+                    this.data.ordenes.push(item)
+                })
+            }
+        },
+
         editOrden(item) {
             this.data.compra.show = true
             this.data.compra.editar = true
@@ -200,6 +182,8 @@ export default {
         closeDialog(val) {  
            this.data.compra.show = val
            this.data.viewOrden.show = val
+           this.data.compra.editar = val
+           this.data.compra.title = ''
         }
 
     }
@@ -207,5 +191,7 @@ export default {
 </script>
 
 <style scoped>
-
+.font{
+    font-size: 12px !important;
+}
 </style>
