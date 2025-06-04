@@ -11,13 +11,20 @@
             </v-card-title>
             <v-divider />
             <v-card-text id="body-card" class="">
-                <v-row v-if="!localEdit" class="pb-0">
-                    <v-col cols="12" md="12" sm="12" class="d-flex justify-end align-center pb-0">
-                        <div class="d-flex justify-end align-center">
+                <v-row class="pb-0">
+                    <v-col v-if="!localEdit" cols="6" md="6" sm="6" class="d-flex justify-start align-center pb-0">
+                        <div class="d-flex justify-start align-center">
                             <small class="mr-2">Fecha de Registro: </small>
                             <small><strong>{{ localEdit ? '' : formatedDate(data.nowDate) }}</strong></small>
                         </div>
                     </v-col>
+                     <v-col :cols="localEdit ? 12 : 6" :md="localEdit ? 12 : 6" :sm="localEdit ? 12 : 6" class="d-flex justify-end align-center pb-0">
+                        <v-checkbox v-model="data.dataCliente.personaNatural" color="indigo" density="compact" class="label" hide-details :readonly="readonlyOption()">
+                            <template v-slot:label>
+                                <span id="checkLabel">Persona Natural</span>
+                            </template>
+                        </v-checkbox>
+                     </v-col>
                 </v-row>
                 <v-card-subtitle class="d-flex align-center text-center my-4">
                     <small class="mr-2 font-weight-bold">GENERALES</small>
@@ -25,28 +32,28 @@
                 </v-card-subtitle>
                 <v-row>
                     <v-col cols="12" md="6" sm="6" class="py-2">
-                        <v-text-field v-model="data.dataProveedor.nombre" prepend-inner-icon="mdi-account" density="compact" 
-                        variant="outlined" hide-details label="Proveedor" placeholder="ingrese el proveedor"  persistent-placeholder :readonly="readonlyOption()"/>
+                        <v-text-field v-model="data.dataCliente.codigo" prepend-inner-icon="mdi-account" density="compact" 
+                        variant="outlined" hide-details label="Cliente" placeholder="ingrese el Cliente"  persistent-placeholder :readonly="readonlyOption()"/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="py-2">
-                        <v-select v-model="data.dataProveedor.idTipoProveedor" :items="data.tipoProveedor" prepend-inner-icon="mdi-account-question" density="compact" 
-                        variant="outlined" hide-details label="Tipo Proveedor" placeholder="tipo de proveedor"  persistent-placeholder :readonly="readonlyOption()"/>
+                        <v-select v-model="data.dataCliente.idCategoriaCliente" :items="data.categoriaCliente" prepend-inner-icon="mdi-account-question" density="compact" 
+                        variant="outlined" hide-details label="Tipo Cliente" placeholder="tipo de Cliente"  persistent-placeholder :readonly="readonlyOption()"/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="py-2">
-                        <v-text-field v-model="data.dataProveedor.telefono" prepend-inner-icon="mdi-phone" density="compact" 
-                        variant="outlined" hide-details label="Teléfono" placeholder="teléfono del proveedor"  persistent-placeholder type="number" :readonly="readonlyOption()"/>
+                        <v-text-field v-model="data.dataCliente.telefono" prepend-inner-icon="mdi-phone" density="compact" 
+                        variant="outlined" hide-details label="Teléfono" placeholder="teléfono del Cliente"  persistent-placeholder type="number" :readonly="readonlyOption()"/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="py-2">
-                        <v-text-field v-model="data.dataProveedor.departamento" prepend-inner-icon="mdi-home-city" density="compact" 
+                        <v-text-field v-model="data.dataCliente.departamento" prepend-inner-icon="mdi-home-city" density="compact" 
                         variant="outlined" hide-details label="Departamento" placeholder="ingrese un departamento"  persistent-placeholder :readonly="readonlyOption()"/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="py-2">
-                        <v-text-field v-model="data.dataProveedor.municipio" prepend-inner-icon="mdi-map-marker" density="compact" 
+                        <v-text-field v-model="data.dataCliente.municipio" prepend-inner-icon="mdi-map-marker" density="compact" 
                         variant="outlined" hide-details label="Municipio" placeholder="ingrese un municipio"  persistent-placeholder :readonly="readonlyOption()"/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="py-2">
-                        <v-textarea v-model="data.dataProveedor.direccion" prepend-inner-icon="mdi-text" density="compact" 
-                        variant="outlined" hide-details label="Dirección" placeholder="dirección del proveedor"  persistent-placeholder :rows="2" :readonly="readonlyOption()"/>
+                        <v-textarea v-model="data.dataCliente.direccion" prepend-inner-icon="mdi-text" density="compact" 
+                        variant="outlined" hide-details label="Dirección" placeholder="dirección del Cliente"  persistent-placeholder :rows="2" :readonly="readonlyOption()"/>
                     </v-col>
                 </v-row>
             </v-card-text>
@@ -71,7 +78,7 @@ import { reactive, ref, watch } from 'vue';
 
 export default {
     mounted() {
-        this.getTipoProveedores()
+        this.getCategoriaCliente()
     },
     
     props: {
@@ -101,7 +108,7 @@ export default {
     setup(props) {
         const localShow = ref(props.show)
         const localEdit = ref(props.editar)
-        const localProv = ref(props.prov)
+        const localCliente = ref(props.prov)
         const localTitle = ref(props.title)
         const localView = ref(props.ver)
         watch(() => props.show, (newValue) => {
@@ -110,18 +117,18 @@ export default {
         watch(() => props.editar, (val) => {
             localEdit.value = val
             if (val === true) {
-                data.dataProveedor.nombre = localProv.value.nombre
-                data.dataProveedor.usuarioRegistro = localProv.value.usuarioRegistro
-                data.dataProveedor.telefono = localProv.value.telefono
-                data.dataProveedor.departamento = localProv.value.departamento
-                data.dataProveedor.municipio = localProv.value.municipio
-                data.dataProveedor.direccion = localProv.value.direccion
-                data.dataProveedor.idTipoProveedor = localProv.value.idTipoProveedor
-                data.idProv = localProv.value.idProveedor
+                data.dataCliente.codigo = localCliente.value.codigo
+                data.dataCliente.usuarioRegistro = localCliente.value.usuarioRegistro
+                data.dataCliente.telefono = localCliente.value.telefono
+                data.dataCliente.departamento = localCliente.value.departamento
+                data.dataCliente.municipio = localCliente.value.municipio
+                data.dataCliente.direccion = localCliente.value.direccion
+                data.dataCliente.idCategoriaCliente = localCliente.value.idCategoriaCliente
+                data.idClient = localCliente.value.idCliente
             }
         })
         watch(() => props.prov, (val) => {
-            localProv.value = val
+            localCliente.value = val
         })
         watch(() => props.title, (val) => {
             localTitle.value = val
@@ -129,30 +136,32 @@ export default {
         watch(() => props.ver, (val) => {
             localView.value = val
             if (val === true) {
-                data.dataProveedor.nombre = localProv.value.nombre
-                data.dataProveedor.usuarioRegistro = localProv.value.usuarioRegistro
-                data.dataProveedor.telefono = localProv.value.telefono
-                data.dataProveedor.departamento = localProv.value.departamento
-                data.dataProveedor.municipio = localProv.value.municipio
-                data.dataProveedor.direccion = localProv.value.direccion
-                data.dataProveedor.idTipoProveedor = localProv.value.idTipoProveedor
-                data.idProv = localProv.value.idProveedor
+                data.dataCliente.codigo = localCliente.value.codigo
+                data.dataCliente.usuarioRegistro = localCliente.value.usuarioRegistro
+                data.dataCliente.telefono = localCliente.value.telefono
+                data.dataCliente.departamento = localCliente.value.departamento
+                data.dataCliente.municipio = localCliente.value.municipio
+                data.dataCliente.direccion = localCliente.value.direccion
+                data.dataCliente.personaNatural = localCliente.value.personaNatural
+                data.dataCliente.idCategoriaCliente = localCliente.value.idCategoriaCliente
+                data.idClient = localCliente.value.idClienteedor
             }
         })
 
         const data = reactive({
             nowDate: new Date(),
-            dataProveedor: {
-                nombre: null,
-                idTipoProveedor: null,
+            dataCliente: {
+                codigo: null,
+                idCategoriaCliente: null,
                 telefono: null,
                 departamento: null,
                 municipio: null,
                 direccion: null,
-                usuarioRegistro: 1
+                personaNatural: false,
+                usuarioRegistro: new Date()
             },
-            idProv: localProv.value.idProveedor,
-            tipoProveedor: [],
+            idClient: localCliente.value.idCliente,
+            categoriaCliente: [],
             requestHttp: new RequestHttp()
         })
 
@@ -160,7 +169,7 @@ export default {
             localShow,
             localEdit,
             localTitle,
-            localProv,
+            localCliente,
             localView,
             data
         }
@@ -168,10 +177,10 @@ export default {
 
     methods: {
         async handleSave() {
-            const valid = utilsFunctions.objectValidate(this.data.dataProveedor)
+            const valid = utilsFunctions.objectValidate(this.data.dataCliente)
             if (!this.localEdit) {
                 if (valid) {                    
-                    const result = await this.data.requestHttp.postProveedor(this.data.dataProveedor)
+                    const result = await this.data.requestHttp.postCliente(this.data.dataCliente)
         
                     if (result !== null) {
                         alert('Registro Guardado')
@@ -185,15 +194,14 @@ export default {
                     return
                 }
             } else {
-                if (valid && this.data.idProv) {
-                    const result = await this.data.requestHttp.putCategorias(this.data.dataProveedor, this.data.idProv)
+                if (valid && this.data.idClient) {
+                    const result = await this.data.requestHttp.putCliente(this.data.dataCliente, this.data.idClient)
                     if (result !== null) {
                         alert('Registro Editado')
-                        this.closeDialog()
+                        this.$emit('closeDialog', false)
                         this.localEdit = false
                     } else {
                         alert('Registro Editado')
-                        this.closeDialog()
                     }
                 } else {
                     alert('Complete toda la información')
@@ -201,11 +209,11 @@ export default {
                 }
             }
         },
-         async getTipoProveedores() {
-            this.data.tipoProveedor = []
-            const result = await this.data.requestHttp.getTipoProveedores()
+         async getCategoriaCliente() {
+            this.data.categoriaCliente = []
+            const result = await this.data.requestHttp.getCategoriaClientes()
             result.map(item => {
-                this.data.tipoProveedor.push({title: item.nombre, value: item.idTipoProveedor})
+                this.data.categoriaCliente.push({title: item.nombre, value: item.idCategoriaCliente})
             })
         },
 
@@ -216,7 +224,7 @@ export default {
 
         closeDialog() {
             this.$emit('closeDialog', false)
-            this.data.dataProveedor = {}
+            this.data.dataCliente = {}
         },
 
         readonlyOption() {

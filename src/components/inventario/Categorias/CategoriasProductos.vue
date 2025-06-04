@@ -157,7 +157,6 @@ export default {
             this.data.loading = false
             if (result !== null) {
                 result.map(item => {
-                    console.log(item);
                     this.data.items.push({
                         idCategoriaProducto: item.idCategoriaProducto,
                         tipo: 'Categoría',
@@ -169,7 +168,6 @@ export default {
                     })
                 })
                 result2.map(item => {
-                    console.log(item);
                     
                     this.data.items.push({
                         idSubCatProd: item.idSubCatProd,

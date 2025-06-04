@@ -34,6 +34,11 @@
                                     <span id="checkLabel">Dólares</span>
                                 </template>
                             </v-checkbox>
+                            <v-checkbox v-model="data.orden.aprobada" color="indigo" density="compact" class="label" hide-details>
+                                <template v-slot:label>
+                                    <span id="checkLabel">Aprobada</span>
+                                </template>
+                            </v-checkbox>
                         </div>
                     </v-col>
                 </v-row>
@@ -85,10 +90,10 @@
                 <v-row>
                     <v-col cols="12" sm="12" md="12">
                         <v-data-table class="border rounded" density="compact" :headers="data.headers" :items="data.items">
-                            <template v-slot:item.opc>
+                            <template v-slot:item.opc="{ item }">
                                 <v-tooltip text="Eliminar" location="top">
                                     <template v-slot:activator="{ props }">
-                                        <v-icon v-bind="props" color="error" class="mr-1">mdi-delete</v-icon>
+                                        <v-icon v-bind="props" color="error" @click="deleteProduct(item)" class="mr-1">mdi-delete</v-icon>
                                     </template>
                                 </v-tooltip>
                             </template>
@@ -101,7 +106,7 @@
                         </v-data-table>
                     </v-col>
                     <v-col cols="12" md="6" sm="6">
-                        <v-textarea density="compact" variant="outlined" hide-details label="Observaciones" placeholder="ingrese algunos detalles de la factura" 
+                        <v-textarea v-model="data.orden.observaciones" density="compact" variant="outlined" hide-details label="Observaciones" placeholder="ingrese algunos detalles de la factura" 
                             persistent-placeholder rows="3"/>                        
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="d-flex flex-column justify-end align-end">
@@ -200,7 +205,7 @@ export default {
                 data.orden.observaciones = result.observaciones
                 data.orden.usuarioRegistro = result.usuarioRegistro
                 data.producto.idCompra = localOrden.value.idCompra
-                result.detalleCompras.map(async (item) => {
+                const promises = result.detalleCompras.map(async (item) => {
                     const product = await data.requestHttp.getByIdProducto(item.idProducto)
                     data.items.push({
                         idCompra: item.idCompra,
@@ -212,6 +217,8 @@ export default {
                         producto: product.nombre
                     })
                 })
+
+                await Promise.all(promises)
             }
         })
         watch(() => props.orden, (val) => {
@@ -346,18 +353,20 @@ export default {
                             "observaciones": item.observaciones
                         })
                     })
-                    console.log(this.data.orden);
+
                     const result = await this.data.requestHttp.putCompra(this.data.orden, this.data.idOrden)
 
                     if (result !== null) {
-                        alert('Registro Guardado')
+                        alert('Registro Editado')
                         this.closeDialog()
                     } else {
-                        alert('No se pudo guardar la orden')
+                        alert('Registro Editado')
+                        this.closeDialog()
                         return
                     }
                 }
             }
+            this.$emit('refreshTable')
         },
 
         calcularTotals() {
@@ -397,6 +406,15 @@ export default {
             this.data.orden.noOrden = null
             this.data.orden.observaciones = null
             this.data.orden.usuarioRegistro = null
+        },
+
+        deleteProduct(itemSelected) {
+            const items = this.data.items.filter(item => item.idProducto !== itemSelected.idProducto)
+            this.data.items = []
+            items.map(item => {
+                this.data.items.push(item)
+            })
+            this.calcularTotals()          
         }
     },
 }

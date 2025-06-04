@@ -20,14 +20,14 @@
             <v-divider /> 
             <v-row class="pa-2" dense>
                 <v-col cols="6" md="6" sm="6">
-                    <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
+                    <v-text-field v-model="data.search" color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
                         hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
                 </v-col>
                 <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-                    <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
-                        <v-icon>mdi-magnify</v-icon>
+                    <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getOrdenes()">
+                        <v-icon>mdi-refresh</v-icon>
                     </v-btn>
-                    <v-btn icon color="grey" size="small" variant="text" class="border">
+                    <v-btn icon color="grey" size="small" variant="text" class="border" @click="data.search = null">
                         <v-icon>mdi-broom</v-icon>
                     </v-btn>
                 </v-col>
@@ -39,7 +39,7 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :headers="data.header" :items="data.ordenes" class="border font" density="compact">
+                <v-data-table :search="data.search" :headers="data.header" :items="data.ordenes" class="border font" density="compact">
                     <template v-slot:item.total="{ item }">
                         <div>{{ formatedCurrency(item.total) }}</div>
                     </template>
@@ -58,7 +58,7 @@
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="error" class="mr-1">mdi-delete</v-icon>
+                                <v-icon v-bind="props" size="small" @click="showAlert(item)" color="error" class="mr-1">mdi-delete</v-icon>
                             </template>
                         </v-tooltip>
 
@@ -77,14 +77,16 @@
             </v-card-text>
         </v-card>
         <NuevaFacturaCompras :show="data.compra.show" :editar="data.compra.editar" :title="data.compra.title" 
-            :orden="data.compra.item" @closeDialog="closeDialog"/>
+            :orden="data.compra.item" @closeDialog="closeDialog" @refreshTable="getOrdenes()"/>
         <ViewOrdenes :show="data.viewOrden.show" :orden="data.viewOrden.item" @closeDialog="closeDialog"/>
+        <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
     </div>
 </template>
 
 <script>
 import { formatters } from '@/helpers/formatters.js';
 import { reactive, computed, ref } from 'vue';
+import AlertComp from '@/components/widgets/AlertComp.vue';
 import NuevaFacturaCompras from './dialogsCompras/NuevaFacturaCompras.vue';
 import ViewOrdenes from './dialogsCompras/ViewOrdenes.vue';
 import RequestHttp from '@/services/requestHttp';
@@ -96,7 +98,8 @@ export default {
 
     components: {
         NuevaFacturaCompras,
-        ViewOrdenes
+        ViewOrdenes,
+        AlertComp
     },
 
     setup() {
@@ -119,6 +122,10 @@ export default {
                 item: {},
                 title: '',
             },
+            loading: false,
+            selectedItem: null, 
+            viewAlert: false,
+            search: null,
             viewOrden: {
                 show: false,
                 item: {}
@@ -134,7 +141,9 @@ export default {
     methods: {
         async getOrdenes() {
             this.data.ordenes = []
+            this.data.loading = true
             const result = await this.data.requestHttp.getCompras()
+            this.data.loading = false
             if (result !== null) {
                 result.map(item => {
                     this.data.ordenes.push(item)
@@ -170,13 +179,26 @@ export default {
             return value
         },
 
-        getStatusColor(status) {
-            const statusColors = {
-                'Activo': 'success',
-                'Inactivo': 'warning',
-                'Descontinuado': 'error'
+        deleteAction(val) {
+            if (val === true) {
+                this.deleteItem()
             }
-            return statusColors[status] || 'grey'
+            this.data.viewAlert = false
+        },
+
+        showAlert(item){
+            this.data.viewAlert = true
+            this.data.selectedItem = item
+        },
+
+        async deleteItem() {
+            const result = await this.data.requestHttp.deleteCompra(this.data.selectedItem.idCompra)
+            if (result !== null) {
+                alert('Orden Eliminada')
+                this.getOrdenes()
+            } else {
+                alert('No se pudo eliminar el registro')
+            }
         },
 
         closeDialog(val) {  

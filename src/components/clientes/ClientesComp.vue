@@ -5,20 +5,20 @@
                 <div class="d-flex align-center">
                 <!-- Título -->
                     <div class="font-weight-bold d-flex align-center">
-                        <v-icon class="me-2" color="red-darken-4">mdi-package-variant</v-icon>
-                        <small v-if="isMobile">Gestión de Proveedores</small>
-                        <span v-else class="text-h6 font-weight-bold">Gestión de Proveedores</span>
+                        <v-icon class="me-2" color="red-darken-4">mdi-account-multiple</v-icon>
+                        <small v-if="isMobile">Clientes</small>
+                        <span v-else class="text-h6 font-weight-bold">Clientes</span>
                     </div>
                 </div>
             </template>
             <template v-slot:append>
                 <v-btn icon color="red-darken-4" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
                     <v-icon>mdi-account-plus</v-icon>
-                    <v-tooltip activator="parent" location="left">Agregar Tipo Proveedores</v-tooltip> 
+                    <v-tooltip activator="parent" location="left">Agregar Tipo Clientes</v-tooltip> 
                 </v-btn>
-                <v-btn class="bg-red-darken-4 rounded" @click="openDialog('prov', 'create', null)">
-                    <v-icon>mdi-plus</v-icon>
-                    <v-tooltip activator="parent" location="left">Agregar Proveedores</v-tooltip> 
+                <v-btn icon color="red-darken-4" variant="tonal" @click="openDialog('prov', 'create', null)">
+                    <v-icon>mdi-account-outline</v-icon>
+                    <v-tooltip activator="parent" location="left">Agregar Cliente</v-tooltip> 
                 </v-btn>
             </template>
             <v-divider />
@@ -28,10 +28,10 @@
                         <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
                     </v-col>
                     <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-                        <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="refreshData()">
+                        <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="refresData()">
                             <v-icon>mdi-refresh</v-icon>
                         </v-btn>
-                        <v-btn icon color="grey" size="small" variant="text" class="border">
+                        <v-btn icon color="grey" size="small" variant="text" class="border" @click="data.search = null">
                             <v-icon>mdi-broom</v-icon>
                         </v-btn>
                     </v-col>
@@ -40,15 +40,15 @@
                 </v-row>
                 <v-card-subtitle class="d-flex align-center text-center mb-2">
                     <v-divider /> 
-                    <span class="mx-6 text-grey font-weight-bold">Proveedores</span>
+                    <span class="mx-6 text-grey font-weight-bold">Clientes</span>
                     <v-divider />
                 </v-card-subtitle>
                 <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" :headers="data.headers" density="compact" :items="data.items">
                     <template v-slot:item.fechaRegistro="{ item }">
                         <div>{{ formateDate(item.fechaRegistro) }}</div>
                     </template>
-                    <template v-slot:item.tipoProveedor="{ item }">
-                        <div>{{ item.idTipoProveedorNavigation.nombre }}</div>
+                    <template v-slot:item.idCategoriaClienteNavigation="{ item }">
+                        <div>{{ item.idCategoriaClienteNavigation.nombre }}</div>
                     </template>
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
@@ -75,10 +75,10 @@
                 </v-data-table>
                 <v-card-subtitle class="d-flex align-center text-center my-2">
                     <v-divider /> 
-                    <span class="mx-6 text-grey font-weight-bold">Tipo de Proveedores</span>
+                    <span class="mx-6 text-grey font-weight-bold">Tipo de Clientes</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :loading="data.loadingTipo" :search="data.search" :mobile="isMobile" class="border" :headers="data.headersTipoProv" density="compact" :items="data.itemsTipoProv">
+                <v-data-table :loading="data.loadingTipo" :search="data.search" :mobile="isMobile" class="border" :headers="data.headersCat" density="compact" :items="data.itemsCat">
                     <template v-slot:item.fechaRegistro="{ item }">
                         <div>{{ formateDate(item.fechaRegistro) }}</div>
                     </template>
@@ -108,10 +108,10 @@
             </v-card-text>
         </v-card>
 
-        <NewProveedor :show="data.newProv.show" :editar="data.newProv.editar" :title="data.newProv.title" 
-            :prov="data.newProv.item" :ver="data.newProv.ver" @closeDialog="closeDialog"/>
-        <NewTipoProv :show="data.newTipoProv.show" :editar="data.newTipoProv.editar" :title="data.newTipoProv.title" 
-            :prov="data.newTipoProv.item" :ver="data.newTipoProv.ver" @closeDialog="closeDialogTipoProv"/>
+        <NewCliente :show="data.newCliente.show" :editar="data.newCliente.editar" :title="data.newCliente.title" 
+            :prov="data.newCliente.item" :ver="data.newCliente.ver" @closeDialog="closeDialog"/>
+        <NewTipoCliente :show="data.newCatCliente.show" :editar="data.newCatCliente.editar" :title="data.newCatCliente.title" 
+            :prov="data.newCatCliente.item" :ver="data.newCatCliente.ver" @closeDialog="closeDialogCat"/>
         <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
     </div>
 </template>
@@ -119,21 +119,21 @@
 <script>
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { formatters } from '@/helpers/formatters';
-import NewProveedor from './dialogsCompras/NewProveedor.vue';
-import NewTipoProv from './dialogsCompras/NewTipoProv.vue';
+import NewCliente from './dialogsClientes/NewCliente.vue';
+import NewTipoCliente from './dialogsClientes/NewTipoCliente.vue';
 import RequestHttp from '@/services/requestHttp';
 import AlertComp from '@/components/widgets/AlertComp.vue';
 
 export default {
     mounted() {
-        this.getProveedores()
-        this.getTipoProveedores()
+        this.getClientes()
+        this.getCategoriaClientes()
     },
 
     components: {
-        NewProveedor,
-        NewTipoProv,
-        AlertComp
+        NewCliente,
+        AlertComp,
+        NewTipoCliente
     },
 
     setup() {
@@ -152,30 +152,31 @@ export default {
         const data = reactive({
             headers: [
                 {title: '', key: 'opc', align: 'center'},
-                {title: 'Proveedor', key: 'nombre', align: 'center'},
-                {title: 'T. Proveedor', key: 'tipoProveedor', align: 'center'},
+                {title: 'Cliente', key: 'codigo', align: 'center'},
+                {title: 'T. Cliente', key: 'idCategoriaClienteNavigation', align: 'center'},
                 {title: 'Departamento', key: 'departamento', align: 'center'},
                 {title: 'Teléfono', key: 'telefono', align: 'center'},
                 {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
             ],
-            items: [],
-            headersTipoProv: [
+            headersCat: [
                 {title: '', key: 'opc', align: 'center'},
-                {title: 'Tipo Proveedor', key: 'nombre', align: 'center'},
+                {title: 'Nombre', key: 'nombre', align: 'center'},
+                {title: 'Descripcion', key: 'descripcion', align: 'center'},
                 {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
-                {title: 'Observaciones', key: 'observaciones', align: 'center'},
+                {title: 'Usuario Registro', key: 'usuarioRegistro', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
             ],
-            itemsTipoProv: [],
-            newProv: {
+            items: [],
+            itemsCat: [],
+            newCliente: {
                 show: false,
                 editar: false,
                 ver: false,
                 title: '',
                 item: {}
             },
-            newTipoProv: {
+            newCatCliente: {
                 show: false,
                 editar: false,
                 ver: false,
@@ -184,9 +185,7 @@ export default {
             },
             selectedItem: null,
             search: null,
-            menuDesde: false,
-            menuHasta: false,
-            loading: false, 
+            loading: false,
             loadingTipo: false,
             viewAlert: false,
             requestHttp: new RequestHttp()
@@ -199,62 +198,61 @@ export default {
     },
 
     methods: {
-        async getProveedores() {
+        async getClientes() {
             this.data.items = []
             this.data.loading = true
-            const result = await this.data.requestHttp.getProveedores()
+            const result = await this.data.requestHttp.getClientes()
             this.data.loading = false
             result.map(item => {
                 this.data.items.push(item)
             })
         },
-
-        async getTipoProveedores() {
-            this.data.itemsTipoProv = []
+        async getCategoriaClientes() {
+            this.data.itemsCat = []
             this.data.loadingTipo = true
-            const result = await this.data.requestHttp.getTipoProveedores()
+            const result = await this.data.requestHttp.getCategoriaClientes()
             this.data.loadingTipo = false
             result.map(item => {
-                this.data.itemsTipoProv.push(item)
+                this.data.itemsCat.push(item)
             })
         },
 
         openDialog(comp, type, item = null) {
             if (comp === 'prov') {
-                this.data.newProv.show = true
+                this.data.newCliente.show = true
                 switch(type) {
-                    case 'create': this.data.newProv.ver = false
-                                    this.data.newProv.editar = false
-                                    this.data.newProv.title = 'Nuevo Proveedor'
+                    case 'create': this.data.newCliente.ver = false
+                                    this.data.newCliente.editar = false
+                                    this.data.newCliente.title = 'Nuevo Cliente'
                                     break;
-                    case 'edit':  this.data.newProv.ver = false
-                                    this.data.newProv.editar = true
-                                    this.data.newProv.item = item
-                                    this.data.newProv.title = 'Editar Proveedor'
+                    case 'edit':  this.data.newCliente.ver = false
+                                    this.data.newCliente.editar = true
+                                    this.data.newCliente.item = item
+                                    this.data.newCliente.title = 'Editar Cliente'
                                     break;
-                    case 'view':  this.data.newProv.ver = true
-                                    this.data.newProv.editar = false
-                                    this.data.newProv.item = item
-                                    this.data.newProv.title = 'Proveedor'
+                    case 'view':  this.data.newCliente.ver = true
+                                    this.data.newCliente.editar = false
+                                    this.data.newCliente.item = item
+                                    this.data.newCliente.title = 'Cliente'
                                     break;
                     default: break;
                 }
             } else if (comp === 'tipo') {
-                this.data.newTipoProv.show = true
+                this.data.newCatCliente.show = true
                 switch(type) {
-                    case 'create': this.data.newTipoProv.ver = false
-                                    this.data.newTipoProv.editar = false
-                                    this.data.newTipoProv.title = 'Nuevo Tipo Proveedor'
+                    case 'create': this.data.newCatCliente.ver = false
+                                    this.data.newCatCliente.editar = false
+                                    this.data.newCatCliente.title = 'Nuevo Tipo Cliente'
                                     break;
-                    case 'edit':  this.data.newTipoProv.ver = false
-                                    this.data.newTipoProv.editar = true
-                                    this.data.newTipoProv.item = item
-                                    this.data.newTipoProv.title = 'Editar Tipo Proveedor'
+                    case 'edit':  this.data.newCatCliente.ver = false
+                                    this.data.newCatCliente.editar = true
+                                    this.data.newCatCliente.item = item
+                                    this.data.newCatCliente.title = 'Editar Tipo Cliente'
                                     break;
-                    case 'view':  this.data.newTipoProv.ver = true
-                                    this.data.newTipoProv.editar = false
-                                    this.data.newTipoProv.item = item
-                                    this.data.newTipoProv.title = 'Tipo de Proveedor'
+                    case 'view':  this.data.newCatCliente.ver = true
+                                    this.data.newCatCliente.editar = false
+                                    this.data.newCatCliente.item = item
+                                    this.data.newCatCliente.title = 'Tipo de Cliente'
                                     break;
                     default: break;
                 }
@@ -281,47 +279,46 @@ export default {
         async deleteItem() {
             console.log(this.data.selectedItem);
             
-            if (this.data.selectedItem.idProveedor) {
-                const result = await this.data.requestHttp.deleteProveedor(this.data.selectedItem.idProveedor)
+            if (this.data.selectedItem.idCliente) {
+                const result = await this.data.requestHttp.deleteCliente(this.data.selectedItem.idCliente)
                 if (result !== null) {
-                    alert('Proveedor Eliminado')
-                    this.getProveedores()
+                    alert('Cliente Eliminado')
+                    this.getClientes()
                 } else {
                     alert('No se pudo eliminar el registro')
                 }
             } else {
-                
-                const result = await this.data.requestHttp.deleteTipoProveedor(this.data.selectedItem.idTipoProveedor)
+                const result = await this.data.requestHttp.deleteCategoriaCliente(this.data.selectedItem.idCategoriaCliente)
                 if (result !== null) {
                     alert('Registro Eliminado')
-                    this.getTipoProveedores()
+                    this.getCategoriaClientes()
                 } else {
                     alert('No se pudo eliminar el registro')
                 }
             }
         },
 
-        refreshData() {
-            this.getProveedores()
-            this.getTipoProveedores()
-        },
-
         closeDialog(val) {
-            this.data.newProv.show = val
-            this.data.newProv.item = {}
-            this.data.newProv.title = ''
-            this.data.newProv.editar = false
-            this.data.newProv.ver = false
-            this.getProveedores()
+            this.data.newCliente.show = val
+            this.data.newCliente.item = {}
+            this.data.newCliente.title = ''
+            this.data.newCliente.editar = false
+            this.data.newCliente.ver = false
+            this.getClientes()
         },
 
-        closeDialogTipoProv (val) {
-            this.data.newTipoProv.show = val
-            this.data.newTipoProv.item = {}
-            this.data.newTipoProv.title = ''
-            this.data.newTipoProv.editar = false
-            this.data.newTipoProv.ver = false
-            this.getTipoProveedores()
+        refresData() {
+            this.getClientes()
+            this.getCategoriaClientes()
+        },
+
+        closeDialogCat (val) {
+            this.data.newCatCliente.show = val
+            this.data.newCatCliente.item = {}
+            this.data.newCatCliente.title = ''
+            this.data.newCatCliente.editar = false
+            this.data.newCatCliente.ver = false
+            this.getCategoriaClientes()
         }
     }
 }

@@ -85,6 +85,12 @@
                 <v-btn color="grey" variant="outlined" @click="closeDialog()">
                     Cerrar
                 </v-btn>
+                <v-btn color="red-darken-4" variant="flat" @click="exportDialogToPDF()">
+                    <template v-slot:prepend>
+                        <v-icon>mdi-printer</v-icon>
+                    </template>
+                    Imprimir
+                </v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -92,8 +98,10 @@
 
 <script>
 import { formatters } from '@/helpers/formatters';
-import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
+import RequestHttp from '@/services/requestHttp';
+import { jsPDF } from 'jspdf'
+import 'jspdf-autotable'
 
 export default {
     props: {
@@ -116,8 +124,7 @@ export default {
             if (newValue) {
                 const result = await data.requestHttp.getByIdCompra(localOrden.value.idCompra)
                 const proveedor = await data.requestHttp.getByIdProveedor(result.idProveedor)
-                
-                console.log(result);
+
                 data.items = []
                 data.idOrden = result.idCompra
                 data.orden.idProveedor = result.idProveedor
@@ -128,7 +135,7 @@ export default {
                 data.orden.fechaRegistro = result.fechaRegistro
                 data.orden.estado = result.estado
                 data.orden.proveedor = proveedor.nombre
-                result.detalleCompras.map(async (item) => {
+                await Promise.all(result.detalleCompras.map(async (item) => {
                     const product = await data.requestHttp.getByIdProducto(item.idProducto)
                     data.items.push({
                         idCompra: item.idCompra,
@@ -139,8 +146,8 @@ export default {
                         subTotal: item.cantidad * item.costoUnitario,
                         producto: product.nombre
                     })
-                    calcularTotals()
-                })
+                }))
+                calcularTotals()
             }
         })
         const  calcularTotals = () => {
@@ -216,7 +223,124 @@ export default {
         closeDialog() {
             this.$emit('closeDialog', false)
             this.localShow = false
+        },
+
+        exportDialogToPDF() {
+            if (!this.data.items || this.data.items.length === 0) {
+                alert('No hay datos para exportar.');
+                return;
+            }
+
+            const doc = new jsPDF();
+
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+
+            // Encabezado principal
+            doc.setFontSize(18);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(200, 0, 0); // Rojo oscuro
+            doc.text("ORDEN DE COMPRA", pageWidth / 2, 15, { align: "center" });
+
+            // Información general
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(0);
+
+            const lineSpacing = 6;
+            let currentY = 25;
+
+            const generales = [
+                `Número de Orden: ${this.data.orden.noOrden || ''}`,
+                `Estado: ${this.data.orden.estado ? 'Activa' : 'Inactiva'}`,
+                `Aprobada: ${this.data.orden.aprobada ? 'SI' : 'NO'}`,
+                `Fecha Registro: ${this.formateDate(this.data.orden.fechaRegistro)}`,
+                `Proveedor: ${this.data.orden.proveedor || ''}`,
+                `Emp. Registro: ${this.data.orden.usuarioRegistro || ''}`
+            ];
+
+            generales.forEach(dato => {
+                doc.text(dato, 14, currentY);
+                currentY += lineSpacing;
+            });
+
+            // Línea divisoria
+            doc.setDrawColor(200, 0, 0);
+            doc.setLineWidth(0.5);
+            doc.line(14, currentY, pageWidth - 14, currentY);
+            currentY += 5;
+
+            // Tabla de detalles
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(200, 0, 0);
+            doc.text("DETALLES", 14, currentY);
+            currentY += 5;
+            doc.setTextColor(0);
+
+            const headers = this.data.headers.map(header => header.title || header.key || '');
+            const filas = this.data.items.map(item => {
+                return this.data.headers.map(header => {
+                    const key = header.key;
+                    if (key === 'costoUnitario' || key === 'subTotal') {
+                        return this.formatedCurrency(item[key], this.data.fomates.nio);
+                    }
+                    return item[key] !== undefined ? item[key] : 'N/A';
+                });
+            });
+
+            doc.autoTable({
+                startY: currentY,
+                head: [headers],
+                body: filas,
+                theme: 'striped',
+                headStyles: { fillColor: [200, 0, 0], textColor: 255, halign: 'center' },
+                styles: { fontSize: 9, cellPadding: 2 },
+                margin: { left: 14, right: 14 },
+                didDrawPage: (data) => {
+                    currentY = data.cursor.y + 10;
+                }
+            });
+
+            // Sección Observaciones
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0);
+            doc.text("Observaciones:", 14, currentY);
+
+            doc.setFont("helvetica", "normal");
+            const observaciones = this.data.orden.observaciones || 'Ninguna';
+            const obsLines = doc.splitTextToSize(observaciones, pageWidth - 28);
+            doc.text(obsLines, 14, currentY + 5);
+
+            // Totales
+            const totalesY = currentY + obsLines.length * 5 + 15;
+            doc.setFont("helvetica", "bold");
+            const totalX = pageWidth - 80;
+            const totalLines = [
+                `Sub Total: ${this.formatedCurrency(this.data.factura.subTotal, this.data.fomates.nio)}`,
+                `Total: ${this.formatedCurrency(this.data.factura.total, this.data.fomates.nio)}`,
+            ];
+            if (this.data.factura.usdTotal) {
+                totalLines.push(`Total $: ${this.formatedCurrency(this.data.factura.usdTotal, this.data.fomates.usd)}`);
+            }
+
+            totalLines.forEach((line, i) => {
+                doc.text(line, totalX, totalesY + i * 7);
+            });
+
+            // Pie de página con fecha-hora
+            const now = new Date();
+            const dateStr = `${("0" + now.getDate()).slice(-2)}/${("0" + (now.getMonth() + 1)).slice(-2)}/${now.getFullYear()}`;
+            const timeStr = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}:${("0" + now.getSeconds()).slice(-2)}`;
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "italic");
+            doc.setTextColor(100);
+            doc.text(`Fecha-Hora de impresión: ${dateStr} ${timeStr}`, pageWidth - 80, pageHeight - 10);
+
+            doc.save(`Orden_${this.data.orden.noOrden}.pdf`);
         }
+
     },
 }
 </script>

@@ -36,7 +36,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putCategoria}/${id}`, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
+            // console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -85,7 +85,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putSubCategoria}/${id}`, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
+            // console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -133,7 +133,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putProducto}/${id}`, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
+            // console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -181,7 +181,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putProveedor}/${id}`, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
+            // console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -229,7 +229,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putTipoProveedor}/${id}`, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
+            // console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -277,7 +277,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putProveedorProducto}/${id}`, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
+            // console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -325,13 +325,206 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putCompra}/${id}`, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
+            // console.error('Error on request', error.response.data);
             return null
         }
     }
     async deleteCompra(id) {
         try {
             const result  = await axios.delete(`${endPoints.deleteCompra}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+
+    // VENTAS
+    async getVentas() {
+        try {
+            const result  = await axios.get(endPoints.getVenta)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getByIdVenta(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getVenta}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postVenta(data) {
+        try {
+            const result  = await axios.post(endPoints.postVenta, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async putVenta(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putVenta}/${id}`, data)
+            return result.data
+        } catch (error) {
+            // console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async deleteVenta(id) {
+        try {
+            const result  = await axios.delete(`${endPoints.deleteVenta}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+
+    // CLIENTES
+    async getClientes() {
+        try {
+            const result  = await axios.get(endPoints.getCliente)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getByIdCliente(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getCliente}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postCliente(data) {
+        try {
+            const result  = await axios.post(endPoints.postCliente, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async putCliente(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putCliente}/${id}`, data)
+            return result.data
+        } catch (error) {
+            // console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async deleteCliente(id) {
+        try {
+            const result  = await axios.delete(`${endPoints.deleteCliente}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+
+    // CATEGORIA CLIENTES
+    async getCategoriaClientes() {
+        try {
+            const result  = await axios.get(endPoints.getCategoriaCliente)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getByIdCategoriaCliente(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getCategoriaCliente}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postCategoriaCliente(data) {
+        try {
+            const result  = await axios.post(endPoints.postCategoriaCliente, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async putCategoriaCliente(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putCategoriaCliente}/${id}`, data)
+            return result.data
+        } catch (error) {
+            // console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async deleteCategoriaCliente(id) {
+        try {
+            const result  = await axios.delete(`${endPoints.deleteCategoriaCliente}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+
+
+    // MOVIMIENTOS
+    async getMovimientoss() {
+        try {
+            const result  = await axios.get(endPoints.getMovimieto)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getByIdMovimientos(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getMovimieto}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postMovimientos(data) {
+        try {
+            const result  = await axios.post(endPoints.postMovimieto, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async putMovimientos(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putMovimieto}/${id}`, data)
+            return result.data
+        } catch (error) {
+            // console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async deleteMovimientos(id) {
+        try {
+            const result  = await axios.delete(`${endPoints.deleteMovimieto}/${id}`)
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);
