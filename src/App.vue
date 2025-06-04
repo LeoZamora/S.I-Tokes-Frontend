@@ -80,7 +80,7 @@ import { useStore } from './store';
 export default {
   mounted() {
     const lastRoute = sessionStorage.getItem('lastRoute')
-
+    this.data.nameTabs = []
     if (lastRoute) {
       this.data.nameTabs.push(lastRoute);
       this.data.activeTab = this.data.nameTabs.indexOf(lastRoute)
@@ -121,7 +121,6 @@ export default {
         ['Movimientos', 'Movimientos']
       ],
       clientes: [
-        ['Categorías Clientes'],
         ['Clientes'],
       ],
       accesos: [

@@ -58,6 +58,33 @@ const routes = createRouter({
             requiredAuth: true,
             title: 'Categorías | T O K E S'
         }
+    }, {
+        path: '/clientes',
+        name: 'Clientes',
+        component: () => import('@/components/clientes/ClientesComp.vue'),
+        meta: {
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'Clientes | T O K E S'
+        }
+    }, {
+        path: '/cpc',
+        name: 'CPC',
+        component: () => import('@/components/clientes/CPComp.vue'),
+        meta: {
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'CxC | T O K E S'
+        }
+    }, {
+        path: '/movimientos',
+        name: 'Movimientos',
+        component: () => import('@/components/inventario/Movimientos/MovimientosComp.vue'),
+        meta: {
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'Movimientos | T O K E S'
+        }
     }],
 
     scrollBehavior(to, from, savePosition) {

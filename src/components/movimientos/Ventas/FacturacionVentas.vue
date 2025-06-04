@@ -20,14 +20,14 @@
             <v-divider /> 
             <v-row class="pa-2" dense>
                 <v-col cols="6" md="6" sm="6">
-                    <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
+                    <v-text-field v-model="data.search" color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
                         hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
                 </v-col>
                 <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-                    <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
-                        <v-icon>mdi-magnify</v-icon>
+                    <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getVentas()">
+                        <v-icon>mdi-refresh</v-icon>
                     </v-btn>
-                    <v-btn icon color="grey" size="small" variant="text" class="border">
+                    <v-btn icon color="grey" size="small" variant="text" class="border" @click="data.search = null">
                         <v-icon>mdi-broom</v-icon>
                     </v-btn>
                 </v-col>
@@ -39,12 +39,12 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :mobile="isMobile" :headers="data.header" :items="data.facturas" class="border" density="compact">
+                <v-data-table :search="data.search" :mobile="isMobile" :headers="data.header" :items="data.facturas" class="border" density="compact">
                     <template v-slot:item.total="{ item }">
                         <div>{{ formatedCurrency(item.total) }}</div>
                     </template>
-                    <template v-slot:item.fecha="{ item }">
-                        <div>{{ formatedDate(item.fecha) }}</div>
+                    <template v-slot:item.fechaRegistro="{ item }">
+                        <div>{{ formatedDate(item.fechaRegistro) }}</div>
                     </template>
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
@@ -55,7 +55,7 @@
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="error" class="mr-1">mdi-delete</v-icon>
+                                <v-icon v-bind="props" size="small" color="error" class="mr-1" @click="showAlert(item)">mdi-delete</v-icon>
                             </template>
                         </v-tooltip>
 
@@ -66,16 +66,17 @@
                         </v-tooltip>
                     </template>
                     <template v-slot:item.estado="{ item }">
-                        <v-chip :color="getStatusColor(item.estado)" small>
-                            {{ item.estado }}
+                        <v-chip :color="item.estado ? 'green' : 'error'" small>
+                            {{ item.estado ? 'Activo' : 'Inactivo' }}
                         </v-chip>
                     </template>
                 </v-data-table>
             </v-card-text>
         </v-card>
-        <NuevaFactura :show="data.editFactura.show" :editar="data.editFactura.editar" :factura="data.editFactura.item" 
-            @closeDialog="closeDialog" :title="data.editFactura.title"/>
+        <NuevaFactura :show="data.editFactura.show" :editar="data.editFactura.editar" :idFact="data.idVenta"
+            @closeDialog="closeDialog" :title="data.editFactura.title" @refreshTable="getVentas"/>
         <ViewVenta :show="data.viewFactura.show" :factura="data.viewFactura.item" @closeDialog="closeDialog"/>
+        <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
     </div>
 </template>
 
@@ -84,11 +85,18 @@ import { formatters } from '@/helpers/formatters.js';
 import { reactive, computed, ref, onMounted, onUnmounted } from 'vue';
 import NuevaFactura from './NuevaFactura.vue';
 import ViewVenta from './ViewVenta.vue';
+import RequestHttp from '@/services/requestHttp';
+import AlertComp from '@/components/widgets/AlertComp.vue';
 
 export default {
+    mounted() {
+        this.getVentas()
+    },
+
     components: {
         NuevaFactura,
-        ViewVenta
+        ViewVenta,
+        AlertComp
     },
 
     setup() {
@@ -116,22 +124,16 @@ export default {
         const data = reactive({
             header: [
                 {title: '', key: 'opc', align: 'center',},
-                {title: 'Nº Factura', key: 'numFactura', align: 'center'},
+                {title: 'Nº Factura', key: 'noVenta', align: 'center'},
                 {title: 'Cliente', key: 'cliente', align: 'center'},
-                {title: 'Vendedor', key: 'vendedor', align: 'center'},
-                {title: 'Fecha Emisión', key: 'fecha', align: 'center'},
+                {title: 'Vendedor', key: 'usuarioRegistro', align: 'center'},
                 {title: 'Total', key: 'total', align: 'center'},
-                {title: 'Observaciones', key: 'observaiones', align: 'center'},
+                {title: 'Dirección', key: 'enviarA', align: 'center'},
+                {title: 'Fecha Emisión', key: 'fechaRegistro', align: 'center'},
+                {title: 'Observaciones', key: 'observaciones', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
             ],
-            facturas: [{
-                numFactura: '0001',
-                cliente: 'Cliente Prueba',
-                vendedor: 'Vendedor Prueba',
-                fecha: '01/01/2025',
-                total: 2000,
-                estado: 'Activo'
-            }],
+            facturas: [],
             visibleDialog: false,
 
             editFactura: {
@@ -144,8 +146,13 @@ export default {
                 show: false,
                 item: {}
             },
+            search: null,
+            viewAlert: false,
+            selectedItem: null,
+            idVenta: null,
             menuDesde: false,
             menuHasta: false,
+            requestHttp: new RequestHttp()
         })
 
         return {
@@ -159,6 +166,17 @@ export default {
     },
 
     methods: {
+        async getVentas() {
+            this.data.facturas = []
+            this.data.loading = true
+            const result = await this.data.requestHttp.getVentas()
+            this.data.loading = false
+            if (result !== null) {
+                result.map(item => {
+                    this.data.facturas.push(item)
+                })
+            }
+        },
         formatedCurrency(key) {
             const value = formatters.formatCurrency(key)
             return value
@@ -193,13 +211,38 @@ export default {
         editFactura(item) {
             this.data.editFactura.show = true
             this.data.editFactura.editar = true
-            this.data.editFactura.item = item
+            this.data.idVenta = item.idVenta
             this.data.editFactura.title = 'EDITAR FACTURA'
+        },
+
+        deleteAction(val) {
+            if (val === true) {
+                this.deleteItem()
+            }
+            this.data.viewAlert = false
+        },
+
+        showAlert(item){
+            this.data.viewAlert = true
+            this.data.selectedItem = item
+        },
+
+        async deleteItem() {
+            const result = await this.data.requestHttp.deleteVenta(this.data.selectedItem.idVenta)
+            if (result !== null) {
+                alert('Venta Eliminada')
+                this.getVentas()
+            } else {
+                alert('No se pudo eliminar el registro')
+            }
         },
 
         closeDialog(val) {  
             this.data.viewFactura.show = val
             this.data.editFactura.show = val
+            this.data.editFactura.editar = val
+            this.data.editFactura.show = val
+            this.data.editFactura.title = ''
         }
 
     }
