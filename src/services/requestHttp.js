@@ -506,7 +506,10 @@ class RequestHttp {
     }
     async postLogin(data) {
         try {
-            const result  = await axios.post(endPoints.postLogin, data)
+            const result  = await axios.post(endPoints.postUsuarioLogin, {
+                "usuario": data.usuario,
+                "password": data.password
+            })
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);

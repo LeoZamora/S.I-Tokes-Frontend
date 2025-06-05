@@ -19,7 +19,7 @@
                             variant="outlined" density="compact" :type="data.showPass ? 'text': 'password'" :rules="data.rules.passRules"/>
                     </v-card-text>
                     <v-fade-transition>
-                        <v-alert density="compact" v-if="data.errorMsg" type="warning" variant="tonal">{{
+                        <v-alert density="compact" v-if="data.error" type="warning" variant="tonal">{{
                             data.errorMsg
                             }}</v-alert>
                     </v-fade-transition>
@@ -54,6 +54,7 @@ export default {
             },
             loading: false,
             valid: false,
+            error: false,
             errorMsg: '',
             showPass: false,
             isVisible: false,
@@ -92,13 +93,18 @@ export default {
             }
             this.data.msgLoader = 'Iniciando Sesion'
             const result = await this.data.requestHttp.postLogin(this.data.data)
+
             if (result !== null) {
                 this.data.loading = true
                 await this.delay(1500)
                 this.data.loading = false
                 this.useAuth.login(result.token)
                 this.useAuth.sendNameUser(this.data.data.usuario)
-            } else {
+            } else  {
+                this.data.error = true
+                setTimeout(() => {
+                    this.data.error = false
+                }, 3000)
                 this.data.errorMsg = 'Credenciales incorrectas';
                 this.data.loading = false;
             }
