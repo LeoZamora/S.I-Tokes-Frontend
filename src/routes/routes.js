@@ -85,7 +85,25 @@ const routes = createRouter({
             requiredAuth: true,
             title: 'Movimientos | T O K E S'
         }
-    }],
+    }, {
+        path: '/usuario',
+        name: 'Usuarios',
+        component: () => import('@/components/config/UsuariosComp.vue'),
+        meta: {
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'Usuario | T O K E S'
+        }
+    }, {
+        path: '/roles-permisos',
+        name: 'Roles',
+        component: () => import('@/components/config/RolesComp.vue'),
+        meta: {
+            keepAlive: true,
+            requiredAuth: true,
+            title: 'Roles | T O K E S'
+        }
+    }, ],
 
     scrollBehavior(to, from, savePosition) {
         if (savePosition) {

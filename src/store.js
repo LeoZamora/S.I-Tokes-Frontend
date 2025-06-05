@@ -32,23 +32,6 @@ export const useStore = defineStore('auth', {
         getNameUser() {
             return localStorage.getItem('name')
         },
-        sendExp(exp) {
-            localStorage.setItem('exp', exp)
-        },
-        deleteSession(exp) {
-            const now = Date.now()
-            if (now >= exp) {
-                this.logout()
-                localStorage.removeItem('exp')
-                return console.log('Sesión expirada');
-            } else {
-                return console.log('Sesión activa');
-            }   
-        },
-        setTheme(theme) {
-            localStorage.setItem('theme', theme)
-            this.theme = theme
-        },
     },
     getters: {
         getIsLoggedIn: (state) => state.isLoggedIn
