@@ -484,10 +484,10 @@ class RequestHttp {
     }
 
 
-    // MOVIMIENTOS
-    async getMovimientoss() {
+    // USUARIOS
+    async getUsuarios() {
         try {
-            const result  = await axios.get(endPoints.getMovimieto)
+            const result  = await axios.get(endPoints.getUsuario)
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);
@@ -495,36 +495,57 @@ class RequestHttp {
             
         }
     }
-    async getByIdMovimientos(id) {
+    async postUsuario(data) {
         try {
-            const result  = await axios.get(`${endPoints.getMovimieto}/${id}`)
+            const result  = await axios.post(endPoints.postUsuario, data)
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);
             return null
         }
     }
-    async postMovimientos(data) {
+    async postLogin(data) {
         try {
-            const result  = await axios.post(endPoints.postMovimieto, data)
+            const result  = await axios.post(endPoints.postLogin, data)
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);
             return null
         }
     }
-    async putMovimientos(data, id) {
+
+    // ROLES
+    async getRoles() {
         try {
-            const result  = await axios.put(`${endPoints.putMovimieto}/${id}`, data)
+            const result  = await axios.get(endPoints.getRol)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getByIdRol(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getByIdRol}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
             return null
         }
     }
-    async deleteMovimientos(id) {
+    async postRol(data) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteMovimieto}/${id}`)
+            const result  = await axios.post(endPoints.postRol, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async putRol(data) {
+        try {
+            const result  = await axios.put(endPoints.putRol, data)
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);

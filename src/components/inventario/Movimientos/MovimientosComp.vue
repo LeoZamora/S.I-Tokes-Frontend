@@ -13,25 +13,19 @@
             <v-divider /> 
             <v-card-text class="px-0">
                 <v-row dense class="align-center px-2">
-                    <v-col cols="12" sm="6" md="3">
+                    <v-col cols="12" sm="4" md="4">
                         <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details 
                             placeholder="Buscar textos" persistent-placeholder/>
                     </v-col>
-                    <v-col cols="12" sm="6" md="3">
+                    <v-col cols="12" sm="4" md="4">
                         <v-autocomplete v-model="data.movimiento" :items="data.movimientos" density="compact" variant="outlined" label="Tipos de Movimientos" hide-details 
-                            placeholder="movimientos" persistent-placeholder/>
+                            placeholder="movimientos" persistent-placeholder @update:model-value="filterTipoMov()"/>
                     </v-col>
-                    <v-col cols="12" sm="6" md="3">
-                        <v-autocomplete v-model="data.producto" :items="data.products" density="compact" variant="outlined" label="Producto" hide-details placeholder="productos" persistent-placeholder/>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="3" class="d-flex justify-end align-center">
-                        <v-btn icon color="red-darken-4" class="border" variant="text">
-                            <v-icon>mdi-magnify</v-icon>
+                    <v-col cols="12" sm="4" md="4" class="d-flex justify-end align-center">
+                        <v-btn size="small" icon color="green" class="border mx-2" variant="text" @click="getData()">
+                            <v-icon>mdi-refresh</v-icon>
                         </v-btn>
-                        <v-btn icon color="green" class="border mx-2" variant="text">
-                            <v-icon>mdi-magnify</v-icon>
-                        </v-btn>
-                        <v-btn icon color="grey" variant="text" class="border">
+                        <v-btn size="small" icon color="grey" variant="text" class="border" @click="clearData()">
                             <v-icon>mdi-broom</v-icon>
                         </v-btn>
                     </v-col>
@@ -72,7 +66,7 @@
                 <!-- Encabezado -->
                 <v-card-title class="d-flex justify-space-between align-center bg-red-darken-4">
                     <span class="text-h5 font-weight-bold text-white">Detalle del Movimiento</span>
-                    <v-btn icon @click="data.dialog = false" variant="text" color="white">
+                    <v-btn size="small" icon @click="data.dialog = false" variant="text" color="white">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
                 </v-card-title>
@@ -208,7 +202,6 @@ import { reactive, ref } from 'vue';
 export default {
     mounted() {
         this.getData()
-        this.getProductos()
     },
 
     setup() {
@@ -296,6 +289,10 @@ export default {
             calcularTotals()
         }
 
+        const filterTipoMov = async () => {
+            data.items = data.items.filter(item => item.tipoMov === data.movimiento)
+        }
+
         const data = reactive({
             headers: [
                 {title: '', key: 'opc', align: 'center',},
@@ -315,7 +312,6 @@ export default {
                 {title: 'SubTotal', key: 'subTotal', align: 'center'},
             ],
             items: [],
-            products: [],
             venta: {
                 noVenta: null,
                 idCliente: null,
@@ -372,7 +368,8 @@ export default {
             data,
             selectedItem,
             getCompra,
-            getVenta
+            getVenta,
+            filterTipoMov
         }
     },
 
@@ -418,19 +415,6 @@ export default {
             this.data.loading = true
         },
 
-        async getProductos() {
-            this.data.products = []
-            const result = await this.data.requestHttp.getProductos()
-
-            if (result !== null) {
-                result.map(item => {
-                    this.data.products.push({title: item.nombre, value: item.idProducto})
-                })
-            } else {
-                throw new Error('Error en la solicitud')
-            }
-        },
-
         formatedCurrency(key) {
             const value = formatters.formatCurrency(key)
             return value
@@ -449,6 +433,12 @@ export default {
             }
             this.selectedItem = { ...item }
             this.data.dialog = true
+        },
+
+        clearData() {
+            this.data.movimiento = null
+            this.data.search = null
+            this.getData()
         },
 
         closeDialog() {

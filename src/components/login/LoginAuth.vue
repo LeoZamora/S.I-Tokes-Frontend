@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import RequestHttp from '@/services/requestHttp';
 import LoaderComp from '../widgets/LoaderComp.vue';
 import { useStore } from '@/store';
 import { reactive } from 'vue';
@@ -57,6 +58,7 @@ export default {
             showPass: false,
             isVisible: false,
             msgLoader: '',
+            requestHttp: new RequestHttp()
         })
 
         return {
@@ -88,14 +90,14 @@ export default {
             if(!this.data.data.usuario || !this.data.data.password){
                 return;
             }
-            
-            if (this.data.data.usuario == 'Admin' && this.data.data.password == 'admin123') {
+            this.data.msgLoader = 'Iniciando Sesion'
+            const result = await this.data.requestHttp.postLogin(this.data.data)
+            if (result !== null) {
                 this.data.loading = true
-                this.data.msgLoader = 'Iniciando Sesion'
-                await this.delay(1500);
-                const token = 'affwrfq425buefkwb2rob'
-                this.useAuth.login(token)
+                await this.delay(1500)
                 this.data.loading = false
+                this.useAuth.login(result.token)
+                this.useAuth.sendNameUser(this.data.data.usuario)
             } else {
                 this.data.errorMsg = 'Credenciales incorrectas';
                 this.data.loading = false;

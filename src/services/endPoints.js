@@ -49,10 +49,15 @@ const endPoints = {
     putVenta: 'api/Venta',
     deleteVenta: 'api/Venta',
 
-    getMovimieto: 'api/Movimiento',
-    postMovimieto: 'api/Movimiento',
-    putMovimieto: 'api/Movimiento',
-    deleteMovimieto: 'api/Movimiento',
+    getUsuario: 'api/Usuario',
+    postUsuario: 'api/Usuario/Crear',
+    postUsuarioLogin: 'api/Usuario/Login',
+
+
+    getRol: 'api/Rol',
+    postRol: 'api/Rol',
+    getByIdRol: 'api/Rol/Permisos',
+    putRol: 'api/Rol/EditarPermisos',
 }
 
 export default endPoints
