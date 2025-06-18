@@ -555,6 +555,26 @@ class RequestHttp {
             return null
         }
     }
+
+    async getDepartamentos() {
+        try {
+            const result  = await axios.get(endPoints.getDepartamentos)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getMunById(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getMunicipios}?idDepartamento=${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
 }
 
 export default RequestHttp

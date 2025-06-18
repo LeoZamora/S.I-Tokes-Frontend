@@ -50,9 +50,8 @@
             <v-divider class="mx-4" />
             <div class="d-flex flex-column align-center pa-2">
                 <h6 class="mt-2">
-                    Muebleria - copyright @{{ new Date().getFullYear() }}
+                  T O K E S - copyright @{{ new Date().getFullYear() }}
                 </h6>
-                <h6> Version {{ data.version }} </h6>
             </div>
         </template>
       </v-navigation-drawer>
