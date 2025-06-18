@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="localShow" max-width="750" persistent>
+    <v-dialog v-model="localShow" max-width="600" persistent>
       <v-card class="rounded-lg">
         <v-card-title class="font-weight-bold text-center bg-red-darken-4 text-white">
           <v-icon class="me-2">mdi-eye</v-icon> Detalles del Producto
@@ -15,102 +15,94 @@
           <v-window v-model="tab">
             <!-- Detalles del Producto -->
             <v-window-item>
-              <v-row class="mt-2 d-flex justify-space-between align-center" dense>
-                <v-col cols="12" sm="4" class="text-center mb-2">
-                  <v-img class="rounded-lg border" :src="producto.imgBase64" height="160" cover></v-img>
+              <v-row dense>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-barcode</v-icon>
+                    <span class="text-caption"><strong>Código:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ producto.codigo }}</div>
                 </v-col>
 
-                <v-col cols="12" sm="8" class="d-flex justify-center align-center">
-                  <v-row dense>
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-barcode</v-icon>
-                        <span class="text-caption"><strong>Código:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ producto.codigo }}</div>
-                    </v-col>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-tag</v-icon>
+                    <span class="text-caption"><strong>Nombre:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ producto.nombre }}</div>
+                </v-col>
 
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-tag</v-icon>
-                        <span class="text-caption"><strong>Nombre:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ producto.nombre }}</div>
-                    </v-col>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-currency-usd</v-icon>
+                    <span class="text-caption"><strong>Precio:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ formateCurrency(producto.precio) }}</div>
+                </v-col>
 
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-currency-usd</v-icon>
-                        <span class="text-caption"><strong>Precio:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ formateCurrency(producto.precio) }}</div>
-                    </v-col>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-currency-usd</v-icon>
+                    <span class="text-caption"><strong>Costo:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ formateCurrency(producto.costo) }}</div>
+                </v-col>
 
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-currency-usd</v-icon>
-                        <span class="text-caption"><strong>Costo:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ formateCurrency(producto.costo) }}</div>
-                    </v-col>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-folder-outline</v-icon>
+                    <span class="text-caption"><strong>Sub Categoría:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ producto.categoria }}</div>
+                </v-col>
 
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-folder-outline</v-icon>
-                        <span class="text-caption"><strong>Sub Categoría:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ producto.categoria }}</div>
-                    </v-col>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-shape-outline</v-icon>
+                    <span class="text-caption"><strong>Tipo:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ producto.tipoProducto }}</div>
+                </v-col>
 
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-shape-outline</v-icon>
-                        <span class="text-caption"><strong>Tipo:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ producto.tipoProducto }}</div>
-                    </v-col>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-warehouse</v-icon>
+                    <span class="text-caption"><strong>Stock:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ producto.cantidadTotal }}</div>
+                </v-col>
 
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-warehouse</v-icon>
-                        <span class="text-caption"><strong>Stock:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ producto.cantidadTotal }}</div>
-                    </v-col>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-warehouse</v-icon>
+                    <span class="text-caption"><strong>Stock Mínimo:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ producto.cantidadMinima }}</div>
+                </v-col>
 
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-warehouse</v-icon>
-                        <span class="text-caption"><strong>Stock Mínimo:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ producto.cantidadMinima }}</div>
-                    </v-col>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-check-circle-outline</v-icon>
+                    <span class="text-caption"><strong>Estado:</strong></span>
+                  </div>
+                  <!-- <v-chip density="compact" :color="producto.estado ? 'green' : 'error'" :text="producto.estado ? 'Activo' : 'Inactivo'"></v-chip> -->
+                  <div class="ms-6 text-caption">{{ producto.estado ? 'Activo' : 'Inactivo' }}</div>
+                </v-col>
 
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-check-circle-outline</v-icon>
-                        <span class="text-caption"><strong>Estado:</strong></span>
-                      </div>
-                      <!-- <v-chip density="compact" :color="producto.estado ? 'green' : 'error'" :text="producto.estado ? 'Activo' : 'Inactivo'"></v-chip> -->
-                      <div class="ms-6 text-caption">{{ producto.estado ? 'Activo' : 'Inactivo' }}</div>
-                    </v-col>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-account</v-icon>
+                    <span class="text-caption"><strong>Registrado por:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ producto.usuarioRegistro }}</div>
+                </v-col>
 
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-account</v-icon>
-                        <span class="text-caption"><strong>Registrado por:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ producto.usuarioRegistro }}</div>
-                    </v-col>
-
-                    <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                      <div class="d-flex align-center">
-                        <v-icon size="small" class="me-1" color="red-darken-4">mdi-calendar</v-icon>
-                        <span class="text-caption"><strong>Fecha Registro:</strong></span>
-                      </div>
-                      <div class="ms-6 text-caption">{{ formateDate(producto.fechaRegistro)  }}</div>
-                    </v-col>
-                  </v-row>
+                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-calendar</v-icon>
+                    <span class="text-caption"><strong>Fecha Registro:</strong></span>
+                  </div>
+                  <div class="ms-6 text-caption">{{ formateDate(producto.fechaRegistro)  }}</div>
                 </v-col>
               </v-row>
             </v-window-item>
@@ -219,8 +211,6 @@ export default {
       const dataPro = []
       const result = await data.requestHttp.getProveedorProductos()
       result.map(item => {
-        console.log(item);
-        
         dataPro.push({
           nombre: item.proveedor, 
           idProveedor: item.idProveedor,
@@ -231,7 +221,6 @@ export default {
       })
 
       data.proveedoresProducto = dataPro.filter(item => item.idProducto === props.producto.idProducto)
-      console.log(dataPro, data.proveedoresProducto);
     }
 
     const localShow = ref(props.show)

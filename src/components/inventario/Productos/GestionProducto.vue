@@ -82,7 +82,7 @@
           Inventario - Registro de Productos
         </v-card-title>
         <v-divider></v-divider>
-        <v-card-text class="pt-4">
+        <v-card-text class="pb-0">
           <v-form class="w-100" ref="form">
             <v-row dense>
               <v-col cols="12" md="6" sm="6">
@@ -118,12 +118,12 @@
                 <v-text-field v-model="data.form.tipoProducto" label="Tipo Producto" :rules="[rules.required]" variant="outlined" 
                   hide-details density="compact" prepend-inner-icon="mdi-tag" />
               </v-col>
-              <v-col cols="6" md="6" sm="6">
+              <v-col cols="3" md="3" sm="3">
                 <v-text-field color="red-darken-4" v-model="data.form.cantidadTotal" label="Stock" 
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
-              <v-col cols="6" md="6" sm="6">
+              <v-col cols="3" md="3" sm="3">
                 <v-text-field color="red-darken-4" v-model="data.form.cantidadMinima" label="Stock Mínimo" 
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
