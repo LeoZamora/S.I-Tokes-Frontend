@@ -23,7 +23,9 @@
                             {{data.errorMsg}}
                         </v-alert>                                                
                     </v-fade-transition>
-                    <div v-if="data.count === 4" class="w-100 d-flex justify-space-between align-center">
+                  <span v-show="data.count">Intentos restantes: {{ 5 - data.count }}</span>
+                    <div v-if="data.count === 5" class="w-100 d-flex justify-space-between align-center">
+
                         <span>Volver a intentar en: </span>
                         <strong class="ml-1">{{ cronometro }}</strong>
                     </div>
@@ -141,7 +143,8 @@ export default {
                 this.useAuth.login(result.token)
                 this.useAuth.sendNameUser(this.data.data.usuario)
             } else if(result.code == 404 || result.code == 400) {
-                if (this.data.count === 4) {
+              this.data.count += 1;
+                if (this.data.count === 5) {
                     this.data.disableBtn = true
                     this.data.error = true
                     
@@ -154,7 +157,6 @@ export default {
                     this.data.errorMsg = 'Acceso Bloqueado';
                     return
                 } else {
-                    this.data.count += 1;
                     this.data.error = true
                     setTimeout(() => {
                         this.data.error = false
