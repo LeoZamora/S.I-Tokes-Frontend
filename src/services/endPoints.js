@@ -58,6 +58,9 @@ const endPoints = {
     postRol: 'api/Rol',
     getByIdRol: 'api/Rol/Permisos',
     putRol: 'api/Rol/EditarPermisos',
+
+    getDepartamentos: 'api/departamentos/combobox',
+    getMunicipios: 'api/municipios/combobox'
 }
 
 export default endPoints

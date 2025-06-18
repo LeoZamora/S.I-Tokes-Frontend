@@ -44,11 +44,11 @@
                         variant="outlined" hide-details label="Teléfono" placeholder="teléfono del Cliente"  persistent-placeholder type="number" :readonly="readonlyOption()"/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="py-2">
-                        <v-text-field v-model="data.dataCliente.departamento" prepend-inner-icon="mdi-home-city" density="compact" 
+                        <v-autocomplete :items="data.departamentos" v-model="data.dataCliente.departamento" prepend-inner-icon="mdi-home-city" density="compact" 
                         variant="outlined" hide-details label="Departamento" placeholder="ingrese un departamento"  persistent-placeholder :readonly="readonlyOption()"/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="py-2">
-                        <v-text-field v-model="data.dataCliente.municipio" prepend-inner-icon="mdi-map-marker" density="compact" 
+                        <v-autocomplete :items="data.municipios" v-model="data.dataCliente.municipio" prepend-inner-icon="mdi-map-marker" density="compact" 
                         variant="outlined" hide-details label="Municipio" placeholder="ingrese un municipio"  persistent-placeholder :readonly="readonlyOption()"/>
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="py-2">
@@ -79,6 +79,7 @@ import { reactive, ref, watch } from 'vue';
 export default {
     mounted() {
         this.getCategoriaCliente()
+        this.getDepartamentos()
     },
     
     props: {
@@ -160,6 +161,8 @@ export default {
                 personaNatural: false,
                 usuarioRegistro: new Date()
             },
+            departamentos: [],
+            municipios: [],
             idClient: localCliente.value.idCliente,
             categoriaCliente: [],
             requestHttp: new RequestHttp()
@@ -209,11 +212,30 @@ export default {
                 }
             }
         },
+
          async getCategoriaCliente() {
             this.data.categoriaCliente = []
             const result = await this.data.requestHttp.getCategoriaClientes()
             result.map(item => {
                 this.data.categoriaCliente.push({title: item.nombre, value: item.idCategoriaCliente})
+            })
+        },
+
+        async getDepartamentos() {
+            this.data.departamentos = []
+            const result = await this.data.requestHttp.getDepartamentos()
+            console.log(result);
+            result.map(item => {
+                this.data.departamentos.push({title: item.nombre, value: item.idDepartamento})
+            })
+        },
+
+        async getMunicipios() {
+            this.data.municipios = []
+            const result = await this.data.requestHttp.getMunById(this.data.dataCliente.departamento)
+            console.log(result);
+            result.map(item => {
+                this.data.municipios.push({title: item.nombre, value: item.idMunicipio})
             })
         },
 
