@@ -105,11 +105,11 @@
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" step="0.01" prepend-inner-icon="mdi-cash" />
               </v-col>
-              <!-- <v-col cols="12" md="6" sm="6">
-                <v-autocomplete color="red-darken-4" label="Und. Medidad" v-model="data.form.idUnidadMedida"
+              <v-col cols="12" md="6" sm="6">
+                <v-text-field color="red-darken-4" label="Und. Medidad" v-model="data.form.idUnidadMedida"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
-                  hide-details density="compact" step="0.01" />
-              </v-col> -->
+                  hide-details density="compact" step="0.01" readonly/>
+              </v-col>
               <v-col cols="12" md="6" sm="6">
                 <v-select v-model="data.form.idSubCatProd" label="Sub categoría" :items="data.subCategorias" 
                   :rules="[rules.required]" variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
@@ -127,10 +127,6 @@
                 <v-text-field color="red-darken-4" v-model="data.form.cantidadMinima" label="Stock Mínimo" 
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
-              </v-col>
-              <v-col cols="12" md="12" sm="12">
-                <v-file-input density="compact" variant="outlined" label="Selecciona una imagen" accept="image/*" 
-                  @update:model-value="convertirImagen" prepend-inner-icon="mdi-image" />
               </v-col>
               <v-col cols="12" md="12" sm="12">
                 <v-textarea v-model="data.observaciones" density="compact" variant="outlined" label="Observaciones" prepend-inner-icon="mdi-text" />
@@ -208,7 +204,7 @@ export default {
         precio: 0,
         costo: 0,
         idSubCatProd: null,
-        // idUnidadMedida: 1,
+        idUnidadMedida: 1,
         tipoProducto: null,
         cantidadTotal: 0,
         cantidadMinima: 0,
@@ -324,8 +320,6 @@ export default {
       this.data.form.precio = Number(this.data.form.precio)
       this.data.form.cantidadMinima = Number(this.data.form.cantidadMinima)
       this.data.form.cantidadTotal = Number(this.data.form.cantidadTotal)
-      console.log(productData);
-      
       const valid = utilsFunctions.objectValidate(productData)
 
       if (this.dialogMode === 'create') {
@@ -355,10 +349,7 @@ export default {
           if (productData.imagen === null) {
             productData.imagen === 'NO IMAGE'
           }
-          const product = {...productData, imagen: this.data.imagen}
-          console.log(product);
-          
-          const result = await this.data.requestHttp.putProductos(product, this.selectedProduct)
+          const result = await this.data.requestHttp.putProductos(productData, this.selectedProduct)
           if (result !== null) {
             alert('Registro Editado')
             this.getProductos()
