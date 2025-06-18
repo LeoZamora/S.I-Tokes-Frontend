@@ -22,11 +22,11 @@
 
       <v-row class="pa-2" dense>
         <v-col cols="6" md="6" sm="6">
-            <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
+            <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos" v-model="search"
               hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
         </v-col>
         <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-            <v-btn icon color="red-darken-4" size="small" variant="text" class="mr-2 border">
+            <v-btn icon color="red-darken-4" size="small" @click="getProductos" variant="text" class="mr-2 border">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
             <v-btn icon color="grey" size="small" variant="text" class="border">
@@ -312,7 +312,9 @@ export default {
     closeDialog() {
       this.dialog = false
       this.selectedProduct = null
-      this.data.form = {}
+      this.data.form = {
+        idUnidadMedida: 1
+      }
     },
     
     async handleSave(productData) {
@@ -329,6 +331,7 @@ export default {
         }
 
         try {
+          productData.idUnidadMedida = 1
           const result = await this.data.requestHttp.postProducto(productData)
           if (result !== null) {
             alert('Registro Guardado')
@@ -349,6 +352,7 @@ export default {
           if (productData.imagen === null) {
             productData.imagen === 'NO IMAGE'
           }
+          productData.idUnidadMedida = 1
           const result = await this.data.requestHttp.putProductos(productData, this.selectedProduct)
           if (result !== null) {
             alert('Registro Editado')

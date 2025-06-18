@@ -56,6 +56,11 @@ export default {
     mounted() {
         this.getCategorias()
     },
+  watch: {
+    localShow(x, y){
+      this.getCategorias()
+    }
+  },
     props: {
         show: {
             type: Boolean,
