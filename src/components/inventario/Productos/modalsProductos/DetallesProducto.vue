@@ -81,7 +81,7 @@
                     <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                       <div class="d-flex align-center">
                         <v-icon size="small" class="me-1" color="red-darken-4">mdi-warehouse</v-icon>
-                        <span class="text-caption"><strong>Stock:</strong></span>
+                        <span class="text-caption"><strong>Stock Mínimo:</strong></span>
                       </div>
                       <div class="ms-6 text-caption">{{ producto.cantidadMinima }}</div>
                     </v-col>
@@ -280,8 +280,6 @@ export default {
       const data = []
       const result = await this.data.requestHttp.getProveedorProductos()
       result.map(item => {
-        console.log(item);
-        
         data.push({
           nombre: item.nombre, 
           idProveedor: item.idProveedor,
@@ -291,8 +289,6 @@ export default {
       })
 
       this.data.proveedoresProducto = data.filter(item => item.idProducto === this.producto.idProducto)
-      console.log(data, this.data.proveedoresProducto);
-      
     },
 
     async postProveedorProducto() {
