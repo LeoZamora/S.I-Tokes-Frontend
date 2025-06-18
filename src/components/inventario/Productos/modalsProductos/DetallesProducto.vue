@@ -280,8 +280,6 @@ export default {
       const data = []
       const result = await this.data.requestHttp.getProveedorProductos()
       result.map(item => {
-        console.log(item);
-        
         data.push({
           nombre: item.nombre, 
           idProveedor: item.idProveedor,
@@ -291,8 +289,6 @@ export default {
       })
 
       this.data.proveedoresProducto = data.filter(item => item.idProducto === this.producto.idProducto)
-      console.log(data, this.data.proveedoresProducto);
-      
     },
 
     async postProveedorProducto() {

@@ -105,11 +105,11 @@
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" step="0.01" prepend-inner-icon="mdi-cash" />
               </v-col>
-              <v-col cols="12" md="6" sm="6">
+              <!-- <v-col cols="12" md="6" sm="6">
                 <v-autocomplete color="red-darken-4" label="Und. Medidad" v-model="data.form.idUnidadMedida"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" step="0.01" />
-              </v-col>
+              </v-col> -->
               <v-col cols="12" md="6" sm="6">
                 <v-select v-model="data.form.idSubCatProd" label="Sub categoría" :items="data.subCategorias" 
                   :rules="[rules.required]" variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
@@ -128,7 +128,7 @@
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
-              <v-col cols="12" md="6" sm="6">
+              <v-col cols="12" md="12" sm="12">
                 <v-file-input density="compact" variant="outlined" label="Selecciona una imagen" accept="image/*" 
                   @update:model-value="convertirImagen" prepend-inner-icon="mdi-image" />
               </v-col>
@@ -207,13 +207,13 @@ export default {
         precio: 0,
         costo: 0,
         idSubCatProd: null,
-        idUnidadMedida: 1,
+        // idUnidadMedida: 1,
         tipoProducto: null,
         cantidadTotal: 0,
         cantidadMinima: 0,
-        imagen: null,
         usuarioRegistro: 'admin'
       },
+      imagen: null,
       observaciones: null,
       selectedProduct: null,
       loading: false,
@@ -298,7 +298,7 @@ export default {
         this.data.form.cantidadTotal = product.cantidadTotal
         this.data.form.cantidadMinima = product.cantidadMinima
         this.data.form.usuarioRegistro = product.usuarioRegistro
-        this.data.form.imagen = product.imagen
+        this.data.imagen = product.imagen
       }
       this.dialog = true
     },
@@ -323,8 +323,9 @@ export default {
       this.data.form.precio = Number(this.data.form.precio)
       this.data.form.cantidadMinima = Number(this.data.form.cantidadMinima)
       this.data.form.cantidadTotal = Number(this.data.form.cantidadTotal)
+      console.log(productData);
+      
       const valid = utilsFunctions.objectValidate(productData)
-      this.data.form.imagen = null
 
       if (this.dialogMode === 'create') {
         if (!valid) {
@@ -350,7 +351,13 @@ export default {
           return
         }
         try {
-          const result = await this.data.requestHttp.putProductos(productData, this.selectedProduct)
+          if (productData.imagen === null) {
+            productData.imagen === 'NO IMAGE'
+          }
+          const product = {...productData, imagen: this.data.imagen}
+          console.log(product);
+          
+          const result = await this.data.requestHttp.putProductos(product, this.selectedProduct)
           if (result !== null) {
             alert('Registro Editado')
             this.getProductos()
@@ -419,7 +426,7 @@ export default {
 
       const lector = new FileReader();
       lector.onload = () => {
-        this.data.form.imagen = lector.result;
+        this.data.imagen = lector.result;
       };
 
       lector.readAsDataURL(file);
