@@ -7,7 +7,7 @@
             </div>
             <v-card id="card-form" elevation="0" class="bg-transparent border" rounded="lg">
                 <v-card-title class="text-center mt-2"><strong>INICIO DE SESION</strong></v-card-title>
-                <v-form @submit.prevent="authLoging()" id="form-login" v-model="data.valid" class="mx-2 mb-8 px-4" ref="form" lazy-validation>
+                <v-form id="form-login" v-model="data.valid" class="mx-2 mb-8 px-4" ref="form" lazy-validation>
                     <v-card-text class="pt-0">
                         <div class="text-subtitle-1 text-medium-emphasis">Usuario</div>
                         <v-text-field color="red-darken-4" v-model="data.data.usuario" placeholder="Ingrese su usuario" type="email" 
@@ -19,12 +19,16 @@
                             variant="outlined" density="compact" :type="data.showPass ? 'text': 'password'" :rules="data.rules.passRules"/>
                     </v-card-text>
                     <v-fade-transition>
-                        <v-alert density="compact" v-if="data.error" type="warning" variant="tonal">{{
-                            data.errorMsg
-                            }}</v-alert>
+                        <v-alert density="compact" v-if="data.error" type="warning" variant="tonal">
+                            {{data.errorMsg}}
+                        </v-alert>                                                
                     </v-fade-transition>
+                    <div v-if="data.count === 4" class="w-100 d-flex justify-space-between align-center">
+                        <span>Volver a intentar en: </span>
+                        <strong class="ml-1">{{ cronometro }}</strong>
+                    </div>
                     <v-card-actions id="btn" class="pb-8 d-flex justify-center">
-                        <v-btn  type="submit" size="large" @click="authLoging()" class="bg-red-darken-4" block>Acceder</v-btn>
+                        <v-btn :disabled="data.disableBtn" size="large" @click="authLoging()" class="bg-red-darken-4" block>Acceder</v-btn>
                     </v-card-actions>
                 </v-form>
             </v-card>
@@ -36,12 +40,43 @@
 import RequestHttp from '@/services/requestHttp';
 import LoaderComp from '../widgets/LoaderComp.vue';
 import { useStore } from '@/store';
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 
 export default {
     name: 'LoginAuth',
 
     setup() {
+        const tiempo = ref(15000)
+        const cronometro = ref('15')
+        let interval = null
+
+        const timer = () => {
+            if(interval) clearInterval(interval);
+
+            tiempo.value = 5 * 60 * 1000
+            actualizarTimer()
+
+            interval = setInterval(() => {
+            let minutos = Math.floor(tiempo.value / 60000);
+            let segundos = Math.floor((tiempo.value % 60000) / 1000);
+
+            cronometro.value = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+
+            if (tiempo.value <= 0) {
+                clearInterval(interval);
+                cronometro.value = "00:00";
+            }
+
+            tiempo.value -= 1000;
+        }, 1000); // Ejecutar cada segundo
+        }
+
+        const actualizarTimer = () => {
+            let minutos = Math.floor(tiempo.value / 60000);
+            let segundos = Math.floor((tiempo.value % 60000) / 1000);
+            cronometro.value = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+        }
+
         const useAuth = useStore()
         const data = reactive({
             rules: {
@@ -52,6 +87,8 @@ export default {
                 usuario: '',
                 password: ''
             },
+            count: 0,
+            disableBtn: false,
             loading: false,
             valid: false,
             error: false,
@@ -64,7 +101,10 @@ export default {
 
         return {
             data,
-            useAuth
+            useAuth,
+            cronometro, 
+            timer,
+            tiempo,
         }
     },
 
@@ -94,19 +134,34 @@ export default {
             this.data.msgLoader = 'Iniciando Sesion'
             const result = await this.data.requestHttp.postLogin(this.data.data)
 
-            if (result !== null) {
+            if (!result.code) {
                 this.data.loading = true
                 await this.delay(1500)
                 this.data.loading = false
                 this.useAuth.login(result.token)
                 this.useAuth.sendNameUser(this.data.data.usuario)
-            } else  {
-                this.data.error = true
-                setTimeout(() => {
-                    this.data.error = false
-                }, 3000)
-                this.data.errorMsg = 'Credenciales incorrectas';
-                this.data.loading = false;
+            } else if(result.code == 404 || result.code == 400) {
+                if (this.data.count === 4) {
+                    this.data.disableBtn = true
+                    this.data.error = true
+                    
+                    setTimeout(() => {
+                        this.data.disableBtn = false
+                        this.data.error = false
+                        this.data.count = 0
+                    }, 300000) 
+                    this.timer()
+                    this.data.errorMsg = 'Acceso Bloqueado';
+                    return
+                } else {
+                    this.data.count += 1;
+                    this.data.error = true
+                    setTimeout(() => {
+                        this.data.error = false
+                    }, 1500)
+                    this.data.errorMsg = result.msg;
+                    this.data.loading = false;
+                }                
             }
         }
     }

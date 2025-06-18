@@ -497,7 +497,7 @@ class RequestHttp {
     }
     async postUsuario(data) {
         try {
-            const result  = await axios.post(endPoints.postUsuario, data)
+            const result = await axios.post(endPoints.postUsuario, data)
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);
@@ -512,8 +512,8 @@ class RequestHttp {
             })
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
-            return null
+            // console.error('Error on request', error.response.data);
+            return error.response.data
         }
     }
 
