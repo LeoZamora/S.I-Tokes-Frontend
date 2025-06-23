@@ -145,6 +145,7 @@
 import { formatters } from '@/helpers/formatters';
 import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
+import { httpGet } from '@/scripts/api.js'
 
 export default {
     mounted() {
@@ -194,8 +195,10 @@ export default {
         const localEdit = ref(props.editar)
         const localFact = ref(props.idFact)
         const localTitle = ref(props.title)
-        watch(() => props.show, (newValue) => {
+        watch(() => props.show, async (newValue) => {
             localShow.value = newValue
+            var cod = await httpGet('api/venta/no-factura')
+            data.venta.noVenta = cod
         })
         watch(() => props.editar, async (val) => {
             localEdit.value = val
