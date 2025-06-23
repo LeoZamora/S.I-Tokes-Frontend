@@ -108,7 +108,7 @@ export default {
       drawer: true,
       ventasActions: [
         ['Facturación', 'Facturacion'],
-        ['Cuentas por Cobrar', 'CPC'],
+        //['Cuentas por Cobrar', 'CPC'],
       ],
       compraActions: [
         ['Proveedores', 'Proveedores'],
