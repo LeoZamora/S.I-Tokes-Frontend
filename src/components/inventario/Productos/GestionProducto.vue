@@ -115,7 +115,7 @@
                   :rules="[rules.required]" variant="outlined" hide-details density="compact" prepend-inner-icon="mdi-shape-outline" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field v-model="data.form.tipoProducto" label="Tipo Producto" :rules="[rules.required]" variant="outlined" 
+                <v-select v-model="data.form.tipoProducto" :items="data.tipos" label="Tipo Producto" :rules="[rules.required]" variant="outlined"
                   hide-details density="compact" prepend-inner-icon="mdi-tag" />
               </v-col>
               <v-col cols="3" md="3" sm="3">
@@ -184,6 +184,10 @@ export default {
 
     const data = reactive({
       products: [],
+      tipos: [
+        { title: 'MATERIA PRIMA', value: 'MATERIA PRIMA'},
+        { title: 'Producto Terminado', value: 'Producto Terminado'},
+      ],
       headers: [
         { title: 'Acciones', key: 'actions', sortable: false, align: 'center' },
         { title: 'Tipo Producto', key: 'tipoProducto', align: 'center' },

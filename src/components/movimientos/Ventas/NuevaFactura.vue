@@ -56,7 +56,7 @@
                             placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes"/>
                     </v-col>
                     <v-col cols="12" md="4" sm="12">
-                        <v-text-field v-model="data.venta.usuarioRegistro" prepend-inner-icon="mdi-account-cog" density="compact" variant="outlined" hide-details 
+                        <v-autocomplete :items="data.empleados" v-model="data.venta.usuarioRegistro" prepend-inner-icon="mdi-account-cog" density="compact" variant="outlined" hide-details
                             label="Empleado" placeholder="empleado de registro" persistent-placeholder/>
                     </v-col>
                     <v-col cols="12" md="12" sm="12">
@@ -151,6 +151,7 @@ export default {
     mounted() {
         this.getClientes()
         this.getProductos()
+      this.getEmpleados()
     },
 
     props: {
@@ -198,7 +199,7 @@ export default {
         watch(() => props.show, async (newValue) => {
             localShow.value = newValue
             var cod = await httpGet('api/venta/no-factura')
-            data.venta.noVenta = cod
+            data.venta.noVenta = String(cod)
         })
         watch(() => props.editar, async (val) => {
             localEdit.value = val
@@ -253,6 +254,7 @@ export default {
                 {title: 'SubTotal', key: 'subTotal', align: 'center'},
             ],
             productos: [],
+          empleados: [],
             items: [],
             clientes: [],
             producto: {
@@ -319,10 +321,20 @@ export default {
             })
         },
 
+      async getEmpleados() {
+        this.data.empleados = []
+        this.data.loading = true
+        const result = await this.data.requestHttp.getUsuarios()
+        this.data.loading = false
+        result.map(item => {
+          this.data.empleados.push({title: item.username, value: item.username})
+        })
+      },
+
         async getProductos() {
             this.data.productos = []
             this.data.loading = true
-            const result = await this.data.requestHttp.getProductos()
+            const result = await this.data.requestHttp.getProductos('Producto Terminado')
             this.data.loading = false
 
             if (result !== null) {
@@ -385,11 +397,11 @@ export default {
                     })
                     const result = await this.data.requestHttp.postVenta(this.data.venta)
 
-                    if (result !== null) {
+                    if (!result.code) {
                         alert('Registro Guardado')
                         this.closeDialog()
                     } else {
-                        alert('No se pudo guardar la orden')
+                        alert(result.msg)
                         return
                     }
                     
