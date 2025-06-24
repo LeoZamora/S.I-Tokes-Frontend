@@ -339,7 +339,9 @@ export default {
 
             if (result !== null) {
                 result.map(item => {
-                    this.data.productos.push({title: item.nombre, value: item.idProducto})
+                    if (item.tipoProducto === 'Producto Terminado') {
+                        this.data.productos.push({title: item.nombre, value: item.idProducto})
+                    }
                 })
             } else {
                 throw new Error('Error en la solicitud')

@@ -12,7 +12,7 @@
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn class="bg-red-darken-4 rounded-" @click="createFactura()">
+                <v-btn v-if="data.crud.create" class="bg-red-darken-4 rounded-" @click="createFactura()">
                     <v-icon>mdi-plus</v-icon>
                     <v-tooltip activator="parent" location="left">Nueva Factura</v-tooltip> 
                 </v-btn>
@@ -49,19 +49,19 @@
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="green" @click="editFactura(item)" class="mr-1" >mdi-pencil</v-icon>
+                                <v-icon v-if="data.crud.edit" v-bind="props" size="small" color="green" @click="editFactura(item)" class="mr-1" >mdi-pencil</v-icon>
                             </template>
                         </v-tooltip>
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="error" class="mr-1" @click="showAlert(item)">mdi-delete</v-icon>
+                                <v-icon v-if="data.crud.delete" v-bind="props" size="small" color="error" class="mr-1" @click="showAlert(item)">mdi-delete</v-icon>
                             </template>
                         </v-tooltip>
 
                         <v-tooltip text="Ver" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="viewFactura(item)">mdi-eye</v-icon>
+                                <v-icon v-if="data.crud.view" v-bind="props" size="small" color="indigo-darken-4" @click="viewFactura(item)">mdi-eye</v-icon>
                             </template>
                         </v-tooltip>
                     </template>
@@ -87,9 +87,11 @@ import NuevaFactura from './NuevaFactura.vue';
 import ViewVenta from './ViewVenta.vue';
 import RequestHttp from '@/services/requestHttp';
 import AlertComp from '@/components/widgets/AlertComp.vue';
+import { useStore } from '@/store';
 
 export default {
     mounted() {
+        this.verifyDataSecurity()
         this.getVentas()
     },
 
@@ -100,6 +102,7 @@ export default {
     },
 
     setup() {
+        const store = useStore()
         const screenWidth = ref(window.innerWidth)
         const isMobile = computed(() => screenWidth.value <= 850)
         const updateScreen = () => {
@@ -146,6 +149,12 @@ export default {
                 show: false,
                 item: {}
             },
+            crud: {
+                create: false, 
+                view: false, 
+                edit: false,
+                delete: false
+            },
             search: null,
             viewAlert: false,
             selectedItem: null,
@@ -161,11 +170,29 @@ export default {
             dateDesdeFormatted,
             dateHasta,
             dateHastaFormatted,
-            isMobile
+            isMobile,
+            store
         }
     },
 
     methods: {
+        verifyDataSecurity() {
+            const token = this.store.getInfoUser()
+            const permisos = token.permisos.split(",")
+            permisos.map(item => {
+                switch(item) {
+                    case '71': this.data.crud.view = true
+                        break;
+                    case '72': this.data.crud.create = true
+                        break;
+                    case '73': this.data.crud.edit = true
+                        break;
+                    case '74': this.data.crud.delete = true
+                        break;
+                }
+            })
+        },
+
         async getVentas() {
             this.data.facturas = []
             this.data.loading = true

@@ -8,9 +8,13 @@ export const useStore = defineStore('auth', {
         theme: ref(localStorage.getItem('theme') || 'dark'),
     }),
     actions: {
-        login() {
-            localStorage.setItem("token", "logged-in");
+        login(decodeToken) {
+            const token = JSON.stringify(decodeToken)
+            localStorage.setItem("token", token);
             this.isLoggedIn = true;
+        },
+        getInfoUser() {
+            return JSON.parse(localStorage.getItem("token"))
         },
         logout() {
             localStorage.removeItem("token");

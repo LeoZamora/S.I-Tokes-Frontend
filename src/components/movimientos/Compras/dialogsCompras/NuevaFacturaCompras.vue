@@ -179,7 +179,9 @@ export default {
             data.productos = []
             const result = await data.requestHttp.getProductos('MATERIA PRIMA')
             result.map(item => {
-                data.productos.push({title: item.nombre, value: item.idProducto})
+                if (item.tipoProducto === 'MATERIA PRIMA') {
+                    data.productos.push({title: item.nombre, value: item.idProducto})
+                }
             })
         }
 
