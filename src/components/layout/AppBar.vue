@@ -33,7 +33,7 @@
                   <v-list-subheader><small class="font-weight-bold">GESTIÓN DEL SISTEMA</small></v-list-subheader>
                   <v-list-group>
                     <template v-slot:activator="{ props }">
-                      <v-list-item v-bind="props" v-for="(item, i) in data.settings" :key="i" :prepend-icon="item.icon" rounded :value="item" 
+                      <v-list-item v-bind="props" v-for="(item, i) in data.settings" :key="i" :prepend-icon="item.icon" rounded :value="item"
                         color="red-darken-4" class="mx-2" :title="item.name"/>
                     </template>
                     <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.accesos"
@@ -104,7 +104,7 @@ export default {
         this.data.dataLoader.visible = true
         this.data.dataLoader.msg = 'Cerrando Sesion'
         this.$emit('logout')
-        
+
         await this.delay(1500);
 
         this.authUser.logout()
