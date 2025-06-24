@@ -177,7 +177,7 @@ export default {
 
         const getProductos =  async () =>  {
             data.productos = []
-            const result = await data.requestHttp.getProductos()
+            const result = await data.requestHttp.getProductos('MATERIA PRIMA')
             result.map(item => {
                 data.productos.push({title: item.nombre, value: item.idProducto})
             })

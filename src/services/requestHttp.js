@@ -100,9 +100,13 @@ class RequestHttp {
     }
 
     // PRODUCTOS
-    async getProductos() {
+    async getProductos(type = null) {
         try {
-            const result  = await axios.get(endPoints.getProducto)
+            var url = endPoints.getProducto
+            if(type){
+                url = `${endPoints.getProducto}?tipoProducto=${type}`
+            }
+            const result  = await axios.get(url)
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);
@@ -365,7 +369,7 @@ class RequestHttp {
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);
-            return null
+            return error.response.data
         }
     }
     async putVenta(data, id) {
