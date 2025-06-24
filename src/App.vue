@@ -89,6 +89,7 @@ export default {
   },
   setup() {
     const store = useStore()
+    store.logout()
     const isLoggeInd = computed(() => store.isLoggedIn)
     const screenWidth = ref(window.innerWidth)
     const isMobile = computed(() => screenWidth.value < 600)
