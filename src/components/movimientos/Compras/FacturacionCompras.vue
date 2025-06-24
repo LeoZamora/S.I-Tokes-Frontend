@@ -12,7 +12,7 @@
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn class="bg-red-darken-4 rounded-" @click="createOrden()">
+                <v-btn v-if="data.crud.create" class="bg-red-darken-4 rounded-" @click="createOrden()">
                     <v-icon>mdi-plus</v-icon>
                     <v-tooltip activator="parent" location="left">Nueva Órden</v-tooltip> 
                 </v-btn>
@@ -52,19 +52,19 @@
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="green" @click="editOrden(item)" class="mr-1" >mdi-pencil</v-icon>
+                                <v-icon v-if="data.crud.edit" v-bind="props" size="small" color="green" @click="editOrden(item)" class="mr-1" >mdi-pencil</v-icon>
                             </template>
                         </v-tooltip>
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" @click="showAlert(item)" color="error" class="mr-1">mdi-delete</v-icon>
+                                <v-icon v-if="data.crud.delete" v-bind="props" size="small" @click="showAlert(item)" color="error" class="mr-1">mdi-delete</v-icon>
                             </template>
                         </v-tooltip>
 
                         <v-tooltip text="Ver" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="viewOrden(item)">mdi-eye</v-icon>
+                                <v-icon v-if="data.crud.view" v-bind="props" size="small" color="indigo-darken-4" @click="viewOrden(item)">mdi-eye</v-icon>
                             </template>
                         </v-tooltip>
                     </template>
@@ -85,14 +85,16 @@
 
 <script>
 import { formatters } from '@/helpers/formatters.js';
-import { reactive, computed, ref } from 'vue';
+import { reactive } from 'vue';
 import AlertComp from '@/components/widgets/AlertComp.vue';
 import NuevaFacturaCompras from './dialogsCompras/NuevaFacturaCompras.vue';
 import ViewOrdenes from './dialogsCompras/ViewOrdenes.vue';
 import RequestHttp from '@/services/requestHttp';
+import { useStore } from '@/store';
 
 export default {
     mounted() {
+        this.verifyDataSecurity()
         this.getOrdenes()    
     },
 
@@ -103,6 +105,7 @@ export default {
     },
 
     setup() {
+        const store = useStore()
         const data = reactive({
             header: [
                 {title: '', key: 'opc', align: 'center',},
@@ -126,6 +129,12 @@ export default {
             selectedItem: null, 
             viewAlert: false,
             search: null,
+            crud: {
+                create: false, 
+                view: false, 
+                edit: false,
+                delete: false
+            },
             viewOrden: {
                 show: false,
                 item: {}
@@ -135,10 +144,28 @@ export default {
 
         return {
             data,
+            store
         }
     },
 
     methods: {
+        verifyDataSecurity() {
+            const token = this.store.getInfoUser()
+            const permisos = token.permisos.split(",")
+            permisos.map(item => {
+                switch(item) {
+                    case '31': this.data.crud.view = true
+                        break;
+                    case '32': this.data.crud.create = true
+                        break;
+                    case '33': this.data.crud.edit = true
+                        break;
+                    case '34': this.data.crud.delete = true
+                        break;
+                }
+            })
+        },
+
         async getOrdenes() {
             this.data.ordenes = []
             this.data.loading = true

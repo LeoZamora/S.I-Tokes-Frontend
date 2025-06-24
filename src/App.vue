@@ -12,16 +12,16 @@
                 <template v-slot:activator="{ props }">
                     <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="red-darken-4" class="mx-2" title="Ventas"/>
                 </template>
-                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in data.ventasActions" 
-                    :key="i" :value="title" @click="nameTab(route)">
+                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in ventasFiltradas" 
+                  :key="i" :value="title" @click="nameTab(route)">
                     <small>- {{ title }}</small>
                 </v-list-item>
             </v-list-group>
             <v-list-group prepend-icon="mdi-cart-arrow-down">
                 <template v-slot:activator="{ props }">
-                    <v-list-item v-bind="props" rounded value="Compras  " :lines="true" color="red-darken-4" class="mx-2" title="Compras"/>
+                    <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="red-darken-4" class="mx-2" title="Compras"/>
                 </template>
-                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in data.compraActions"
+                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in comprasFiltradas"
                     :key="i" :value="title" @click="nameTab(route)">
                     <small>- {{ title }}</small>
                 </v-list-item>
@@ -126,6 +126,12 @@ export default {
         ['Roles'],
         ['Usuarios'],
       ],
+      views: {
+        fact: false, 
+        orden: false, 
+        roles: false,
+        user: false
+      },
       selectedItems: ['Inicio'],
       nameTabs: [],
       nameCurrentTab: '',
@@ -137,11 +143,58 @@ export default {
     return {
       data,
       isMobile,
-      isLoggeInd
+      isLoggeInd,
+      store
+    }
+  },
+
+  computed: {
+    ventasFiltradas() {
+      return this.data.ventasActions.filter(([title]) => {
+        if (!this.isLoggeInd && title === 'Facturación' && !this.data.views.fact) return false;
+        return true;
+      });
+    },
+    comprasFiltradas() {
+      return this.data.compraActions.filter(([title]) => {
+        if (!this.isLoggeInd && title === 'Órdenes de compra' && !this.data.views.orden) return false;
+        return true;
+      });
+    },
+    accesosFiltrados() {
+      return this.data.accesos.filter(([title]) => {
+        if (!this.isLoggeInd && title === 'Roles' && !this.data.views.roles) return false;
+        if (!this.isLoggeInd && title === 'Usuarios' && !this.data.views.user) return false;
+        return true;
+      });
     }
   },
 
   methods: {
+    verifyDataSecurity() {
+      const token = this.store.getInfoUser()
+      const ventanas = token.ventanasAcceso.split(",")
+      this.data.views = {
+        fact: true, 
+        orden: true, 
+        roles: true,
+        user: true
+      }
+      
+      ventanas.map(item => {
+        switch(item) {
+          case '3': this.data.views.fact = false
+              break;
+          case '7': this.data.views.orden = false
+              break;
+          case '4': this.data.views.roles = false
+              break;
+          case '5': this.data.views.user = false
+              break;
+        }
+      })
+    },
+
     toggleDrawer() {
       this.data.drawer = !this.data.drawer
     },

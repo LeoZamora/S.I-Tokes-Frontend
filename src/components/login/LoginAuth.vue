@@ -41,6 +41,7 @@
 <script>
 import RequestHttp from '@/services/requestHttp';
 import LoaderComp from '../widgets/LoaderComp.vue';
+import JWTDecoder from '@/helpers/decoderJWT';
 import { useStore } from '@/store';
 import { reactive, ref } from 'vue';
 
@@ -98,7 +99,7 @@ export default {
             showPass: false,
             isVisible: false,
             msgLoader: '',
-            requestHttp: new RequestHttp()
+            requestHttp: new RequestHttp(),
         })
 
         return {
@@ -140,7 +141,10 @@ export default {
                 this.data.loading = true
                 await this.delay(1500)
                 this.data.loading = false
-                this.useAuth.login(result.token)
+
+                let jwtHandler = new JWTDecoder(result.token)
+                const decode = jwtHandler.decodeToken()
+                this.useAuth.login(decode)
                 this.useAuth.sendNameUser(this.data.data.usuario)
             } else if(result.code == 404 || result.code == 400) {
               this.data.count += 1;
