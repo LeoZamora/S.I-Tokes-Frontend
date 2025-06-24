@@ -177,8 +177,6 @@ export default {
       this.data.views = {
         fact: true, 
         orden: true, 
-        roles: true,
-        user: true
       }
       
       ventanas.map(item => {
@@ -186,10 +184,6 @@ export default {
           case '3': this.data.views.fact = false
               break;
           case '7': this.data.views.orden = false
-              break;
-          case '4': this.data.views.roles = false
-              break;
-          case '5': this.data.views.user = false
               break;
         }
       })
