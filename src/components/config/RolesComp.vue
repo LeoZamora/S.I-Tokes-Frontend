@@ -241,7 +241,6 @@ export default {
                   title: 'Editar',
                   icon: 'mdi-monitor',
                 },
-
                 {
                   id: '7-4',
                   title: 'Eliminar',

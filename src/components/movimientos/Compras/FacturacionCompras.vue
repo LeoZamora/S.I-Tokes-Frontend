@@ -154,13 +154,13 @@ export default {
             const permisos = token.permisos.split(",")
             permisos.map(item => {
                 switch(item) {
-                    case '31': this.data.crud.view = true
+                    case '71': this.data.crud.view = true
                         break;
-                    case '32': this.data.crud.create = true
+                    case '72': this.data.crud.create = true
                         break;
-                    case '33': this.data.crud.edit = true
+                    case '73': this.data.crud.edit = true
                         break;
-                    case '34': this.data.crud.delete = true
+                    case '74': this.data.crud.delete = true
                         break;
                 }
             })
