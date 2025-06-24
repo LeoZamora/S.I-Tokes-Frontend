@@ -7,8 +7,6 @@ class JWTDecoder {
 
     decodeToken() {
         try {
-            console.log(this.token);
-            
             return jwtDecode(this.token)
         } catch (error) {
             return { error: 'Token invalido'}

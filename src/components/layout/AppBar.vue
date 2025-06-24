@@ -36,7 +36,7 @@
                       <v-list-item v-bind="props" v-for="(item, i) in data.settings" :key="i" :prepend-icon="item.icon" rounded :value="item"
                         color="red-darken-4" class="mx-2" :title="item.name"/>
                     </template>
-                    <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.accesos"
+                    <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon], i) in accesosFiltrados"
                       :key="i" :value="title" @click="emitNameRoute(title)" :append-icon="icon">
                       <v-list-item-title>{{ title }}</v-list-item-title>
                     </v-list-item>
@@ -61,56 +61,88 @@
 </template>
 
 <script>
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 import LoaderComp from '../widgets/LoaderComp.vue';
 import { useStore } from '@/store';
 
 export default {
-    setup() {
-      const authUser = useStore()
-      const data = reactive({
-        settings: [{
-          name: 'Configuraciones',
-          icon: 'mdi-cog-outline'
-        }],
-        accesos: [
-          ['Roles', 'mdi-shield-account'],
-          ['Usuarios', 'mdi-account-multiple'],
-        ],
-        dataLoader: {
-          msg: '',
-          visible: false
+  mounted() {
+    this.verifyDataSecurity()
+  },
+
+  setup() {
+    const store = useStore()
+    const isLoggeInd = computed(() => store.isLoggedIn)
+    const data = reactive({
+      settings: [{
+        name: 'Configuraciones',
+        icon: 'mdi-cog-outline'
+      }],
+      accesos: [
+        ['Roles', 'mdi-shield-account'],
+        ['Usuarios', 'mdi-account-multiple'],
+      ],
+      dataLoader: {
+        msg: '',
+        visible: false
+      },
+      views: {
+        roles: false,
+        user: false
+      },
+    })
+    const accesosFiltrados = computed(() => {
+      return data.accesos.filter(([title]) => {
+        if (title === 'Roles' && !data.views.roles) return false
+        if (title === 'Usuarios' && !data.views.user) return false
+        return true
+      })
+    })
+    return {
+      data,
+      store,
+      accesosFiltrados
+    }
+  },
+
+  components: {
+    LoaderComp
+  },
+
+  methods: {
+    verifyDataSecurity() {
+      const token = this.store.getInfoUser()
+      const ventanas = token.ventanasAcceso.split(",")
+      
+      ventanas.map(item => {
+        switch(item) {
+          case '4': this.data.views.roles = true
+              break;
+          case '5': this.data.views.user = true
+              break;
         }
       })
-      return {
-        data,
-        authUser
-      }
     },
 
-    components: {
-      LoaderComp
+    emitNameRoute(name) {
+      this.$emit('nameRoute', name)
     },
 
-    methods: {
-      emitNameRoute(name) {
-        this.$emit('nameRoute', name)
-      },
-      async delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms))
-      },
+    async delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms))
+    },
 
-      async logout() {
-        this.data.dataLoader.visible = true
-        this.data.dataLoader.msg = 'Cerrando Sesion'
-        this.$emit('logout')
+    async logout() {
+      this.data.dataLoader.visible = true
+      this.data.dataLoader.msg = 'Cerrando Sesion'
+      this.$emit('logout')
 
-        await this.delay(1500);
+      await this.delay(1500);
 
-        this.authUser.logout()
-        this.data.dataLoader.visible = false
-      }
+      this.store.logout()
+      this.data.dataLoader.visible = false
     }
+  }
 }
 </script>
 
