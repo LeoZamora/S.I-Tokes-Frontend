@@ -7,13 +7,13 @@
         <div class="d-flex align-center">
           <!-- Título -->
           <div class="text-h6 font-weight-bold d-flex align-center">
-            <v-icon class="me-2" color="red-darken-4">mdi-package-variant</v-icon>
+            <v-icon class="me-2" color="primary">mdi-package-variant</v-icon>
             Productos
           </div>
         </div>
       </template>
       <template v-slot:append>
-        <v-btn class="bg-red-darken-4 rounded-" @click="openDialog('create')">
+        <v-btn class="bg-primary rounded-" @click="openDialog('create')">
           <v-icon>mdi-plus</v-icon>
           <v-tooltip activator="parent" location="left">Agregar Producto</v-tooltip> 
         </v-btn>
@@ -22,11 +22,11 @@
 
       <v-row class="pa-2" dense>
         <v-col cols="6" md="6" sm="6">
-            <v-text-field color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos" v-model="search"
+            <v-text-field color="primary" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos" v-model="search"
               hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
         </v-col>
         <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-            <v-btn icon color="red-darken-4" size="small" @click="getProductos" variant="text" class="mr-2 border">
+            <v-btn icon color="primary" size="small" @click="getProductos" variant="text" class="mr-2 border">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
             <v-btn icon color="grey" size="small" variant="text" class="border">
@@ -77,7 +77,7 @@
     <!-- Diálogo para agregar/editar -->
     <v-dialog v-model="dialog" max-width="600" persistent>
       <v-card class="w-100 mb-6" elevation="0">
-        <v-card-title class="text-h5 text-center pa-1 font-weight-bold bg-red-darken-4">
+        <v-card-title class="text-h5 text-center pa-1 font-weight-bold bg-primary">
           <v-icon>mdi-package-variant</v-icon>
           Inventario - Registro de Productos
         </v-card-title>
@@ -86,27 +86,27 @@
           <v-form class="w-100" ref="form">
             <v-row dense>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="red-darken-4" v-model="data.form.codigo" label="Código" 
+                <v-text-field color="primary" v-model="data.form.codigo" label="Código"
                   :rules="[rules.required]" variant="outlined" 
                   hide-details density="compact" clearable prepend-inner-icon="mdi-barcode"/>
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="red-darken-4" v-model="data.form.nombre" label="Nombre" 
+                <v-text-field color="primary" v-model="data.form.nombre" label="Nombre"
                   :rules="[rules.required, rules.minLength(3)]"  variant="outlined" 
                   hide-details density="compact" clearable prepend-inner-icon="mdi-text-box" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="red-darken-4" v-model="data.form.precio" label="Precio" 
+                <v-text-field color="primary" v-model="data.form.precio" label="Precio"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" step="0.01" prepend-inner-icon="mdi-currency-usd" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="red-darken-4" v-model="data.form.costo" label="Costo" 
+                <v-text-field color="primary" v-model="data.form.costo" label="Costo"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" step="0.01" prepend-inner-icon="mdi-cash" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="red-darken-4" label="Und. Medidad" v-model="data.form.idUnidadMedida"
+                <v-text-field color="primary" label="Und. Medidad" v-model="data.form.idUnidadMedida"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" step="0.01" readonly/>
               </v-col>
@@ -119,12 +119,12 @@
                   hide-details density="compact" prepend-inner-icon="mdi-tag" />
               </v-col>
               <v-col cols="3" md="3" sm="3">
-                <v-text-field color="red-darken-4" v-model="data.form.cantidadTotal" label="Stock" 
+                <v-text-field color="primary" v-model="data.form.cantidadTotal" label="Stock"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
               <v-col cols="3" md="3" sm="3">
-                <v-text-field color="red-darken-4" v-model="data.form.cantidadMinima" label="Stock Mínimo" 
+                <v-text-field color="primary" v-model="data.form.cantidadMinima" label="Stock Mínimo"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
@@ -139,7 +139,7 @@
           <v-btn color="grey" variant="outlined" @click="closeDialog()">
             Cerrar
           </v-btn>
-          <v-btn class="bg-red-darken-4" @click="handleSave(data.form)">
+          <v-btn class="bg-primary" @click="handleSave(data.form)">
             Guardar
           </v-btn>
         </v-card-actions>

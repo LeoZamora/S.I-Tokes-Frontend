@@ -5,18 +5,18 @@
                 <div class="d-flex align-center">
                 <!-- Título -->
                     <div class="font-weight-bold d-flex align-center">
-                        <v-icon class="me-2" color="red-darken-4">mdi-package-variant</v-icon>
+                        <v-icon class="me-2" color="primary">mdi-package-variant</v-icon>
                         <small v-if="isMobile">Gestión de Proveedores</small>
                         <span v-else class="text-h6 font-weight-bold">Gestión de Proveedores</span>
                     </div>
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn icon color="red-darken-4" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
+                <v-btn icon color="primary" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
                     <v-icon>mdi-account-plus</v-icon>
                     <v-tooltip activator="parent" location="left">Agregar Tipo Proveedores</v-tooltip> 
                 </v-btn>
-                <v-btn class="bg-red-darken-4 rounded" @click="openDialog('prov', 'create', null)">
+                <v-btn class="bg-primary rounded" @click="openDialog('prov', 'create', null)">
                     <v-icon>mdi-plus</v-icon>
                     <v-tooltip activator="parent" location="left">Agregar Proveedores</v-tooltip> 
                 </v-btn>

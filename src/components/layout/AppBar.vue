@@ -1,11 +1,11 @@
 <template>
-    <v-app-bar id="nav" class="w-100 position-fixed border bg-red-darken-4" elevation="0">
+    <v-app-bar id="nav" class="w-100 position-fixed border bg-primary" elevation="0">
       <LoaderComp v-show="data.dataLoader.visible" :data="data.dataLoader.msg"/>
         <v-app-bar-nav-icon class="mr-2" @click="$emit('toggle-drawer')"/>
         <div class="ml-4 pa-1 d-flex justify-center align-center">
           <!-- <v-img src="/logo.png" width="100"/> -->
           <div id="text-logo" class="d-flex justify-center align-center">
-              <h2>T O K E S</h2>
+              <h2>Inversiones Zafiro</h2>
           </div>
         </div>
         <v-spacer id="spacer-logo"></v-spacer>
@@ -21,7 +21,7 @@
 
               <v-card class="rounded-lg" elevation="4" width="280" style="top: 5px; left: 10px;">
                 <v-card-text class="text-center">
-                  <v-avatar size="64" class="mx-auto mb-2" color="red-darken-4">
+                  <v-avatar size="64" class="mx-auto mb-2" color="primary">
                     <v-icon size="36">mdi-account</v-icon>
                   </v-avatar>
                   <h3 class="text-h6 mb-1">Guest</h3>
@@ -34,9 +34,9 @@
                   <v-list-group>
                     <template v-slot:activator="{ props }">
                       <v-list-item v-bind="props" v-for="(item, i) in data.settings" :key="i" :prepend-icon="item.icon" rounded :value="item"
-                        color="red-darken-4" class="mx-2" :title="item.name"/>
+                        color="primary" class="mx-2" :title="item.name"/>
                     </template>
-                    <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon], i) in accesosFiltrados"
+                    <v-list-item class="mx-2" rounded :lines="true" color="primary" v-for="([title, icon], i) in accesosFiltrados"
                       :key="i" :value="title" @click="emitNameRoute(title)" :append-icon="icon">
                       <v-list-item-title>{{ title }}</v-list-item-title>
                     </v-list-item>

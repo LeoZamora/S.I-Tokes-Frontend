@@ -5,18 +5,18 @@
                 <div class="d-flex align-center">
                 <!-- Título -->
                     <div class="font-weight-bold d-flex align-center">
-                        <v-icon class="me-2" color="red-darken-4">mdi-shape-outline</v-icon>
+                        <v-icon class="me-2" color="primary">mdi-shape-outline</v-icon>
                         <small v-if="isMobile">Categorías y SubCategoría</small>
                         <span v-else class="text-h6 font-weight-bold">Categorías y SubCategoría</span>
                     </div>
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn icon color="red-darken-4" class="mr-2" variant="text" @click="openDialog('sub', 'create', null)">
+                <v-btn icon color="primary" class="mr-2" variant="text" @click="openDialog('sub', 'create', null)">
                     <v-icon>mdi-tag-plus</v-icon>
                     <v-tooltip activator="parent" location="left">Agregar Sub Categoría</v-tooltip> 
                 </v-btn>
-                <v-btn icon color="red-darken-4" variant="tonal" @click="openDialog('cat', 'create', null)">
+                <v-btn icon color="primary" variant="tonal" @click="openDialog('cat', 'create', null)">
                     <v-icon>mdi-tag-multiple</v-icon>
                     <v-tooltip activator="parent" location="left">Agregar Categoría</v-tooltip> 
                 </v-btn>

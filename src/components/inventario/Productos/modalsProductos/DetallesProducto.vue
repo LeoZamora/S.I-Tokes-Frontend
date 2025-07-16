@@ -2,11 +2,11 @@
   <div>
     <v-dialog v-model="localShow" max-width="600" persistent>
       <v-card class="rounded-lg">
-        <v-card-title class="font-weight-bold text-center bg-red-darken-4 text-white">
+        <v-card-title class="font-weight-bold text-center bg-primary text-white">
           <v-icon class="me-2">mdi-eye</v-icon> Detalles del Producto
         </v-card-title>
 
-        <v-tabs v-model="tab" color="red-darken-4" density="compact" class="mt-2">
+        <v-tabs v-model="tab" color="primary" density="compact" class="mt-2">
           <v-tab height="25" density="compact" class="border custom-border"><small>Detalles del Producto</small></v-tab>
           <v-tab height="25" density="compact" class="border custom-border"><small>Detalles del Proveedor</small></v-tab>
         </v-tabs>
@@ -18,7 +18,7 @@
               <v-row dense>
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-barcode</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-barcode</v-icon>
                     <span class="text-caption"><strong>Código:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ producto.codigo }}</div>
@@ -26,7 +26,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-tag</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-tag</v-icon>
                     <span class="text-caption"><strong>Nombre:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ producto.nombre }}</div>
@@ -34,7 +34,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-currency-usd</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-currency-usd</v-icon>
                     <span class="text-caption"><strong>Precio:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ formateCurrency(producto.precio) }}</div>
@@ -42,7 +42,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-currency-usd</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-currency-usd</v-icon>
                     <span class="text-caption"><strong>Costo:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ formateCurrency(producto.costo) }}</div>
@@ -50,7 +50,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-folder-outline</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-folder-outline</v-icon>
                     <span class="text-caption"><strong>Sub Categoría:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ producto.categoria }}</div>
@@ -58,7 +58,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-shape-outline</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-shape-outline</v-icon>
                     <span class="text-caption"><strong>Tipo:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ producto.tipoProducto }}</div>
@@ -66,7 +66,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-warehouse</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-warehouse</v-icon>
                     <span class="text-caption"><strong>Stock:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ producto.cantidadTotal }}</div>
@@ -74,7 +74,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-warehouse</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-warehouse</v-icon>
                     <span class="text-caption"><strong>Stock Mínimo:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ producto.cantidadMinima }}</div>
@@ -82,7 +82,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-check-circle-outline</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-check-circle-outline</v-icon>
                     <span class="text-caption"><strong>Estado:</strong></span>
                   </div>
                   <!-- <v-chip density="compact" :color="producto.estado ? 'green' : 'error'" :text="producto.estado ? 'Activo' : 'Inactivo'"></v-chip> -->
@@ -91,7 +91,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-account</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-account</v-icon>
                     <span class="text-caption"><strong>Registrado por:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ producto.usuarioRegistro }}</div>
@@ -99,7 +99,7 @@
 
                 <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
                   <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="red-darken-4">mdi-calendar</v-icon>
+                    <v-icon size="small" class="me-1" color="primary">mdi-calendar</v-icon>
                     <span class="text-caption"><strong>Fecha Registro:</strong></span>
                   </div>
                   <div class="ms-6 text-caption">{{ formateDate(producto.fechaRegistro)  }}</div>
@@ -113,7 +113,7 @@
                 <!-- Imagen del Producto -->
                 <v-col cols="12" md="6" sm="6" class="mb-2">
                   <div class="d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-truck</v-icon>
+                    <v-icon class="me-2" color="primary">mdi-truck</v-icon>
                     <strong>Proveedor Principal:</strong>
                   </div>
                   <v-list density="compact" v-if="data.proveedoresProducto && data.proveedoresProducto.length" >
@@ -129,7 +129,7 @@
                 <v-col cols="12" md="6" sm="6" class="mb-2">
                   <div class="d-flex justify-space-between align-center">
                     <div class="d-flex align-center">
-                      <v-icon class="me-2" color="red-darken-4">mdi-truck-delivery</v-icon>
+                      <v-icon class="me-2" color="primary">mdi-truck-delivery</v-icon>
                       <strong>Proveedores:</strong>
                     </div>
                   </div>
@@ -155,7 +155,7 @@
     <!-- MODAL PARA AGREGAR PROVEEDOR SECUNDARIO -->
     <v-dialog v-model="modalProveedor" max-width="600">
       <v-card class="rounded-lg">
-        <v-card-title class="font-weight-bold text-center bg-red-darken-4 text-white">
+        <v-card-title class="font-weight-bold text-center bg-primary text-white">
           <v-icon class="mr-2">mdi-account-plus</v-icon>
           Agregar Proveedor Secundario
         </v-card-title>
@@ -178,7 +178,7 @@
         <v-divider />
         <v-card-actions class="justify-end">
           <v-btn color="grey" variant="outlined" @click="closeModalProveedor()">Cancelar</v-btn>
-          <v-btn class="bg-red-darken-4 text-white" variant="elevated" @click="postProveedorProducto()">Agregar</v-btn>
+          <v-btn class="bg-primary text-white" variant="elevated" @click="postProveedorProducto()">Agregar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

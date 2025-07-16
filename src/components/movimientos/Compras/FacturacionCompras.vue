@@ -6,13 +6,13 @@
                 <div class="d-flex align-center">
                     <!-- Título -->
                     <div class="text-h6 font-weight-bold d-flex align-center">
-                    <v-icon class="me-2" color="red-darken-4">mdi-package-variant</v-icon>
+                    <v-icon class="me-2" color="primary">mdi-package-variant</v-icon>
                         Órdenes de Compras
                     </div>
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn v-if="data.crud.create" class="bg-red-darken-4 rounded-" @click="createOrden()">
+                <v-btn v-if="data.crud.create" class="bg-primary rounded-" @click="createOrden()">
                     <v-icon>mdi-plus</v-icon>
                     <v-tooltip activator="parent" location="left">Nueva Órden</v-tooltip> 
                 </v-btn>
@@ -20,7 +20,7 @@
             <v-divider /> 
             <v-row class="pa-2" dense>
                 <v-col cols="6" md="6" sm="6">
-                    <v-text-field v-model="data.search" color="red-darken-4" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
+                    <v-text-field v-model="data.search" color="primary" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
                         hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
                 </v-col>
                 <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">

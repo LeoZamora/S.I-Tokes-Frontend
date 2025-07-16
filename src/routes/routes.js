@@ -11,7 +11,7 @@ const routes = createRouter({
         name: 'Home',
         component: () => import('@/components/pages/HomeApp.vue'),
         meta: {
-            title: 'Inicio | T O K E S'
+            title: 'Inicio | Inversiones Molina'
         }
     }, {
         path: '/gestion-productos',
@@ -20,7 +20,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Productos | T O K E S'
+            title: 'Productos | Inversiones Molina'
         }
     }, {
         path: '/facturacion',
@@ -29,7 +29,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Facturación | T O K E S'
+            title: 'Facturación | Inversiones Molina'
         }
     }, {
         path: '/ordenes',
@@ -38,7 +38,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Compras | T O K E S'
+            title: 'Compras | Inversiones Molina'
         }
     }, {
         path: '/proveedores',
@@ -47,7 +47,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Proveedores | T O K E S'
+            title: 'Proveedores | Inversiones Molina'
         }
     }, {
         path: '/categorias',
@@ -56,7 +56,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Categorías | T O K E S'
+            title: 'Categorías | Inversiones Molina'
         }
     }, {
         path: '/clientes',
@@ -65,7 +65,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Clientes | T O K E S'
+            title: 'Clientes | Inversiones Molina'
         }
     }, {
         path: '/cpc',
@@ -74,7 +74,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'CxC | T O K E S'
+            title: 'CxC | Inversiones Molina'
         }
     }, {
         path: '/movimientos',
@@ -83,7 +83,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Movimientos | T O K E S'
+            title: 'Movimientos | Inversiones Molina'
         }
     }, {
         path: '/usuario',
@@ -92,7 +92,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Usuario | T O K E S'
+            title: 'Usuario | Inversiones Molina'
         }
     }, {
         path: '/roles-permisos',
@@ -101,7 +101,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Roles | T O K E S'
+            title: 'Roles | Inversiones Molina'
         }
     }, ],
 
@@ -119,7 +119,7 @@ const routes = createRouter({
 routes.beforeEach((to, from, next) => {
     const store = useStore()
     const isLoggedIn = store.isLoggedIn
-    const defaultTitle = 'T O K E S'
+    const defaultTitle = 'Inversiones Zafiro'
     if (!isLoggedIn) {
         document.title = defaultTitle
     } else {

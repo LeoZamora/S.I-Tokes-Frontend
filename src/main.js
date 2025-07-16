@@ -26,7 +26,15 @@ const vuetify = createVuetify({
         defaultTheme: 'light',
         themes: {
             dark: "dark",
-            light: "light"
+            light: {
+                primary: '#0F52BA',
+                accent: '#B5B1B0',
+                secondary: '#8A8D93',
+                success: '#2E7D32',
+                info: '#16B1FF',
+                warning: '#FFB400',
+                error: '#FF4C51',
+            },
         }
     }
 })
