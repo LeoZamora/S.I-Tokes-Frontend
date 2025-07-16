@@ -2,7 +2,7 @@
     <v-dialog v-model="localShow" max-width="400">
       <v-card rounded="xl">
         <v-card-title class="text-h6 font-weight-bold d-flex justify-center align-center">
-          <v-icon color="red-darken-4">mdi-delete</v-icon>
+          <v-icon color="primary">mdi-delete</v-icon>
           <span>Confirmar Eliminación</span>
         </v-card-title>
         <v-divider class="mx-4"/>

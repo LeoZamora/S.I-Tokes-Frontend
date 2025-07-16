@@ -5,7 +5,7 @@
             <div class="d-flex align-center">
                 <!-- Título -->
                     <div class="font-weight-bold d-flex align-center">
-                        <v-icon class="me-2" color="red-darken-4">mdi-warehouse</v-icon>
+                        <v-icon class="me-2" color="primary">mdi-warehouse</v-icon>
                         <span class="text-h6 font-weight-bold">Movimientos</span>
                     </div>
                 </div>
@@ -64,7 +64,7 @@
         <v-dialog v-model="data.dialog" max-width="700">
             <v-card class="rounded-lg">
                 <!-- Encabezado -->
-                <v-card-title class="d-flex justify-space-between align-center bg-red-darken-4">
+                <v-card-title class="d-flex justify-space-between align-center bg-primary">
                     <span class="text-h5 font-weight-bold text-white">Detalle del Movimiento</span>
                     <v-btn size="small" icon @click="data.dialog = false" variant="text" color="white">
                         <v-icon>mdi-close</v-icon>
@@ -78,7 +78,7 @@
                     <v-row class="mb-4">
                         <v-col cols="12" md="6" class="py-1">
                             <div class="d-flex align-center mb-2">
-                                <v-icon color="red-darken-4" class="me-3">mdi-numeric</v-icon>
+                                <v-icon color="primary" class="me-3">mdi-numeric</v-icon>
                                 <div>
                                     <div class="text-caption text-grey-darken-1">Nº Movimiento</div>
                                     <div class="font-weight-medium">{{ selectedItem.noMov }}</div>
@@ -88,7 +88,7 @@
 
                         <v-col cols="12" md="6" class="py-1">
                             <div class="d-flex align-center mb-2">
-                                <v-icon color="red-darken-4" class="me-3">mdi-shape</v-icon>
+                                <v-icon color="primary" class="me-3">mdi-shape</v-icon>
                                 <div>
                                     <div class="text-caption text-grey-darken-1">Tipo</div>
                                     <div class="font-weight-medium">{{ selectedItem.tipoMov }}</div>
@@ -98,7 +98,7 @@
 
                         <v-col cols="12" md="6" class="py-1">
                             <div class="d-flex align-center mb-2">
-                                <v-icon color="red-darken-4" class="me-3">mdi-account</v-icon>
+                                <v-icon color="primary" class="me-3">mdi-account</v-icon>
                                 <div>
                                     <div class="text-caption text-grey-darken-1">Cliente/Proveedor</div>
                                     <div class="font-weight-medium">{{ selectedItem.clienteProveedor }}</div>
@@ -108,7 +108,7 @@
 
                         <v-col cols="12" md="6" class="py-1">
                             <div class="d-flex align-center mb-2">
-                                <v-icon color="red-darken-4" class="me-3">mdi-cash</v-icon>
+                                <v-icon color="primary" class="me-3">mdi-cash</v-icon>
                                 <div>
                                     <div class="text-caption text-grey-darken-1">Monto</div>
                                     <div class="font-weight-medium">{{ formatedCurrency(selectedItem.total) }}</div>
@@ -118,7 +118,7 @@
 
                         <v-col cols="12" md="6" class="py-1">
                             <div class="d-flex align-center mb-2">
-                                <v-icon color="red-darken-4" class="me-3">mdi-calendar</v-icon>
+                                <v-icon color="primary" class="me-3">mdi-calendar</v-icon>
                                 <div>
                                     <div class="text-caption text-grey-darken-1">Fecha Registro</div>
                                     <div class="font-weight-medium">{{ formatedDate(selectedItem.fechaRegistro) }}</div>
@@ -128,7 +128,7 @@
 
                         <v-col cols="12" md="6" class="py-1">
                             <div class="d-flex align-center mb-2">
-                                <v-icon color="red-darken-4" class="me-3">mdi-check-circle</v-icon>
+                                <v-icon color="primary" class="me-3">mdi-check-circle</v-icon>
                                 <div>
                                     <div class="text-caption text-grey-darken-1">Aprobada</div>
                                     <div>
@@ -171,7 +171,7 @@
                             </div>
                             <div class="d-flex justify-space-between align-center mb-2">
                                 <span class="text-caption text-grey-darken-1">Total:</span>
-                                <strong class="font-weight-medium text-red-darken-4">{{ formatedCurrency(data.factura.total, data.fomates.nio) }}</strong>
+                                <strong class="font-weight-medium text-primary">{{ formatedCurrency(data.factura.total, data.fomates.nio) }}</strong>
                             </div>
                             <div class="d-flex justify-space-between align-center">
                                 <span class="text-caption text-grey-darken-1">Total $:</span>

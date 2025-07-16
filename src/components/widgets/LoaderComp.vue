@@ -1,11 +1,11 @@
 <template>
     <div class="loader-overlay">
       <div class="loader-card">
-        <v-card class="text-center pa-2" id="card-logo">
+        <v-card class="text-center pa-2">
           <v-card-text>
-            <img src="/logo.png" alt="loading" class="loading-image" />
-            <h4 class="mt-2">{{ data }}</h4>
-            <v-progress-linear color="indigo" indeterminate rounded height="5" class="mb-4"/>
+            <img width="100"  src="/logoIZ.jpg" alt="loading" class="loading-image" />
+            <h4>{{ data }}</h4>
+            <v-progress-linear color="indigo" indeterminate rounded height="1"/>
           </v-card-text>
         </v-card>
       </div>

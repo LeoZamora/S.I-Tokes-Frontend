@@ -1,6 +1,6 @@
 <template>
     <div id="logo" class="pa-1 position-absolute" style="top: 50%; left: 50%; transform:translate(-50%, -50%)">
-        <img src="/logo.png" width="400"/>
+        <img src="/logoIZ.jpg" width="400"/>
     </div>
 </template>
 

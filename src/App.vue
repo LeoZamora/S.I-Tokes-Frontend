@@ -6,22 +6,22 @@
       <v-navigation-drawer id="drawer" v-model="data.drawer" class="position-fixed">
         <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf">
             <v-list-subheader><small class="font-weight-bold">DASHBOARD</small></v-list-subheader>
-            <v-list-item prepend-icon="mdi-home" color="red-darken-4" title="Inicio" :lines="true" rounded class="mx-2" value="Inicio" @click="clearApp()"/>
+            <v-list-item prepend-icon="mdi-home" color="primary" title="Inicio" :lines="true" rounded class="mx-2" value="Inicio" @click="clearApp()"/>
             <v-list-subheader><small class="font-weight-bold">MOVIMIENTOS</small></v-list-subheader>
             <v-list-group prepend-icon="mdi-cash-register">
                 <template v-slot:activator="{ props }">
-                    <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="red-darken-4" class="mx-2" title="Ventas"/>
+                    <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="primary" class="mx-2" title="Ventas"/>
                 </template>
-                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in ventasFiltradas" 
+                <v-list-item class="mx-2" rounded :lines="true" color="primary" v-for="([title, route, icon], i) in ventasFiltradas" 
                   :key="i" :value="title" @click="nameTab(route)">
                     <small>- {{ title }}</small>
                 </v-list-item>
             </v-list-group>
             <v-list-group prepend-icon="mdi-cart-arrow-down">
                 <template v-slot:activator="{ props }">
-                    <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="red-darken-4" class="mx-2" title="Compras"/>
+                    <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="primary" class="mx-2" title="Compras"/>
                 </template>
-                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in comprasFiltradas"
+                <v-list-item class="mx-2" rounded :lines="true" color="primary" v-for="([title, route, icon], i) in comprasFiltradas"
                     :key="i" :value="title" @click="nameTab(route)">
                     <small>- {{ title }}</small>
                 </v-list-item>
@@ -29,18 +29,18 @@
             <v-list-subheader><small class="font-weight-bold">GESTIÓN GENERAL</small></v-list-subheader>
             <v-list-group prepend-icon="mdi-package-variant">
                 <template v-slot:activator="{ props }">
-                    <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="red-darken-4" class="mx-2" title="Inventario"/>
+                    <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="primary" class="mx-2" title="Inventario"/>
                 </template>
-                <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, route, icon], i) in data.managerStock" 
+                <v-list-item class="mx-2" rounded :lines="true" color="primary" v-for="([title, route, icon], i) in data.managerStock" 
                     :key="i" :value="title" @click="nameTab(route)">
                     <small>- {{ title }}</small>
                 </v-list-item>
             </v-list-group>
           <v-list-group prepend-icon="mdi-account-group">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="red-darken-4" class="mx-2" title="Clientes"/>
+              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="primary" class="mx-2" title="Clientes"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="red-darken-4" v-for="([title, icon, route], i) in data.clientes"
+            <v-list-item class="mx-2" rounded :lines="true" color="primary" v-for="([title, icon, route], i) in data.clientes"
               :key="i" :value="title" @click="nameTab(title)">
               <small>- {{ title }}</small>
             </v-list-item>
@@ -50,7 +50,7 @@
             <v-divider class="mx-4" />
             <div class="d-flex flex-column align-center pa-2">
                 <h6 class="mt-2">
-                  T O K E S - copyright @{{ new Date().getFullYear() }}
+                  DevoDigital - copyright @{{ new Date().getFullYear() }}
                 </h6>
             </div>
         </template>
@@ -89,7 +89,7 @@ export default {
   },
   setup() {
     const store = useStore()
-    store.logout()
+    //store.logout()
     const isLoggeInd = computed(() => store.isLoggedIn)
     const screenWidth = ref(window.innerWidth)
     const isMobile = computed(() => screenWidth.value < 600)

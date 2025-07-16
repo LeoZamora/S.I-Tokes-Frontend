@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="localShow" max-width="400" persistent>
         <v-card id="diag-fact">
-            <v-card-title class="bg-red-darken-4 d-flex align-center">
+            <v-card-title class="bg-primary d-flex align-center">
                 <h5><v-icon>mdi-account-outline</v-icon>Crear Usuario</h5>
                 <v-spacer />
                 <v-btn icon size="small" color="white" variant="tonal" @click="closeDialog()">
@@ -43,7 +43,7 @@
                 <v-btn color="grey" variant="outlined" @click="closeDialog()">
                     Cancelar
                 </v-btn>
-                <v-btn class="bg-red-darken-4" @click="handleSave()">
+                <v-btn class="bg-primary" @click="handleSave()">
                     Guardar
                 </v-btn>
             </v-card-actions>

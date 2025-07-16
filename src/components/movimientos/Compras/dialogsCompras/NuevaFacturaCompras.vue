@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="localShow" max-width="850" persistent>
         <v-card id="diag-fact">
-            <v-card-title class="bg-red-darken-4 d-flex align-center">
+            <v-card-title class="bg-primary d-flex align-center">
                 <h5><v-icon>mdi-file-document-outline</v-icon>{{ localTitle }}</h5>
                 <v-spacer />
                 <v-btn icon size="small" color="white" variant="tonal" @click="closeDialog()">
@@ -76,7 +76,7 @@
                             persistent-placeholder type="number"/>
                     </v-col>
                     <v-col cols="12" md="4" sm="12" class="d-flex justify-end align-center py-0">
-                        <v-btn icon color="red-darken-4" size="small" variant="tonal" @click="addProducts">
+                        <v-btn icon color="primary" size="small" variant="tonal" @click="addProducts">
                             <v-icon>mdi-plus</v-icon>
                             <v-tooltip activator="parent" location="bottom">Agregar Producto</v-tooltip>
                         </v-btn>
@@ -130,7 +130,7 @@
                 <v-btn color="grey" variant="outlined" @click="closeDialog()">
                     Cancelar
                 </v-btn>
-                <v-btn class="bg-red-darken-4" @click="guardarFactura()">
+                <v-btn class="bg-primary" @click="guardarFactura()">
                     Guardar
                 </v-btn>
             </v-card-actions>

@@ -5,13 +5,13 @@
         <div class="d-flex align-center">
           <!-- Título -->
           <div class="font-weight-bold d-flex align-center">
-            <v-icon class="me-2" color="red-darken-4">mdi-account-cog</v-icon>
+            <v-icon class="me-2" color="primary">mdi-account-cog</v-icon>
             <span class="text-h6 font-weight-bold">Roles y Permisos</span>
           </div>
         </div>
       </template>
       <template v-slot:append>
-        <v-btn icon color="red-darken-4" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
+        <v-btn icon color="primary" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
           <v-icon>mdi-account-plus</v-icon>
           <v-tooltip activator="parent" location="left">Agregar Usuario</v-tooltip>
         </v-btn>
@@ -131,7 +131,7 @@
               @click="data.showPermisos = false"
           >Cerrar</v-btn>
           <v-btn
-              class="bg-red-darken-4"
+              class="bg-primary"
               @click="guardarPermisos"
           >Guardar</v-btn>
         </v-card-actions>

@@ -2,7 +2,7 @@
     <div class="w-100">
         <!-- Tabs dinamicas para la creacion de rutas -->
         <!-- De acuerdo al orden de los items, se muestra al correspondiente ruta -->
-        <v-tabs v-model="activeTab" color="red-darken-4" density="compact" class="mt-2">
+        <v-tabs v-model="activeTab" color="primary" density="compact" class="mt-2">
             <v-tab draggable="true" @dragstart="onDragstart(index)" @dragover.prevent @drop="onDrop(index)" height="25" @click="redirectOpc(name)" 
                 v-for="(name, index) in routes" :key="index" density="compact" class="border custom-border">
                 <small>{{ name }}</small> <v-icon @click.stop="closeTab(index)" size="14" class="ml-2">mdi-close-circle</v-icon>
