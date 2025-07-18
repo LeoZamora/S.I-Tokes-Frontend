@@ -3,7 +3,7 @@
     <LoginAuth v-if="!isLoggeInd"/>
     <v-app v-else id="app" class="w-100 h-100">
       <AppBar @toggle-drawer="toggleDrawer" @nameRoute="nameTab" @logout="clearApp"/>
-      <v-navigation-drawer id="drawer" v-model="data.drawer" class="position-fixed">
+      <v-navigation-drawer id="drawer" v-model="data.drawer" class="position-fixed bg-indigo">
         <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf">
           <v-list-subheader><small class="font-weight-bold">DASHBOARD</small></v-list-subheader>
           <v-list-item prepend-icon="mdi-home" color="primary" title="Inicio" :lines="true" rounded class="mx-2"
@@ -20,7 +20,7 @@
               <small>- {{ title }}</small>
             </v-list-item>
           </v-list-group>
-          <v-list-group prepend-icon="mdi-cart-arrow-down">
+          <!--<v-list-group prepend-icon="mdi-cart-arrow-down">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="primary" class="mx-2"
                            title="Compras"/>
@@ -30,7 +30,7 @@
                          :key="i" :value="title" @click="nameTab(route)">
               <small>- {{ title }}</small>
             </v-list-item>
-          </v-list-group>
+          </v-list-group>-->
           <v-list-subheader><small class="font-weight-bold">GESTIÓN GENERAL</small></v-list-subheader>
           <v-list-group prepend-icon="mdi-package-variant">
             <template v-slot:activator="{ props }">
@@ -58,8 +58,8 @@
         <template v-slot:append>
           <v-divider class="mx-4"/>
           <div class="d-flex justify-center pa-2">
-            <div>
-              <v-img width="50" src="/32px.png"></v-img>
+            <div class="d-flex flex-column align-center">
+              <v-img width="20" src="/32px.png"></v-img>
             </div>
             <v-divider vertical class="mx-3"></v-divider>
             <div class="d-flex flex-column align-center">
@@ -86,10 +86,10 @@
       <v-footer
           app
           inset
-          style="background-color: #FAFAFA"
+
           absolute
           height="45"
-          class="px-0"
+          class="px-0 bg-indigo-darken-4"
       >
         <v-row dense class="pa-1">
           <v-col>
