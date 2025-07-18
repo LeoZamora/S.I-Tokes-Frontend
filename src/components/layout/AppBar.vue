@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar id="nav" class="w-100 position-fixed border bg-primary" elevation="0">
+    <v-app-bar id="nav" class="w-100 position-fixed bg-indigo-darken-4" elevation="0">
       <LoaderComp v-show="data.dataLoader.visible" :data="data.dataLoader.msg"/>
         <v-app-bar-nav-icon class="mr-2" @click="$emit('toggle-drawer')"/>
         <div class="ml-4 pa-1 d-flex justify-center align-center">

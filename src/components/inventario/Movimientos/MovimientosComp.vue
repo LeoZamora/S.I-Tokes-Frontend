@@ -5,7 +5,7 @@
             <div class="d-flex align-center">
                 <!-- Título -->
                     <div class="font-weight-bold d-flex align-center">
-                        <v-icon class="me-2" color="primary">mdi-warehouse</v-icon>
+                        <v-icon class="me-2" color="primary">mdi-sync-circle</v-icon>
                         <span class="text-h6 font-weight-bold">Movimientos</span>
                     </div>
                 </div>
@@ -15,11 +15,11 @@
                 <v-row dense class="align-center px-2">
                     <v-col cols="12" sm="4" md="4">
                         <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details 
-                            placeholder="Buscar textos" persistent-placeholder/>
+                            placeholder="Buscar textos" persistent-placeholder color="indigo"/>
                     </v-col>
                     <v-col cols="12" sm="4" md="4">
                         <v-autocomplete v-model="data.movimiento" :items="data.movimientos" density="compact" variant="outlined" label="Tipos de Movimientos" hide-details 
-                            placeholder="movimientos" persistent-placeholder @update:model-value="filterTipoMov()"/>
+                            placeholder="movimientos" persistent-placeholder @update:model-value="filterTipoMov()" color="indigo"/>
                     </v-col>
                     <v-col cols="12" sm="4" md="4" class="d-flex justify-end align-center">
                         <v-btn size="small" icon color="green" class="border mx-2" variant="text" @click="getData()">
@@ -36,7 +36,14 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :search="data.search" :headers="data.headers" :items="data.items" class="border font" density="compact">
+                <v-data-table :search="data.search" :headers="data.headers" :items="data.items" class="border font" density="compact"
+                    :row-props="setStyle" hover :header-props="{ class: 'font-weight-bold' }" :loading="data.loading">
+                    <template v-slot:loader>
+                        <v-progress-linear color="indigo" indeterminate height="2"/>
+                    </template>
+                    <template v-slot:loading>
+                        <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+                    </template>
                     <template v-slot:item.total="{ item }">
                         <div>{{ formatedCurrency(item.total) }}</div>
                     </template>
@@ -290,7 +297,7 @@ export default {
         }
 
         const filterTipoMov = async () => {
-            data.items = data.items.filter(item => item.tipoMov === data.movimiento)
+            data.items = data.itemsBack.filter(item => item.tipoMov === data.movimiento)
         }
 
         const data = reactive({
@@ -311,6 +318,7 @@ export default {
                 {title: 'costoUnitario Unit.', key: 'costoUnitario', align: 'center'},
                 {title: 'SubTotal', key: 'subTotal', align: 'center'},
             ],
+            itemsBack: [],
             items: [],
             venta: {
                 noVenta: null,
@@ -356,6 +364,7 @@ export default {
                 nio: 'NIO', 
                 usd: 'USD'
             },
+            loading: false,
             movimiento: null,
             producto: null,
             dialog: false,
@@ -374,6 +383,12 @@ export default {
     },
 
     methods: {
+        setStyle({index}) {
+            return {
+            class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',
+            }
+        },
+
         async getOrdenes() {            
             this.data.loading = true
             const result = await this.data.requestHttp.getCompras()
@@ -391,7 +406,6 @@ export default {
         },
 
         async getVentas() {
-            
             const result = await this.data.requestHttp.getVentas()
             if (result !== null) {
                 result.map(item => {
@@ -412,7 +426,8 @@ export default {
                 this.getVentas(),
                 this.getOrdenes()
             ])
-            this.data.loading = true
+            this.data.itemsBack = this.data.items
+            this.data.loading = false
         },
 
         formatedCurrency(key) {

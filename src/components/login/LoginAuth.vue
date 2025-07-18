@@ -1,7 +1,7 @@
 <template>
   <div id="cont">
     <LoaderComp :data="data.msgLoader" v-show="data.loading"/>
-    <div id="logo-auth" class="d-flex flex-column justify-center align-center">
+    <div id="logo-auth" class="w-100 d-flex flex-column  align-center">
       <div>
         <img width="300px" class="my-10" src="/logoIZ.jpg"/>
       </div>
@@ -208,7 +208,7 @@ div.v-toolbar__content {
   width: 380px;
 }
 
-#title {
+/* #title {
   position: absolute;
   top: 20%;
   left: 50%;
@@ -222,7 +222,7 @@ div.v-toolbar__content {
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
+ */
 
 #title {
   font-weight: 500;
