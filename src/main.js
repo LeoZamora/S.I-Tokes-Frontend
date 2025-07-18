@@ -11,6 +11,7 @@ import 'vuetify/styles'
 import Axios from 'axios'
 
 Axios.defaults.baseURL = 'http://165.98.133.202:55478/'
+//Axios.defaults.baseURL = 'http://localhost:5091/'
 
 const pinia = createPinia();
 const app = createApp(App);
@@ -25,16 +26,31 @@ const vuetify = createVuetify({
     theme: {
         defaultTheme: 'light',
         themes: {
-            dark: "dark",
             light: {
-                primary: '#0F52BA',
-                accent: '#B5B1B0',
-                secondary: '#8A8D93',
-                success: '#2E7D32',
-                info: '#16B1FF',
-                warning: '#FFB400',
-                error: '#FF4C51',
+                dark: false,
+                colors: {
+                    primary: '#0F52BA',
+                    accent: '#0d6efd',
+                    secondary: '#8A8D93',
+                    success: '#2E7D32',
+                    info: '#16B1FF',
+                    warning: '#FFB400',
+                    error: '#FF4C51',
+                    yellow: '#FBC02D'
+                }
             },
+            dark: {
+                dark: true,
+                colors: {
+                    primary: '#9155FD',
+                    accent: '#0d6efd',
+                    secondary: '#8A8D93',
+                    success: '#56CA00',
+                    info: '#16B1FF',
+                    warning: '#FFB400',
+                    error: '#FF4C51'
+                }
+            }
         }
     }
 })
