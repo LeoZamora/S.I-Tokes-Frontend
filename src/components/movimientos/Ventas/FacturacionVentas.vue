@@ -39,7 +39,15 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :search="data.search" :mobile="isMobile" :headers="data.header" :items="data.facturas" class="border" density="compact">
+                <v-data-table :search="data.search" :mobile="isMobile" :headers="data.header" :items="data.facturas" class="border" 
+                    density="compact" :loading="data.loading" :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }"
+                    items-per-page="20" hover>
+                    <template v-slot:loader>
+                        <v-progress-linear color="indigo" indeterminate height="2"/>
+                    </template>
+                    <template v-slot:loading>
+                        <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+                    </template>
                     <template v-slot:item.total="{ item }">
                         <div>{{ formatedCurrency(item.total) }}</div>
                     </template>
@@ -127,7 +135,14 @@ export default {
         const data = reactive({
             header: [
                 {title: '', key: 'opc', align: 'center',},
-                {title: 'Nº Factura', key: 'noVenta', align: 'center'},
+                {title: 'Nº Factura', key: 'noVenta', sortable: false, align: 'center', 
+                    headerProps: {
+                        class: 'pa-1',
+                    },
+                    cellProps: {
+                        class: 'pa-1',
+                    }
+                },
                 {title: 'Cliente', key: 'cliente', align: 'center'},
                 {title: 'Vendedor', key: 'usuarioRegistro', align: 'center'},
                 {title: 'Total', key: 'total', align: 'center'},
@@ -155,6 +170,7 @@ export default {
                 edit: false,
                 delete: false
             },
+            loading: false,
             search: null,
             viewAlert: false,
             selectedItem: null,
@@ -176,6 +192,12 @@ export default {
     },
 
     methods: {
+        setStyle({index}) {
+            return {
+                class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',
+            }
+        },
+
         verifyDataSecurity() {
             const token = this.store.getInfoUser()
             const permisos = token.permisos.split(",")
@@ -196,13 +218,13 @@ export default {
         async getVentas() {
             this.data.facturas = []
             this.data.loading = true
-            const result = await this.data.requestHttp.getVentas()
-            this.data.loading = false
+            const result = await this.data.requestHttp.getVentas()            
             if (result !== null) {
                 result.map(item => {
                     this.data.facturas.push(item)
                 })
             }
+            this.data.loading = false
         },
         formatedCurrency(key) {
             const value = formatters.formatCurrency(key)

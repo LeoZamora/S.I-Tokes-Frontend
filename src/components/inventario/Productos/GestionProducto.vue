@@ -7,7 +7,7 @@
         <div class="d-flex align-center">
           <!-- Título -->
           <div class="text-h6 font-weight-bold d-flex align-center">
-            <v-icon class="me-2" color="primary">mdi-package-variant</v-icon>
+            <v-icon class="me-2" color="indigo">mdi-package-variant</v-icon>
             Productos
           </div>
         </div>
@@ -22,11 +22,11 @@
 
       <v-row class="pa-2" dense>
         <v-col cols="6" md="6" sm="6">
-            <v-text-field color="primary" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos" v-model="search"
-              hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
+            <v-text-field color="indigo" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos" v-model="search"
+              hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder />
         </v-col>
         <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-            <v-btn icon color="primary" size="small" @click="getProductos" variant="text" class="mr-2 border">
+            <v-btn icon color="indigo" size="small" @click="getProductos" variant="text" class="mr-2 border">
               <v-icon>mdi-magnify</v-icon>
             </v-btn>
             <v-btn icon color="grey" size="small" variant="text" class="border">
@@ -37,7 +37,14 @@
     </v-card>
     <!-- Tabla de productos -->
     <v-card elevation="0" class="border" rounded="0">
-      <v-data-table class="font" density="compact" :headers="data.headers" :items="data.products" :items-per-page="10" :search="search" :loading="data.loading">
+      <v-data-table class="font" density="compact" :headers="data.headers" :items="data.products" :items-per-page="10" :search="search" :loading="data.loading"
+        :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }" hover>
+        <template v-slot:loader>
+          <v-progress-linear color="indigo" indeterminate height="2"/>
+        </template>
+        <template v-slot:loading>
+          <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+        </template>
         <template v-slot:item.precio="{ item }">
           {{ formatCurrency(item.precio) }}
         </template>
@@ -86,27 +93,27 @@
           <v-form class="w-100" ref="form">
             <v-row dense>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="primary" v-model="data.form.codigo" label="Código"
+                <v-text-field color="indigo" v-model="data.form.codigo" label="Código"
                   :rules="[rules.required]" variant="outlined" 
                   hide-details density="compact" clearable prepend-inner-icon="mdi-barcode"/>
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="primary" v-model="data.form.nombre" label="Nombre"
+                <v-text-field color="indigo" v-model="data.form.nombre" label="Nombre"
                   :rules="[rules.required, rules.minLength(3)]"  variant="outlined" 
                   hide-details density="compact" clearable prepend-inner-icon="mdi-text-box" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="primary" v-model="data.form.precio" label="Precio"
+                <v-text-field color="indigo" v-model="data.form.precio" label="Precio"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" step="0.01" prepend-inner-icon="mdi-currency-usd" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="primary" v-model="data.form.costo" label="Costo"
+                <v-text-field color="indigo" v-model="data.form.costo" label="Costo"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" step="0.01" prepend-inner-icon="mdi-cash" />
               </v-col>
               <v-col cols="12" md="6" sm="6">
-                <v-text-field color="primary" label="Und. Medidad" v-model="data.form.idUnidadMedida"
+                <v-text-field color="indigo" label="Und. Medidad" v-model="data.form.idUnidadMedida"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" step="0.01" readonly/>
               </v-col>
@@ -119,12 +126,12 @@
                   hide-details density="compact" prepend-inner-icon="mdi-tag" />
               </v-col>
               <v-col cols="3" md="3" sm="3">
-                <v-text-field color="primary" v-model="data.form.cantidadTotal" label="Stock"
+                <v-text-field color="indigo" v-model="data.form.cantidadTotal" label="Stock"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
               <v-col cols="3" md="3" sm="3">
-                <v-text-field color="primary" v-model="data.form.cantidadMinima" label="Stock Mínimo"
+                <v-text-field color="indigo" v-model="data.form.cantidadMinima" label="Stock Mínimo"
                   :rules="[rules.required, rules.numeric]" variant="outlined" 
                   hide-details density="compact" type="number" prepend-inner-icon="mdi-numeric" />
               </v-col>
@@ -252,6 +259,12 @@ export default {
   },
   
   methods: {
+    setStyle({index}) {
+      return {
+        class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',
+      }
+    },
+
     async getSubCategorias() {
       this.data.subCategorias = []
       this.data.loading = true
@@ -265,7 +278,7 @@ export default {
       } else {
         throw new Error('Error en la solicitud')
       }
-    },    
+    },
 
     async getProductos() {
       this.data.products = []

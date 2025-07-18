@@ -22,8 +22,8 @@
                 </v-btn>
             </template>
             <v-divider />
-            <v-card-text class="pa-0 ma-1">
-                <v-row dense class="px-0" style="margin: 0;">
+            <v-card-text class="pa-0">
+                <v-row dense class="pa-2">
                     <v-col cols="6" sm="6" md="6">
                         <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
                     </v-col>
@@ -43,7 +43,14 @@
                     <span class="mx-6 text-grey">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" :headers="data.headers" density="compact" :items="data.items">
+                <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" hover
+                    :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }">
+                    <template v-slot:loader>
+                        <v-progress-linear color="indigo" indeterminate height="2"/>
+                    </template>
+                    <template v-slot:loading>
+                        <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+                    </template>
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
@@ -114,7 +121,14 @@ export default {
 
         const data = reactive({
             headers: [
-                {title: '', key: 'opc', align: 'center'},
+                {title: '', key: 'opc', align: 'center',
+                    headerProps: {
+                        class: 'pa-1'
+                    },
+                                        cellProps: {
+                        class: 'pa-1',
+                    }
+                },
                 {title: 'Tipo', key: 'tipo', align: 'center'},
                 {title: 'Nombre', key: 'nombre', align: 'center'},
                 {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
@@ -149,6 +163,12 @@ export default {
     },
 
     methods: {
+        setStyle({index}) {
+            return {
+                class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',
+            }
+        },
+
         async getCategorias() {
             this.data.items = []
             this.data.loading = true

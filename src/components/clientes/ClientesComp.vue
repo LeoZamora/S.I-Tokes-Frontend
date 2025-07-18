@@ -43,7 +43,14 @@
                     <span class="mx-6 text-grey font-weight-bold">Clientes</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" :headers="data.headers" density="compact" :items="data.items">
+                <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" :headers="data.headers" density="compact" 
+                    :items="data.items" :row-props="setStyle" hover :header-props="{ class: 'font-weight-bold' }">
+                    <template v-slot:loader>
+                        <v-progress-linear color="indigo" indeterminate height="2"/>
+                    </template>
+                    <template v-slot:loading>
+                        <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+                    </template>
                     <template v-slot:item.fechaRegistro="{ item }">
                         <div>{{ formateDate(item.fechaRegistro) }}</div>
                     </template>
@@ -78,7 +85,14 @@
                     <span class="mx-6 text-grey font-weight-bold">Tipo de Clientes</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :loading="data.loadingTipo" :search="data.search" :mobile="isMobile" class="border" :headers="data.headersCat" density="compact" :items="data.itemsCat">
+                <v-data-table :loading="data.loadingTipo" :search="data.search" :mobile="isMobile" class="border" :headers="data.headersCat" density="compact" 
+                    :items="data.itemsCat" :row-props="setStyle" hover :header-props="{ class: 'font-weight-bold' }">
+                    <template v-slot:loader>
+                        <v-progress-linear color="indigo" indeterminate height="2"/>
+                    </template>
+                    <template v-slot:loading>
+                        <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+                    </template>
                     <template v-slot:item.fechaRegistro="{ item }">
                         <div>{{ formateDate(item.fechaRegistro) }}</div>
                     </template>
@@ -198,6 +212,12 @@ export default {
     },
 
     methods: {
+        setStyle({index}) {
+            return {
+                class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',
+            }
+        },
+
         async getClientes() {
             this.data.items = []
             this.data.loading = true
@@ -277,8 +297,6 @@ export default {
         },
 
         async deleteItem() {
-            console.log(this.data.selectedItem);
-            
             if (this.data.selectedItem.idCliente) {
                 const result = await this.data.requestHttp.deleteCliente(this.data.selectedItem.idCliente)
                 if (result !== null) {

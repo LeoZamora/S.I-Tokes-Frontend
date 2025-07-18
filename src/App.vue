@@ -3,18 +3,18 @@
     <LoginAuth v-if="!isLoggeInd"/>
     <v-app v-else id="app" class="w-100 h-100">
       <AppBar @toggle-drawer="toggleDrawer" @nameRoute="nameTab" @logout="clearApp"/>
-      <v-navigation-drawer id="drawer" v-model="data.drawer" class="position-fixed bg-indigo">
+      <v-navigation-drawer id="drawer" v-model="data.drawer" class="position-fixed bg-indigo-darken-4 font">
         <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf">
-          <v-list-subheader><small class="font-weight-bold">DASHBOARD</small></v-list-subheader>
-          <v-list-item prepend-icon="mdi-home" color="primary" title="Inicio" :lines="true" rounded class="mx-2"
-                       value="Inicio" @click="clearApp()"/>
-          <v-list-subheader><small class="font-weight-bold">MOVIMIENTOS</small></v-list-subheader>
+          <v-list-subheader><small class="font-weight-bold text-white">DASHBOARD</small></v-list-subheader>
+          <v-list-item prepend-icon="mdi-home" color="white" title="Inicio" :lines="true" rounded class="mx-2" 
+                       value="Inicio" @click="clearApp()" variant="elevated"/>
+          <v-list-subheader><small class="font-weight-bold text-white">MOVIMIENTOS</small></v-list-subheader>
           <v-list-group prepend-icon="mdi-cash-register">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="primary" class="mx-2"
+              <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="white" class="mx-2"
                            title="Ventas"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
+            <v-list-item class="mx-2" rounded :lines="true" color="white"
                          v-for="([title, route, icon], i) in ventasFiltradas"
                          :key="i" :value="title" @click="nameTab(route)">
               <small>- {{ title }}</small>
@@ -22,22 +22,22 @@
           </v-list-group>
           <!--<v-list-group prepend-icon="mdi-cart-arrow-down">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="primary" class="mx-2"
+              <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="white" class="mx-2"
                            title="Compras"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
+            <v-list-item class="mx-2" rounded :lines="true" color="white"
                          v-for="([title, route, icon], i) in comprasFiltradas"
                          :key="i" :value="title" @click="nameTab(route)">
               <small>- {{ title }}</small>
             </v-list-item>
           </v-list-group>-->
-          <v-list-subheader><small class="font-weight-bold">GESTIÓN GENERAL</small></v-list-subheader>
+          <v-list-subheader><small class="font-weight-bold text-white">GESTIÓN GENERAL</small></v-list-subheader>
           <v-list-group prepend-icon="mdi-package-variant">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="primary" class="mx-2"
+              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="white" class="mx-2"
                            title="Inventario"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
+            <v-list-item class="mx-2" rounded :lines="true" color="white"
                          v-for="([title, route, icon], i) in data.managerStock"
                          :key="i" :value="title" @click="nameTab(route)">
               <small>- {{ title }}</small>
@@ -45,10 +45,10 @@
           </v-list-group>
           <v-list-group prepend-icon="mdi-account-group">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="primary" class="mx-2"
+              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="white" class="mx-2"
                            title="Clientes"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
+            <v-list-item class="mx-2" rounded :lines="true" color="white"
                          v-for="([title, icon, route], i) in data.clientes"
                          :key="i" :value="title" @click="nameTab(title)">
               <small>- {{ title }}</small>
@@ -57,16 +57,16 @@
         </v-list>
         <template v-slot:append>
           <v-divider class="mx-4"/>
-          <div class="d-flex justify-center pa-2">
-            <div class="d-flex flex-column align-center">
-              <v-img width="20" src="/32px.png"></v-img>
+          <div class="d-flex justify-center pa-2 align-center">
+            <div class="d-flex flex-column align-center bg-white pa-1 rounded-lg">
+              <v-img width="50" src="/32px.png"></v-img>
             </div>
             <v-divider vertical class="mx-3"></v-divider>
             <div class="d-flex flex-column align-center">
-              <h6>
+              <h6 style="font-size: 10px;">
                 Inversiones Zafiro
               </h6>
-              <h6>
+              <h6 style="font-size: 10px;">
                 v1.0.0
               </h6>
             </div>
@@ -86,10 +86,9 @@
       <v-footer
           app
           inset
-
           absolute
           height="45"
-          class="px-0 bg-indigo-darken-4"
+          class="px-0"
       >
         <v-row dense class="pa-1">
           <v-col>
@@ -97,12 +96,13 @@
           </v-col>
           <v-col class="d-flex flex-column align-center">
             <span
-                style="color: black; font-size: 9px;"
+              class="font-weight-bold"
+              style="color: black; font-size: 14px;"
             >
             &copy;DevoDigital - {{ new Date().getFullYear() }}
           </span>
             <span
-                style="color: grey; font-size: 8px"
+              style="color: grey; font-size: 12px"
             >
             Todos los derechos reservados.
           </span>
@@ -300,4 +300,20 @@ export default {
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
 }
+/* 
+.font{
+  font-size: 12px !important;
+} */
+
+:deep() .v-table .v-table__wrapper > table > thead > tr > th:not(:last-child) {
+    border-right: 2px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+:deep() .v-table .v-table__wrapper > table > tbody > tr > td:not(:last-child), .v-table .v-table__wrapper > table > tbody > tr > th:not(:last-child) { 
+    border-right: 2px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+:deep() .v-list-group__items .v-list-item {
+  padding-inline-start: 30px !important;
+}
+
 </style>
