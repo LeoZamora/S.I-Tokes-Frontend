@@ -20,7 +20,7 @@
               <small>- {{ title }}</small>
             </v-list-item>
           </v-list-group>
-          <!--<v-list-group prepend-icon="mdi-cart-arrow-down">
+          <v-list-group prepend-icon="mdi-cart-arrow-down">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="white" class="mx-2"
                            title="Compras"/>
@@ -30,7 +30,7 @@
                          :key="i" :value="title" @click="nameTab(route)">
               <small>- {{ title }}</small>
             </v-list-item>
-          </v-list-group>-->
+          </v-list-group>
           <v-list-subheader><small class="font-weight-bold text-white">GESTIÓN GENERAL</small></v-list-subheader>
           <v-list-group prepend-icon="mdi-package-variant">
             <template v-slot:activator="{ props }">
@@ -59,7 +59,7 @@
           <v-divider class="mx-4"/>
           <div class="d-flex justify-center pa-2 align-center">
             <div class="d-flex flex-column align-center bg-white pa-1 rounded-lg">
-              <v-img width="50" src="/32px.png"></v-img>
+              <v-img width="30" src="/32px.png"></v-img>
             </div>
             <v-divider vertical class="mx-3"></v-divider>
             <div class="d-flex flex-column align-center">
