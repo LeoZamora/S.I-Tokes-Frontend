@@ -11,7 +11,7 @@ const routes = createRouter({
         name: 'Home',
         component: () => import('@/components/pages/HomeApp.vue'),
         meta: {
-            title: 'Inicio | Inversiones Molina'
+            title: 'Inicio | Inversiones Zafiro'
         }
     }, {
         path: '/gestion-productos',
@@ -20,7 +20,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Productos | Inversiones Molina'
+            title: 'Productos | Inversiones Zafiro'
         }
     }, {
         path: '/facturacion',
@@ -29,7 +29,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Facturación | Inversiones Molina'
+            title: 'Facturación | Inversiones Zafiro'
         }
     }, {
         path: '/ordenes',
@@ -38,7 +38,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Compras | Inversiones Molina'
+            title: 'Compras | Inversiones Zafiro'
         }
     }, {
         path: '/proveedores',
@@ -47,7 +47,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Proveedores | Inversiones Molina'
+            title: 'Proveedores | Inversiones Zafiro'
         }
     }, {
         path: '/categorias',
@@ -56,7 +56,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Categorías | Inversiones Molina'
+            title: 'Categorías | Inversiones Zafiro'
         }
     }, {
         path: '/clientes',
@@ -65,7 +65,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Clientes | Inversiones Molina'
+            title: 'Clientes | Inversiones Zafiro'
         }
     }, {
         path: '/cpc',
@@ -74,7 +74,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'CxC | Inversiones Molina'
+            title: 'CxC | Inversiones Zafiro'
         }
     }, {
         path: '/movimientos',
@@ -83,7 +83,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Movimientos | Inversiones Molina'
+            title: 'Movimientos | Inversiones Zafiro'
         }
     }, {
         path: '/usuario',
@@ -92,7 +92,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Usuario | Inversiones Molina'
+            title: 'Usuario | Inversiones Zafiro'
         }
     }, {
         path: '/roles-permisos',
@@ -101,7 +101,7 @@ const routes = createRouter({
         meta: {
             keepAlive: true,
             requiredAuth: true,
-            title: 'Roles | Inversiones Molina'
+            title: 'Roles | Inversiones Zafiro'
         }
     }, ],
 

@@ -45,8 +45,11 @@
         <template v-slot:loading>
           <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
         </template>
+        <template v-slot:item.costo="{ item }">
+          C${{ item.costo }}
+        </template>
         <template v-slot:item.precio="{ item }">
-          {{ formatCurrency(item.precio) }}
+          C${{ item.precio }}
         </template>
         
         <template v-slot:item.fechaRegistro="{ item }">
@@ -202,6 +205,7 @@ export default {
         { title: 'Código', key: 'codigo', align: 'center' },
         { title: 'Nombre', key: 'nombre', align: 'center' },
         { title: 'U/M', key: 'idUnidadMedidaNavigation.nombre', align: 'center' },
+        { title: 'Costo', key: 'costo', align: 'center' },
         { title: 'Precio Venta', key: 'precio', align: 'center' },
         { title: 'Stock', key: 'cantidadTotal', align: 'center' },
         { title: 'Fecha Registro', key: 'fechaRegistro', align: 'center' },

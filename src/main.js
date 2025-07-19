@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import routes from './routes/routes.js'
 import App from './App.vue'
+import VueECharts from 'vue-echarts'
+import 'echarts'
 
 import { createVuetify } from 'vuetify/lib/framework.mjs'
 import '@mdi/font/css/materialdesignicons.css'
@@ -16,6 +18,7 @@ Axios.defaults.baseURL = 'http://165.98.133.202:55478/'
 const pinia = createPinia();
 const app = createApp(App);
 app.use(pinia);
+app.component('v-chart', VueECharts)
 
 const vuetify = createVuetify({
     components,

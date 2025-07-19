@@ -334,12 +334,12 @@ export default {
         async getProductos() {
             this.data.productos = []
             this.data.loading = true
-            const result = await this.data.requestHttp.getProductos('Producto Terminado')
+            const result = await this.data.requestHttp.getProductos('Herramientas')
             this.data.loading = false
 
             if (result !== null) {
                 result.map(item => {
-                    if (item.tipoProducto === 'Producto Terminado') {
+                    if (item.tipoProducto === 'Herramientas') {
                         this.data.productos.push({title: item.nombre, value: item.idProducto})
                     }
                 })
