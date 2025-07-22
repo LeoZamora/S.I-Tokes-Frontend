@@ -195,8 +195,7 @@ export default {
     const data = reactive({
       products: [],
       tipos: [
-        { title: 'MATERIA PRIMA', value: 'MATERIA PRIMA'},
-        { title: 'Producto Terminado', value: 'Producto Terminado'},
+        { title: 'Herramientas', value: 'Herramientas'},
       ],
       headers: [
         { title: 'Acciones', key: 'actions', sortable: false, align: 'center' },

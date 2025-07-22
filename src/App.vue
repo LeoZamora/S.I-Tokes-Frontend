@@ -97,12 +97,12 @@
           <v-col class="d-flex flex-column align-center">
             <span
               class="font-weight-bold"
-              style="color: black; font-size: 14px;"
+              style="color: black; font-size: 10px;"
             >
             &copy;DevoDigital - {{ new Date().getFullYear() }}
           </span>
             <span
-              style="color: grey; font-size: 12px"
+              style="color: grey; font-size: 8px"
             >
             Todos los derechos reservados.
           </span>
