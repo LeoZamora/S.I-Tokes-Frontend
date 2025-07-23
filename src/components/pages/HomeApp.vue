@@ -16,8 +16,8 @@
             </v-col>
             <v-col>
               <img
-                src="/logoIZ.jpg"
-                width="300"
+                src="/128px.svg"
+                width="250"
               />
             </v-col>
           </v-row>

@@ -177,9 +177,9 @@ export default {
 
         const getProductos =  async () =>  {
             data.productos = []
-            const result = await data.requestHttp.getProductos('MATERIA PRIMA')
+            const result = await data.requestHttp.getProductos('Herramientas')
             result.map(item => {
-                if (item.tipoProducto === 'MATERIA PRIMA') {
+                if (item.tipoProducto === 'Herramientas') {
                     data.productos.push({title: item.nombre, value: item.idProducto})
                 }
             })

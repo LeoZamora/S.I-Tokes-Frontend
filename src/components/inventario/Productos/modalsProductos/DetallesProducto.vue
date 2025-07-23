@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="localShow" max-width="600" persistent>
+    <v-dialog v-model="localShow" max-width="600">
       <v-card class="rounded-lg">
         <v-card-title class="font-weight-bold text-center bg-primary text-white">
           <v-icon class="me-2">mdi-eye</v-icon> Detalles del Producto
