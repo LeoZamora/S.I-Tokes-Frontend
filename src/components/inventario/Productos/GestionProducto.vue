@@ -520,7 +520,7 @@
                       sm="12"
                   >
                     <v-textarea
-                        v-model="data.observaciones"
+                        v-model="data.form.observaciones"
                         density="compact"
                         variant="outlined"
                         label="Observaciones"
@@ -770,7 +770,8 @@ export default {
         idUnidadMedida: 1,
         cantidadTotal: 0,
         cantidadMinima: 0,
-        usuarioRegistro: 'admin'
+        usuarioRegistro: 'admin',
+        observaciones: '',
       },
       imagen: null,
       observaciones: null,
@@ -983,12 +984,19 @@ export default {
     },
 
     async guardarRegistro() {
-      var response =
-          await httpPost('api/producto', this.data.form)
-      this.data.form.idProducto = response.data
-      await this.actActualizarImagen()
-      await this.getProductos()
-      this.closeDialog()
+      if(this.dialogMode === 'edit'){
+        await httpPut(`api/producto/${this.data.form.idProducto}`, this.data.form)
+        await this.actActualizarImagen()
+        await this.getProductos()
+        this.closeDialog()
+      }else {
+        var response =
+            await httpPost('api/producto', this.data.form)
+        this.data.form.idProducto = response.data
+        await this.actActualizarImagen()
+        await this.getProductos()
+        this.closeDialog()
+      }
     },
 
     async actActualizarImagen() {
@@ -1003,7 +1011,7 @@ export default {
           console.log(err)
         }
       } else {
-
+        alert('no se eliminar imagen')
       }
       this.registroDisplay.eliminarImagen = false
     },
@@ -1013,13 +1021,17 @@ export default {
       this.registroDisplay.imagen.archivo = null
       await this.loadCmbUnidadMedida()
       await this.loadCmbCategoria()
-      await this.loadCmbSubCategoria(product.idCategoriaProducto)
       if(mode !== 'edit'){
         await this.loadCodigoRecomendado()
+      }else {
+        await this.loadCmbSubCategoria(product.idCategoriaProducto)
       }
       this.dialogMode = mode
       if (product) {
         this.selectedProduct = product.idProducto
+        this.data.form.idProducto = product.idProducto
+        this.data.form.observaciones = product.observaciones
+        this.data.form.idUnidadMedida = product.idUnidadMedida
         this.data.form.codigo = product.codigo
         this.data.form.idCategoria = product.idCategoriaProducto
         this.data.form.costo = product.costo
@@ -1043,7 +1055,6 @@ export default {
       }
       this.dialog = true
       this.handleChangeCosto()
-
     },
 
     async loadImagenProducto(id) {
