@@ -70,3 +70,22 @@ export function httpGet(url, inject = false, asQuery = false, separator = '?') {
         })
     })
 }
+
+export function httpPost(url, params) {
+    return new Promise((resolve, reject) => {
+        //PETICION
+        axios.post(url, params)
+            .then(function(response) {
+                resolve(response)
+            })
+            .catch(err => {
+                console.log(err)
+                reject(err.response ? err.response : {
+                    data: {
+                        code: 404,
+                        msg: 'Error de conexión.'
+                    }
+                })
+            })
+    })
+}

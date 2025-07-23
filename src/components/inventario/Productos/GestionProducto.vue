@@ -2,19 +2,19 @@
   <div class="w-100">
     <!-- Encabezado y botón de agregar -->
     <v-card
-      class="border"
-      elevation="0"
-      rounded="0"
+        class="border"
+        elevation="0"
+        rounded="0"
     >
       <!-- Encabezado -->
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <!-- Título -->
           <div
-            class="text-h6 font-weight-bold d-flex align-center"
+              class="text-h6 font-weight-bold d-flex align-center"
           >
             <v-icon class="me-2" color="indigo"
-              >mdi-package-variant
+            >mdi-package-variant
             </v-icon>
             Productos
           </div>
@@ -22,55 +22,55 @@
       </template>
       <template v-slot:append>
         <v-btn
-          class="bg-primary rounded-"
-          @click="openDialog('create')"
+            class="bg-primary rounded-"
+            @click="openDialog('create')"
         >
           <v-icon>mdi-plus</v-icon>
           <v-tooltip
-            activator="parent"
-            location="left"
-            >Agregar Producto
+              activator="parent"
+              location="left"
+          >Agregar Producto
           </v-tooltip>
         </v-btn>
       </template>
-      <v-divider />
+      <v-divider/>
 
       <v-row class="pa-2" dense>
         <v-col cols="6" md="6" sm="6">
           <v-text-field
-            color="indigo"
-            density="compact"
-            variant="outlined"
-            append-inner-icon="mdi-magnify"
-            label="Buscar productos"
-            v-model="search"
-            hide-details
-            placeholder="Ingrese un texto a buscar..."
-            persistent-placeholder
+              color="indigo"
+              density="compact"
+              variant="outlined"
+              append-inner-icon="mdi-magnify"
+              label="Buscar productos"
+              v-model="search"
+              hide-details
+              placeholder="Ingrese un texto a buscar..."
+              persistent-placeholder
           />
         </v-col>
         <v-col
-          cols="6"
-          md="6"
-          sm="6"
-          class="d-flex justify-end align-center"
+            cols="6"
+            md="6"
+            sm="6"
+            class="d-flex justify-end align-center"
         >
           <v-btn
-            icon
-            color="indigo"
-            size="small"
-            @click="getProductos"
-            variant="text"
-            class="mr-2 border"
+              icon
+              color="indigo"
+              size="small"
+              @click="getProductos"
+              variant="text"
+              class="mr-2 border"
           >
             <v-icon>mdi-magnify</v-icon>
           </v-btn>
           <v-btn
-            icon
-            color="grey"
-            size="small"
-            variant="text"
-            class="border"
+              icon
+              color="grey"
+              size="small"
+              variant="text"
+              class="border"
           >
             <v-icon>mdi-broom</v-icon>
           </v-btn>
@@ -79,34 +79,34 @@
     </v-card>
     <!-- Tabla de productos -->
     <v-card
-      elevation="0"
-      class="border"
-      rounded="0"
+        elevation="0"
+        class="border"
+        rounded="0"
     >
       <v-data-table
-        class="font"
-        density="compact"
-        :headers="data.headers"
-        :items="data.products"
-        :items-per-page="10"
-        :search="search"
-        :loading="data.loading"
-        :row-props="setStyle"
-        :header-props="{
+          class="font"
+          density="compact"
+          :headers="data.headers"
+          :items="data.products"
+          :items-per-page="10"
+          :search="search"
+          :loading="data.loading"
+          :row-props="setStyle"
+          :header-props="{
           class: 'font-weight-bold'
         }"
-        hover
+          hover
       >
         <template v-slot:loader>
           <v-progress-linear
-            color="indigo"
-            indeterminate
-            height="2"
+              color="indigo"
+              indeterminate
+              height="2"
           />
         </template>
         <template v-slot:loading>
           <v-skeleton-loader
-            type="table-row@10"
+              type="table-row@10"
           ></v-skeleton-loader>
         </template>
         <template v-slot:item.costo="{ item }">
@@ -117,17 +117,17 @@
         </template>
 
         <template
-          v-slot:item.fechaRegistro="{ item }"
+            v-slot:item.fechaRegistro="{ item }"
         >
           {{ formatDate(item.fechaRegistro) }}
         </template>
 
         <template v-slot:item.estado="{ item }">
           <v-chip
-            :color="
+              :color="
               item.estado ? 'green' : 'error'
             "
-            small
+              small
           >
             {{
               item.estado ? 'Activo' : 'Inactivo'
@@ -138,14 +138,14 @@
         <template v-slot:item.actions="{ item }">
           <v-tooltip text="Editar" location="top">
             <template
-              v-slot:activator="{ props }"
+                v-slot:activator="{ props }"
             >
               <v-icon
-                v-bind="props"
-                size="small"
-                color="green"
-                class="mr-1"
-                @click="openDialog('edit', item)"
+                  v-bind="props"
+                  size="small"
+                  color="green"
+                  class="mr-1"
+                  @click="openDialog('edit', item)"
               >
                 mdi-pencil
               </v-icon>
@@ -153,33 +153,33 @@
           </v-tooltip>
 
           <v-tooltip
-            text="Eliminar"
-            location="top"
+              text="Eliminar"
+              location="top"
           >
             <template
-              v-slot:activator="{ props }"
+                v-slot:activator="{ props }"
             >
               <v-icon
-                v-bind="props"
-                size="small"
-                color="error"
-                class="mr-1"
-                @click="showAlert(item)"
-                >mdi-delete
+                  v-bind="props"
+                  size="small"
+                  color="error"
+                  class="mr-1"
+                  @click="showAlert(item)"
+              >mdi-delete
               </v-icon>
             </template>
           </v-tooltip>
 
           <v-tooltip text="Ver" location="top">
             <template
-              v-slot:activator="{ props }"
+                v-slot:activator="{ props }"
             >
               <v-icon
-                v-bind="props"
-                size="small"
-                color="indigo-darken-4"
-                @click="openDialogDet(item)"
-                >mdi-eye
+                  v-bind="props"
+                  size="small"
+                  color="indigo-darken-4"
+                  @click="openDialogDet(item)"
+              >mdi-eye
               </v-icon>
             </template>
           </v-tooltip>
@@ -189,40 +189,40 @@
 
     <!-- Diálogo para agregar/editar -->
     <v-dialog
-      v-model="dialog"
-      width="750"
-      min-height="500"
-      persistent
+        v-model="dialog"
+        width="750"
+        min-height="500"
+        persistent
     >
       <v-card class="w-100 mb-6" elevation="0">
         <v-card-title
-          class="text-h5 text-center pa-1 font-weight-bold bg-primary"
+            class="text-h5 text-center pa-1 font-weight-bold bg-primary"
         >
           <v-icon>mdi-package-variant</v-icon>
           Inventario - Registro de Productos
         </v-card-title>
 
         <v-tabs
-          v-model="registroDisplay.tab"
-          color="primary"
-          density="compact"
-          class="mt-2"
+            v-model="registroDisplay.tab"
+            color="primary"
+            density="compact"
+            class="mt-2"
         >
           <v-tab
-            height="25"
-            density="compact"
-            class="border custom-border"
-            ><small
-              >Información del Producto</small
-            >
+              height="25"
+              density="compact"
+              class="border custom-border"
+          ><small
+          >Información del Producto</small
+          >
           </v-tab>
           <v-tab
-            height="25"
-            density="compact"
-            class="border custom-border"
-            ><small
-              >Detalles Adicionales</small
-            ></v-tab
+              height="25"
+              density="compact"
+              class="border custom-border"
+          ><small
+          >Detalles Adicionales</small
+          ></v-tab
           >
         </v-tabs>
 
@@ -230,84 +230,84 @@
 
         <v-card-text class="pa-2">
           <v-window
-            v-model="registroDisplay.tab"
-            class="pa-2"
+              v-model="registroDisplay.tab"
+              class="pa-2"
           >
             <v-window-item>
               <v-form class="w-100" ref="form">
                 <v-row dense>
                   <v-col cols="12" md="6" sm="6">
                     <v-text-field
-                      color="indigo"
-                      v-model="data.form.codigo"
-                      label="Código"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                      hide-details
-                      density="compact"
-                      clearable
-                      prepend-inner-icon="mdi-barcode"
+                        color="indigo"
+                        v-model="data.form.codigo"
+                        label="Código"
+                        :rules="[rules.required]"
+                        variant="outlined"
+                        hide-details
+                        density="compact"
+                        clearable
+                        prepend-inner-icon="mdi-barcode"
                     />
                   </v-col>
                   <v-col cols="12" md="6" sm="6">
                     <v-text-field
-                      color="indigo"
-                      v-model="data.form.nombre"
-                      label="Nombre"
-                      :rules="[
+                        color="indigo"
+                        v-model="data.form.nombre"
+                        label="Nombre"
+                        :rules="[
                         rules.required,
                         rules.minLength(3)
                       ]"
-                      variant="outlined"
-                      hide-details
-                      density="compact"
-                      clearable
-                      prepend-inner-icon="mdi-text-box"
+                        variant="outlined"
+                        hide-details
+                        density="compact"
+                        clearable
+                        prepend-inner-icon="mdi-text-box"
                     />
                   </v-col>
                   <v-col cols="3">
                     <div
-                      class="border-custom pa-2"
+                        class="border-custom pa-2"
                     >
                       <v-card-subtitle
-                        >Costo del Producto
+                      >Costo del Producto
                       </v-card-subtitle>
                       <v-divider
-                        class="mb-2"
+                          class="mb-2"
                       ></v-divider>
                       <v-text-field
-                        v-model="data.form.costo"
-                        :rules="[
+                          v-model="data.form.costo"
+                          :rules="[
                           rules.required,
                           rules.numeric
                         ]"
-                        class="mb-2"
-                        prefix="C$"
-                        label="Por unidad:"
-                        variant="outlined"
-                        hide-details
-                        density="compact"
-                        type="number"
-                        step="0.01"
-                        @input="handleChangeCosto"
+                          class="mb-2"
+                          prefix="C$"
+                          label="Por unidad:"
+                          variant="outlined"
+                          hide-details
+                          density="compact"
+                          type="number"
+                          step="0.01"
+                          @input="handleChangeCosto"
                       >
                       </v-text-field>
                       <v-text-field
-                        v-model="
+                          v-model="
                           data.form.costoDolar
                         "
-                        :rules="[
+                          :rules="[
                           rules.required,
                           rules.numeric
                         ]"
-                        prefix="$"
-                        label="En US$:"
-                        variant="outlined"
-                        hide-details
-                        density="compact"
-                        type="number"
-                        step="0.01"
-                        @input="
+                          prefix="$"
+                          label="En US$:"
+                          variant="outlined"
+                          hide-details
+                          density="compact"
+                          type="number"
+                          step="0.01"
+                          @input="
                           handleChangeCostoDolar
                         "
                       >
@@ -316,49 +316,49 @@
                   </v-col>
                   <v-col cols="3">
                     <div
-                      class="border-custom pa-2"
+                        class="border-custom pa-2"
                     >
                       <v-card-subtitle
-                        >Precio de Venta
+                      >Precio de Venta
                       </v-card-subtitle>
                       <v-divider
-                        class="mb-2"
+                          class="mb-2"
                       ></v-divider>
                       <v-text-field
-                        v-model="data.form.precio"
-                        :rules="[
+                          v-model="data.form.precio"
+                          :rules="[
                           rules.required,
                           rules.numeric
                         ]"
-                        class="mb-2"
-                        prefix="C$"
-                        label="Precio:"
-                        variant="outlined"
-                        hide-details
-                        density="compact"
-                        type="number"
-                        step="0.01"
-                        @input="
+                          class="mb-2"
+                          prefix="C$"
+                          label="Precio:"
+                          variant="outlined"
+                          hide-details
+                          density="compact"
+                          type="number"
+                          step="0.01"
+                          @input="
                           handleChangePrecio
                         "
                       >
                       </v-text-field>
                       <v-text-field
-                        v-model="
+                          v-model="
                           data.form.utilidad
                         "
-                        :rules="[
+                          :rules="[
                           rules.required,
                           rules.numeric
                         ]"
-                        prefix="%"
-                        label="% Utilidad:"
-                        variant="outlined"
-                        hide-details
-                        density="compact"
-                        type="number"
-                        step="0.01"
-                        @input="
+                          prefix="%"
+                          label="% Utilidad:"
+                          variant="outlined"
+                          hide-details
+                          density="compact"
+                          type="number"
+                          step="0.01"
+                          @input="
                           handleChangeUtilidad
                         "
                       >
@@ -367,53 +367,53 @@
                   </v-col>
                   <v-col cols="6">
                     <div
-                      class="border-custom pa-2"
+                        class="border-custom pa-2"
                     >
                       <v-card-subtitle
-                        >Clasificación del
+                      >Clasificación del
                         Producto
                       </v-card-subtitle>
                       <v-divider
-                        class="mb-2"
+                          class="mb-2"
                       ></v-divider>
                       <v-row dense>
                         <v-col cols="12">
                           <v-select
-                            v-model="
+                              v-model="
                               data.form
                                 .idCategoria
                             "
-                            label="Categoría:"
-                            :items="
+                              label="Categoría:"
+                              :items="
                               cmb.categorias
                             "
-                            :rules="[
+                              :rules="[
                               rules.required
                             ]"
-                            variant="outlined"
-                            density="compact"
-                            prepend-inner-icon="mdi-shape-outline"
-                            hide-details
-                            @change="loadCmbSubCategoria(data.form.idCategoria)"
+                              variant="outlined"
+                              density="compact"
+                              prepend-inner-icon="mdi-shape-outline"
+                              hide-details
+                              @update:model-value="loadCmbSubCategoria(data.form.idCategoria)"
                           ></v-select>
                         </v-col>
                         <v-col cols="12">
                           <v-select
-                            v-model="
+                              v-model="
                               data.form
                                 .idSubCatProd
                             "
-                            label="Sub categoría"
-                            :items="
+                              label="Sub categoría"
+                              :items="
                               cmb.subCategorias
                             "
-                            :rules="[
+                              :rules="[
                               rules.required
                             ]"
-                            variant="outlined"
-                            hide-details
-                            density="compact"
-                            prepend-inner-icon="mdi-shape-outline"
+                              variant="outlined"
+                              hide-details
+                              density="compact"
+                              prepend-inner-icon="mdi-shape-outline"
                           ></v-select>
                         </v-col>
                       </v-row>
@@ -438,14 +438,14 @@
                   </v-col>-->
                   <v-col cols="12" md="6" sm="6">
                     <v-autocomplete
-                      v-model="
+                        v-model="
                         data.form.idUnidadMedida
                       "
-                      :items="cmb.unidadesMedida"
-                      label="Unidad Medida:"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
+                        :items="cmb.unidadesMedida"
+                        label="Unidad Medida:"
+                        variant="outlined"
+                        density="compact"
+                        hide-details
                     ></v-autocomplete>
                     <!--<v-text-field
                       color="indigo"
@@ -480,53 +480,53 @@
                   </v-col>-->
                   <v-col cols="3" md="3" sm="3">
                     <v-text-field
-                      color="indigo"
-                      v-model="
+                        color="indigo"
+                        v-model="
                         data.form.cantidadMinima
                       "
-                      label="Stock Mínimo"
-                      :rules="[
+                        label="Stock Mínimo"
+                        :rules="[
                         rules.required,
                         rules.numeric
                       ]"
-                      variant="outlined"
-                      hide-details
-                      density="compact"
-                      type="number"
-                      prepend-inner-icon="mdi-numeric"
+                        variant="outlined"
+                        hide-details
+                        density="compact"
+                        type="number"
+                        prepend-inner-icon="mdi-numeric"
                     />
                   </v-col>
                   <v-col cols="3" md="3" sm="3">
                     <v-text-field
-                      color="indigo"
-                      v-model="
+                        color="indigo"
+                        v-model="
                         data.form.cantidadTotal
                       "
-                      label="Stock"
-                      :rules="[
+                        label="Stock"
+                        :rules="[
                         rules.required,
                         rules.numeric
                       ]"
-                      variant="outlined"
-                      hide-details
-                      density="compact"
-                      type="number"
-                      prepend-inner-icon="mdi-numeric"
+                        variant="outlined"
+                        hide-details
+                        density="compact"
+                        type="number"
+                        prepend-inner-icon="mdi-numeric"
                     />
                   </v-col>
                   <v-col
-                    cols="12"
-                    md="12"
-                    sm="12"
+                      cols="12"
+                      md="12"
+                      sm="12"
                   >
                     <v-textarea
-                      v-model="data.observaciones"
-                      density="compact"
-                      variant="outlined"
-                      label="Observaciones"
-                      prepend-inner-icon="mdi-text"
-                      rows="2"
-                      auto-grow
+                        v-model="data.observaciones"
+                        density="compact"
+                        variant="outlined"
+                        label="Observaciones"
+                        prepend-inner-icon="mdi-text"
+                        rows="2"
+                        auto-grow
                     />
                   </v-col>
                 </v-row>
@@ -534,63 +534,63 @@
             </v-window-item>
             <v-window-item>
               <v-col
-                style="
+                  style="
                   border: 1px solid #e0e0e0;
                   border-left: none;
                 "
               >
                 <div>
                   <div
-                    class="d-flex justify-center mt-2 mb-2"
+                      class="d-flex justify-center mt-2 mb-2"
                   >
                     <v-chip color="secondary">
                       Imagen del Producto
                     </v-chip>
                   </div>
                   <v-file-input
-                    v-model="
+                      v-model="
                       registroDisplay.imagen
                         .archivo
                     "
-                    :accept="
+                      :accept="
                       registroDisplay.formatosImagen
                     "
-                    label="Selecciona una imagen"
-                    show-size
-                    @change="handleInputImagen"
+                      label="Selecciona una imagen"
+                      show-size
+                      @change="handleInputImagen"
                   ></v-file-input>
                   <v-img
-                    v-if="
+                      v-if="
                       registroDisplay.imagen.url
                     "
-                    style="
+                      style="
                       border-top: 1px solid
                         #e0e0e0;
                     "
-                    :src="
+                      :src="
                       registroDisplay.imagen.url
                     "
-                    aspect-ratio="1"
-                    contain
-                    height="250px"
+                      aspect-ratio="1"
+                      contain
+                      height="250px"
                   >
                     <v-btn
-                      icon
-                      @click="
+                        icon
+                        @click="
                         handleEliminarImagen
                       "
                     >
                       <v-icon
-                        style="color: #f44336"
+                          style="color: #f44336"
                       >
                         mdi-delete
                       </v-icon>
                     </v-btn>
                   </v-img>
                   <div
-                    class="d-flex flex-column justify-center align-center"
-                    v-else
-                    style="
+                      class="d-flex flex-column justify-center align-center"
+                      v-else
+                      style="
                       border-top: 1px solid
                         #e0e0e0;
                       height: 250px;
@@ -606,15 +606,15 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn
-            color="grey"
-            variant="outlined"
-            @click="closeDialog()"
+              color="grey"
+              variant="outlined"
+              @click="closeDialog()"
           >
             Cerrar
           </v-btn>
           <v-btn
-            class="bg-primary"
-            @click="handleSave(data.form)"
+              class="bg-primary"
+              @click="guardarRegistro"
           >
             Guardar
           </v-btn>
@@ -623,13 +623,13 @@
     </v-dialog>
 
     <DetallesProducto
-      :show="data.showDialog"
-      :producto="data.productDialog"
-      @cerrarDialog="closeDialogDet"
+        :show="data.showDialog"
+        :producto="data.productDialog"
+        @cerrarDialog="closeDialogDet"
     />
     <AlertComp
-      :show="data.viewAlert"
-      @deleteItem="deleteAction"
+        :show="data.viewAlert"
+        @deleteItem="deleteAction"
     />
   </div>
 </template>
@@ -642,14 +642,15 @@ import {
   onMounted,
   onUnmounted
 } from 'vue'
-import { utilsFunctions } from '@/helpers/utilFunctions'
+import {utilsFunctions} from '@/helpers/utilFunctions'
 import DetallesProducto from './modalsProductos/DetallesProducto.vue'
 import RequestHttp from '@/services/requestHttp'
 import AlertComp from '@/components/widgets/AlertComp.vue'
 import {
   getItemsCombobox,
-  httpGet
+  httpGet, httpPost, httpPut
 } from '@/scripts/api.js'
+import axios from "axios";
 
 export default {
   mounted() {
@@ -666,21 +667,21 @@ export default {
   setup() {
     const screenWidth = ref(window.innerWidth)
     const isMobile = computed(
-      () => screenWidth.key < 600
+        () => screenWidth.key < 600
     )
     const updateScreen = () => {
       screenWidth.key = window.innerWidth
     }
     onMounted(() => {
       window.addEventListener(
-        'resize',
-        updateScreen
+          'resize',
+          updateScreen
       )
     })
     onUnmounted(() => {
       window.addEventListener(
-        'resize',
-        updateScreen
+          'resize',
+          updateScreen
       )
     })
 
@@ -757,6 +758,7 @@ export default {
       ],
       subCategorias: [],
       form: {
+        idProducto: 0,
         codigo: null,
         nombre: null,
         precio: null,
@@ -766,7 +768,6 @@ export default {
         idCategoria: null,
         idSubCatProd: null,
         idUnidadMedida: 1,
-        tipoProducto: null,
         cantidadTotal: 0,
         cantidadMinima: 0,
         usuarioRegistro: 'admin'
@@ -805,6 +806,7 @@ export default {
           'image/jpg',
           'image/png'
         ],
+        eliminarImagen: false,
         maxFileSize: 1 * 1024 * 1024,
         actualizandoCosto: false
       },
@@ -817,13 +819,13 @@ export default {
       productToDelete: null,
       rules: {
         required: (key) =>
-          !!key || 'Campo requerido',
+            !!key || 'Campo requerido',
         minLength: (min) => (key) =>
-          (key && key.length >= min) ||
-          `Mínimo ${min} caracteres`,
+            (key && key.length >= min) ||
+            `Mínimo ${min} caracteres`,
         numeric: (key) =>
-          !isNaN(parseFloat(key)) ||
-          'Debe ser un número válido'
+            !isNaN(parseFloat(key)) ||
+            'Debe ser un número válido'
       }
     }
   },
@@ -831,8 +833,8 @@ export default {
   computed: {
     dialogTitle() {
       return this.dialogMode === 'create'
-        ? 'Nuevo Producto'
-        : 'Editar Producto'
+          ? 'Nuevo Producto'
+          : 'Editar Producto'
     }
   },
 
@@ -843,7 +845,7 @@ export default {
         return
       }
       this.data.form.costoDolar = (
-        this.data.form.costo / 36.6243
+          this.data.form.costo / 36.6243
       ).toFixed(4)
       this.handleChangePrecio()
     },
@@ -854,7 +856,7 @@ export default {
         return
       }
       this.data.form.costo = (
-        this.data.form.costoDolar * 36.6243
+          this.data.form.costoDolar * 36.6243
       ).toFixed(4)
       this.handleChangePrecio()
     },
@@ -867,41 +869,41 @@ export default {
       var precio = Number(this.data.form.precio)
       var costo = Number(this.data.form.costo)
       this.data.form.utilidad = (
-        ((precio - costo) / costo) *
-        100
+          ((precio - costo) / costo) *
+          100
       ).toFixed(4)
     },
 
     handleChangeUtilidad() {
       if (!this.data.form.utilidad) {
         this.data.form.precio =
-          this.data.form.costo
+            this.data.form.costo
         return
       }
       var utilidad = Number(
-        this.data.form.utilidad
+          this.data.form.utilidad
       )
       var costo = Number(this.data.form.costo)
       this.data.form.precio =
-        (utilidad / 100) * costo + costo
+          (utilidad / 100) * costo + costo
     },
 
     handleInputImagen() {
       let me = this
       const file =
-        me.registroDisplay.imagen.archivo
+          me.registroDisplay.imagen.archivo
       if (
-        file &&
-        file.size > me.registroDisplay.maxFileSize
+          file &&
+          file.size > me.registroDisplay.maxFileSize
       ) {
         me.registroDisplay.imagen.archivo = ''
         alert(
-          'El archivo excede el tamaño máximo de 1MB.'
+            'El archivo excede el tamaño máximo de 1MB.'
         )
       } else {
         if (file) {
           me.registroDisplay.imagen.url =
-            URL.createObjectURL(file)
+              URL.createObjectURL(file)
         } else {
           me.registroDisplay.imagen.url = null
         }
@@ -914,12 +916,12 @@ export default {
       this.registroDisplay.eliminarImagen = true
     },
 
-    setStyle({ index }) {
+    setStyle({index}) {
       return {
         class:
-          index % 2 === 0
-            ? 'bg-white'
-            : 'bg-indigo-lighten-5'
+            index % 2 === 0
+                ? 'bg-white'
+                : 'bg-indigo-lighten-5'
       }
     },
 
@@ -927,7 +929,7 @@ export default {
       this.data.subCategorias = []
       this.data.loading = true
       const result =
-        await this.data.requestHttp.getSubCategorias()
+          await this.data.requestHttp.getSubCategorias()
       this.data.loading = false
       if (result !== null) {
         result.map((item) => {
@@ -945,74 +947,126 @@ export default {
       this.data.products = []
       this.data.loading = true
       const result =
-        await this.data.requestHttp.getProductos()
+          await this.data.requestHttp.getProductos()
       this.data.products = result
       this.data.loading = false
     },
 
     async loadCodigoRecomendado() {
       var codigoRecomendado = await httpGet(
-        'api/producto/codigo-recomendado'
+          'api/producto/codigo-recomendado'
       )
-      this.data.form.codigo = codigoRecomendado
+      this.data.form.codigo = String(codigoRecomendado)
     },
 
     async loadCmbUnidadMedida() {
       var unidades = await getItemsCombobox(
-        'api/unidades-medida/combobox',
-        false
+          'api/unidades-medida/combobox',
+          false
       )
       this.cmb.unidadesMedida = unidades
     },
 
     async loadCmbCategoria() {
       var categorias = await getItemsCombobox(
-        'api/categoriaproducto/combobox',
-        false
+          'api/categoriaproducto/combobox',
+          false
       )
       this.cmb.categorias = categorias
     },
 
     async loadCmbSubCategoria(id) {
       var subCategorias = await getItemsCombobox(
-        `api/subcatproducto/combobox?idCategoria=${id}`
+          `api/subcatproducto/combobox?idCategoria=${id}`
       )
       this.cmb.subCategorias = subCategorias
     },
 
-    openDialog(mode, product = null) {
-      this.loadCmbUnidadMedida()
-      this.loadCodigoRecomendado()
+    async guardarRegistro() {
+      var response =
+          await httpPost('api/producto', this.data.form)
+      this.data.form.idProducto = response.data
+      await this.actActualizarImagen()
+      await this.getProductos()
+      this.closeDialog()
+    },
+
+    async actActualizarImagen() {
+      const file = this.registroDisplay.imagen.archivo
+      var id = this.data.form.idProducto
+      if (file || this.registroDisplay.eliminarImagen) {
+        const formData = new FormData()
+        formData.append('imagen', file)
+        try {
+          await httpPut(`api/producto/${id}/imagen`, formData)
+        } catch (err) {
+          console.log(err)
+        }
+      } else {
+
+      }
+      this.registroDisplay.eliminarImagen = false
+    },
+
+    async openDialog(mode, product = null) {
+      this.registroDisplay.imagen.url = null
+      this.registroDisplay.imagen.archivo = null
+      await this.loadCmbUnidadMedida()
+      await this.loadCmbCategoria()
+      await this.loadCmbSubCategoria(product.idCategoriaProducto)
+      if(mode !== 'edit'){
+        await this.loadCodigoRecomendado()
+      }
       this.dialogMode = mode
       if (product) {
         this.selectedProduct = product.idProducto
         this.data.form.codigo = product.codigo
+        this.data.form.idCategoria = product.idCategoriaProducto
         this.data.form.costo = product.costo
         this.data.form.categoria =
-          product.categoria
+            product.categoria
         this.data.form.nombre = product.nombre
         this.data.form.precio = product.precio
         this.data.form.categoria =
-          product.categoria
+            product.categoria
         this.data.form.idSubCatProd =
-          product.idSubCatProd
+            product.idSubCatProd
         this.data.form.tipoProducto =
-          product.tipoProducto
+            product.tipoProducto
         this.data.form.cantidadTotal =
-          product.cantidadTotal
+            product.cantidadTotal
         this.data.form.cantidadMinima =
-          product.cantidadMinima
+            product.cantidadMinima
         this.data.form.usuarioRegistro =
-          product.usuarioRegistro
-        this.data.imagen = product.imagen
+            product.usuarioRegistro
+        this.loadImagenProducto(product.idProducto)
       }
       this.dialog = true
+      this.handleChangeCosto()
+
+    },
+
+    async loadImagenProducto(id) {
+      try {
+        const response = await axios.get(`api/producto/${id}/imagen`, {
+          responseType: 'arraybuffer',
+        })
+
+        const base64Image = btoa(
+            new Uint8Array(response.data).reduce(
+                (data, byte) => data + String.fromCharCode(byte),
+                '',
+            ),
+        )
+        this.registroDisplay.imagen.url = 'data:image/jpeg;base64,' + base64Image
+      } catch (err) {
+      }
     },
 
     openDialogDet(obj) {
       ;(this.data.showDialog =
-        !this.data.showDialog),
-        (this.data.productDialog = obj)
+          !this.data.showDialog),
+          (this.data.productDialog = obj)
     },
 
     closeDialogDet(key) {
@@ -1022,26 +1076,24 @@ export default {
     closeDialog() {
       this.dialog = false
       this.selectedProduct = null
-      this.data.form = {
-        idUnidadMedida: 1
-      }
+      this.data.form = {}
     },
 
     async handleSave(productData) {
       this.data.form.costo = Number(
-        this.data.form.costo
+          this.data.form.costo
       )
       this.data.form.precio = Number(
-        this.data.form.precio
+          this.data.form.precio
       )
       this.data.form.cantidadMinima = Number(
-        this.data.form.cantidadMinima
+          this.data.form.cantidadMinima
       )
       this.data.form.cantidadTotal = Number(
-        this.data.form.cantidadTotal
+          this.data.form.cantidadTotal
       )
       const valid =
-        utilsFunctions.objectValidate(productData)
+          utilsFunctions.objectValidate(productData)
 
       if (this.dialogMode === 'create') {
         if (!valid) {
@@ -1052,9 +1104,9 @@ export default {
         try {
           productData.idUnidadMedida = 1
           const result =
-            await this.data.requestHttp.postProducto(
-              productData
-            )
+              await this.data.requestHttp.postProducto(
+                  productData
+              )
           if (result !== null) {
             alert('Registro Guardado')
             this.getProductos()
@@ -1063,8 +1115,8 @@ export default {
           }
         } catch (error) {
           throw new Error(
-            'Error en la solicitud',
-            error
+              'Error en la solicitud',
+              error
           )
         }
       } else {
@@ -1078,10 +1130,10 @@ export default {
           }
           productData.idUnidadMedida = 1
           const result =
-            await this.data.requestHttp.putProductos(
-              productData,
-              this.selectedProduct
-            )
+              await this.data.requestHttp.putProductos(
+                  productData,
+                  this.selectedProduct
+              )
           if (result !== null) {
             alert('Registro Editado')
             this.getProductos()
@@ -1090,8 +1142,8 @@ export default {
           }
         } catch (error) {
           throw new Error(
-            'Error en la solicitud',
-            error
+              'Error en la solicitud',
+              error
           )
         }
       }
@@ -1112,9 +1164,9 @@ export default {
 
     async deleteItem() {
       const result =
-        await this.data.requestHttp.deleteProducto(
-          this.data.selectedProduct
-        )
+          await this.data.requestHttp.deleteProducto(
+              this.data.selectedProduct
+          )
       if (result !== null) {
         alert('Producto Eliminado')
         this.getProductos()
@@ -1153,8 +1205,8 @@ export default {
       if (!archivo) return
       // Si es múltiple, toma el primero
       const file = Array.isArray(archivo)
-        ? archivo[0]
-        : archivo
+          ? archivo[0]
+          : archivo
 
       const lector = new FileReader()
       lector.onload = () => {
