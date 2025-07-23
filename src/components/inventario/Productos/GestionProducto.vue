@@ -293,7 +293,9 @@
                       >
                       </v-text-field>
                       <v-text-field
-                        v-model="data.form.costoDolar"
+                        v-model="
+                          data.form.costoDolar
+                        "
                         :rules="[
                           rules.required,
                           rules.numeric
@@ -305,7 +307,9 @@
                         density="compact"
                         type="number"
                         step="0.01"
-                        @input="handleChangeCostoDolar"
+                        @input="
+                          handleChangeCostoDolar
+                        "
                       >
                       </v-text-field>
                     </div>
@@ -334,10 +338,15 @@
                         density="compact"
                         type="number"
                         step="0.01"
+                        @input="
+                          handleChangePrecio
+                        "
                       >
                       </v-text-field>
                       <v-text-field
-                        v-model="data.form.utilidad"
+                        v-model="
+                          data.form.utilidad
+                        "
                         :rules="[
                           rules.required,
                           rules.numeric
@@ -349,7 +358,9 @@
                         density="compact"
                         type="number"
                         step="0.01"
-                        @input="handleChangeUtilidad"
+                        @input="
+                          handleChangeUtilidad
+                        "
                       >
                       </v-text-field>
                     </div>
@@ -368,26 +379,37 @@
                       <v-row dense>
                         <v-col cols="12">
                           <v-select
-                            v-model="data.form.idSubCatProd"
+                            v-model="
+                              data.form
+                                .idCategoria
+                            "
                             label="Categoría:"
-                            :items="data.subCategorias"
-                            :rules="[rules.required]"
+                            :items="
+                              cmb.categorias
+                            "
+                            :rules="[
+                              rules.required
+                            ]"
                             variant="outlined"
                             density="compact"
                             prepend-inner-icon="mdi-shape-outline"
                             hide-details
+                            @change="loadCmbSubCategoria(data.form.idCategoria)"
                           ></v-select>
                         </v-col>
                         <v-col cols="12">
                           <v-select
                             v-model="
-                          data.form.idSubCatProd
-                        "
+                              data.form
+                                .idSubCatProd
+                            "
                             label="Sub categoría"
                             :items="
-                          data.subCategorias
-                        "
-                            :rules="[rules.required]"
+                              cmb.subCategorias
+                            "
+                            :rules="[
+                              rules.required
+                            ]"
                             variant="outlined"
                             hide-details
                             density="compact"
@@ -511,40 +533,68 @@
               </v-form>
             </v-window-item>
             <v-window-item>
-              <v-col style="border: 1px solid #e0e0e0; border-left: none">
+              <v-col
+                style="
+                  border: 1px solid #e0e0e0;
+                  border-left: none;
+                "
+              >
                 <div>
-                  <div class="d-flex justify-center mt-2 mb-2">
+                  <div
+                    class="d-flex justify-center mt-2 mb-2"
+                  >
                     <v-chip color="secondary">
                       Imagen del Producto
                     </v-chip>
                   </div>
                   <v-file-input
-                    v-model="registroDisplay.imagen.archivo"
-                    :accept="registroDisplay.formatosImagen"
+                    v-model="
+                      registroDisplay.imagen
+                        .archivo
+                    "
+                    :accept="
+                      registroDisplay.formatosImagen
+                    "
                     label="Selecciona una imagen"
                     show-size
                     @change="handleInputImagen"
                   ></v-file-input>
                   <v-img
-                    v-if="registroDisplay.imagen.url"
-                    style="border-top: 1px solid #e0e0e0"
-                    :src="registroDisplay.imagen.url"
+                    v-if="
+                      registroDisplay.imagen.url
+                    "
+                    style="
+                      border-top: 1px solid
+                        #e0e0e0;
+                    "
+                    :src="
+                      registroDisplay.imagen.url
+                    "
                     aspect-ratio="1"
                     contain
                     height="250px"
                   >
                     <v-btn
                       icon
-                      @click="handleEliminarImagen"
+                      @click="
+                        handleEliminarImagen
+                      "
                     >
-                      <v-icon style="color: #F44336">
+                      <v-icon
+                        style="color: #f44336"
+                      >
                         mdi-delete
                       </v-icon>
                     </v-btn>
                   </v-img>
-                  <div class="d-flex flex-column justify-center align-center"
-                       v-else
-                       style="border-top: 1px solid #e0e0e0; height: 250px"
+                  <div
+                    class="d-flex flex-column justify-center align-center"
+                    v-else
+                    style="
+                      border-top: 1px solid
+                        #e0e0e0;
+                      height: 250px;
+                    "
                   >
                     <h3>Sin imagen.</h3>
                   </div>
@@ -605,6 +655,7 @@ export default {
   mounted() {
     this.getSubCategorias()
     this.getProductos()
+    this.loadCmbCategoria()
   },
 
   components: {
@@ -712,6 +763,7 @@ export default {
         utilidad: null,
         costo: null,
         costoDolar: null,
+        idCategoria: null,
         idSubCatProd: null,
         idUnidadMedida: 1,
         tipoProducto: null,
@@ -737,18 +789,24 @@ export default {
   data() {
     return {
       cmb: {
-        unidadesMedida: []
+        unidadesMedida: [],
+        categorias: [],
+        subCategorias: []
       },
 
       registroDisplay: {
         tab: null,
         imagen: {
           archivo: null,
-          url: null,
+          url: null
         },
-        formatosImagen: ['image/jpeg', 'image/jpg', 'image/png'],
+        formatosImagen: [
+          'image/jpeg',
+          'image/jpg',
+          'image/png'
+        ],
         maxFileSize: 1 * 1024 * 1024,
-        actualizandoCosto: false,
+        actualizandoCosto: false
       },
 
       search: '',
@@ -779,46 +837,71 @@ export default {
   },
 
   methods: {
-    handleChangeCosto(){
-      if(!this.data.form.costo) {
+    handleChangeCosto() {
+      if (!this.data.form.costo) {
         this.data.form.costoDolar = null
+        return
       }
-      this.data.form.costoDolar = (this.data.form.costo / 36.6243).toFixed(4)
+      this.data.form.costoDolar = (
+        this.data.form.costo / 36.6243
+      ).toFixed(4)
+      this.handleChangePrecio()
     },
 
-    handleChangeCostoDolar(){
-      if(!this.data.form.costoDolar) {
+    handleChangeCostoDolar() {
+      if (!this.data.form.costoDolar) {
         this.data.form.costo = null
+        return
       }
-      this.data.form.costo = (this.data.form.costoDolar * 36.6243).toFixed(4)
+      this.data.form.costo = (
+        this.data.form.costoDolar * 36.6243
+      ).toFixed(4)
+      this.handleChangePrecio()
     },
 
-    handleChangePrecio(){
-      if(!this.data.form.precio) {
+    handleChangePrecio() {
+      if (!this.data.form.precio) {
         this.data.form.utilidad = null
+        return
       }
-      this.data.form.utilidad = (this.data.form.costo / 36.6243).toFixed(4)
+      var precio = Number(this.data.form.precio)
+      var costo = Number(this.data.form.costo)
+      this.data.form.utilidad = (
+        ((precio - costo) / costo) *
+        100
+      ).toFixed(4)
     },
 
-    handleChangeUtilidad(){
-      if(!this.data.form.utilidad) {
-        this.data.form.precio = this.data.form.costo
+    handleChangeUtilidad() {
+      if (!this.data.form.utilidad) {
+        this.data.form.precio =
+          this.data.form.costo
+        return
       }
-      var utilidad = Number(this.data.form.utilidad)
+      var utilidad = Number(
+        this.data.form.utilidad
+      )
       var costo = Number(this.data.form.costo)
       this.data.form.precio =
-        (((utilidad / 100) * costo) + costo)
+        (utilidad / 100) * costo + costo
     },
 
-    handleInputImagen(){
+    handleInputImagen() {
       let me = this
-      const file = me.registroDisplay.imagen.archivo
-      if (file && file.size > me.registroDisplay.maxFileSize) {
+      const file =
+        me.registroDisplay.imagen.archivo
+      if (
+        file &&
+        file.size > me.registroDisplay.maxFileSize
+      ) {
         me.registroDisplay.imagen.archivo = ''
-        alert('El archivo excede el tamaño máximo de 1MB.')
+        alert(
+          'El archivo excede el tamaño máximo de 1MB.'
+        )
       } else {
         if (file) {
-          me.registroDisplay.imagen.url = URL.createObjectURL(file)
+          me.registroDisplay.imagen.url =
+            URL.createObjectURL(file)
         } else {
           me.registroDisplay.imagen.url = null
         }
@@ -867,9 +950,10 @@ export default {
       this.data.loading = false
     },
 
-    async loadCodigoRecomendado(){
-      var codigoRecomendado =
-        await httpGet('api/producto/codigo-recomendado')
+    async loadCodigoRecomendado() {
+      var codigoRecomendado = await httpGet(
+        'api/producto/codigo-recomendado'
+      )
       this.data.form.codigo = codigoRecomendado
     },
 
@@ -879,6 +963,21 @@ export default {
         false
       )
       this.cmb.unidadesMedida = unidades
+    },
+
+    async loadCmbCategoria() {
+      var categorias = await getItemsCombobox(
+        'api/categoriaproducto/combobox',
+        false
+      )
+      this.cmb.categorias = categorias
+    },
+
+    async loadCmbSubCategoria(id) {
+      var subCategorias = await getItemsCombobox(
+        `api/subcatproducto/combobox?idCategoria=${id}`
+      )
+      this.cmb.subCategorias = subCategorias
     },
 
     openDialog(mode, product = null) {
