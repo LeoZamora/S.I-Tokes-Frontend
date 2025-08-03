@@ -971,7 +971,7 @@ export default {
     async loadCmbCategoria() {
       var categorias = await getItemsCombobox(
           'api/categoriaproducto/combobox',
-          false
+          true
       )
       this.cmb.categorias = categorias
     },
