@@ -10,7 +10,7 @@
                 </v-btn>
             </v-card-title>
             <v-divider />
-            <v-card-text id="body-card" class="">
+            <v-card-text id="body-card">
                 <v-row class="pb-0">
                     <v-col cols="6" md="4" sm="6" class="d-flex justify-start align-center pb-0">
                         <small class="mr-2">Nº Factura: </small>
@@ -24,17 +24,17 @@
                     </v-col>
                     <v-col cols="12" md="4" sm="3" class="d-flex justify-start align-center pb-0">
                         <div class="d-flex align-center">
-                            <v-checkbox v-model="data.nio" color="indigo" density="compact" class="label" hide-details>
+                            <v-checkbox v-model="data.nio" color="indigo" density="compact" class="label" :hide-details="data.hide ? true : false">
                                 <template v-slot:label>
                                     <span id="checkLabel">Córdobas</span>
                                 </template>
                             </v-checkbox>
-                            <v-checkbox v-model="data.usd" color="indigo" density="compact" class="label" hide-details>
+                            <v-checkbox v-model="data.usd" color="indigo" density="compact" class="label" :hide-details="data.hide ? true : false">
                                 <template v-slot:label>
                                     <span id="checkLabel">Dólares</span>
                                 </template>
                             </v-checkbox>
-                            <v-checkbox v-model="data.venta.credito" color="indigo" density="compact" class="label" hide-details>
+                            <v-checkbox v-model="data.venta.credito" color="indigo" density="compact" class="label" :hide-details="data.hide ? true : false">
                                 <template v-slot:label>
                                     <span id="checkLabel">Crédito</span>
                                 </template>
@@ -46,35 +46,45 @@
                     <small class="mx-6 font-weight-bold">GENERALES</small>
                     <v-divider/>
                 </v-card-subtitle>
-                <v-row>
-                    <v-col cols="12" md="4" sm="12">
-                        <v-text-field v-model="data.venta.noVenta" prepend-inner-icon="mdi-shopping" density="compact" variant="outlined" hide-details 
-                            label="Nº Factura" placeholder="nº factura" persistent-placeholder/>
-                    </v-col>
-                    <v-col cols="12" md="4" sm="12">
-                        <v-autocomplete v-model="data.venta.idCliente" prepend-inner-icon="mdi-account" density="compact" variant="outlined" hide-details label="Cliente" 
-                            placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes"/>
-                    </v-col>
-                    <v-col cols="12" md="4" sm="12">
-                        <v-autocomplete :items="data.empleados" v-model="data.venta.usuarioRegistro" prepend-inner-icon="mdi-account-cog" density="compact" variant="outlined" hide-details
-                            label="Empleado" placeholder="empleado de registro" persistent-placeholder/>
-                    </v-col>
-                    <v-col cols="12" md="12" sm="12">
-                        <v-textarea v-model="data.venta.enviarA" density="compact" variant="outlined" hide-details label="Dirección de envio" placeholder="ingrese una dirección" 
-                            persistent-placeholder rows="2"/>                        
-                    </v-col>
-                </v-row>
+                <v-form validate-on="invalid-input" ref="form">
+                    <v-row dense>
+                        <v-col cols="12" md="6" sm="6">
+                            <v-text-field :rules="data.rules.rule" v-model="data.venta.noVenta" prepend-inner-icon="mdi-shopping" 
+                                density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
+                                label="Nº Factura" placeholder="nº factura" persistent-placeholder/>
+                        </v-col>
+                        <v-col cols="12" md="6" sm="6">
+                            <v-autocomplete :rules="data.rules.rule" v-model="data.venta.idTipoVenta" :items="data.tipoVenta"
+                                prepend-inner-icon="mdi-file-document-check" density="compact" variant="outlined" :hide-details="data.hide ? true : false"
+                                label="Tipo de Venta" placeholder="tipos de ventas" persistent-placeholder/>
+                        </v-col>
+                        <v-col cols="12" md="6" sm="6">
+                            <v-autocomplete :rules="data.rules.rule" v-model="data.venta.idCliente" prepend-inner-icon="mdi-account" density="compact" 
+                                variant="outlined" :hide-details="data.hide ? true : false" label="Cliente" 
+                                placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes"/>
+                        </v-col>
+                        <v-col cols="12" md="6" sm="6">
+                            <v-autocomplete :rules="data.rules.rule" :items="data.empleados" v-model="data.venta.usuarioRegistro" 
+                                prepend-inner-icon="mdi-account-cog" density="compact" variant="outlined" :hide-details="data.hide ? true : false"
+                                label="Empleado" placeholder="empleado de registro" persistent-placeholder/>
+                        </v-col>
+                        <v-col cols="12" md="12" sm="12">
+                            <v-textarea v-model="data.venta.enviarA" density="compact" variant="outlined" :hide-details="data.hide ? true : false" label="Dirección de envio" placeholder="ingrese una dirección" 
+                                persistent-placeholder rows="2"/>                        
+                        </v-col>
+                    </v-row>
+                </v-form>
                 <v-card-subtitle class="d-flex align-center text-center my-4">                    
                     <small class="mx-6 font-weight-bold">PRODUCTOS</small>
                     <v-divider/>
                 </v-card-subtitle>
                 <v-row>
                     <v-col cols="12" md="4" sm="6">
-                        <v-autocomplete v-model="data.producto.idProducto" prepend-inner-icon="mdi-shopping" density="compact" variant="outlined" hide-details 
+                        <v-autocomplete v-model="data.producto.idProducto" prepend-inner-icon="mdi-shopping" density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
                             label="Productos" placeholder="productos a agregar" persistent-placeholder :items="data.productos"/>
                     </v-col>
                     <v-col cols="6" md="4" sm="6">
-                        <v-text-field v-model="data.producto.cantidad" prepend-inner-icon="mdi-numeric" density="compact" variant="outlined" hide-details 
+                        <v-text-field v-model="data.producto.cantidad" prepend-inner-icon="mdi-numeric" density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
                             label="Cantidad" placeholder="cantidad de productos" persistent-placeholder type="number"/>
                     </v-col>
                     <v-col cols="6" md="4" sm="6" class="d-flex justify-end align-center py-0">
@@ -108,7 +118,8 @@
                         </v-data-table>
                     </v-col>
                     <v-col cols="12" md="6" sm="6">
-                        <v-textarea v-model="data.venta.observaciones" density="compact" variant="outlined" hide-details label="Observaciones" placeholder="ingrese algunos detalles de la factura" 
+                        <v-textarea v-model="data.venta.observaciones" density="compact" variant="outlined" 
+                            :hide-details="data.hide ? true : false" label="Observaciones" placeholder="ingrese algunos detalles de la factura" 
                             persistent-placeholder rows="3"/>                        
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="d-flex flex-column justify-end align-end">
@@ -151,7 +162,8 @@ export default {
     mounted() {
         this.getClientes()
         this.getProductos()
-      this.getEmpleados()
+        this.getEmpleados()
+        this.getTipoVentas()
     },
 
     props: {
@@ -246,6 +258,10 @@ export default {
         })
 
         const data = reactive({
+            rules: {
+                rule: [v => !!v || 'El campo es obligatorio']
+            },
+
             headers: [
                 {title: '', key: 'opc', align: 'center'},
                 {title: 'Producto', key: 'producto', align: 'center'},
@@ -254,7 +270,8 @@ export default {
                 {title: 'SubTotal', key: 'subTotal', align: 'center'},
             ],
             productos: [],
-          empleados: [],
+            empleados: [],
+            tipoVenta: [],
             items: [],
             clientes: [],
             producto: {
@@ -275,6 +292,7 @@ export default {
             },
             venta: {
                 noVenta: null,
+                idTipoVenta: null,
                 idCliente: null,
                 credito: false,
                 observaciones: null,
@@ -290,6 +308,7 @@ export default {
                 detalleCxcs: [],
             },
 
+            hide: true,
             idVenta: null,
             emision: new Date(),
             nio: true,
@@ -321,15 +340,25 @@ export default {
             })
         },
 
-      async getEmpleados() {
-        this.data.empleados = []
-        this.data.loading = true
-        const result = await this.data.requestHttp.getUsuarios()
-        this.data.loading = false
-        result.map(item => {
-          this.data.empleados.push({title: item.username, value: item.username})
-        })
-      },
+        async getTipoVentas() {
+            this.data.tipoVenta = []
+            this.data.loading = true
+            const result = await this.data.requestHttp.getTipoVentas()
+            this.data.loading = false
+            result.map(item => {
+                this.data.tipoVenta.push({title: item.nombre, value: item.id})
+            })
+        },
+
+        async getEmpleados() {
+            this.data.empleados = []
+            this.data.loading = true
+            const result = await this.data.requestHttp.getUsuarios()
+            this.data.loading = false
+            result.map(item => {
+                this.data.empleados.push({title: item.username, value: item.username})
+            })
+        },
 
         async getProductos() {
             this.data.productos = []
@@ -361,7 +390,6 @@ export default {
                 costoUnitario: product.precio,
                 subTotal:  this.data.producto.cantidad * product.costoUnitario
             })
-            alert('Producto Agregado')
             this.calcularFactura()
             this.data.producto.idProducto = null
             this.data.producto.cantidad = 0
@@ -378,6 +406,7 @@ export default {
         },
 
         async guardarFactura() {
+            this.$refs.form.validate()
             this.data.venta.detalleVenta = []
             if (!this.localEdit) {
                 if (!this.data.venta.noVenta ||
@@ -385,6 +414,10 @@ export default {
                     !this.data.venta.enviarA ||
                     !this.data.venta.usuarioRegistro
                 ) {
+                    this.data.hide = false
+                    setTimeout(() => {
+                        this.data.hide = true
+                    }, 3000)
                     alert('Complete la informacion de la orden')
                     return
                 } else {

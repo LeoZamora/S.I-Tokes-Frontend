@@ -7,14 +7,14 @@
                     <!-- Título -->
                     <div class="text-h6 font-weight-bold d-flex align-center">
                     <v-icon class="me-2" color="primary">mdi-package-variant</v-icon>
-                        Facturación
+                        Rutas
                     </div>
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn v-if="data.crud.create" class="bg-primary rounded-" @click="createFactura()">
+                <v-btn v-if="data.crud.create" class="bg-primary rounded-" @click="createRutas()">
                     <v-icon>mdi-plus</v-icon>
-                    <v-tooltip activator="parent" location="left">Nueva Factura</v-tooltip> 
+                    <v-tooltip activator="parent" location="left">Nueva Rutas</v-tooltip> 
                 </v-btn>
             </template>
             <v-divider /> 
@@ -24,7 +24,7 @@
                         hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
                 </v-col>
                 <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-                    <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getVentas()">
+                    <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getRutas()">
                         <v-icon>mdi-refresh</v-icon>
                     </v-btn>
                     <v-btn icon color="grey" size="small" variant="text" class="border" @click="data.search = null">
@@ -39,7 +39,7 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :search="data.search" :mobile="isMobile" :headers="data.header" :items="data.facturas" class="border font" 
+                <v-data-table :search="data.search" :mobile="isMobile" :headers="data.header" :items="data.rutas" class="border font" 
                     density="compact" :loading="data.loading" :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }"
                     items-per-page="20" hover>
                     <template v-slot:loader>
@@ -57,7 +57,7 @@
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.edit" v-bind="props" size="small" color="green" @click="editFactura(item)" class="mr-1" >mdi-pencil</v-icon>
+                                <v-icon v-if="data.crud.edit" v-bind="props" size="small" color="green" @click="editRuta(item)" class="mr-1" >mdi-pencil</v-icon>
                             </template>
                         </v-tooltip>
                         
@@ -69,7 +69,7 @@
 
                         <v-tooltip text="Ver" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.view" v-bind="props" size="small" color="indigo-darken-4" @click="viewFactura(item)">mdi-eye</v-icon>
+                                <v-icon v-if="data.crud.view" v-bind="props" size="small" color="indigo-darken-4" @click="viewRuta(item)">mdi-eye</v-icon>
                             </template>
                         </v-tooltip>
                     </template>
@@ -81,9 +81,9 @@
                 </v-data-table>
             </v-card-text>
         </v-card>
-        <NuevaFactura :show="data.editFactura.show" :editar="data.editFactura.editar" :idFact="data.idVenta"
-            @closeDialog="closeDialog" :title="data.editFactura.title" @refreshTable="getVentas"/>
-        <ViewVenta :show="data.viewFactura.show" :factura="data.viewFactura.item" @closeDialog="closeDialog"/>
+        <NuevaRutas :show="data.editRuta.show" :editar="data.editRuta.editar" :idRuta="data.idRuta"
+            @closeDialog="closeDialog" :title="data.editRuta.title" @refreshTable="getRutas"/>
+        <ViewRuta :show="data.viewRuta.show" :ruta="data.viewRuta.item" @closeDialog="closeDialog"/>
         <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
     </div>
 </template>
@@ -91,8 +91,8 @@
 <script>
 import { formatters } from '@/helpers/formatters.js';
 import { reactive, computed, ref, onMounted, onUnmounted } from 'vue';
-import NuevaFactura from './NuevaFactura.vue';
-import ViewVenta from './ViewVenta.vue';
+import NuevaRutas from './NuevaRuta.vue';
+import ViewRuta from './ViewRuta.vue';
 import RequestHttp from '@/services/requestHttp';
 import AlertComp from '@/components/widgets/AlertComp.vue';
 import { useStore } from '@/store';
@@ -100,12 +100,12 @@ import { useStore } from '@/store';
 export default {
     mounted() {
         this.verifyDataSecurity()
-        this.getVentas()
+        this.getRutas()
     },
 
     components: {
-        NuevaFactura,
-        ViewVenta,
+        NuevaRutas,
+        ViewRuta,
         AlertComp
     },
 
@@ -135,7 +135,7 @@ export default {
         const data = reactive({
             header: [
                 {title: '', key: 'opc', align: 'center',},
-                {title: 'Nº Factura', key: 'noVenta', sortable: false, align: 'center', 
+                {title: 'Código', key: 'codigo', sortable: false, align: 'center', 
                     headerProps: {
                         class: 'pa-1',
                     },
@@ -143,32 +143,23 @@ export default {
                         class: 'pa-1',  
                     }
                 },
-                {title: 'Tipo Venta', key: 'tipoVenta', sortable: false, align: 'center', 
-                    headerProps: {
-                        class: 'pa-1',
-                    },
-                    cellProps: {
-                        class: 'pa-1',
-                    }
-                },
-                {title: 'Cliente', key: 'cliente', align: 'center'},
-                {title: 'Vendedor', key: 'usuarioRegistro', align: 'center'},
-                {title: 'Total', key: 'total', align: 'center'},
-                {title: 'Dirección', key: 'enviarA', align: 'center'},
+                {title: 'Ruta', key: 'nombre', align: 'center'},
+                {title: 'Descripción', key: 'descripcion', align: 'center'},
+                {title: 'Gestor', key: 'gestor', align: 'center'},
                 {title: 'Fecha Emisión', key: 'fechaRegistro', align: 'center'},
-                {title: 'Observaciones', key: 'observaciones', align: 'center'},
+                {title: 'Observaciones', key: 'usuarioRegistro', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
             ],
-            facturas: [],
+            rutas: [],
             visibleDialog: false,
 
-            editFactura: {
+            editRuta: {
                 show: false,
                 item: {},
                 editar: false,
                 title: ''
             },
-            viewFactura: {
+            viewRuta: {
                 show: false,
                 item: {}
             },
@@ -182,7 +173,7 @@ export default {
             search: null,
             viewAlert: false,
             selectedItem: null,
-            idVenta: null,
+            idRuta: null,
             menuDesde: false,
             menuHasta: false,
             requestHttp: new RequestHttp()
@@ -223,18 +214,16 @@ export default {
             })
         },
 
-        async getVentas() {
-            this.data.facturas = []
+        async getRutas() {
+            this.data.rutas = []
             this.data.loading = true
-            const result = await this.data.requestHttp.getVentas()            
+            const result = await this.data.requestHttp.getRutas()            
             if (result !== null) {
                 result.map(item => {
-                    this.data.facturas.push(item)
+                    this.data.rutas.push(item)
                 })
             }
-            console.log(this.data.facturas);
-            
-            this.data.facturas.reverse()
+            this.data.rutas.reverse()
             this.data.loading = false
         },
         formatedCurrency(key) {
@@ -256,23 +245,23 @@ export default {
             return statusColors[status] || 'grey'
         },
         
-        createFactura() {
-            this.data.editFactura.title = ''
-            this.data.editFactura.show = true
-            this.data.editFactura.editar = false
-            this.data.editFactura.title = 'NUEVA FACTURA'
+        createRutas() {
+            this.data.editRuta.title = ''
+            this.data.editRuta.show = true
+            this.data.editRuta.editar = false
+            this.data.editRuta.title = 'NUEVA RUTA'
         },
         
-        viewFactura(item) {
-            this.data.viewFactura.show = true
-            this.data.viewFactura.item = item
+        viewRuta(item) {
+            this.data.viewRuta.show = true
+            this.data.viewRuta.item = item
         },
         
-        editFactura(item) {
-            this.data.editFactura.show = true
-            this.data.editFactura.editar = true
-            this.data.idVenta = item.idVenta
-            this.data.editFactura.title = 'EDITAR FACTURA'
+        editRuta(item) {
+            this.data.editRuta.show = true
+            this.data.editRuta.editar = true
+            this.data.idRuta = item.idRuta
+            this.data.editRuta.title = 'EDITAR RUTA'
         },
 
         deleteAction(val) {
@@ -288,21 +277,21 @@ export default {
         },
 
         async deleteItem() {
-            const result = await this.data.requestHttp.deleteVenta(this.data.selectedItem.idVenta)
+            const result = await this.data.requestHttp.deleteVenta(this.data.selectedItem.idRuta)
             if (result !== null) {
                 alert('Venta Eliminada')
-                this.getVentas()
+                this.getRutas()
             } else {
                 alert('No se pudo eliminar el registro')
             }
         },
 
         closeDialog(val) {  
-            this.data.viewFactura.show = val
-            this.data.editFactura.show = val
-            this.data.editFactura.editar = val
-            this.data.editFactura.show = val
-            this.data.editFactura.title = ''
+            this.data.viewRuta.show = val
+            this.data.editRuta.show = val
+            this.data.editRuta.editar = val
+            this.data.editRuta.show = val
+            this.data.editRuta.title = ''
         }
 
     }

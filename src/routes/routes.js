@@ -14,8 +14,7 @@ const routes = createRouter({
             meta: {
                 title: 'Inicio | Inversiones Zafiro'
             }
-        },
-        {
+        }, {
             path: '/empresa/movimientos/conceptos',
             name: 'Conceptos',
             component: () => import('@/views/empresa/movimientos/conceptos.vue'),
@@ -24,8 +23,7 @@ const routes = createRouter({
                 requiredAuth: true,
                 title: 'Conceptos | Inversiones Zafiro'
             }
-        },
-        {
+        }, {
             path: '/empresa/movimientos',
             name: 'Movimientos E.',
             component: () => import('@/views/empresa/movimientos/movimientos.vue'),
@@ -34,8 +32,7 @@ const routes = createRouter({
                 requiredAuth: true,
                 title: 'Movimientos E. | Inversiones Zafiro'
             }
-        },
-        {
+        }, {
             path: '/cierres/cierres',
             name: 'Cierres',
             component: () => import('@/views/empresa/cierres/cierre.vue'),
@@ -44,8 +41,7 @@ const routes = createRouter({
                 requiredAuth: true,
                 title: 'Cierres | Inversiones Zafiro'
             }
-        },
-        {
+        }, {
             path: '/gestion-productos',
             name: 'Productos',
             component: () => import('@/components/inventario/Productos/GestionProducto.vue'),
@@ -54,8 +50,7 @@ const routes = createRouter({
                 requiredAuth: true,
                 title: 'Productos | Inversiones Zafiro'
             }
-        },
-        {
+        }, {
             path: '/facturacion',
             name: 'Facturacion',
             component: () => import('@/components/movimientos/Ventas/FacturacionVentas.vue'),
@@ -91,8 +86,7 @@ const routes = createRouter({
                 requiredAuth: true,
                 title: 'Categorías | Inversiones Zafiro'
             }
-        },
-        {
+        }, {
             path: '/clientes',
             name: 'Clientes',
             component: () => import('@/components/clientes/ClientesComp.vue'),
@@ -101,8 +95,7 @@ const routes = createRouter({
                 requiredAuth: true,
                 title: 'Clientes | Inversiones Zafiro'
             }
-        },
-        {
+        }, {
             path: '/cpc',
             name: 'CPC',
             component: () => import('@/components/clientes/CPComp.vue'),
@@ -112,8 +105,8 @@ const routes = createRouter({
                 title: 'CxC | Inversiones Zafiro'
             }
         }, {
-            path: '/movimientos',
-            name: 'Movimientos',
+            path: '/movimientos-facturacion',
+            name: 'Movimientos_Facturacion',
             component: () => import('@/components/inventario/Movimientos/MovimientosComp.vue'),
             meta: {
                 keepAlive: true,
@@ -138,7 +131,17 @@ const routes = createRouter({
                 requiredAuth: true,
                 title: 'Roles | Inversiones Zafiro'
             }
-        },],
+        }, {
+            path: '/rutas',
+            name: 'Rutas',
+            component: () => import('@/components/rutas/RutasComp.vue'),
+            meta: {
+                keepAlive: true,
+                requiredAuth: true,
+                title: 'Roles | Inversiones Zafiro'
+            }
+        },
+    ],
 
     scrollBehavior(to, from, savePosition) {
         if (savePosition) {

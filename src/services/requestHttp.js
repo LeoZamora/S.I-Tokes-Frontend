@@ -354,6 +354,18 @@ class RequestHttp {
             
         }
     }
+
+    async getTipoVentas() {
+        try {
+            const result  = await axios.get(endPoints.getTipoVenta)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+
     async getByIdVenta(id) {
         try {
             const result  = await axios.get(`${endPoints.getVenta}/${id}`)
@@ -570,9 +582,111 @@ class RequestHttp {
             
         }
     }
+
     async getMunById(id) {
         try {
             const result  = await axios.get(`${endPoints.getMunicipios}?idDepartamento=${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+
+    // RUTAS
+    async getRutas() {
+        try {
+            const result  = await axios.get(endPoints.getRutas)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getByIdRuta(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getRutas}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postRuta(data) {
+        try {
+            const result  = await axios.post(endPoints.postRutas, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async putRuta(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putRutas}/${id}`, data)
+            return result.data
+        } catch (error) {
+            // console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+
+
+    // MOVIMIENTOS
+    async getMovs() {
+        try {
+            const result  = await axios.get(endPoints.getMov)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async getByIdMov(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getMov}/${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postMov(data) {
+        try {
+            const result  = await axios.post(endPoints.postMov, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async putMov(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putMov}/${id}`, data)
+            return result.data
+        } catch (error) {
+            return null
+        }
+    }
+
+
+    // COMBOBOX
+    async getCombobox(url) {
+        try {
+            const result  = await axios.get(url)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+
+    async getConceptoMov(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getConcepto}?idTipoMov=${id}`)
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);
