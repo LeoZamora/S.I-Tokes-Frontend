@@ -39,6 +39,10 @@ const endPoints = {
     putCliente: 'api/Cliente',
     deleteCliente: 'api/Cliente',
 
+    getRutas: 'api/rutas',
+    postRutas: 'api/rutas',
+    putRutas: 'api/rutas',
+
     getCategoriaCliente: 'api/CategoriaCliente',
     postCategoriaCliente: 'api/CategoriaCliente',
     putCategoriaCliente: 'api/CategoriaCliente',
@@ -48,11 +52,11 @@ const endPoints = {
     postVenta: 'api/Venta',
     putVenta: 'api/Venta',
     deleteVenta: 'api/Venta',
+    getTipoVenta: 'api/tipos-venta/combobox',
 
     getUsuario: 'api/Usuario',
     postUsuario: 'api/Usuario/Crear',
     postUsuarioLogin: 'api/Usuario/Login',
-
 
     getRol: 'api/Rol',
     postRol: 'api/Rol',
@@ -60,7 +64,15 @@ const endPoints = {
     putRol: 'api/Rol/EditarPermisos',
 
     getDepartamentos: 'api/departamentos/combobox',
-    getMunicipios: 'api/municipios/combobox'
+    getMunicipios: 'api/municipios/combobox',
+    getTipoMov: 'api/tipos-movimiento/combobox',
+    getModalidades: 'api/modalidades/combobox',
+    getConcepto: 'api/conceptos-tipo-mov/combobox',
+
+    getMov: 'api/movimientos',
+    postMov: 'api/movimientos',
+    putMov: 'api/movimientos',
+    deleteMov: 'api/movimientos',
 }
 
 export default endPoints
