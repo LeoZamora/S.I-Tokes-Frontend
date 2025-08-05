@@ -38,6 +38,20 @@
                 <small>{{ title }}</small>
             </v-list-item>
           </v-list-group>
+          <v-list-group prepend-icon="mdi-account">
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" rounded value="Clientes" :lines="true" color="white"
+                           title="Clientes"/>
+            </template>
+            <v-list-item class="mx-2" rounded :lines="true" color="white"
+                         v-for="([title, route, icon], i) in data.clientes"
+                         :key="i" :value="title" @click="nameTab(route)">
+              <template v-slot:prepend>
+                <v-icon>mdi-menu-right</v-icon>
+              </template>
+              <small>{{ title }}</small>
+            </v-list-item>
+          </v-list-group>
           <v-list-subheader><small class="font-weight-bold text-white">Gestión Logística</small></v-list-subheader>
 
           <v-list-group prepend-icon="mdi-truck-off-road">
@@ -200,9 +214,12 @@ export default {
 
     const data = reactive({
       drawer: true,
+      clientes: [
+        ['Tipos de Cliente', 'Tipos de Cliente'],
+        ['Clientes', 'Clientes'],
+      ],
       ventasActions: [
         ['Tipos de Venta', 'Tipos de Venta'],
-        ['Clientes', 'Clientes'],
         ['Facturación', 'Facturacion'],
         //['Cuentas por Cobrar', 'CPC'],
       ],
