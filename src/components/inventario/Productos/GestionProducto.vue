@@ -187,6 +187,24 @@
       </v-data-table>
     </v-card>
 
+    <new-categoria
+        :title="nuevaCategoriaDisplay.title"
+        :show="nuevaCategoriaDisplay.show"
+        :editar="nuevaCategoriaDisplay.editar"
+        :cat="nuevaCategoriaDisplay.item"
+        :ver="nuevaCategoriaDisplay.ver"
+        @closeDialog="closeNuevaCategoriaDisplay"
+    ></new-categoria>
+
+    <new-sub-categoria
+        :title="nuevaSubCatDisplay.title"
+        :show="nuevaSubCatDisplay.show"
+        :editar="nuevaSubCatDisplay.editar"
+        :sub-cat="nuevaSubCatDisplay.item"
+        :ver="nuevaSubCatDisplay.ver"
+        @closeDialog="closeNuevaSubCatDisplay"
+    ></new-sub-categoria>
+
     <!-- Diálogo para agregar/editar -->
     <v-dialog
         v-model="dialog"
@@ -235,7 +253,82 @@
           >
             <v-window-item>
               <v-form class="w-100" ref="form">
-                <v-row dense>
+                <v-row>
+                  <v-col cols="12">
+                    <div
+                        class="border-custom pa-2"
+                    >
+                      <v-card-subtitle
+                      >Clasificación del
+                        Producto
+                      </v-card-subtitle>
+                      <v-divider
+                          class="mb-2"
+                      ></v-divider>
+                      <v-row dense>
+                        <v-col cols="12">
+                          <v-select
+                              v-model="
+                              data.form
+                                .idCategoria
+                            "
+                              label="Categoría:"
+                              :items="
+                              cmb.categorias
+                            "
+                              :rules="[
+                              rules.required
+                            ]"
+                              variant="outlined"
+                              density="compact"
+                              prepend-inner-icon="mdi-shape-outline"
+                              hide-details
+                              @update:model-value="loadCmbSubCategoria(data.form.idCategoria)"
+                          >
+                            <template v-slot:prepend>
+                              <v-btn
+                                  @click="openNuevaCategoriaDisplay"
+                                  color="secondary"
+                                  size="32"
+                              >
+                                <v-icon>mdi-plus</v-icon>
+                              </v-btn>
+                            </template>
+                          </v-select>
+                        </v-col>
+                        <v-col cols="12">
+                          <v-select
+                              v-model="
+                              data.form
+                                .idSubCatProd
+                            "
+                              label="Sub categoría"
+                              :items="
+                              cmb.subCategorias
+                            "
+                              :rules="[
+                              rules.required
+                            ]"
+                              variant="outlined"
+                              hide-details
+                              density="compact"
+                              prepend-inner-icon="mdi-shape-outline"
+                              @update:model-value="loadCodigoRecomendado(data.form.idSubCatProd)"
+                          >
+                            <template v-slot:prepend>
+                              <v-btn
+                                  @click="openNuevaSubCatDisplay"
+                                  color="secondary"
+                                  size="32"
+                              >
+                                <v-icon>mdi-plus</v-icon>
+                              </v-btn>
+                            </template>
+                          </v-select>
+                        </v-col>
+                      </v-row>
+                    </div>
+                  </v-col>
                   <v-col cols="12" md="6" sm="6">
                     <v-text-field
                         color="indigo"
@@ -244,8 +337,8 @@
                         :rules="[rules.required]"
                         variant="outlined"
                         hide-details
-                        density="compact"
                         clearable
+                        density="compact"
                         prepend-inner-icon="mdi-barcode"
                     />
                   </v-col>
@@ -365,154 +458,69 @@
                       </v-text-field>
                     </div>
                   </v-col>
-                  <v-col cols="6">
-                    <div
-                        class="border-custom pa-2"
-                    >
-                      <v-card-subtitle
-                      >Clasificación del
-                        Producto
-                      </v-card-subtitle>
-                      <v-divider
-                          class="mb-2"
-                      ></v-divider>
-                      <v-row dense>
-                        <v-col cols="12">
-                          <v-select
-                              v-model="
-                              data.form
-                                .idCategoria
-                            "
-                              label="Categoría:"
-                              :items="
-                              cmb.categorias
-                            "
-                              :rules="[
-                              rules.required
-                            ]"
-                              variant="outlined"
-                              density="compact"
-                              prepend-inner-icon="mdi-shape-outline"
-                              hide-details
-                              @update:model-value="loadCmbSubCategoria(data.form.idCategoria)"
-                          ></v-select>
-                        </v-col>
-                        <v-col cols="12">
-                          <v-select
-                              v-model="
-                              data.form
-                                .idSubCatProd
-                            "
-                              label="Sub categoría"
-                              :items="
-                              cmb.subCategorias
-                            "
-                              :rules="[
-                              rules.required
-                            ]"
-                              variant="outlined"
-                              hide-details
-                              density="compact"
-                              prepend-inner-icon="mdi-shape-outline"
-                          ></v-select>
-                        </v-col>
-                      </v-row>
-                    </div>
-                  </v-col>
-                  <!--<v-col cols="12" md="6" sm="6">
-                    <v-text-field
-                      color="indigo"
-                      v-model="data.form.precio"
-                      label="Precio"
-                      :rules="[
-                        rules.required,
-                        rules.numeric
-                      ]"
-                      variant="outlined"
-                      hide-details
-                      density="compact"
-                      type="number"
-                      step="0.01"
-                      prepend-inner-icon="mdi-currency-usd"
-                    />
-                  </v-col>-->
+
                   <v-col cols="12" md="6" sm="6">
-                    <v-autocomplete
-                        v-model="
+                    <v-row dense>
+                      <v-col cols="12">
+                        <v-autocomplete
+                            v-model="
                         data.form.idUnidadMedida
                       "
-                        :items="cmb.unidadesMedida"
-                        label="Unidad Medida:"
-                        variant="outlined"
-                        density="compact"
-                        hide-details
-                    ></v-autocomplete>
-                    <!--<v-text-field
-                      color="indigo"
-                      label="Und. Medidad"
-                      v-model="
-                        data.form.idUnidadMedida
-                      "
-                      :rules="[
-                        rules.required,
-                        rules.numeric
-                      ]"
-                      variant="outlined"
-                      hide-details
-                      density="compact"
-                      step="0.01"
-                      readonly
-                    />-->
-                  </v-col>
-                  <!--<v-col cols="12" md="6" sm="6">
-                    <v-select
-                      v-model="
-                        data.form.tipoProducto
-                      "
-                      :items="data.tipos"
-                      label="Tipo Producto"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                      hide-details
-                      density="compact"
-                      prepend-inner-icon="mdi-tag"
-                    />
-                  </v-col>-->
-                  <v-col cols="3" md="3" sm="3">
-                    <v-text-field
-                        color="indigo"
-                        v-model="
+                            :items="cmb.unidadesMedida"
+                            label="Unidad Medida:"
+                            variant="outlined"
+                            density="compact"
+                            hide-details
+                        >
+                          <template v-slot:prepend>
+                            <v-btn
+                                @click="openNuevaSubCatDisplay"
+                                color="secondary"
+                                size="32"
+                            >
+                              <v-icon>mdi-plus</v-icon>
+                            </v-btn>
+                          </template>
+                        </v-autocomplete>
+                      </v-col>
+                      <v-col cols="12">
+                        <v-text-field
+                            color="indigo"
+                            v-model="
                         data.form.cantidadMinima
                       "
-                        label="Stock Mínimo"
-                        :rules="[
+                            label="Stock Mínimo"
+                            :rules="[
                         rules.required,
                         rules.numeric
                       ]"
-                        variant="outlined"
-                        hide-details
-                        density="compact"
-                        type="number"
-                        prepend-inner-icon="mdi-numeric"
-                    />
-                  </v-col>
-                  <v-col cols="3" md="3" sm="3">
-                    <v-text-field
-                        color="indigo"
-                        v-model="
+                            variant="outlined"
+                            hide-details
+                            density="compact"
+                            type="number"
+                            prepend-inner-icon="mdi-numeric"
+                        />
+                      </v-col>
+                      <v-col cols="12">
+                        <v-text-field
+                            color="indigo"
+                            v-model="
                         data.form.cantidadTotal
                       "
-                        label="Stock"
-                        :rules="[
+                            label="Stock"
+                            :rules="[
                         rules.required,
                         rules.numeric
                       ]"
-                        variant="outlined"
-                        hide-details
-                        density="compact"
-                        type="number"
-                        prepend-inner-icon="mdi-numeric"
-                    />
+                            variant="outlined"
+                            hide-details
+                            density="compact"
+                            type="number"
+                            prepend-inner-icon="mdi-numeric"
+                        />
+                      </v-col>
+                    </v-row>
+
                   </v-col>
                   <v-col
                       cols="12"
@@ -651,6 +659,8 @@ import {
   httpGet, httpPost, httpPut
 } from '@/scripts/api.js'
 import axios from "axios";
+import NewCategoria from "@/components/inventario/Categorias/modalsCategorias/NewCategoria.vue";
+import NewSubCategoria from "@/components/inventario/Categorias/modalsCategorias/NewSubCat.vue";
 
 export default {
   mounted() {
@@ -660,6 +670,8 @@ export default {
   },
 
   components: {
+    NewCategoria,
+    NewSubCategoria,
     DetallesProducto,
     AlertComp
   },
@@ -796,6 +808,22 @@ export default {
         subCategorias: []
       },
 
+      nuevaCategoriaDisplay: {
+        show: false,
+        editar: false,
+        ver: false,
+        title: '',
+        item: {}
+      },
+
+      nuevaSubCatDisplay: {
+        show: false,
+        editar: false,
+        ver: false,
+        title: '',
+        item: {}
+      },
+
       registroDisplay: {
         tab: null,
         imagen: {
@@ -840,6 +868,23 @@ export default {
   },
 
   methods: {
+    openNuevaCategoriaDisplay() {
+      this.nuevaCategoriaDisplay.show = true
+    },
+
+    async closeNuevaCategoriaDisplay() {
+      await this.loadCmbCategoria()
+      this.nuevaCategoriaDisplay.show = false
+    },
+
+    openNuevaSubCatDisplay() {
+      this.nuevaSubCatDisplay.show = true
+    },
+
+    async closeNuevaSubCatDisplay() {
+      this.nuevaSubCatDisplay.show = false
+    },
+
     handleChangeCosto() {
       if (!this.data.form.costo) {
         this.data.form.costoDolar = null
@@ -953,9 +998,9 @@ export default {
       this.data.loading = false
     },
 
-    async loadCodigoRecomendado() {
+    async loadCodigoRecomendado(idSubCat) {
       var codigoRecomendado = await httpGet(
-          'api/producto/codigo-recomendado'
+          `api/producto/codigo-recomendado?idSubCat=${idSubCat}`
       )
       this.data.form.codigo = String(codigoRecomendado)
     },
@@ -984,12 +1029,12 @@ export default {
     },
 
     async guardarRegistro() {
-      if(this.dialogMode === 'edit'){
+      if (this.dialogMode === 'edit') {
         await httpPut(`api/producto/${this.data.form.idProducto}`, this.data.form)
         await this.actActualizarImagen()
         await this.getProductos()
         this.closeDialog()
-      }else {
+      } else {
         var response =
             await httpPost('api/producto', this.data.form)
         this.data.form.idProducto = response.data
@@ -1021,9 +1066,9 @@ export default {
       this.registroDisplay.imagen.archivo = null
       await this.loadCmbUnidadMedida()
       await this.loadCmbCategoria()
-      if(mode !== 'edit'){
-        await this.loadCodigoRecomendado()
-      }else {
+      if (mode !== 'edit') {
+        //await this.loadCodigoRecomendado()
+      } else {
         await this.loadCmbSubCategoria(product.idCategoriaProducto)
       }
       this.dialogMode = mode

@@ -24,7 +24,8 @@
                   <v-avatar size="64" class="mx-auto mb-2" color="primary">
                     <v-icon size="36">mdi-account</v-icon>
                   </v-avatar>
-                  <h3 class="text-h6 mb-1">Guest</h3>
+                  <h3 class="text-h6 mb-1">{{ token.usuario }}</h3>
+                  <h4 class="text-h6 mb-1">{{ token.rol }}</h4>
                 </v-card-text>
 
                 <v-divider class="my-1"></v-divider>
@@ -68,6 +69,12 @@ import { useStore } from '@/store';
 export default {
   mounted() {
     this.verifyDataSecurity()
+  },
+
+  data(){
+    return {
+      token: JSON.parse(localStorage.getItem('token')),
+    }
   },
 
   setup() {
