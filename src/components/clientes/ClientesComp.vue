@@ -53,6 +53,9 @@
           <template v-slot:loading>
             <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
           </template>
+          <template v-slot:item.ubicacion="{ item }">
+            {{ `${item.departamento}, ${item.municipio}` }}
+          </template>
           <template v-slot:item.fechaRegistro="{ item }">
             <div>{{ formateDate(item.fechaRegistro) }}</div>
           </template>
@@ -182,12 +185,12 @@ export default {
         {title: '', key: 'opc', align: 'center'},
         {title: 'Categoría', key: 'categoriaCliente', align: 'center'},
         {title: 'Nombre', key: 'nombre', align: 'center'},
-        {title: 'Departamento', key: 'departamento', align: 'center'},
-        {title: 'Municipio', key: 'municipio', align: 'center'},
+        {title: 'Ruta', key: 'ruta', align: 'center'},
+        {title: 'Ubicación', key: 'ubicacion', align: 'center'},
         {title: 'Dirección', key: 'direccion', align: 'center'},
         {title: 'Teléfono', key: 'telefono', align: 'center'},
-        {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
         {title: 'Usuario Registro', key: 'usuarioRegistro', align: 'center'},
+        {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
         {title: 'Estado', key: 'estado', align: 'center'},
       ],
       headersCat: [
