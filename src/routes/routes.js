@@ -140,6 +140,33 @@ const routes = createRouter({
                 requiredAuth: true,
                 title: 'Roles | Inversiones Zafiro'
             }
+        }, {
+            path: '/tipo-ventas',
+            name: 'Tipos de Venta',
+            component: () => import('@/views/empresa/cierres/cierre.vue'),
+            meta: {
+                keepAlive: true,
+                requiredAuth: true,
+                title: 'T. Ventas | Inversiones Zafiro'
+            }
+        }, {
+            path: '/tipo-cliente',
+            name: 'Tipos de Cliente',
+            component: () => import('@/views/empresa/cierres/cierre.vue'),
+            meta: {
+                keepAlive: true,
+                requiredAuth: true,
+                title: 'T. Cliente | Inversiones Zafiro'
+            }
+        }, {
+            path: '/tipo-movimiente',
+            name: 'Tipos M.',
+            component: () => import('@/views/empresa/cierres/cierre.vue'),
+            meta: {
+                keepAlive: true,
+                requiredAuth: true,
+                title: 'T. Cliente | Inversiones Zafiro'
+            }
         },
     ],
 

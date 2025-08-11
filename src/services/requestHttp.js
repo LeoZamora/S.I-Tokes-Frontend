@@ -62,6 +62,15 @@ class RequestHttp {
             
         }
     }
+    async getCodeSub(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getCode}?idCategoria=${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
     async getByIdSubCategorias(id) {
         try {
             const result  = await axios.get(`${endPoints.getSubCategoria}/${id}`)
@@ -687,6 +696,27 @@ class RequestHttp {
     async getConceptoMov(id) {
         try {
             const result  = await axios.get(`${endPoints.getConcepto}?idTipoMov=${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+
+    // UNIDADES DE MEDIDA
+    async getUnidadMedida() {
+        try {
+            const result  = await axios.get(endPoints.getUnidadMedida)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+            
+        }
+    }
+    async postUnidadMedida(data) {
+        try {
+            const result = await axios.post(endPoints.postUnidadMedida, data)
             return result.data
         } catch (error) {
             console.error('Error on request', error.response.data);

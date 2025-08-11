@@ -8,6 +8,7 @@ const endPoints = {
     postSubCategoria: 'api/SubCatProducto',
     putSubCategoria: 'api/SubCatProducto',
     deleteSubCategoria: 'api/SubCatProducto',
+    getCode: 'api/SubCatProducto/codigo-recomendado',
 
     getProducto: 'api/Producto',
     postProducto: 'api/Producto',
@@ -73,6 +74,9 @@ const endPoints = {
     postMov: 'api/movimientos',
     putMov: 'api/movimientos',
     deleteMov: 'api/movimientos',
+
+    getUnidadMedida: 'api/unidades-medida/combobox',
+    postUnidadMedida: 'api/unidades-medida',
 }
 
 export default endPoints

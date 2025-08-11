@@ -22,7 +22,7 @@
       </template>
       <template v-slot:append>
         <v-btn
-            class="bg-primary rounded-"
+            class="bg-indigo rounded-"
             @click="openDialog('create')"
         >
           <v-icon>mdi-plus</v-icon>
@@ -207,14 +207,14 @@
 
     <!-- Diálogo para agregar/editar -->
     <v-dialog
-        v-model="dialog"
+        v-model="data.dialog"
         width="750"
         min-height="500"
         persistent
     >
       <v-card class="w-100 mb-6" elevation="0">
         <v-card-title
-            class="text-h5 text-center pa-1 font-weight-bold bg-primary"
+            class="text-h5 text-center pa-1 font-weight-bold bg-indigo"
         >
           <v-icon>mdi-package-variant</v-icon>
           Inventario - Registro de Productos
@@ -299,21 +299,16 @@
                         <v-col cols="12">
                           <v-select
                               v-model="
-                              data.form
-                                .idSubCatProd
-                            "
+                              data.form.idSubCatProd"
                               label="Sub categoría"
-                              :items="
-                              cmb.subCategorias
-                            "
+                              :items="data.subCategorias"
                               :rules="[
-                              rules.required
-                            ]"
+                                rules.required
+                              ]"
                               variant="outlined"
                               hide-details
                               density="compact"
                               prepend-inner-icon="mdi-shape-outline"
-                              @update:model-value="loadCodigoRecomendado(data.form.idSubCatProd)"
                           >
                             <template v-slot:prepend>
                               <v-btn
@@ -466,7 +461,7 @@
                             v-model="
                         data.form.idUnidadMedida
                       "
-                            :items="cmb.unidadesMedida"
+                            :items="data.unidadesMedidas"
                             label="Unidad Medida:"
                             variant="outlined"
                             density="compact"
@@ -474,7 +469,7 @@
                         >
                           <template v-slot:prepend>
                             <v-btn
-                                @click="openNuevaSubCatDisplay"
+                                @click="data.showDiagUM = true"
                                 color="secondary"
                                 size="32"
                             >
@@ -487,13 +482,13 @@
                         <v-text-field
                             color="indigo"
                             v-model="
-                        data.form.cantidadMinima
-                      "
+                              data.form.cantidadMinima
+                            "
                             label="Stock Mínimo"
                             :rules="[
-                        rules.required,
-                        rules.numeric
-                      ]"
+                              rules.required,
+                              rules.numeric
+                            ]"
                             variant="outlined"
                             hide-details
                             density="compact"
@@ -509,9 +504,9 @@
                       "
                             label="Stock"
                             :rules="[
-                        rules.required,
-                        rules.numeric
-                      ]"
+                              rules.required,
+                              rules.numeric
+                            ]"
                             variant="outlined"
                             hide-details
                             density="compact"
@@ -621,7 +616,7 @@
             Cerrar
           </v-btn>
           <v-btn
-              class="bg-primary"
+              class="bg-indigo"
               @click="guardarRegistro"
           >
             Guardar
@@ -639,6 +634,53 @@
         :show="data.viewAlert"
         @deleteItem="deleteAction"
     />
+
+    <v-dialog v-model="data.showDiagUM" max-width="400" persistent>
+      <v-card id="diag-fact">
+        <v-card-title class="bg-indigo d-flex align-center">
+          <h5>
+            <v-icon>mdi-scale-balance</v-icon>
+            Nueva Unidad de Medida
+          </h5>
+          <v-spacer/>
+          <v-btn icon size="small" color="white" variant="tonal" @click="closeDialogUM()">
+            <v-icon>mdi-close</v-icon>
+            <v-tooltip activator="parent" location="top" text="Cerrar"/>
+          </v-btn>
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="umForm">
+            <v-row dense>
+              <v-col cols="12" md="12" sm="12" class="py-2">
+                <v-text-field v-model="data.unidadMedida.abreviatura" prepend-inner-icon="mdi-barcode" 
+                  density="compact" variant="outlined" hide-details label="Abreviatura"
+                  :rules="[ rules.required]"/>
+              </v-col>
+              <v-col cols="12" md="12" sm="12" class="py-2">
+                <v-text-field v-model="data.unidadMedida.nombre" prepend-inner-icon="mdi-ruler" 
+                  density="compact" variant="outlined" hide-details label="Nombre"
+                  :rules="[ rules.required]"/>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+              color="grey"
+              variant="outlined"
+              @click="closeDialogUM()"
+          >
+            Cerrar
+          </v-btn>
+          <v-btn
+              class="bg-indigo"
+              @click="guardarUnidadMedida"
+          >
+            Guardar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -648,7 +690,8 @@ import {
   reactive,
   computed,
   onMounted,
-  onUnmounted
+  onUnmounted,
+  watch
 } from 'vue'
 import {utilsFunctions} from '@/helpers/utilFunctions'
 import DetallesProducto from './modalsProductos/DetallesProducto.vue'
@@ -664,7 +707,6 @@ import NewSubCategoria from "@/components/inventario/Categorias/modalsCategorias
 
 export default {
   mounted() {
-    this.getSubCategorias()
     this.getProductos()
     this.loadCmbCategoria()
   },
@@ -677,6 +719,7 @@ export default {
   },
 
   setup() {
+    const token = ref(JSON.parse(localStorage.getItem('token')))
     const screenWidth = ref(window.innerWidth)
     const isMobile = computed(
         () => screenWidth.key < 600
@@ -769,6 +812,12 @@ export default {
         }
       ],
       subCategorias: [],
+      unidadesMedidas: [],
+      unidadMedida: {
+        abreviatura: null,
+        nombre: null,
+        usuarioRegistro: null
+      },
       form: {
         idProducto: 0,
         codigo: null,
@@ -785,18 +834,60 @@ export default {
         usuarioRegistro: 'admin',
         observaciones: '',
       },
+      showDiagUM: false,
       imagen: null,
       observaciones: null,
       selectedProduct: null,
       loading: false,
       showDialog: false,
+      dialog: false,
       viewAlert: false,
       requestHttp: new RequestHttp()
     })
 
+    async function getSubCategorias() {
+      data.subCategorias = []
+      const result = await data.requestHttp.getSubCategorias()
+      if (result !== null) {
+        result.map((item) => {
+          data.subCategorias.push({
+            title: item.nombre,
+            value: item.idSubCatProd
+          })
+        })
+      } else {
+        throw new Error('Error en la solicitud')
+      }
+    }
+
+    async function getUnidadMedida() {
+      data.unidadesMedidas = []
+      const result = await data.requestHttp.getUnidadMedida()
+      if (result !== null) {
+        result.map((item) => {
+          data.unidadesMedidas.push({
+            title: item.nombre,
+            value: item.id
+          })
+        })
+      } else {
+        throw new Error('Error en la solicitud')
+      }
+    }
+
+    watch(() => data.dialog, (val) => {
+      if (val) {
+        getSubCategorias()
+        getUnidadMedida()
+      }
+    })
+
     return {
       data,
-      isMobile
+      isMobile,
+      getSubCategorias,
+      getUnidadMedida,
+      token
     }
   },
 
@@ -862,8 +953,8 @@ export default {
   computed: {
     dialogTitle() {
       return this.dialogMode === 'create'
-          ? 'Nuevo Producto'
-          : 'Editar Producto'
+        ? 'Nuevo Producto'
+        : 'Editar Producto'
     }
   },
 
@@ -879,10 +970,12 @@ export default {
 
     openNuevaSubCatDisplay() {
       this.nuevaSubCatDisplay.show = true
+      this.nuevaSubCatDisplay.title = 'Nueva SubCategoria'
     },
 
     async closeNuevaSubCatDisplay() {
       this.nuevaSubCatDisplay.show = false
+      this.getSubCategorias()
     },
 
     handleChangeCosto() {
@@ -971,24 +1064,6 @@ export default {
       }
     },
 
-    async getSubCategorias() {
-      this.data.subCategorias = []
-      this.data.loading = true
-      const result =
-          await this.data.requestHttp.getSubCategorias()
-      this.data.loading = false
-      if (result !== null) {
-        result.map((item) => {
-          this.data.subCategorias.push({
-            title: item.nombre,
-            value: item.idSubCatProd
-          })
-        })
-      } else {
-        throw new Error('Error en la solicitud')
-      }
-    },
-
     async getProductos() {
       this.data.products = []
       this.data.loading = true
@@ -996,13 +1071,6 @@ export default {
           await this.data.requestHttp.getProductos()
       this.data.products = result
       this.data.loading = false
-    },
-
-    async loadCodigoRecomendado(idSubCat) {
-      var codigoRecomendado = await httpGet(
-          `api/producto/codigo-recomendado?idSubCat=${idSubCat}`
-      )
-      this.data.form.codigo = String(codigoRecomendado)
     },
 
     async loadCmbUnidadMedida() {
@@ -1023,25 +1091,40 @@ export default {
 
     async loadCmbSubCategoria(id) {
       var subCategorias = await getItemsCombobox(
-          `api/subcatproducto/combobox?idCategoria=${id}`
+        `api/subcatproducto/combobox?idCategoria=${id}`
       )
       this.cmb.subCategorias = subCategorias
     },
 
     async guardarRegistro() {
+      this.data.form.usuarioRegistro = this.token.usuario
       if (this.dialogMode === 'edit') {
         await httpPut(`api/producto/${this.data.form.idProducto}`, this.data.form)
         await this.actActualizarImagen()
         await this.getProductos()
         this.closeDialog()
       } else {
-        var response =
-            await httpPost('api/producto', this.data.form)
+        var response = await httpPost('api/producto', this.data.form)
         this.data.form.idProducto = response.data
         await this.actActualizarImagen()
         await this.getProductos()
         this.closeDialog()
       }
+    },
+
+    async guardarUnidadMedida() {
+      this.$refs.umForm.validate()
+      this.data.unidadMedida.usuarioRegistro = this.token.usuario
+      const valid = utilsFunctions.objectValidate(this.data.unidadMedida)
+
+      if (valid) {
+        const result = await this.data.requestHttp.postUnidadMedida(this.data.unidadMedida)
+        alert(result)
+      } else {
+        alert('Complete la información.')
+        return
+      }
+      this.closeDialogUM()
     },
 
     async actActualizarImagen() {
@@ -1067,7 +1150,6 @@ export default {
       await this.loadCmbUnidadMedida()
       await this.loadCmbCategoria()
       if (mode !== 'edit') {
-        //await this.loadCodigoRecomendado()
       } else {
         await this.loadCmbSubCategoria(product.idCategoriaProducto)
       }
@@ -1099,6 +1181,7 @@ export default {
         this.loadImagenProducto(product.idProducto)
       }
       this.dialog = true
+      this.data.dialog = true
       this.handleChangeCosto()
     },
 
@@ -1120,7 +1203,7 @@ export default {
     },
 
     openDialogDet(obj) {
-      ;(this.data.showDialog =
+      (this.data.showDialog =
           !this.data.showDialog),
           (this.data.productDialog = obj)
     },
@@ -1129,9 +1212,17 @@ export default {
       this.data.showDialog = key
     },
 
+    closeDialogUM() {
+      this.data.showDiagUM = false
+      this.data.unidadMedida = {}
+      this.getUnidadMedida()
+    },
+
     closeDialog() {
       this.dialog = false
+      this.data.dialog = false
       this.selectedProduct = null
+      this.data.form.idSubCatProd = null
       this.data.form = {}
     },
 
