@@ -79,6 +79,7 @@ export default {
     },
 
     setup(props) {
+        const token = ref(JSON.parse(localStorage.getItem('token')))
         const localShow = ref(props.show)
         const localEdit = ref(props.editar)
         const localProv = ref(props.prov)
@@ -114,7 +115,7 @@ export default {
             dataProveedor: {
                 nombre: null,
                 observaciones: null,
-                usuarioRegistro: 'admin'
+                usuarioRegistro: null
             },
             idTipoProv: null,
             requestHttp: new RequestHttp()
@@ -126,7 +127,7 @@ export default {
             localTitle,
             localProv,
             localView,
-            data
+            data, token
         }
     },
 
@@ -136,6 +137,7 @@ export default {
                 alert('Complete la informacion')
                 return
             }
+            this.data.dataProveedor.usuarioRegistro = this.token.usuario
             if (!this.localEdit) {
                 const result = await this.data.requestHttp.postTipoProveedor(this.data.dataProveedor)
     

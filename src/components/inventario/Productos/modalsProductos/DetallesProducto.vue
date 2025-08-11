@@ -205,7 +205,7 @@ export default {
 
   setup(props) {
     const tab = ref(0)
-
+    const token = ref(JSON.parse(localStorage.getItem('token')))
     const getProvProduct = async () =>  {
       data.proveedoresProducto = []
       const dataPro = []
@@ -241,7 +241,7 @@ export default {
         idProveedor: null,
         idProducto: null,
         predeterminado: false,
-        usuarioRegistro: 1,
+        usuarioRegistro: null,
       },
       observaciones: null,
       requestHttp: new RequestHttp()
@@ -251,7 +251,8 @@ export default {
       tab,
       localShow,
       modalProveedor,
-      data
+      data,
+      token
     }
   },
 
@@ -285,6 +286,7 @@ export default {
         alert('Elija un proveedor')
         return
       }
+      this.data.nuevoProveedor.usuarioRegistro = this.token.usuario
       this.data.nuevoProveedor.idProducto = this.producto.idProducto
       const result = await this.data.requestHttp.postProveedorProducto(this.data.nuevoProveedor)
       if (result !==  null) {

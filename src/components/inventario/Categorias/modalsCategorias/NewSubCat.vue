@@ -26,26 +26,25 @@
           <small class="mr-2 font-weight-bold">GENERALES</small>
           <v-divider/>
         </v-card-subtitle>
-        <v-row>
+        <v-row dense>
           <v-col cols="12" md="12" sm="12" class="py-2">
             <v-autocomplete v-model="data.dataSubCat.idCategoriaProducto" prepend-inner-icon="mdi-tag-multiple"
-                            density="compact" :items="data.categorias"
-                            variant="outlined" hide-details label="Categoría:" placeholder="Elija una categoría"
-                            persistent-placeholder :readonly="readonlyOption()"/>
+              density="compact" :items="data.categorias" @update:model-value="getCodeSub"
+              variant="outlined" hide-details label="Categoría:" placeholder="Elija una categoría"
+              persistent-placeholder :readonly="readonlyOption()"/>
           </v-col>
           <v-col cols="12" md="12" sm="12" class="py-2">
             <v-text-field v-model="data.dataSubCat.codigo" prepend-inner-icon="mdi-barcode" density="compact"
-                          variant="outlined"
-                          hide-details
-                          label="Código:"
-
-                          :readonly="readonlyOption()"/>
+              variant="outlined"
+              hide-details
+              label="Código:"
+              :readonly="readonlyOption()"/>
           </v-col>
           <v-col cols="12" md="12" sm="12" class="py-2">
             <v-text-field v-model="data.dataSubCat.nombre" prepend-inner-icon="mdi-label" density="compact"
-                          variant="outlined" hide-details label="Sub Categoría"
-                          placeholder="Ingrese el nombre para la sub categoría" persistent-placeholder
-                          :readonly="readonlyOption()"/>
+              variant="outlined" hide-details label="Sub Categoría"
+              placeholder="Ingrese el nombre para la sub categoría" persistent-placeholder
+              :readonly="readonlyOption()"/>
           </v-col>
 
         </v-row>
@@ -94,7 +93,7 @@ export default {
     title: {
       type: String,
       required: true,
-      default: 'Nueva Sub Categoría'
+      default: 'Nueva SubCategoría'
     },
     ver: {
       type: Boolean,
@@ -103,6 +102,7 @@ export default {
   },
 
   setup(props) {
+    const token = ref(JSON.parse(localStorage.getItem('token')))
     const localShow = ref(props.show)
     const localEdit = ref(props.editar)
     const localSubCat = ref(props.subCat)
@@ -140,9 +140,10 @@ export default {
       nowDate: new Date(),
       categorias: [],
       dataSubCat: {
+        codigo: null,
         nombre: null,
         idCategoriaProducto: null,
-        usuarioRegistro: 'admin'
+        usuarioRegistro: null
       },
       idCat: null,
       requestHttp: new RequestHttp()
@@ -154,16 +155,28 @@ export default {
       localTitle,
       localSubCat,
       localView,
-      data
+      data,
+      token
     }
   },
 
   methods: {
+    async getCodeSub() {
+      try {
+        this.data.dataSubCat.codigo = 
+          await this.data.requestHttp.getCodeSub(this.data.dataSubCat.idCategoriaProducto)
+
+      } catch (error) {
+        alert('No se pude obtener el código sugerido.')
+      }
+    },
+
     async handleSave() {
       if (!this.data.dataSubCat.idCategoriaProducto || !this.data.dataSubCat.nombre) {
         alert('Complete la informacion')
         return
       }
+      this.data.dataSubCat.usuarioRegistro = this.token.usuario
       if (!this.localEdit) {
         const result = await this.data.requestHttp.postSubCategorias(this.data.dataSubCat)
 
@@ -193,13 +206,9 @@ export default {
     async getCategorias() {
       this.data.categorias = []
       const result = await this.data.requestHttp.getCategorias()
-      if (result !== null) {
-        result.map(item => {
-          this.data.categorias.push({title: item.nombre, value: item.idCategoriaProducto})
-        })
-      } else {
-        console.log('Error en la solicitud');
-      }
+      result.map(item => {
+        this.data.categorias.push({title: item.nombre, value: item.idCategoriaProducto})
+      })
     },
     formatedDate(dataString) {
       const value = formatters.formatDate(dataString)
@@ -208,8 +217,7 @@ export default {
 
     closeDialog() {
       this.$emit('closeDialog', false)
-      this.data.dataSubCat.idCategoriaProducto = null
-      this.data.dataSubCat.nombre = null
+      this.data.dataSubCat = {}
       this.localEdit = false
       this.localView = false
     },

@@ -84,6 +84,7 @@ export default {
   },
 
   setup(props) {
+    const token = ref(JSON.parse(localStorage.getItem('token')))
     const localShow = ref(props.show)
     const localEdit = ref(props.editar)
     const localCat = ref(props.cat)
@@ -132,12 +133,14 @@ export default {
       localTitle,
       localCat,
       localView,
-      data
+      data,
+      token
     }
   },
 
   methods: {
     async handleSave() {
+      this.data.dataCat.usuarioRegistro = this.token.usuario
       if (!this.localEdit) {
         const result = await this.data.requestHttp.postCategorias(this.data.dataCat)
 
