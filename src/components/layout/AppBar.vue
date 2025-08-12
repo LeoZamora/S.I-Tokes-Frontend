@@ -120,7 +120,6 @@ export default {
     verifyDataSecurity() {
       const token = this.store.getInfoUser()
       const ventanas = token.ventanasAcceso.split(",")
-      
       ventanas.map(item => {
         switch(item) {
           case '4': this.data.views.roles = true

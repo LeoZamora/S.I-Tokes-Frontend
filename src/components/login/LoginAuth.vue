@@ -141,14 +141,14 @@ export default {
       if (!this.data.data.usuario || !this.data.data.password) {
         return;
       }
+
       this.data.msgLoader = 'Iniciando Sesion'
+      this.data.loading = true
       const result = await this.data.requestHttp.postLogin(this.data.data)
+      this.data.loading = false
 
-      if (!result.code) {
-        this.data.loading = true
+      if (result.code == 200) {        
         await this.delay(1500)
-        this.data.loading = false
-
         let jwtHandler = new JWTDecoder(result.token)
         const decode = jwtHandler.decodeToken()
         this.useAuth.login(decode)
@@ -175,6 +175,13 @@ export default {
           this.data.errorMsg = result.msg;
           this.data.loading = false;
         }
+      } else {
+        this.data.error = true
+          setTimeout(() => {
+            this.data.error = false
+          }, 1500)
+          this.data.errorMsg = 'No se pude acceder al sistema.';
+          this.data.loading = false;
       }
     }
   }
