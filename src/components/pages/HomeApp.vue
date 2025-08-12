@@ -38,7 +38,7 @@
               width="50"
             />
             <div style="font-size: 14px;">
-              (42) C$ 12,545.25
+              {{ `(${cantidadVentasPOS}) C$ ${valorVentasPOS}` }}
             </div>
           </div>
         </v-card>
@@ -58,7 +58,7 @@
               width="50"
             />
             <div style="font-size: 14px;">
-              (56) C$ 18,272.45
+              {{ `(${cantidadVentasLocal}) C$ ${valorVentasLocal}` }}
             </div>
           </div>
         </v-card>
@@ -104,7 +104,7 @@
                       width="50"
                     />
                     <div style="font-size: 14px;">
-                      (98) C$ 30,817.70
+                      {{ `(${cantidadVentas}) C$ ${valorVentas}` }}
                     </div>
                   </div>
                 </v-card>
@@ -124,7 +124,7 @@
                       width="50"
                     />
                     <div style="font-size: 14px;">
-                      (98) C$ 12,327.08
+                      {{ `(${cantidadVentas}) C$ ${utilidades}` }}
                     </div>
                   </div>
                 </v-card>
@@ -208,6 +208,7 @@ import {
   TooltipComponent
 } from 'echarts/components'
 import VChart from 'vue-echarts'
+import {httpGet} from "@/scripts/api.js";
 
 use([
   BarChart,
@@ -217,8 +218,27 @@ use([
 ])
 
 export default {
+
+  mounted() {
+    this.loadDataVentas()
+  },
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      vm.loadDataVentas()
+    })
+  },
   data() {
     return {
+      cantidadVentasLocal: 0,
+      valorVentasLocal: 0,
+
+      cantidadVentasPOS: 0,
+      valorVentasPOS: 0,
+
+      cantidadVentas: 0,
+      valorVentas: 0,
+      utilidades: 0,
       colors: [
         '#FF6347',
         '#6A5ACD',
@@ -245,20 +265,14 @@ export default {
         legend: {
           orient: 'vertical',
           left: 'left',
-          data: ['Ruta 1', 'Ruta 2', 'Ruta 3', 'Ruta 4', 'Ruta 5']
+          data: []
         },
         series: [
           {
             name: 'Ventas',
             type: 'pie',
             radius: '50%',
-            data: [
-              { value: 8596.25, name: 'Ruta 1' },
-              { value: 11525.46, name: 'Ruta 2' },
-              { value: 5645.25, name: 'Ruta 3' },
-              { value: 7850.22, name: 'Ruta 4' },
-              { value: 2548.25, name: 'Ruta 5' }
-            ],
+            data: [],
             emphasis: {
               itemStyle: {
                 shadowBlur: 10,
@@ -271,7 +285,7 @@ export default {
       },
       ventas: {
         title: {
-          text: 'Ventas por Ruta\nMes de julio',
+          text: 'Ventas por Ruta\nMes de agosto',
           textStyle: {
             fontSize: 14,
             fontWeight: 'bold',
@@ -284,13 +298,7 @@ export default {
           data: ['Ventas']
         },
         xAxis: {
-          data: [
-            'Ruta 1\nChinandega',
-            'Ruta 2\nEstelí',
-            'Ruta 3\nEl Cuá',
-            'Ruta 4\nMatagalpa',
-            'Ruta 5\nChinandega 2'
-          ],
+          data: [],
           axisLine: {
             lineStyle: { color: '#6C6CFF' }
           }
@@ -310,31 +318,33 @@ export default {
           {
             name: 'Ventas',
             type: 'bar',
-            data: [
-              {
-                value: 8596.25,
-                itemStyle: { color: '#FF6347' }
-              },
-              {
-                value: 11525.46,
-                itemStyle: { color: '#6A5ACD' }
-              },
-              {
-                value: 5645.25,
-                itemStyle: { color: '#3CB371' }
-              },
-              {
-                value: 7850.22,
-                itemStyle: { color: '#FFA500' }
-              },
-              {
-                value: 2548.25,
-                itemStyle: { color: '#8A2BE2' }
-              },
-            ]
+            data: []
           }
         ]
       }
+    }
+  },
+
+  methods: {
+    async loadDataVentas(){
+      var result = await httpGet('api/estadisticas/ventas-mes')
+
+      this.ventas.xAxis.data = result.nombresRutas
+      this.ventas.series[0].data = result.data
+
+      this.pieChart.legend.data = result.nombresRutas
+      this.pieChart.series[0].data = result.ventasPie
+
+      this.cantidadVentasLocal = result.ventasLocal.cantidad
+      this.valorVentasLocal = result.ventasLocal.ventasTotales
+
+      this.cantidadVentasPOS = result.ventasPOS.cantidad
+      this.valorVentasPOS = result.ventasPOS.ventasTotales
+
+      this.cantidadVentas = result.cantidadVentas
+      this.valorVentas = result.valorVentas
+
+      this.utilidades = result.utilidades
     }
   }
 }

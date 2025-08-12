@@ -61,13 +61,21 @@
                         <v-col cols="12" md="6" sm="6">
                             <v-autocomplete :rules="data.rules.rule" v-model="data.venta.idCliente" prepend-inner-icon="mdi-account" density="compact" 
                                 variant="outlined" :hide-details="data.hide ? true : false" label="Cliente" 
-                                placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes"/>
+                                            placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes">
+                              <template v-slot:prepend>
+                                <v-btn icon size="small" @click="getClientes">
+                                  <v-icon color="secondary">
+                                    mdi-refresh
+                                  </v-icon>
+                                </v-btn>
+                              </template>
+                            </v-autocomplete>
                         </v-col>
-                        <v-col cols="12" md="6" sm="6">
+                        <!--<v-col cols="12" md="6" sm="6">
                             <v-autocomplete :rules="data.rules.rule" :items="data.empleados" v-model="data.venta.usuarioRegistro" 
                                 prepend-inner-icon="mdi-account-cog" density="compact" variant="outlined" :hide-details="data.hide ? true : false"
                                 label="Empleado" placeholder="empleado de registro" persistent-placeholder/>
-                        </v-col>
+                        </v-col>-->
                         <v-col cols="12" md="12" sm="12">
                             <v-textarea v-model="data.venta.enviarA" density="compact" variant="outlined" :hide-details="data.hide ? true : false" label="Dirección de envio" placeholder="ingrese una dirección" 
                                 persistent-placeholder rows="2"/>                        
@@ -165,6 +173,14 @@ export default {
         this.getEmpleados()
         this.getTipoVentas()
     },
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      vm.getClientes()
+      vm.getProductos()
+      vm.getTipoVentas()
+    })
+  },
 
     props: {
         show: {
@@ -297,7 +313,7 @@ export default {
                 credito: false,
                 observaciones: null,
                 enviarA: null,
-                usuarioRegistro: null,
+                usuarioRegistro: 'Roberto',
                 detalleVenta: []
             },
             editVenta: {
@@ -336,7 +352,7 @@ export default {
             const result = await this.data.requestHttp.getClientes()
             this.data.loading = false
             result.map(item => {
-                this.data.clientes.push({title: item.codigo, value: item.idCliente})
+                this.data.clientes.push({title: item.nombre, value: item.idCliente})
             })
         },
 
@@ -363,14 +379,12 @@ export default {
         async getProductos() {
             this.data.productos = []
             this.data.loading = true
-            const result = await this.data.requestHttp.getProductos('Herramientas')
+            const result = await this.data.requestHttp.getProductos(null)
             this.data.loading = false
 
             if (result !== null) {
                 result.map(item => {
-                    if (item.tipoProducto === 'Herramientas') {
-                        this.data.productos.push({title: item.nombre, value: item.idProducto})
-                    }
+                  this.data.productos.push({title: item.nombre, value: item.idProducto})
                 })
             } else {
                 throw new Error('Error en la solicitud')
@@ -411,7 +425,6 @@ export default {
             if (!this.localEdit) {
                 if (!this.data.venta.noVenta ||
                     !this.data.venta.idCliente ||
-                    !this.data.venta.enviarA ||
                     !this.data.venta.usuarioRegistro
                 ) {
                     this.data.hide = false
@@ -491,7 +504,9 @@ export default {
             this.data.factura.subTotal = 0.00
             this.data.factura.total = 0.00
             this.data.factura.usdTotal = 0.00
-            this.data.venta = {}
+            this.data.venta = {
+              usuarioRegistro: 'Roberto'
+            }
             this.data.editVenta = {}
 
             this.clearProductos()
