@@ -145,9 +145,11 @@ export default {
       this.data.msgLoader = 'Iniciando Sesion'
       this.data.loading = true
       const result = await this.data.requestHttp.postLogin(this.data.data)
+      console.log(result);
+      
       this.data.loading = false
 
-      if (result.code == 200) {        
+      if (result.token) {
         await this.delay(1500)
         let jwtHandler = new JWTDecoder(result.token)
         const decode = jwtHandler.decodeToken()
