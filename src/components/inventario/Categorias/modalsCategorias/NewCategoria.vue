@@ -147,6 +147,7 @@ export default {
         if (result !== null) {
           alert('Registro Guardado')
           this.$emit('closeDialog', false)
+          this.data.dataCat = {}
           this.localEdit = false
         } else {
           alert('No se pudo guardar el registro')
