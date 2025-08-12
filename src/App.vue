@@ -215,7 +215,7 @@ export default {
     const data = reactive({
       drawer: true,
       clientes: [
-        ['Tipos de Cliente', 'Tipos de Cliente'],
+        // ['Tipos de Cliente', 'Tipos de Cliente'],
         ['Clientes', 'Clientes'],
       ],
       ventasActions: [
