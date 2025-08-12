@@ -976,6 +976,7 @@ export default {
 
     async closeNuevaSubCatDisplay() {
       this.nuevaSubCatDisplay.show = false
+      this.nuevaSubCatDisplay.item = {}
       this.loadCmbSubCategoria(this.data.form.idCategoria)
       this.getSubCategorias()
     },
