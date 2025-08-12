@@ -301,7 +301,7 @@
                               v-model="
                               data.form.idSubCatProd"
                               label="Sub categoría"
-                              :items="data.subCategorias"
+                              :items="cmb.subCategorias"
                               :rules="[
                                 rules.required
                               ]"
@@ -309,6 +309,7 @@
                               hide-details
                               density="compact"
                               prepend-inner-icon="mdi-shape-outline"
+                              @update:model-value="loadCodigoRecomendado(data.form.idSubCatProd)"
                           >
                             <template v-slot:prepend>
                               <v-btn
@@ -975,7 +976,15 @@ export default {
 
     async closeNuevaSubCatDisplay() {
       this.nuevaSubCatDisplay.show = false
+      this.loadCmbSubCategoria(this.data.form.idCategoria)
       this.getSubCategorias()
+    },
+
+    async loadCodigoRecomendado(idSubCat) {
+      var codigoRecomendado = await httpGet(
+          `api/producto/codigo-recomendado?idSubCat=${idSubCat}`
+      )
+      this.data.form.codigo = String(codigoRecomendado)
     },
 
     handleChangeCosto() {
@@ -1139,7 +1148,7 @@ export default {
           console.log(err)
         }
       } else {
-        alert('no se eliminar imagen')
+        //alert('no se eliminar imagen')
       }
       this.registroDisplay.eliminarImagen = false
     },
