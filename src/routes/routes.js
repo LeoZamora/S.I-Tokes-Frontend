@@ -62,7 +62,7 @@ const routes = createRouter({
         }, {
             path: '/ordenes',
             name: 'Ordenes',
-            component: () => import('@/components/movimientos/Compras/FacturacionCompras.vue'),
+            component: () => import('@/components/dev-alert.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
