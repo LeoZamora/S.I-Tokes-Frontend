@@ -48,22 +48,22 @@
                 </v-card-subtitle>
                 <v-form validate-on="invalid-input" ref="form">
                     <v-row dense>
-                        <v-col cols="12" md="6" sm="6">
+                        <v-col cols="12" md="4" sm="4">
                             <v-text-field :rules="data.rules.rule" v-model="data.venta.noVenta" prepend-inner-icon="mdi-shopping" 
                                 density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
-                                label="Nº Factura" placeholder="nº factura" persistent-placeholder/>
+                                label="Nº Factura" placeholder="nº factura" persistent-placeholder readonly/>
                         </v-col>
-                        <v-col cols="12" md="6" sm="6">
+                        <v-col cols="12" md="4" sm="4">
                             <v-autocomplete :rules="data.rules.rule" v-model="data.venta.idTipoVenta" :items="data.tipoVenta"
                                 prepend-inner-icon="mdi-file-document-check" density="compact" variant="outlined" :hide-details="data.hide ? true : false"
-                                label="Tipo de Venta" placeholder="tipos de ventas" persistent-placeholder/>
+                                label="Tipo de Venta" placeholder="tipos de ventas" persistent-placeholder clearable/>
                         </v-col>
-                        <v-col cols="12" md="6" sm="6">
+                        <v-col cols="12" md="4" sm="4">
                             <v-autocomplete :rules="data.rules.rule" v-model="data.venta.idCliente" prepend-inner-icon="mdi-account" density="compact" 
                                 variant="outlined" :hide-details="data.hide ? true : false" label="Cliente" 
-                                            placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes">
-                              <template v-slot:prepend>
-                                <v-btn icon size="small" @click="getClientes">
+                                placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes" clearable>
+                              <template v-slot:append-inner>
+                                <v-btn icon variant="text" size="small" @click="getClientes">
                                   <v-icon color="secondary">
                                     mdi-refresh
                                   </v-icon>
@@ -109,7 +109,8 @@
                 </v-row>
                 <v-row>
                     <v-col cols="12" sm="12" md="12">
-                        <v-data-table class="border rounded font" density="compact" :headers="data.headers" :items="data.items">
+                        <v-data-table class="border rounded font" density="compact" :headers="data.headers" :items="data.items"
+                            hide-default-footer :items-per-page="100" height="200px">
                             <template v-slot:item.opc="{ item }">
                                 <v-tooltip text="Eliminar" location="top">
                                     <template v-slot:activator="{ props }">
@@ -233,12 +234,7 @@ export default {
             localEdit.value = val
             if (val === true) {
                 const result = await getVenta(localFact.value)
-                data.venta.credito = result.credito
-                data.venta.enviarA = result.enviarA
-                data.venta.idCliente = result.idCliente
-                data.venta.noVenta = result.noVenta
-                data.venta.observaciones = result.observaciones
-                data.venta.usuarioRegistro = result.usuarioRegistro
+                data.venta = result
                 data.editVenta.estado = result.estado
                 data.editVenta.fechaRegistro = result.fechaRegistro
                 data.editVenta.idVenta = result.idVenta
@@ -411,12 +407,11 @@ export default {
         },
         
         deleteProduct(itemSelected) {
-            const items = this.data.items.filter(item => item.idProducto !== itemSelected.idProducto)
-            this.data.items = []
-            items.map(item => {
-                this.data.items.push(item)
-            })
-            this.calcularFactura()       
+            let i = this.data.items.indexOf(itemSelected)
+            if (i !== -1) {
+              this.data.items.splice(i, 1);
+            }
+            this.calcularFactura()
         },
 
         async guardarFactura() {

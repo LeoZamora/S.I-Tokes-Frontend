@@ -48,16 +48,19 @@
                 </v-card-subtitle>
                 <v-row dense>
                     <v-col cols="12" md="4" sm="6" class="py-1">
-                        <v-text-field v-model="data.orden.noOrden" prepend-inner-icon="mdi-file-document" density="compact" variant="outlined" hide-details label="Num. Órden" placeholder="número de orden" 
-                            persistent-placeholder/>
+                        <v-text-field v-model="data.orden.noOrden" prepend-inner-icon="mdi-file-document" 
+                            density="compact" variant="outlined" hide-details label="Num. Órden" 
+                            placeholder="número de orden"  persistent-placeholder readonly/>
                     </v-col>
                     <v-col cols="12" md="4" sm="6" class="py-1">
-                        <v-autocomplete v-model="data.orden.idProveedor" prepend-inner-icon="mdi-account" density="compact" variant="outlined" hide-details label="Proveedor" placeholder="ingrese el proveedor" 
-                            persistent-placeholder :items="data.proveedores"/>
+                        <v-autocomplete v-model="data.orden.idProveedor" prepend-inner-icon="mdi-account" 
+                            density="compact" variant="outlined" hide-details label="Proveedor" clearable
+                            placeholder="ingrese el proveedor"  persistent-placeholder :items="data.proveedores"/>
                     </v-col>
                     <v-col cols="12" md="4" sm="6" class="py-1">
-                        <v-text-field v-model="data.orden.usuarioRegistro" prepend-inner-icon="mdi-account-cog" density="compact" variant="outlined" hide-details label="Empleado" placeholder="empleado de registro" 
-                            persistent-placeholder/>
+                        <v-text-field v-model="data.orden.usuarioRegistro" prepend-inner-icon="mdi-account-cog" 
+                            density="compact" variant="outlined" hide-details label="Empleado" clearable
+                            placeholder="empleado de registro"  persistent-placeholder/>
                     </v-col>
                 </v-row>
 
@@ -68,12 +71,14 @@
 
                 <v-row dense>
                     <v-col cols="12" md="4" sm="6" class="py-1">
-                        <v-autocomplete v-model="data.producto.idProducto" prepend-inner-icon="mdi-shopping" density="compact" variant="outlined" hide-details label="Productos" placeholder="productos a agregar" 
-                            persistent-placeholder :items="data.productos"/>
+                        <v-autocomplete v-model="data.producto.idProducto" prepend-inner-icon="mdi-shopping" 
+                            density="compact" variant="outlined" hide-details label="Productos" clearable
+                            placeholder="productos a agregar"  persistent-placeholder :items="data.productos"/>
                     </v-col>
                     <v-col cols="12" md="4" sm="6" class="py-1">
-                        <v-text-field v-model="data.producto.cantidad" prepend-inner-icon="mdi-numeric" density="compact" variant="outlined" hide-details label="Cantidad" paceholder="cantidad de productos" 
-                            persistent-placeholder type="number"/>
+                        <v-text-field v-model="data.producto.cantidad" prepend-inner-icon="mdi-numeric" 
+                            density="compact" variant="outlined" hide-details label="Cantidad" clearable
+                            paceholder="cantidad de productos"  persistent-placeholder type="number"/>
                     </v-col>
                     <v-col cols="12" md="4" sm="12" class="d-flex justify-end align-center py-0">
                         <v-btn icon color="primary" size="small" variant="tonal" @click="addProducts">
@@ -89,7 +94,8 @@
                 </v-card-subtitle>
                 <v-row>
                     <v-col cols="12" sm="12" md="12">
-                        <v-data-table class="border rounded" density="compact" :headers="data.headers" :items="data.items">
+                        <v-data-table class="border rounded" density="compact" :headers="data.headers" :items="data.items"
+                            :items-per-page="100" height="200px" hide-default-footer>
                             <template v-slot:item.opc="{ item }">
                                 <v-tooltip text="Eliminar" location="top">
                                     <template v-slot:activator="{ props }">
@@ -106,7 +112,8 @@
                         </v-data-table>
                     </v-col>
                     <v-col cols="12" md="6" sm="6">
-                        <v-textarea v-model="data.orden.observaciones" density="compact" variant="outlined" hide-details label="Observaciones" placeholder="ingrese algunos detalles de la factura" 
+                        <v-textarea v-model="data.orden.observaciones" density="compact" variant="outlined" 
+                            hide-details label="Observaciones" placeholder="ingrese algunos detalles de la factura" 
                             persistent-placeholder rows="3"/>                        
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="d-flex flex-column justify-end align-end">
@@ -411,11 +418,10 @@ export default {
         },
 
         deleteProduct(itemSelected) {
-            const items = this.data.items.filter(item => item.idProducto !== itemSelected.idProducto)
-            this.data.items = []
-            items.map(item => {
-                this.data.items.push(item)
-            })
+            let i = this.data.items.indexOf(itemSelected)
+            if (i !== -1) {
+              this.data.items.splice(i, 1);
+            }
             this.calcularTotals()          
         }
     },

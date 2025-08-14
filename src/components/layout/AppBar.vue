@@ -45,8 +45,7 @@
                 </v-list>
 
                 <v-divider class="my-1"></v-divider>
-
-                <!-- Logout -->
+                
                 <v-card-actions class="justify-center">
                   <v-tooltip text="Cerrar Sesión" location="bottom">
                     <template v-slot:activator="{ props }">
