@@ -63,28 +63,28 @@
             <div>{{ item.idCategoriaClienteNavigation.nombre }}</div>
           </template>
           <template v-slot:item.opc="{ item }">
-            <v-tooltip text="Editar" location="top">
+            <!--<v-tooltip text="Editar" location="top">
               <template v-slot:activator="{ props }">
                 <v-icon v-bind="props" size="small" color="green" @click="openDialog('prov', 'edit', item)"
                         class="mr-1">mdi-pencil
                 </v-icon>
               </template>
-            </v-tooltip>
+            </v-tooltip>-->
 
-            <v-tooltip text="Eliminar" location="top">
+            <!--<v-tooltip text="Eliminar" location="top">
               <template v-slot:activator="{ props }">
                 <v-icon v-bind="props" size="small" color="error" @click="showAlert(item)" class="mr-1">mdi-delete
                 </v-icon>
               </template>
-            </v-tooltip>
+            </v-tooltip>-->
 
-            <v-tooltip text="Ver" location="top">
+            <!--<v-tooltip text="Ver" location="top">
               <template v-slot:activator="{ props }">
                 <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialog('prov', 'view', item)">
                   mdi-eye
                 </v-icon>
               </template>
-            </v-tooltip>
+            </v-tooltip>-->
           </template>
           <template v-slot:item.estado="{ item }">
             <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>

@@ -150,6 +150,12 @@ export default {
     }
   },
 
+  data(){
+    return {
+      usuarioRegistro: JSON.parse(localStorage.getItem('token')).usuario
+    }
+  },
+
   setup(props) {
     const getRuta = async (id) => {
       return await data.requestHttp.getByIdRuta(id)
@@ -187,7 +193,7 @@ export default {
       },
 
       headers: [
-        {title: '', key: 'opc', align: 'center'},
+        {title: 'Opciones', key: 'opc', align: 'center'},
         {title: 'Departamento', key: 'departamento', align: 'center'},
         {title: 'Municipio', key: 'municipio', align: 'center'},
         {title: 'Observaciones', key: 'observaciones', align: 'center'},
@@ -294,6 +300,8 @@ export default {
       let obs = this.data.cobertura.observaciones
 
       this.data.items.push({
+        idDepartamento: departamento.value,
+        idMunicipio: municipio.value,
         departamento: departamento.title,
         municipio: municipio.title,
         observaciones: obs
@@ -303,17 +311,13 @@ export default {
         ...this.data.cobertura,
         observaciones: obs
       })
-      this.data.cobertura.idDepartamento = null
       this.data.cobertura.idMunicipio = null
       this.data.cobertura.observaciones = null
     },
 
     deleteProduct(itemSelected) {
-      const items = this.data.items.filter(item => item.idProducto !== itemSelected.idProducto)
-      this.data.items = []
-      items.map(item => {
-        this.data.items.push(item)
-      })
+      var index = this.data.items.indexOf(itemSelected)
+      const items = this.data.items.splice(index, 1)
     },
 
     async guardarRuta() {
@@ -324,6 +328,7 @@ export default {
       }
       this.data.ruta.usuarioRegistro = this.token.usuario
       if (!this.localEdit) {
+        this.data.ruta.coberturasRuta = this.data.items
         const result = await this.data.requestHttp.postRuta(this.data.ruta)
 
         if (!result.code) {
@@ -335,7 +340,6 @@ export default {
         }
       } else {
         if (!this.data.ruta.codigo ||
-            !this.data.ruta.descripcion ||
             !this.data.ruta.gestor ||
             !this.data.ruta.nombre ||
             !this.data.ruta.usuarioRegistro ||
@@ -344,6 +348,7 @@ export default {
           alert('Complete la informacion de la orden')
           return
         } else {
+          this.data.ruta.coberturasRuta = this.data.items
           const result = await this.data.requestHttp.putRuta(this.data.ruta, this.localRuta)
 
           if (result !== null) {
@@ -372,7 +377,9 @@ export default {
     closeDialog() {
       this.$emit('closeDialog', false)
       this.data.items = []
-      this.data.ruta = {}
+      this.data.ruta = {
+        usuarioRegistro: this.usuarioRegistro
+      }
       this.data.editRuta = {}
     },
   },

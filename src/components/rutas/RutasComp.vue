@@ -48,6 +48,9 @@
                     <template v-slot:loading>
                         <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
                     </template>
+                  <template v-slot:item.descripcion="{ item }">
+                    {{ item.descripcion ?? '- - -' }}
+                  </template>
                     <template v-slot:item.total="{ item }">
                         <div>{{ formatedCurrency(item.total) }}</div>
                     </template>
@@ -143,11 +146,11 @@ export default {
                         class: 'pa-1',  
                     }
                 },
-                {title: 'Ruta', key: 'nombre', align: 'center'},
+                {title: 'Nombre de Ruta', key: 'nombre', align: 'center'},
                 {title: 'Descripción', key: 'descripcion', align: 'center'},
-                {title: 'Gestor', key: 'gestor', align: 'center'},
-                {title: 'Fecha Emisión', key: 'fechaRegistro', align: 'center'},
-                {title: 'Observaciones', key: 'usuarioRegistro', align: 'center'},
+                {title: 'Gestor de Ruta', key: 'gestor', align: 'center'},
+                {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
+                {title: 'Registrado Por', key: 'usuarioRegistro', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
             ],
             rutas: [],
