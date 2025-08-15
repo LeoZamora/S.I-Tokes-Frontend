@@ -12,9 +12,9 @@ import * as directives from 'vuetify/directives'
 import 'vuetify/styles'
 import Axios from 'axios'
 
-// Axios.defaults.baseURL = 'http://165.98.133.202:55478/'
+//Axios.defaults.baseURL = 'http://192.168.0.93:8080/inversiones-zafiro/'
 // Axios.defaults.baseURL = 'https://infinitozh.com:9302/inversiones-zafiro/'
-Axios.defaults.baseURL = 'http://localhost:5091/'
+Axios.defaults.baseURL = 'http://localhost:5091/inversiones-zafiro/'
 
 const pinia = createPinia();
 const app = createApp(App);
