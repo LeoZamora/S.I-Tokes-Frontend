@@ -14,24 +14,28 @@
     <v-divider></v-divider>
     <v-card-text>
       <div>
-        <v-row dense>
-          <v-col>
-            <v-text-field
-                v-model="fechaDesde"
-                label="Fecha desde:"
-                type="date"
-                hide-details
-            ></v-text-field>
-          </v-col>
-          <v-col>
-            <v-text-field
-                v-model="fechaHasta"
-                label="Fecha hasta:"
-                type="date"
-                hide-details
-            ></v-text-field>
-          </v-col>
-        </v-row>
+        <v-form ref="form1">
+          <v-row dense>
+            <v-col>
+              <v-text-field
+                  v-model="fechaDesde"
+                  label="Fecha desde:"
+                  density="compact"
+                  type="date"
+                  :rules="[v => !!v || 'Requerido.']"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                  v-model="fechaHasta"
+                  label="Fecha hasta:"
+                  density="compact"
+                  type="date"
+                  :rules="[v => !!v || 'Requerido.']"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-form>
         <v-row>
           <v-col>
             <v-progress-linear indeterminate :active="loadStates.resumen"></v-progress-linear>
@@ -222,10 +226,11 @@
             </v-row>
           </v-col>
           <v-col cols="3">
-            <v-chart :option="pieChart" autoresize style="height: 300px;" />
+            <v-chart :option="pieChart" autoresize style="height: 300px;"/>
           </v-col>
           <v-col cols="12">
             <v-textarea
+                v-model="descripcion"
                 label="Descipción para el cierre:"
                 rows="2"
                 auto-grow
@@ -247,9 +252,9 @@
 
 <script>
 //CHARTS
-import { use } from 'echarts'
-import { BarChart, PieChart } from 'echarts/charts'
-import { CanvasRenderer } from 'echarts/renderers'
+import {use} from 'echarts'
+import {BarChart, PieChart} from 'echarts/charts'
+import {CanvasRenderer} from 'echarts/renderers'
 import {
   GridComponent,
   TooltipComponent
@@ -258,9 +263,10 @@ import VChart from 'vue-echarts'
 //
 import {useSnackbar} from "@/composables/use-snackbar.js";
 import {useLoading} from "@/composables/use-loading.js";
-import {httpGet} from "@/scripts/api.js";
+import {httpGet, httpPost} from "@/scripts/api.js";
 import {getIntervaloMesActual} from "@/scripts/utils.js";
 import {formatters} from "@/helpers/formatters.js";
+import {ref} from "vue";
 
 //CHARTS
 use([
@@ -283,6 +289,8 @@ export default {
 
       fechaDesde: getIntervaloMesActual().fechaDesde,
       fechaHasta: getIntervaloMesActual().fechaHasta,
+      usuarioRegistro: JSON.parse(localStorage.getItem('token')).usuario,
+      descripcion: '',
 
       loadStates: {
         resumen: false,
@@ -319,11 +327,14 @@ export default {
             top: 50,
             bottom: 50,
             radius: '50%',
-            data: [
-            ],
+            data: [],
             label: {
               show: true,
-              formatter: ({ name, percent, value }) => name ? `${name}\n${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`,
+              formatter: ({
+                            name,
+                            percent,
+                            value
+                          }) => name ? `${name}\n${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`,
               position: 'outside',
               color: '#000000'
             },
@@ -341,17 +352,17 @@ export default {
   },
 
   methods: {
-    async loadDataResumen(){
-      try{
+    async loadDataResumen() {
+      try {
         this.loadStates.resumen = true
         const data = await httpGet(`api/cierres/resumen-movimientos?desde=${this.fechaDesde}&hasta=${this.fechaHasta}`)
 
         this.resumen = data.resumen
 
         this.resumenUtilidad = []
-        this.resumenUtilidad.push({ concepto: 'Total Ingresos', valor: data.resumen[2].valor })
-        this.resumenUtilidad.push({ concepto: 'Total Egresos', valor: data.resumen[5].valor })
-        this.resumenUtilidad.push({ concepto: 'Utilidad', valor: data.resumen[2].valor - data.resumen[5].valor })
+        this.resumenUtilidad.push({concepto: 'Total Ingresos', valor: data.resumen[2].valor})
+        this.resumenUtilidad.push({concepto: 'Total Egresos', valor: data.resumen[5].valor})
+        this.resumenUtilidad.push({concepto: 'Utilidad', valor: data.resumen[2].valor - data.resumen[5].valor})
 
         var ventasTotales = data.resumen[0].valor
         var costoVentas = data.resumen[3].valor
@@ -360,38 +371,75 @@ export default {
 
         this.pieChart.series[0].data = []
 
-        this.pieChart.series[0].data.push({ value: costoVentas, name: 'Costo de Ventas' })
+        this.pieChart.series[0].data.push({value: costoVentas, name: 'Costo de Ventas'})
 
-        this.pieChart.series[0].data.push({ value: utilidad, name: 'Utilidad' })
+        this.pieChart.series[0].data.push({value: data.resumen[2].valor - data.resumen[5].valor, name: 'Utilidad'})
 
-        this.pieChart.series[0].data.push({ value: gastosAdicionales, name: 'Gastos Adicionales' })
+        this.pieChart.series[0].data.push({value: gastosAdicionales, name: 'Gastos Adicionales'})
 
 
         this.resumenInventario = data.inventario
-        this.resumenInventario.push({ concepto: 'Valor Total Inventario', valor: data.valorInventario })
+        this.resumenInventario.push({concepto: 'Valor Total Inventario', valor: data.valorInventario})
 
         this.resumenProyeccionInventario = data.inventarioProyeccion
-        this.resumenProyeccionInventario.push({ concepto: 'Valor Total Proyectado', valor: data.valorInventarioProyeccion })
+        this.resumenProyeccionInventario.push({
+          concepto: 'Valor Total Proyectado',
+          valor: data.valorInventarioProyeccion
+        })
 
         this.loadStates.resumen = false
         this.notificar('hola')
-      } catch (e){
+      } catch (e) {
         this.loadStates.resumen = false
       }
     },
 
-    guardarCierre(){
+    async guardarCierre() {
+      const valid = await this.$refs.form1.validate()
+      if(!valid.valid){
+        this.notify.notify('error', 'Rellene los campos requeridos.')
+        return
+      }
+
       this.loading.load(true)
 
-      setTimeout(() => {
-        this.notify.notify('success', 'Holaaa')
+      try {
+        const response =
+            await httpPost(
+                'api/cierres',
+                {
+                  desde: this.fechaDesde,
+                  hasta: this.fechaHasta,
+                  usuarioRegistro: this.usuarioRegistro,
+                  descripcion: this.descripcion
+                })
+
+        this.notify.notify('info', response.data)
         this.loading.load(false)
-      }, 3000)
+
+        this.close()
+      } catch (e) {
+        this.handleException(e)
+      }
     },
 
-    notificar(text){
-      this.snackbar.show = true
-      this.snackbar.text = text
+    handleException(ex) {
+      this.loading.load(false)
+      if (ex.status == 401) {
+        //void
+      } else if (ex.status == 403) {
+        this.notify.notify(
+            'error',
+            'No tiene los permisos necesarios.',
+        )
+      } else {
+        ex.data ?
+            this.notify.notify(
+                'error',
+                ex.data,
+            ) :
+            console.log(ex)
+      }
     },
 
     formatedCurrency(key) {
@@ -399,13 +447,13 @@ export default {
       return value
     },
 
-    close(){
+    close() {
       this.$emit('close')
     },
   },
 
   computed: {
-    rangosResumen(){
+    rangosResumen() {
       return {
         desde: this.fechaDesde,
         hasta: this.fechaHasta
@@ -425,6 +473,10 @@ export default {
   mounted() {
     this.loadDataResumen()
   },
+
+  activated() {
+    this.loadDataResumen()
+  }
 }
 </script>
 
