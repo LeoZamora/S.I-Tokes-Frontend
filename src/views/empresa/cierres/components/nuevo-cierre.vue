@@ -108,7 +108,44 @@
                   </v-row>
                 </div>
               </v-col>
-              <v-col cols="6" class="py-4">
+              <v-col cols="6">
+                <div style="font-size: 18px; font-weight: bold" class="mb-2">
+                  Utilidad del Periodo
+                </div>
+                <div style="font-size: 16px">
+                  <v-row v-for="(item, index) in resumenUtilidad" :key="index"
+                         class="font-weight-bold"
+                         dense
+                         :style="{
+                  'background-color': [5].includes(index) ? 'yellow' : 'white'
+                }"
+                  >
+                    <v-col
+                        cols="7"
+                        style="border: 1px solid #BDBDBD; border-bottom: none"
+                        :style="{
+                    'border': '1px solid #BDBDBD',
+                    'border-bottom': [2].includes(index) ? '1px solid #BDBDBD' : 'none',
+                    'border-right': 'none',
+                    'background-color': [2].includes(index) ? 'yellow' : 'white'
+                  }"
+                    >
+                      <span class="font-weight-bold">{{ item.concepto }}</span>
+                    </v-col>
+                    <v-col
+                        class="text-center"
+                        :style="{
+                    'border': '1px solid #BDBDBD',
+                    'border-bottom': [2].includes(index) ? '1px solid #BDBDBD' : 'none',
+                    'background-color': [2].includes(index) ? 'yellow' : 'white'
+                  }"
+                    >
+                      <span>{{ formatedCurrency(item.valor) }}</span>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-col>
+              <!--<v-col cols="6" class="py-4">
                 <div style="font-size: 18px; font-weight: bold" class="mb-2">
                   Valor del Inventario Actual
                 </div>
@@ -181,7 +218,7 @@
                     </v-col>
                   </v-row>
                 </div>
-              </v-col>
+              </v-col>-->
             </v-row>
           </v-col>
           <v-col cols="3">
@@ -190,13 +227,15 @@
           <v-col cols="12">
             <v-textarea
                 label="Descipción para el cierre:"
+                rows="2"
+                auto-grow
             ></v-textarea>
           </v-col>
           <v-col class="d-flex justify-end">
             <v-btn color="secondary" variant="outlined" class="mr-2">
               Cancelar
             </v-btn>
-            <v-btn color="primary">
+            <v-btn @click="guardarCierre" color="primary">
               Guardar
             </v-btn>
           </v-col>
@@ -217,6 +256,8 @@ import {
 } from 'echarts/components'
 import VChart from 'vue-echarts'
 //
+import {useSnackbar} from "@/composables/use-snackbar.js";
+import {useLoading} from "@/composables/use-loading.js";
 import {httpGet} from "@/scripts/api.js";
 import {getIntervaloMesActual} from "@/scripts/utils.js";
 import {formatters} from "@/helpers/formatters.js";
@@ -233,7 +274,10 @@ use([
 export default {
   data() {
     return {
+      notify: useSnackbar(),
+      loading: useLoading(),
       resumen: [],
+      resumenUtilidad: [],
       resumenInventario: [],
       resumenProyeccionInventario: [],
 
@@ -242,6 +286,12 @@ export default {
 
       loadStates: {
         resumen: false,
+      },
+
+      snackbar: {
+        show: false,
+        timeout: 2000,
+        text: '',
       },
 
       pieChart: {
@@ -298,6 +348,11 @@ export default {
 
         this.resumen = data.resumen
 
+        this.resumenUtilidad = []
+        this.resumenUtilidad.push({ concepto: 'Total Ingresos', valor: data.resumen[2].valor })
+        this.resumenUtilidad.push({ concepto: 'Total Egresos', valor: data.resumen[5].valor })
+        this.resumenUtilidad.push({ concepto: 'Utilidad', valor: data.resumen[2].valor - data.resumen[5].valor })
+
         var ventasTotales = data.resumen[0].valor
         var costoVentas = data.resumen[3].valor
         var gastosAdicionales = data.resumen[4].valor
@@ -319,9 +374,24 @@ export default {
         this.resumenProyeccionInventario.push({ concepto: 'Valor Total Proyectado', valor: data.valorInventarioProyeccion })
 
         this.loadStates.resumen = false
+        this.notificar('hola')
       } catch (e){
         this.loadStates.resumen = false
       }
+    },
+
+    guardarCierre(){
+      this.loading.load(true)
+
+      setTimeout(() => {
+        this.notify.notify('success', 'Holaaa')
+        this.loading.load(false)
+      }, 3000)
+    },
+
+    notificar(text){
+      this.snackbar.show = true
+      this.snackbar.text = text
     },
 
     formatedCurrency(key) {
