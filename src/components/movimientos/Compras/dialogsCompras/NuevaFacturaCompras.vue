@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="localShow" max-width="850" persistent>
         <v-card id="diag-fact">
-            <v-card-title class="bg-primary d-flex align-center">
+            <v-card-title class="bg-indigo-darken-4 d-flex align-center">
                 <h5><v-icon>mdi-file-document-outline</v-icon>{{ localTitle }}</h5>
                 <v-spacer />
                 <v-btn icon size="small" color="white" variant="tonal" @click="closeDialog()">
@@ -50,7 +50,7 @@
                     <v-col cols="12" md="4" sm="6" class="py-1">
                         <v-text-field v-model="data.orden.noOrden" prepend-inner-icon="mdi-file-document" 
                             density="compact" variant="outlined" hide-details label="Num. Órden" 
-                            placeholder="número de orden"  persistent-placeholder readonly/>
+                            placeholder="número de orden"  persistent-placeholder :readonly="editar ? true : false"/>
                     </v-col>
                     <v-col cols="12" md="4" sm="6" class="py-1">
                         <v-autocomplete v-model="data.orden.idProveedor" prepend-inner-icon="mdi-account" 
@@ -58,9 +58,9 @@
                             placeholder="ingrese el proveedor"  persistent-placeholder :items="data.proveedores"/>
                     </v-col>
                     <v-col cols="12" md="4" sm="6" class="py-1">
-                        <v-text-field v-model="data.orden.usuarioRegistro" prepend-inner-icon="mdi-account-cog" 
+                        <v-autocomplete v-model="data.orden.usuarioRegistro" prepend-inner-icon="mdi-account-cog" 
                             density="compact" variant="outlined" hide-details label="Empleado" clearable
-                            placeholder="empleado de registro"  persistent-placeholder/>
+                            placeholder="empleado de registro"  persistent-placeholder :items="data.empleados"/>
                     </v-col>
                 </v-row>
 
@@ -76,12 +76,12 @@
                             placeholder="productos a agregar"  persistent-placeholder :items="data.productos"/>
                     </v-col>
                     <v-col cols="12" md="4" sm="6" class="py-1">
-                        <v-text-field v-model="data.producto.cantidad" prepend-inner-icon="mdi-numeric" 
+                        <v-text-field v-model="data.producto.cantidad" prepend-inner-icon="mdi-numeric"
                             density="compact" variant="outlined" hide-details label="Cantidad" clearable
                             paceholder="cantidad de productos"  persistent-placeholder type="number"/>
                     </v-col>
                     <v-col cols="12" md="4" sm="12" class="d-flex justify-end align-center py-0">
-                        <v-btn icon color="primary" size="small" variant="tonal" @click="addProducts">
+                        <v-btn icon color="indigo-darken-4" size="small" variant="tonal" @click="addProducts">
                             <v-icon>mdi-plus</v-icon>
                             <v-tooltip activator="parent" location="bottom">Agregar Producto</v-tooltip>
                         </v-btn>
@@ -94,8 +94,9 @@
                 </v-card-subtitle>
                 <v-row>
                     <v-col cols="12" sm="12" md="12">
-                        <v-data-table class="border rounded" density="compact" :headers="data.headers" :items="data.items"
-                            :items-per-page="100" height="200px" hide-default-footer>
+                        <v-data-table class="border font" density="compact" :headers="data.headers" 
+                            :items="data.items" :items-per-page="100" height="200px" hide-default-footer
+                            :header-props="{ class: 'font-weight-bold' }" hover fixed-header>
                             <template v-slot:item.opc="{ item }">
                                 <v-tooltip text="Eliminar" location="top">
                                     <template v-slot:activator="{ props }">
@@ -137,7 +138,7 @@
                 <v-btn color="grey" variant="outlined" @click="closeDialog()">
                     Cancelar
                 </v-btn>
-                <v-btn class="bg-primary" @click="guardarFactura()">
+                <v-btn class="bg-indigo-darken-4" @click="guardarFactura()">
                     Guardar
                 </v-btn>
             </v-card-actions>
@@ -151,6 +152,10 @@ import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
 
 export default {
+    mounted() {
+        this.getEmpleados()
+        this.getProductos()
+    },
 
     props: {
         show: {
@@ -182,16 +187,6 @@ export default {
             })
         }
 
-        const getProductos =  async () =>  {
-            data.productos = []
-            const result = await data.requestHttp.getProductos('Herramientas')
-            result.map(item => {
-                if (item.tipoProducto === 'Herramientas') {
-                    data.productos.push({title: item.nombre, value: item.idProducto})
-                }
-            })
-        }
-
         const localShow = ref(props.show)
         const localEdit = ref(props.editar)
         const localOrden = ref(props.orden)
@@ -199,7 +194,7 @@ export default {
         watch(() => props.show, (newValue) => {
             localShow.value = newValue
             if (newValue) {
-                getProductos()
+                // getProductos()
                 getProveedores()
             }
         })
@@ -248,6 +243,7 @@ export default {
             ],
             items: [],
             proveedores: [],
+            empleados: [],
             productos: [],
             producto: {
                 idCompra: 0,
@@ -296,6 +292,31 @@ export default {
     },
 
     methods: {
+        async getEmpleados() {
+            this.data.empleados = []
+            this.data.loading = true
+            const result = await this.data.requestHttp.getUsuarios()
+            this.data.loading = false
+            result.map(item => {
+                this.data.empleados.push({title: item.username, value: item.username})
+            })
+        },
+
+        async getProductos() {
+            this.data.productos = []
+            this.data.loading = true
+            const result = await this.data.requestHttp.getProductos(null)
+            this.data.loading = false
+
+            if (result !== null) {
+                result.map(item => {
+                  this.data.productos.push({title: item.nombre, value: item.idProducto})
+                })
+            } else {
+                throw new Error('Error en la solicitud')
+            }
+        },
+
         async addProducts() {
             if (!this.data.producto.idProducto || !this.data.producto.cantidad) {
                 alert('Ingrese la informacion de producto')
@@ -309,7 +330,6 @@ export default {
                 costoUnitario: product.precio,
                 subTotal:  this.data.producto.cantidad * product.precio
             })
-            alert('Producto Agregado')
             this.calcularTotals()
             this.data.producto.idProducto = null
             this.data.producto.cantidad = 0
@@ -364,12 +384,11 @@ export default {
                     })
 
                     const result = await this.data.requestHttp.putCompra(this.data.orden, this.data.idOrden)
-
                     if (result !== null) {
                         alert('Registro Editado')
                         this.closeDialog()
                     } else {
-                        alert('Registro Editado')
+                        alert('No se pudo editar el registro')
                         this.closeDialog()
                         return
                     }
@@ -429,6 +448,12 @@ export default {
 </script>
 
 <style scoped>
+.font{
+    font-size: 12px !important;
+    color: black;
+    font-weight: 500;
+}
+
 .v-card-item{
     padding: 8px 12px !important;
 }

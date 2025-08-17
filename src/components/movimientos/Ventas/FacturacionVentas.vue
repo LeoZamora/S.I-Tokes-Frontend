@@ -39,8 +39,9 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :search="data.search" :mobile="isMobile" :headers="data.header" :items="data.facturas" class="border font" 
-                    density="compact" :loading="data.loading" :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }"
+                <v-data-table :search="data.search" :mobile="isMobile" :headers="data.header" 
+                    :items="data.facturas" class="border font" density="compact" :loading="data.loading" 
+                    :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }"
                     items-per-page="20" hover>
                     <template v-slot:loader>
                         <v-progress-linear color="indigo" indeterminate height="2"/>

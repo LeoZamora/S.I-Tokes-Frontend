@@ -1,14 +1,10 @@
 <template>
   <div class="pa-2">
     <v-row class="no-gutters" dense>
-      <v-col cols="8">
-        <v-card
-          elevation="3"
-          class="v-card-background"
-          height="100"
-        >
-          <v-row>
-            <v-col class="text-center">
+      <v-col cols="12">
+        <v-card elevation="3" class="pa-2">
+          <v-row dense>
+            <v-col class="text-center" >
               <h1>Bienvenido</h1>
               <h4 class="text-grey">
                 Sistema de Información
@@ -23,12 +19,8 @@
           </v-row>
         </v-card>
       </v-col>
-      <v-col cols="2">
-        <v-card
-          elevation="3"
-          class="v-card-background"
-          height="100"
-        >
+      <v-col cols="6" md="3" sm="3">
+        <v-card elevation="3" class="" height="100" >
           <div class="d-flex flex-column align-center">
             <div style="font-size: 14px; color: grey">
               Ventas desde POS
@@ -43,12 +35,8 @@
           </div>
         </v-card>
       </v-col>
-      <v-col cols="2">
-        <v-card
-          elevation="3"
-          class="v-card-background"
-          height="100"
-        >
+      <v-col cols="6" md="3" sm="3">
+        <v-card elevation="3" class="" height="100" >
           <div class="d-flex flex-column align-center">
             <div style="font-size: 14px; color: grey">
               Ventas en Local
@@ -63,12 +51,40 @@
           </div>
         </v-card>
       </v-col>
-      <v-col cols="8">
-        <v-card
-          elevation="3"
-          class="v-card-background"
-          height="300"
-        >
+      <v-col>
+        <v-card elevation="3" class=" d-flex align-center justify-center" height="100">
+          <div class="d-flex flex-column align-center">
+            <div style="font-size: 14px; color: grey">
+              Total de Ventas
+            </div>
+            <img
+              src="/dashboard/analitica.png"
+              width="50"
+            />
+            <div style="font-size: 14px;">
+              {{ `(${cantidadVentas}) C$ ${valorVentas}` }}
+            </div>
+          </div>
+        </v-card>
+      </v-col>
+      <v-col>
+        <v-card elevation="3" class=" d-flex align-center justify-center" height="100">
+          <div class="d-flex flex-column align-center">
+            <div style="font-size: 14px; color: grey">
+              Total de Utilidades
+            </div>
+            <img
+              src="/dashboard/beneficios.png"
+              width="50"
+            />
+            <div style="font-size: 14px;">
+              {{ `(${cantidadVentas}) C$ ${utilidades}` }}
+            </div>
+          </div>
+        </v-card>
+      </v-col>
+      <v-col cols="6">
+        <v-card elevation="3" height="300">
           <v-chart
             :option="ventas"
             autoresize
@@ -76,69 +92,17 @@
           />
         </v-card>
       </v-col>
-      <v-col cols="4">
+      <v-col cols="6">
         <v-row dense>
           <v-col cols="12">
-            <v-card
-              elevation="3"
-              class="v-card-background"
-              height="145"
-            >
-              <v-chart :option="pieChart" autoresize style="height: 145px;" />
+            <v-card elevation="3" height="300">
+              <v-chart :option="pieChart" autoresize style="height: 300px;" />
             </v-card>
-          </v-col>
-          <v-col cols="12">
-            <v-row dense>
-              <v-col>
-                <v-card
-                  elevation="3"
-                  class="v-card-background d-flex align-center justify-center"
-                  height="145"
-                >
-                  <div class="d-flex flex-column align-center">
-                    <div style="font-size: 14px; color: grey">
-                      Total de Ventas
-                    </div>
-                    <img
-                      src="/dashboard/analitica.png"
-                      width="50"
-                    />
-                    <div style="font-size: 14px;">
-                      {{ `(${cantidadVentas}) C$ ${valorVentas}` }}
-                    </div>
-                  </div>
-                </v-card>
-              </v-col>
-              <v-col>
-                <v-card
-                  elevation="3"
-                  class="v-card-background d-flex align-center justify-center"
-                  height="145"
-                >
-                  <div class="d-flex flex-column align-center">
-                    <div style="font-size: 14px; color: grey">
-                      Total de Utilidades
-                    </div>
-                    <img
-                      src="/dashboard/beneficios.png"
-                      width="50"
-                    />
-                    <div style="font-size: 14px;">
-                      {{ `(${cantidadVentas}) C$ ${utilidades}` }}
-                    </div>
-                  </div>
-                </v-card>
-              </v-col>
-            </v-row>
           </v-col>
         </v-row>
       </v-col>
       <!--<v-col cols="4">
-        <v-card
-          elevation="3"
-          class="v-card-background d-flex align-center justify-center"
-          height="145"
-        >
+        <v-card elevation="3" class=" d-flex align-center justify-center" height="100">
           <div class="d-flex flex-column align-center">
             <div style="font-size: 14px; color: grey">
               Últimas Transacciones
@@ -153,18 +117,18 @@
           </div>
         </v-card>
       </v-col>
-      <v-col cols="2">
+      <v-col cols="6" md="3" sm="3">
         <v-card
           elevation="3"
-          class="v-card-background"
+          class=""
           height="150"
         >
         </v-card>
       </v-col>
-      <v-col cols="2">
+      <v-col cols="6" md="3" sm="3">
         <v-card
           elevation="3"
-          class="v-card-background"
+          class=""
           height="150"
         >
         </v-card>
@@ -172,7 +136,7 @@
       <v-col cols="4">
         <v-card
           elevation="3"
-          class="v-card-background"
+          class=""
           height="150"
         >
         </v-card>
@@ -264,7 +228,7 @@ export default {
         },
         legend: {
           orient: 'vertical',
-          left: 'left',
+          left: 'right',
           data: []
         },
         series: [
@@ -300,7 +264,18 @@ export default {
         xAxis: {
           data: [],
           axisLine: {
-            lineStyle: { color: '#6C6CFF' }
+            lineStyle: { 
+              color: '#000000',
+            }
+          },
+          axisLabel: {
+            interval: 0,
+            rotate: 0,
+            align: 'center',
+            fontSize: 10,
+            fontWeight: 'bold',
+            color: '#333',
+            lineHeight: 20
           }
         },
         yAxis: {
@@ -318,6 +293,7 @@ export default {
           {
             name: 'Ventas',
             type: 'bar',
+            barWidth: '50%',  // ajusta el ancho de la barra si lo necesitas
             data: []
           }
         ]
