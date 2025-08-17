@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="localShow" max-width="600" persistent>
         <v-card id="diag-fact">
-            <v-card-title class="bg-primary d-flex align-center">
+            <v-card-title class="bg-indigo-darken-4 d-flex align-center">
                 <h5><v-icon>mdi-file-document-outline</v-icon>FACTURA</h5>
                 <v-spacer />
                 <v-btn icon size="small" color="white" variant="tonal" @click="closeDialog()">
@@ -57,7 +57,9 @@
                 </v-card-subtitle>
                 <v-row>
                     <v-col cols="12" sm="12" md="12">
-                        <v-data-table class="border rounded font" density="compact" :headers="data.headers" :items="data.items">
+                        <v-data-table class="border rounded font" density="compact" :headers="data.headers" 
+                            :items="data.items" :header-props="{ class: 'font-weight-bold text-uppercase' }"
+                            height="200" fixed-header hide-default-footer>
                             <template v-slot:item.opc>
                                 <v-tooltip text="Eliminar" location="top">
                                     <template v-slot:activator="{ props }">
@@ -100,7 +102,7 @@
                 <v-btn color="grey" variant="outlined" @click="closeDialog()">
                     Cerrar
                 </v-btn>
-                <v-btn color="primary" variant="flat" @click="exportDialogToPDF()">
+                <v-btn color="indigo-darken-4" variant="flat" @click="exportDialogToPDF()">
                     <template v-slot:prepend>
                         <v-icon>mdi-printer</v-icon>
                     </template>
@@ -136,7 +138,7 @@ export default {
         }
         const getCliente = async (id) => {
             const result = await data.requestHttp.getByIdCliente(id)
-            return result.codigo
+            return result.nombre
         }
         const calcularFactura = () => {
             let subtotal = 0
@@ -200,7 +202,7 @@ export default {
             headers: [
                 {title: 'Producto', key: 'producto', align: 'center'},
                 {title: 'Cantidad', key: 'cantidad', align: 'center'},
-                {title: 'costoUnitario Unit.', key: 'costoUnitario', align: 'center'},
+                {title: 'Precio Unit.', key: 'costoUnitario', align: 'center'},
                 {title: 'SubTotal', key: 'subTotal', align: 'center'},
             ],
             items: [],

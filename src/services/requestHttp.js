@@ -338,7 +338,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putCompra}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+            console.error('Error on request', error.response.data);
             return null
         }
     }

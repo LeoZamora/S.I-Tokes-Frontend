@@ -20,8 +20,9 @@
             <v-divider /> 
             <v-row class="pa-2" dense>
                 <v-col cols="6" md="6" sm="6">
-                    <v-text-field v-model="data.search" color="primary" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
-                        hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
+                    <v-text-field v-model="data.search" color="primary" density="compact" variant="outlined" 
+                        append-inner-icon="mdi-magnify" label="Buscar productos" hide-details 
+                        placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
                 </v-col>
                 <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
                     <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getOrdenes()">
@@ -39,7 +40,9 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :search="data.search" :headers="data.header" :items="data.ordenes" class="border font" density="compact">
+                <v-data-table :search="data.search" :headers="data.header" 
+                    :items="data.ordenes" class="border font" density="compact" :items-per-page="50"
+                    :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }" hover>
                     <template v-slot:item.total="{ item }">
                         <div>{{ formatedCurrency(item.total) }}</div>
                     </template>
@@ -52,19 +55,28 @@
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.edit" v-bind="props" size="small" color="green" @click="editOrden(item)" class="mr-1" >mdi-pencil</v-icon>
+                                <v-icon v-if="data.crud.edit" v-bind="props" size="small" 
+                                    color="green" @click="editOrden(item)" class="mr-1" >
+                                    mdi-pencil
+                                </v-icon>
                             </template>
                         </v-tooltip>
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.delete" v-bind="props" size="small" @click="showAlert(item)" color="error" class="mr-1">mdi-delete</v-icon>
+                                <v-icon v-if="data.crud.delete" v-bind="props" size="small" 
+                                    @click="showAlert(item)" color="error" class="mr-1">
+                                    mdi-delete
+                                </v-icon>
                             </template>
                         </v-tooltip>
 
                         <v-tooltip text="Ver" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.view" v-bind="props" size="small" color="indigo-darken-4" @click="viewOrden(item)">mdi-eye</v-icon>
+                                <v-icon v-if="data.crud.view" v-bind="props" size="small" 
+                                    color="indigo-darken-4" @click="viewOrden(item)">
+                                    mdi-eye
+                                </v-icon>
                             </template>
                         </v-tooltip>
                     </template>
@@ -149,6 +161,12 @@ export default {
     },
 
     methods: {
+        setStyle({index}) {
+            return {
+                class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',
+            }
+        },
+        
         verifyDataSecurity() {
             const token = this.store.getInfoUser()
             const permisos = token.permisos.split(",")
