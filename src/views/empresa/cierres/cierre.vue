@@ -60,8 +60,20 @@ export default {
             }
           },
           {
-            title: 'Periodo',
-            key: 'periodo',
+            title: 'Desde',
+            key: 'desde',
+            align: 'center',
+            width: 1,
+            headerProps: {
+              class: 'pa-1',
+            },
+            cellProps: {
+              class: 'pa-1',
+            }
+          },
+          {
+            title: 'Hasta',
+            key: 'hasta',
             align: 'center',
             width: 1,
             headerProps: {

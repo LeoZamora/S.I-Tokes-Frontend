@@ -1,5 +1,24 @@
 <template>
   <v-layout>
+    <v-snackbar
+        v-model="snackbar.show"
+        :color="snackbar.color"
+        :timeout="snackbar.timeout"
+        location="top right"
+    >
+      <div class="d-flex">
+        <v-icon size="large">
+          {{ snackbar.icon }}
+        </v-icon>
+        <v-divider
+            vertical
+            class="mx-2"
+        ></v-divider>
+        <div style="font-size: 16px">
+          {{ snackbar.text }}
+        </div>
+      </div>
+    </v-snackbar>
     <LoginAuth v-if="!isLoggeInd"/>
     <v-app v-else id="app" class="w-100 h-100">
       <AppBar @toggle-drawer="toggleDrawer" @nameRoute="nameTab" @logout="clearApp"/>
@@ -136,7 +155,10 @@
       </v-navigation-drawer>
       <v-main class="w-100 position-relative">
         <TabsRoutes :routes="data.nameTabs" :name="data.nameCurrentTab" :index-tab="data.activeTab"/>
+
+
         <router-view v-slot="{ Component }">
+          <v-progress-linear indeterminate :active="loading.show" height="5" color="primary"></v-progress-linear>
           <transition name="slide-x-transition">
             <keep-alive>
               <component :is="Component"/>
@@ -177,6 +199,8 @@
   </v-layout>
 </template>
 <script>
+import { useSnackbar } from "@/composables/use-snackbar.js";
+import {useLoading} from "@/composables/use-loading.js";
 import {ref, reactive, computed, onMounted, onUnmounted} from 'vue';
 import AppBar from './components/layout/AppBar.vue'
 import TabsRoutes from './components/widgets/TabsRoutes.vue';
@@ -195,8 +219,17 @@ export default {
       this.data.selectedItems.push(lastRoute)
     }
   },
+
+  data(){
+    return {
+      snackbar: useSnackbar().snackbar,
+      loading: useLoading().loading
+    }
+  },
+
   setup() {
     const store = useStore()
+    const { snackbar } = useSnackbar()
     const isLoggeInd = computed(() => store.isLoggedIn)
     const screenWidth = ref(window.innerWidth)
     const isMobile = computed(() => screenWidth.value < 600)
