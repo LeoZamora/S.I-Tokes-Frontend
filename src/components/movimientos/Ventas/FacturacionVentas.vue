@@ -55,22 +55,35 @@
                     <template v-slot:item.fechaRegistro="{ item }">
                         <div>{{ formatedDate(item.fechaRegistro) }}</div>
                     </template>
+                    <template v-slot:item.credito="{ item }">
+                        <v-chip :color="item.credito ? 'error' : 'indigo-darken-4'" 
+                            :text="item.credito ? 'Crédito' : 'Contado'"/>
+                    </template>
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.edit" v-bind="props" size="small" color="green" @click="editFactura(item)" class="mr-1" >mdi-pencil</v-icon>
+                                <v-icon v-if="data.crud.edit" v-bind="props" size="small" color="green" 
+                                    @click="editFactura(item)" class="mr-1" >
+                                    mdi-pencil
+                                </v-icon>
                             </template>
                         </v-tooltip>
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.delete" v-bind="props" size="small" color="error" class="mr-1" @click="showAlert(item)">mdi-delete</v-icon>
+                                <v-icon v-if="data.crud.delete" v-bind="props" size="small" color="error" 
+                                    class="mr-1" @click="showAlert(item)">
+                                    mdi-delete
+                                </v-icon>
                             </template>
                         </v-tooltip>
 
                         <v-tooltip text="Ver" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.view" v-bind="props" size="small" color="indigo-darken-4" @click="viewFactura(item)">mdi-eye</v-icon>
+                                <v-icon v-if="data.crud.view" v-bind="props" size="small" color="indigo-darken-4" 
+                                    @click="viewFactura(item)">
+                                    mdi-eye
+                                </v-icon>
                             </template>
                         </v-tooltip>
                     </template>
@@ -154,6 +167,7 @@ export default {
                 },
                 {title: 'Cliente', key: 'cliente', align: 'center'},
                 {title: 'Vendedor', key: 'usuarioRegistro', align: 'center'},
+                {title: 'V. Crédito', key: 'credito', align: 'center'},
                 {title: 'Total', key: 'total', align: 'center'},
                 {title: 'Dirección', key: 'enviarA', align: 'center'},
                 {title: 'Fecha Emisión', key: 'fechaRegistro', align: 'center'},
@@ -233,9 +247,6 @@ export default {
                     this.data.facturas.push(item)
                 })
             }
-            console.log(this.data.facturas);
-            
-            this.data.facturas.reverse()
             this.data.loading = false
         },
         formatedCurrency(key) {

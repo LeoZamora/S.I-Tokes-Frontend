@@ -144,7 +144,8 @@ const routes = createRouter({
         }, {
             path: '/tipo-ventas',
             name: 'Tipos de Venta',
-            component: () => import('@/views/empresa/cierres/cierre.vue'),
+            // component: () => import('@/views/empresa/cierres/cierre.vue'),
+            component: () => import('@/components/dev-alert.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
