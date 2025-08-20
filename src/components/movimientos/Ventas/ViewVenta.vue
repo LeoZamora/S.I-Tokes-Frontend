@@ -11,51 +11,55 @@
             </v-card-title>
             <v-divider />
             <v-card-text id="body-card" >
-                <v-card-subtitle class="d-flex align-center mb-2">
-                    <small class="font-weight-bold">GENERALES</small>
-                    <v-spacer />
-                    <v-chip size="small" :color="data.editVenta.estado ? 'green' : 'errror'" :text="data.editVenta.estado ? 'Activa' : 'Inactiva'" />
+                <v-card-subtitle class="d-flex align-center text-center mb-2">
+                    <v-divider /> 
+                    <small class="mx-6 text-black">GENERALES</small>
+                    <v-divider />
                 </v-card-subtitle>
-                <v-row>
-                    <v-col cols="12" md="12" sm="12">
+                <div class="w-100 d-flex align-center">
+                    <div class="w-50 pa-2 ma-1 border rounded">
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey"> Nº Factura:</small>
+                            <small class="text-black"> Nº Factura:</small>
                             <small><strong>{{ data.venta.noVenta }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey"><strong>C$</strong> Córdobas:</small>
+                            <small class="text-black"><strong>C$</strong> Córdobas:</small>
                             <small><strong>{{ data.nio ? 'Si' : 'No' }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Dólares:</small>
+                            <small class="text-black"><strong>$</strong> Dólares:</small>
                             <small><strong>{{ data.usd ? 'Si' : 'No' }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Fecha Registro:</small>
+                            <small class="text-black">Crédito:</small>
+                            <small><strong>{{ data.venta.credito ? 'Si' : 'No' }}</strong></small>
+                        </div>
+                    </div>
+                    <div class="w-50 pa-2 ma-1 border rounded">
+                        <div class="d-flex justify-space-between align-center mb-1">
+                            <small class="text-black">Fecha Registro:</small>
                             <small><strong>{{ formateDate(data.editVenta.fechaRegistro) }}</strong></small>
                         </div>
-                        <v-card-subtitle class="d-flex align-center text-center my-4">
-                            <v-divider/>
-                        </v-card-subtitle>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Cliente:</small>
+                            <small class="text-black">Cliente:</small>
                             <small><strong>{{ data.venta.cliente }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Dirección:</small>
+                            <small class="text-black">Dirección:</small>
                             <small><strong>{{ data.venta.enviarA }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Emp. Registro:</small>
+                            <small class="text-black">Emp. Registro:</small>
                             <small><strong>{{ data.venta.usuarioRegistro }}</strong></small>
                         </div>
-                    </v-col>
-                </v-row>
-                <v-card-subtitle class="d-flex align-center text-center my-4">                    
-                    <small class="font-weight-bold">DETALLES</small>
-                    <v-divider/>
+                    </div>
+                </div>
+                <v-card-subtitle class="d-flex align-center text-center mb-2">
+                    <v-divider /> 
+                    <small class="mx-6 text-black">DETALLES</small>
+                    <v-divider />
                 </v-card-subtitle>
-                <v-row>
+                <v-row dense>
                     <v-col cols="12" sm="12" md="12">
                         <v-data-table class="border rounded font" density="compact" :headers="data.headers" 
                             :items="data.items" :header-props="{ class: 'font-weight-bold text-uppercase' }"
@@ -134,7 +138,8 @@ export default {
 
     setup(props) {
         const getVenta = async (id) => {
-            return await data.requestHttp.getByIdVenta(id)
+            const result = await data.requestHttp.getByIdVenta(id)
+            return result
         }
         const getCliente = async (id) => {
             const result = await data.requestHttp.getByIdCliente(id)
@@ -156,13 +161,16 @@ export default {
         }
         const localShow = ref(props.show)
         const localIFact = ref(props.factura)
-        watch(() => props.factura, (val) => {
-            localIFact.value = val
-        })
-        watch(() => props.show, async (val) => {
-            localShow.value = val
-            if (val === true) {
-                const result = await getVenta(localIFact.value.idVenta)
+        watch(() => props.factura, async (val) => {
+            if (localIFact.value.idVenta !== val.idVenta) {
+                data.items = []
+                data.factura.subTotal = 0.00
+                data.factura.total = 0.00
+                data.factura.usdTotal = 0.00
+                data.venta = {}
+                data.editVenta = {}
+
+                const result = await getVenta(val.idVenta)
                 data.venta.credito = result.credito
                 data.venta.enviarA = result.enviarA
                 data.venta.idCliente = result.idCliente
@@ -194,8 +202,12 @@ export default {
                 })
     
                 await Promise.all(promises)
-                calcularFactura()                
+                calcularFactura()
             }
+            
+        })
+        watch(() => props.show, async (val) => {
+            localShow.value = val
         })
 
         const data = reactive({
@@ -259,12 +271,6 @@ export default {
 
         closeDialog() {
             this.$emit('closeDialog', false)
-            this.data.items = []
-            this.data.factura.subTotal = 0.00
-            this.data.factura.total = 0.00
-            this.data.factura.usdTotal = 0.00
-            this.data.venta = {}
-            this.data.editVenta = {}
             this.localShow = false
         },
 
@@ -408,5 +414,7 @@ export default {
 }
 .font{
     font-size: 10px !important;
+    font-weight: bold;
+    color: black;
 }
 </style>

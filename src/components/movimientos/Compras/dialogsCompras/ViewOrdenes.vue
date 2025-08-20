@@ -11,38 +11,53 @@
             </v-card-title>
             <v-divider />
             <v-card-text id="body-card" >
-                <v-card-subtitle class="d-flex align-center mb-2">
-                    <small class="font-weight-bold">GENERALES</small>
-                    <v-spacer />
-                    <v-chip size="small" :color="data.orden.estado ? 'green' : 'errror'" :text="data.orden.estado ? 'Activa' : 'Inactiva'" />
+                <v-card-subtitle class="d-flex align-center text-center mb-2">
+                    <v-divider /> 
+                    <small class="mx-6 text-black">GENERALES</small>
+                    <v-divider />
                 </v-card-subtitle>
-                <v-row>
-                    <v-col cols="12" md="12" sm="12">
+                <div class="w-100 d-flex align-center">
+                    <div class="w-50 pa-2 ma-1 border rounded">
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey"> Nº orden:</small>
+                            <small class="text-black"> Nº Órden:</small>
                             <small><strong>{{ data.orden.noOrden }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Aprobada:</small>
+                            <small class="text-black"><strong>C$</strong> Córdobas:</small>
+                            <small><strong>{{ data.nio ? 'Si' : 'No' }}</strong></small>
+                        </div>
+                        <div class="d-flex justify-space-between align-center mb-1">
+                            <small class="text-black"><strong>$</strong> Dólares:</small>
+                            <small><strong>{{ data.usd ? 'Si' : 'No' }}</strong></small>
+                        </div>
+                        <div class="d-flex justify-space-between align-center mb-1">
+                            <small class="text-black">Aprobada:</small>
                             <small><strong>{{ data.orden.aprobada ? 'SI' : 'NO' }}</strong></small>
                         </div>
+                    </div>
+                    <div class="w-50 pa-2 ma-1 border rounded">
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Fecha Registro:</small>
+                            <small class="text-black">Fecha Registro:</small>
                             <small><strong>{{ formateDate(data.orden.fechaRegistro) }}</strong></small>
                         </div>
-                        <v-card-subtitle class="d-flex align-center text-center my-2">
-                            <v-divider/>
-                        </v-card-subtitle>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Proveedor:</small>
+                            <small class="text-black">Proveedor:</small>
                             <small><strong>{{ data.orden.proveedor }}</strong></small>
                         </div>
                         <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Emp. Registro:</small>
+                            <small class="text-black">Emp. Registro:</small>
                             <small><strong>{{ data.orden.usuarioRegistro }}</strong></small>
                         </div>
-                    </v-col>
-                </v-row>
+                        <div class="d-flex justify-space-between align-center mb-1">
+                            <small class="text-black">Estado:</small>
+                            <small>
+                                <strong :class="data.orden.estado ? 'text-green' : 'text-error'">
+                                    {{ data.orden.estado ? 'Activa' : 'Inactiva' }}
+                                </strong>
+                            </small>
+                        </div>
+                    </div>
+                </div>
                 <v-card-subtitle class="d-flex align-center text-center my-4">                    
                     <small class="font-weight-bold">DETALLES</small>
                     <v-divider/>
