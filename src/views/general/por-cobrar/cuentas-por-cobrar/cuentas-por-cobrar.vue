@@ -1,21 +1,15 @@
 <template>
   <div>
     <!--WIN1: PRINCIPAL-->
-    <v-card v-if="!display.nuevoCierre">
+    <v-card v-if="!display.visualizarCuentas">
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <!-- Título -->
           <div class="text-h6 font-weight-bold d-flex align-center">
-            <v-icon class="me-2" color="primary">mdi-finance</v-icon>
-            Cierres de Mes
+            <v-icon class="me-2" color="primary">mdi-cash-clock</v-icon>
+            Cuentas por Cobrar
           </div>
         </div>
-      </template>
-      <template v-slot:append>
-        <v-btn class="bg-primary rounded-" @click="openRegistrarDisplay">
-          <v-icon>mdi-plus</v-icon>
-          <v-tooltip activator="parent" location="left">Nuevo cierre</v-tooltip>
-        </v-btn>
       </template>
 
       <v-card-text>
@@ -26,6 +20,24 @@
           <template v-slot:item="{ item }">
             <tr>
               <td class="text-center" style="border: 1px solid #e0e0e0">
+                <div class="d-flex justify-center">
+                  <v-tooltip text="Visualizar Cuentas" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                          @click="openVisualizarCuentasDisplay(item)"
+                          v-bind="props" icon size="x-small" color="grey-lighten-4" class="mx-1">
+                        <v-icon color="indigo-darken-4">mdi-eye</v-icon>
+                      </v-btn>
+                    </template>
+                  </v-tooltip>
+                  <!--<v-tooltip text="Abonar Cuentas" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-btn v-bind="props" icon size="x-small" color="grey-lighten-4" class="mx-1">
+                        <v-icon color="green-darken-4">mdi-cash</v-icon>
+                      </v-btn>
+                    </template>
+                  </v-tooltip>-->
+                </div>
               </td>
               <td
                   v-for="header in tbl.headers.filter(c => !c.opciones)"
@@ -53,27 +65,30 @@
       </v-card-text>
     </v-card>
 
-    <!--WIN2: NUEVO CIERRE-->
-    <nuevo-cierre v-if="display.nuevoCierre" ref="nuevoCierre" @close="closeRegistrarDisplay"></nuevo-cierre>
+    <!--WIN2: VISUALIZAR CUENTAS-->
+    <visualizar-cuentas
+        v-if="display.visualizarCuentas"
+        :cxc="visualizarCuentas"
+        @close="closeVisualizarCuentasDisplay"
+    ></visualizar-cuentas>
   </div>
 </template>
 
 <script>
+import {httpGet} from "@/scripts/api.js";
 import {useLoading} from "@/composables/use-loading.js";
 import {useSnackbar} from "@/composables/use-snackbar.js";
-import nuevoCierre from "@/views/empresa/cierres/components/nuevo-cierre.vue";
-import {httpGet} from "@/scripts/api.js";
 import {formatters} from "@/helpers/formatters.js";
-import {he} from "vuetify/locale";
+import VisualizarCuentas from "@/views/general/por-cobrar/cuentas-por-cobrar/components/visualizar-cuentas.vue";
+
 export default {
-  components: {
-    nuevoCierre
-  },
+  name: 'cuentas-por-cobrar',
+  components: {VisualizarCuentas},
 
   data(){
     return {
       display: {
-        nuevoCierre: false,
+        visualizarCuentas: false,
       },
 
       tbl: {
@@ -93,37 +108,11 @@ export default {
             }
           },
           {
-            title: 'Desde',
-            key: 'desde',
-            align: 'center',
-            width: 1,
-            format: 'date',
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Hasta',
-            key: 'hasta',
-            format: 'date',
-            align: 'center',
-            width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Descripción',
-            key: 'descripcion',
+            title: 'Cliente',
+            key: 'cliente',
             format: '',
             align: 'center',
-            width: 200,
+            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -132,8 +121,47 @@ export default {
             }
           },
           {
-            title: 'Ventas',
-            key: 'ventas',
+            title: 'Ruta de Cliente',
+            key: 'rutaCliente',
+            align: 'center',
+            format: '',
+            width: 1,
+            headerProps: {
+              class: 'pa-1',
+            },
+            cellProps: {
+              class: 'pa-1',
+            }
+          },
+          {
+            title: 'N° Créditos Pagados',
+            key: 'nCreditosPagados',
+            format: '',
+            align: 'center',
+            width: 1,
+            headerProps: {
+              class: 'pa-1',
+            },
+            cellProps: {
+              class: 'pa-1',
+            }
+          },
+          {
+            title: 'N° Créditos Pendientes',
+            key: 'nCreditosPendientes',
+            format: '',
+            align: 'center',
+            width: 1,
+            headerProps: {
+              class: 'pa-1',
+            },
+            cellProps: {
+              class: 'pa-1',
+            }
+          },
+          {
+            title: 'Saldo Pendiente Total',
+            key: 'saldoPendienteTotal',
             format: 'currency',
             align: 'center',
             width: 1,
@@ -145,9 +173,9 @@ export default {
             }
           },
           {
-            title: 'Ingresos Adicionales',
-            key: 'ingresosAdicionales',
-            format: 'currency',
+            title: 'Fecha Registro',
+            key: 'fechaRegistro',
+            format: 'date',
             align: 'center',
             width: 1,
             headerProps: {
@@ -158,74 +186,9 @@ export default {
             }
           },
           {
-            title: 'Total Ingresos',
-            key: 'totalIngresos',
-            format: 'currency',
-            align: 'center',
-            width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Costos de Ventas',
-            key: 'costoVentas',
-            format: 'currency',
-            align: 'center',
-            width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Gastos Adicionales',
-            key: 'gastosAdicionales',
-            format: 'currency',
-            align: 'center',
-            width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Total Egresos',
-            key: 'totalEgresos',
-            format: 'currency',
-            align: 'center',
-            width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Utilidad',
-            key: 'utilidad',
-            format: 'currency',
-            align: 'center',
-            width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Proporción de Utilidad',
-            key: 'proporcionUtilidad',
-            format: '%',
+            title: 'Usuario Registro',
+            key: 'usuarioRegistro',
+            format: '',
             align: 'center',
             width: 1,
             headerProps: {
@@ -236,20 +199,23 @@ export default {
             }
           },
         ],
-        items: [],
       },
 
-      notify: useSnackbar(),
-      loading: useLoading(),
+      visualizarCuentas: {
+        idCxc: 0,
+      },
+
+      snackbar: useSnackbar(),
+      loading: useLoading()
     }
   },
 
   methods: {
-    async loadTblCierres(){
+    async loadTblCxc(){
       this.loading.load(true)
       try{
-        const cierres = await httpGet('api/cierres')
-        this.tbl.items = cierres
+        const cxc = await httpGet('api/cuentas-cobrar')
+        this.tbl.items = cxc
 
         this.loading.load(false)
       } catch (e) {
@@ -289,18 +255,26 @@ export default {
     },
 
     //DISPLAY
-    openRegistrarDisplay(){
-      this.display.nuevoCierre = true
+    //DISPLAY
+    openVisualizarCuentasDisplay(item){
+      this.visualizarCuentas = item
+      this.display.visualizarCuentas = true
     },
 
-    async closeRegistrarDisplay(){
-      await this.loadTblCierres()
-      this.display.nuevoCierre = false
+    async closeVisualizarCuentasDisplay(){
+      await this.loadTblCxc()
+      this.display.visualizarCuentas = false
     },
   },
 
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      vm.loadTblCxc()
+    })
+  },
+
   mounted() {
-    this.loadTblCierres()
+    this.loadTblCxc()
   },
 }
 </script>

@@ -1,31 +1,65 @@
 <template>
   <div>
     <!--WIN1: PRINCIPAL-->
-    <v-card v-if="!display.nuevoCierre">
+    <v-card>
       <template v-slot:prepend>
+        <v-btn
+            @click="close"
+            color="secondary"
+            class="mr-2"
+            size="small"
+        >
+          <v-icon>mdi-arrow-left</v-icon>
+        </v-btn>
         <div class="d-flex align-center">
           <!-- Título -->
           <div class="text-h6 font-weight-bold d-flex align-center">
-            <v-icon class="me-2" color="primary">mdi-finance</v-icon>
-            Cierres de Mes
+            <v-icon class="me-2" color="primary">mdi-cash-clock</v-icon>
+            Cuentas por Cobrar
           </div>
         </div>
       </template>
-      <template v-slot:append>
-        <v-btn class="bg-primary rounded-" @click="openRegistrarDisplay">
-          <v-icon>mdi-plus</v-icon>
-          <v-tooltip activator="parent" location="left">Nuevo cierre</v-tooltip>
-        </v-btn>
-      </template>
 
       <v-card-text>
+        <div style="font-size: 16px; font-weight: bold">
+          {{ `Cliente: ${cxc.cliente}` }}
+        </div>
+        <div style="font-size: 16px; font-weight: bold">
+          {{ `N° Créditos Pagados: ${cxc.nCreditosPagados}` }}
+        </div>
+        <div style="font-size: 16px; font-weight: bold">
+          {{ `N° Créditos Pendientes: ${cxc.nCreditosPendientes}` }}
+        </div>
         <v-data-table
             :headers="tbl.headers"
             :items="tbl.items"
         >
+          <template v-slot:top>
+            <h3 class="text-center">Tabla de Créditos</h3>
+          </template>
           <template v-slot:item="{ item }">
             <tr>
               <td class="text-center" style="border: 1px solid #e0e0e0">
+                <div class="d-flex justify-center">
+                  <v-tooltip text="Visualizar Abonos" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                          @click="openVisualizarAbonosDisplay"
+                          v-bind="props" icon size="x-small" color="grey-lighten-4" class="mx-1">
+                        <v-icon color="indigo-darken-4">mdi-table-eye</v-icon>
+                      </v-btn>
+                    </template>
+                  </v-tooltip>
+                  <v-tooltip text="Abonar" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                          @click="openAbonarDisplay"
+                          v-bind="props" icon size="x-small" color="grey-lighten-4" class="mx-1">
+                        <v-icon color="green-darken-4">mdi-cash-plus</v-icon>
+                      </v-btn>
+                    </template>
+                  </v-tooltip>
+                </div>
               </td>
               <td
                   v-for="header in tbl.headers.filter(c => !c.opciones)"
@@ -47,35 +81,40 @@
                   {{ `${header.format}${item[header.key]}` }}
                 </span>
               </td>
+              <td class="text-center" style="border: 1px solid #e0e0e0">
+                <div class="d-flex justify-center">
+                  <v-chip
+                      :color="item.cancelado ? 'green-darken-4' : 'orange-darken-4'"
+                  >
+                    {{ item.cancelado ? 'Saldada' : 'Pendiente' }}
+                  </v-chip>
+                </div>
+              </td>
             </tr>
           </template>
         </v-data-table>
       </v-card-text>
     </v-card>
-
-    <!--WIN2: NUEVO CIERRE-->
-    <nuevo-cierre v-if="display.nuevoCierre" ref="nuevoCierre" @close="closeRegistrarDisplay"></nuevo-cierre>
   </div>
 </template>
 
 <script>
+import {httpGet} from "@/scripts/api.js";
 import {useLoading} from "@/composables/use-loading.js";
 import {useSnackbar} from "@/composables/use-snackbar.js";
-import nuevoCierre from "@/views/empresa/cierres/components/nuevo-cierre.vue";
-import {httpGet} from "@/scripts/api.js";
 import {formatters} from "@/helpers/formatters.js";
-import {he} from "vuetify/locale";
 export default {
-  components: {
-    nuevoCierre
+  name: 'visualizar-cuentas',
+
+  props: {
+    cxc: {
+      type: Object,
+      required: true
+    }
   },
 
   data(){
     return {
-      display: {
-        nuevoCierre: false,
-      },
-
       tbl: {
         headers: [
           {
@@ -93,37 +132,11 @@ export default {
             }
           },
           {
-            title: 'Desde',
-            key: 'desde',
-            align: 'center',
-            width: 1,
-            format: 'date',
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Hasta',
-            key: 'hasta',
-            format: 'date',
-            align: 'center',
-            width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Descripción',
-            key: 'descripcion',
+            title: 'N° Factura',
+            key: 'noVenta',
             format: '',
             align: 'center',
-            width: 200,
+            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -132,8 +145,34 @@ export default {
             }
           },
           {
-            title: 'Ventas',
-            key: 'ventas',
+            title: 'Tipo Venta',
+            key: 'tipoVenta',
+            align: 'center',
+            format: '',
+            width: 1,
+            headerProps: {
+              class: 'pa-1',
+            },
+            cellProps: {
+              class: 'pa-1',
+            }
+          },
+          {
+            title: 'Productos Facturados',
+            key: 'productosVendidos',
+            format: '',
+            align: 'center',
+            width: 1,
+            headerProps: {
+              class: 'pa-1',
+            },
+            cellProps: {
+              class: 'pa-1',
+            }
+          },
+          {
+            title: 'Total Facturado',
+            key: 'totalVenta',
             format: 'currency',
             align: 'center',
             width: 1,
@@ -145,8 +184,8 @@ export default {
             }
           },
           {
-            title: 'Ingresos Adicionales',
-            key: 'ingresosAdicionales',
+            title: 'Monto Crédito',
+            key: 'montoCredito',
             format: 'currency',
             align: 'center',
             width: 1,
@@ -158,8 +197,8 @@ export default {
             }
           },
           {
-            title: 'Total Ingresos',
-            key: 'totalIngresos',
+            title: 'Saldo',
+            key: 'saldo',
             format: 'currency',
             align: 'center',
             width: 1,
@@ -171,9 +210,9 @@ export default {
             }
           },
           {
-            title: 'Costos de Ventas',
-            key: 'costoVentas',
-            format: 'currency',
+            title: 'Fecha Registro',
+            key: 'fechaRegistro',
+            format: 'date',
             align: 'center',
             width: 1,
             headerProps: {
@@ -184,9 +223,9 @@ export default {
             }
           },
           {
-            title: 'Gastos Adicionales',
-            key: 'gastosAdicionales',
-            format: 'currency',
+            title: 'Usuario Registro',
+            key: 'usuarioRegistro',
+            format: '',
             align: 'center',
             width: 1,
             headerProps: {
@@ -197,37 +236,12 @@ export default {
             }
           },
           {
-            title: 'Total Egresos',
-            key: 'totalEgresos',
-            format: 'currency',
+            title: 'Cuenta Saldada',
+            key: 'cancelado',
+            format: '',
             align: 'center',
             width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Utilidad',
-            key: 'utilidad',
-            format: 'currency',
-            align: 'center',
-            width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Proporción de Utilidad',
-            key: 'proporcionUtilidad',
-            format: '%',
-            align: 'center',
-            width: 1,
+            opciones: true,
             headerProps: {
               class: 'pa-1',
             },
@@ -236,20 +250,19 @@ export default {
             }
           },
         ],
-        items: [],
       },
 
-      notify: useSnackbar(),
-      loading: useLoading(),
+      snackbar: useSnackbar(),
+      loading: useLoading()
     }
   },
 
   methods: {
-    async loadTblCierres(){
+    async loadTblCuentas(){
       this.loading.load(true)
       try{
-        const cierres = await httpGet('api/cierres')
-        this.tbl.items = cierres
+        const cxc = await httpGet(`api/cuentas-cobrar/${this.cxc.idCxc}/creditos`)
+        this.tbl.items = cxc
 
         this.loading.load(false)
       } catch (e) {
@@ -288,19 +301,21 @@ export default {
       }
     },
 
-    //DISPLAY
-    openRegistrarDisplay(){
-      this.display.nuevoCierre = true
+    openVisualizarAbonosDisplay(){
+      this.snackbar.notify('warn', 'Visualizar abonos estará disponible próximamente.')
     },
 
-    async closeRegistrarDisplay(){
-      await this.loadTblCierres()
-      this.display.nuevoCierre = false
+    openAbonarDisplay(){
+      this.snackbar.notify('warn', 'Abonar estará disponible próximamente.')
     },
+
+    close(){
+      this.$emit('close')
+    }
   },
 
   mounted() {
-    this.loadTblCierres()
+    this.loadTblCuentas()
   },
 }
 </script>
