@@ -14,7 +14,18 @@ const routes = createRouter({
             meta: {
                 title: 'Inicio | Inversiones Zafiro'
             }
-        }, {
+        },
+        {
+            path: '/cuentas-por-cobrar',
+            name: 'CXC',
+            component: () => import('@/views/general/por-cobrar/cuentas-por-cobrar/cuentas-por-cobrar.vue'),
+            meta: {
+                keepAlive: true,
+                requiredAuth: true,
+                title: 'CXC | Inversiones Zafiro'
+            }
+        },
+        {
             path: '/empresa/movimientos/conceptos',
             name: 'Conceptos',
             component: () => import('@/views/empresa/movimientos/conceptos.vue'),
@@ -23,7 +34,8 @@ const routes = createRouter({
                 requiredAuth: true,
                 title: 'Conceptos | Inversiones Zafiro'
             }
-        }, {
+        },
+        {
             path: '/empresa/movimientos',
             name: 'Movimientos E.',
             component: () => import('@/views/empresa/movimientos/movimientos.vue'),

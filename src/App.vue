@@ -43,6 +43,22 @@
                 <small>{{ title }}</small>
             </v-list-item>
           </v-list-group>
+
+          <v-list-group prepend-icon="mdi-cash-clock">
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" rounded value="Por Cobrar" :lines="true" color="white"
+                           title="Por Cobrar"/>
+            </template>
+            <v-list-item class="mx-2" rounded :lines="true" color="white"
+                         v-for="([title, route, icon], i) in data.cxcActions"
+                         :key="i" :value="title" @click="nameTab(route)">
+              <template v-slot:prepend>
+                <v-icon>mdi-menu-right</v-icon>
+              </template>
+              <small>{{ title }}</small>
+            </v-list-item>
+          </v-list-group>
+
           <v-list-group prepend-icon="mdi-cart-arrow-down">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="white"
@@ -250,6 +266,9 @@ export default {
       clientes: [
         // ['Tipos de Cliente', 'Tipos de Cliente'],
         ['Clientes', 'Clientes'],
+      ],
+      cxcActions: [
+        ['Cuentas por Cobrar', 'CXC'],
       ],
       ventasActions: [
         ['Tipos de Venta', 'Tipos de Venta'],
