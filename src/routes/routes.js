@@ -74,8 +74,8 @@ const routes = createRouter({
         }, {
             path: '/ordenes',
             name: 'Ordenes',
-            component: () => import('@/components/dev-alert.vue'),
-            // component: () => import('@/components/movimientos/Compras/FacturacionCompras.vue'),
+            // component: () => import('@/components/dev-alert.vue'),
+            component: () => import('@/components/movimientos/Compras/FacturacionCompras.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
@@ -156,8 +156,8 @@ const routes = createRouter({
         }, {
             path: '/tipo-ventas',
             name: 'Tipos de Venta',
-            // component: () => import('@/views/empresa/cierres/cierre.vue'),
-            component: () => import('@/components/dev-alert.vue'),
+            // component: () => import('@/components/dev-alert.vue'),
+            component: () => import('@/components/movimientos/Ventas/dialogsVentas/TipoVentas.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
@@ -166,20 +166,22 @@ const routes = createRouter({
         }, {
             path: '/tipo-cliente',
             name: 'Tipos de Cliente',
-            component: () => import('@/views/empresa/cierres/cierre.vue'),
+            // component: () => import('@/views/empresa/cierres/cierre.vue'),
+            component: () => import('@/components/dev-alert.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'T. Cliente | Inversiones Zafiro'
             }
         }, {
-            path: '/tipo-movimiente',
+            path: '/tipo-movimiento',
             name: 'Tipos M.',
-            component: () => import('@/views/empresa/cierres/cierre.vue'),
+            // component: () => import('@/components/dev-alert.vue'),
+            component: () => import('@/components/inventario/Movimientos/TiposMov.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'T. Cliente | Inversiones Zafiro'
+                title: 'T. Movimiento | Inversiones Zafiro'
             }
         },
     ],

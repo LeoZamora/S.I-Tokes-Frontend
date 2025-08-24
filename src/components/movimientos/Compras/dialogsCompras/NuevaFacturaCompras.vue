@@ -149,6 +149,7 @@
 <script>
 import { formatters } from '@/helpers/formatters';
 import RequestHttp from '@/services/requestHttp';
+import { useStore } from '@/store';
 import { reactive, ref, watch } from 'vue';
 
 export default {
@@ -179,6 +180,7 @@ export default {
     },
 
     setup(props) {
+        const store = useStore()
         const getProveedores = async () =>  {
             data.proveedores = []
             const result = await data.requestHttp.getProveedores()
@@ -287,7 +289,8 @@ export default {
             localEdit,
             localTitle,
             localOrden,
-            data
+            data,
+            store
         }
     },
 
@@ -337,6 +340,8 @@ export default {
         },
 
         async guardarFactura() {
+            const token = this.store.getInfoUser()
+            this.data.orden.usuarioRegistro = token.usuario
             if (!this.localEdit) {
                 if (!this.data.orden.noOrden ||
                     !this.data.orden.idProveedor ||

@@ -77,6 +77,16 @@ const endPoints = {
 
     getUnidadMedida: 'api/unidades-medida/combobox',
     postUnidadMedida: 'api/unidades-medida',
+
+    getTipoMov: 'api/tipos-movimiento/combobox',
+    getTipoMovById: 'api/tipos-movimiento/',
+    putTipoMov: 'api/tipos-movimiento/',
+    postTipoMov: 'api/tipos-movimiento',
+
+    getTipoVenta: 'api/tipos-ventas/combobox',
+    getTipoVentaById: 'api/tipos-ventas/',
+    putTipoVenta: 'api/tipos-ventas/',
+    postTipoVenta: 'api/tipos-ventas',
 }
 
 export default endPoints

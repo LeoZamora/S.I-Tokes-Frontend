@@ -723,6 +723,69 @@ class RequestHttp {
             return null
         }
     }
+
+
+    // TIPO DE MOVIMIENTOS
+    async getByIdTipoMov(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getTipoMovById}${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postTipoMov(data) {
+        try {
+            const result  = await axios.post(endPoints.postTipoMov, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
+        }
+    }
+    async putTipoMov(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putTipoMov}${id}`, data)
+            return result.data
+        } catch (error) {
+            return null
+        }
+    }
+
+    // TIPO DE VENTAS
+    async getByIdTipoVen(id) {
+        try {
+            const result  = await axios.get(`${endPoints.getTipoVentaById}${id}`)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return null
+        }
+    }
+    async postTipoVenta(data) {
+        try {
+            const result  = await axios.post(endPoints.postTipoVenta, data)
+            return result.data
+        } catch (error) {
+            console.error('Error on request', error.response.data);
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
+        }
+    }
+    async putTipoVenta(data, id) {
+        try {
+            const result  = await axios.put(`${endPoints.putTipoVenta}${id}`, data)
+            return result.data
+        } catch (error) {
+            return null
+        }
+    }
 }
 
 export default RequestHttp

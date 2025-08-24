@@ -145,8 +145,6 @@ export default {
       this.data.msgLoader = 'Iniciando Sesion'
       this.data.loading = true
       const result = await this.data.requestHttp.postLogin(this.data.data)
-      console.log(result);
-      
       this.data.loading = false
 
       if (result.token) {
