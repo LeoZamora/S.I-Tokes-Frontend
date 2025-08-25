@@ -249,7 +249,7 @@ export default {
       },
       ventas: {
         title: {
-          text: 'Ventas por Ruta\nMes de agosto',
+          text: 'Ventas por Ruta',
           textStyle: {
             fontSize: 14,
             fontWeight: 'bold',

@@ -16,6 +16,16 @@ const routes = createRouter({
             }
         },
         {
+            path: '/resumen-inventario',
+            name: 'Resumen Inventario',
+            component: () => import('@/views/resumen-inventario.vue'),
+            meta: {
+                keepAlive: true,
+                requiredAuth: true,
+                title: 'CXC | Inversiones Zafiro'
+            }
+        },
+        {
             path: '/cuentas-por-cobrar',
             name: 'CXC',
             component: () => import('@/views/general/por-cobrar/cuentas-por-cobrar/cuentas-por-cobrar.vue'),
