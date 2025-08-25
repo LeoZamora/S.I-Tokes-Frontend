@@ -5,15 +5,17 @@ const formatCurrency = (key, currency) => {
     }).format(key)
 }
 
-const formatDate =  (dataString) => {
+const formatDate = (dataString) => {
     if (!dataString) {
-        return 'xx/xx/xxxx'
+        return 'xx/xx/xxxx xx:xx'
     } else {
         const date = new Date(dataString)
-        return date.toLocaleDateString('es-MX', {
+        return date.toLocaleString('es-MX', {
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         })
     }
 }

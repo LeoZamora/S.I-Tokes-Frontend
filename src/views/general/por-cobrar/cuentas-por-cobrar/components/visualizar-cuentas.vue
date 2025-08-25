@@ -44,7 +44,7 @@
                   <v-tooltip text="Visualizar Abonos" location="top">
                     <template v-slot:activator="{ props }">
                       <v-btn
-                          @click="openVisualizarAbonosDisplay"
+                          @click="openVisualizarAbonosDisplay(item)"
                           v-bind="props" icon size="x-small" color="grey-lighten-4" class="mx-1">
                         <v-icon color="indigo-darken-4">mdi-table-eye</v-icon>
                       </v-btn>
@@ -53,7 +53,8 @@
                   <v-tooltip text="Abonar" location="top">
                     <template v-slot:activator="{ props }">
                       <v-btn
-                          @click="openAbonarDisplay"
+                          v-show="!item.cancelado"
+                          @click="openAbonarDisplay(item)"
                           v-bind="props" icon size="x-small" color="grey-lighten-4" class="mx-1">
                         <v-icon color="green-darken-4">mdi-cash-plus</v-icon>
                       </v-btn>
@@ -95,6 +96,14 @@
         </v-data-table>
       </v-card-text>
     </v-card>
+
+    <v-dialog v-model="display.abonarCuenta" width="380">
+      <abonar-cuenta @close="closeAbonarDisplay" :credito="abonarCuenta"></abonar-cuenta>
+    </v-dialog>
+
+    <v-dialog v-model="display.visualizarAbonos" width="700">
+      <visualizar-abonos @close="closeVisualizarAbonosDisplay" :credito="visualizarAbonos"></visualizar-abonos>
+    </v-dialog>
   </div>
 </template>
 
@@ -103,8 +112,11 @@ import {httpGet} from "@/scripts/api.js";
 import {useLoading} from "@/composables/use-loading.js";
 import {useSnackbar} from "@/composables/use-snackbar.js";
 import {formatters} from "@/helpers/formatters.js";
+import AbonarCuenta from "@/views/general/por-cobrar/cuentas-por-cobrar/components/abonar-cuenta.vue";
+import VisualizarAbonos from "@/views/general/por-cobrar/cuentas-por-cobrar/components/visualizar-abonos.vue";
 export default {
   name: 'visualizar-cuentas',
+  components: {VisualizarAbonos, AbonarCuenta},
 
   props: {
     cxc: {
@@ -252,6 +264,17 @@ export default {
         ],
       },
 
+      display: {
+        abonarCuenta: false,
+        visualizarAbonos: false,
+      },
+
+      abonarCuenta: {
+        idCredito: 0,
+      },
+
+      visualizarAbonos: {},
+
       snackbar: useSnackbar(),
       loading: useLoading()
     }
@@ -301,12 +324,23 @@ export default {
       }
     },
 
-    openVisualizarAbonosDisplay(){
-      this.snackbar.notify('warn', 'Visualizar abonos estará disponible próximamente.')
+    openVisualizarAbonosDisplay(item){
+      this.display.visualizarAbonos = true
+      this.visualizarAbonos = item
     },
 
-    openAbonarDisplay(){
-      this.snackbar.notify('warn', 'Abonar estará disponible próximamente.')
+    closeVisualizarAbonosDisplay(){
+      this.display.visualizarAbonos = false
+    },
+
+    openAbonarDisplay(item){
+      this.display.abonarCuenta = true
+      this.abonarCuenta = item
+    },
+
+    async closeAbonarDisplay(){
+      await this.loadTblCuentas()
+      this.display.abonarCuenta = false
     },
 
     close(){
