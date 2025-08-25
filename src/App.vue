@@ -25,8 +25,14 @@
       <v-navigation-drawer id="drawer" v-model="data.drawer" class="position-fixed bg-indigo-darken-4 font">
 
         <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf">
-          <v-list-item prepend-icon="mdi-home" color="white" title="Inicio" :lines="true" rounded class="mx-2"
+          <v-list-item prepend-icon="mdi-home" color="white" title="Inicio" :lines="true" rounded
             value="Inicio" @click="clearApp()" variant="elevated"/>
+
+          <v-list-item
+              @click="nameTab('Resumen Inventario')"
+              prepend-icon="mdi-package" title="Resumen Inventario" :lines="true" rounded
+              value="Resumen Inventario"></v-list-item>
+
           <v-list-subheader><small class="font-weight-bold text-white">Gestión General</small></v-list-subheader>
 
           <v-list-group prepend-icon="mdi-cash-register">
