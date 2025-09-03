@@ -21,6 +21,14 @@
         </div>
       </template>
       <template v-slot:append>
+        <v-btn class="mr-4" variant="tonal" color="error" @click="exportToExcel">
+          <v-icon>
+            mdi-download-multiple
+          </v-icon>
+          <v-tooltip location="top center" activator="parent">
+            Descargar Inventario
+          </v-tooltip>
+        </v-btn>
         <v-btn
             class="bg-indigo rounded-"
             @click="openDialog('create')"
@@ -110,10 +118,10 @@
           ></v-skeleton-loader>
         </template>
         <template v-slot:item.costo="{ item }">
-          C${{ item.costo }}
+          {{ formatCurrency(item.costo) }}
         </template>
         <template v-slot:item.precio="{ item }">
-          C${{ item.precio }}
+          {{ formatCurrency(item.precio) }}
         </template>
 
         <template
@@ -682,6 +690,66 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="data.descarga.show" width="400">
+      <v-card>
+        <template v-slot:prepend>
+          <h3>
+            Descargar inventario
+          </h3>
+        </template>
+        <template v-slot:append>
+          <v-btn icon variant="tonal" size="small" @click="data.descarga.show = false">
+            <v-icon size="small">
+              mdi-close
+            </v-icon>
+          </v-btn>
+        </template>
+        <v-card-text>
+          <v-row dense>
+            <v-col cols="12">
+              <v-select
+                  v-model="data.form.idCategoria" label="Categoría:"
+                  :items="cmb.categorias" variant="outlined" density="compact" 
+                  prepend-inner-icon="mdi-shape-outline" hide-details 
+                  @update:model-value="loadCmbSubCategoria(data.form.idCategoria)"
+              >
+              </v-select>
+            </v-col>
+            <v-col cols="12">
+              <v-select v-model=" data.form.idSubCatProd" label="Sub categoría"
+                  :items="cmb.subCategorias" variant="outlined" hide-details 
+                  density="compact" prepend-inner-icon="mdi-shape-outline"
+                  @update:model-value="loadCodigoRecomendado(data.form.idSubCatProd)"
+              >
+              </v-select>
+            </v-col>
+            <v-col cols="12">
+              <v-select v-model=" data.form.idSubCatProd" label="Producto"
+                  :items="cmb.subCategorias" variant="outlined" hide-details 
+                  density="compact" prepend-inner-icon="mdi-shape-outline"
+                  @update:model-value="loadCodigoRecomendado(data.form.idSubCatProd)"
+              >
+              </v-select>
+            </v-col>
+            <v-col cols="12">
+              <v-checkbox label="Descargar todo el inventario" color="indigo"
+                hide-details density="compact"/>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn variant="elevated" class="bg-indigo-darken-4" @click="exportToExcel">
+            <template v-slot:prepend>
+              <v-icon>
+                mdi-download
+              </v-icon>
+            </template>
+            Descargar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -702,9 +770,12 @@ import {
   getItemsCombobox,
   httpGet, httpPost, httpPut
 } from '@/scripts/api.js'
+import { saveAs } from "file-saver";
+import ExcelJS from 'exceljs'
 import axios from "axios";
 import NewCategoria from "@/components/inventario/Categorias/modalsCategorias/NewCategoria.vue";
 import NewSubCategoria from "@/components/inventario/Categorias/modalsCategorias/NewSubCat.vue";
+import { time } from 'echarts'
 
 export default {
   mounted() {
@@ -819,6 +890,10 @@ export default {
         nombre: null,
         usuarioRegistro: null
       },
+      descarga: {
+        show: false
+      },
+
       form: {
         idProducto: 0,
         codigo: null,
@@ -1307,6 +1382,189 @@ export default {
       this.closeDialog()
     },
 
+
+    // DESCARGA DE INVENTARIO
+    exportToExcel() {
+      const go = this
+      if(go.data.headers.length === 0 || go.data.products.length === 0) {
+        alert('No hay datos a exportar')
+        return
+      }
+
+      const filteredHeaders = this.data.headers.filter(header => header.key !== 'actions')
+      const header = ["", ...filteredHeaders.map(header => header.title)];
+
+      const productos = []
+      this.data.products.map(item => {
+        productos.push(item)
+      })
+
+      let totalInv = 0;
+      let totalVentaInv = 0;
+      let totalUtilidad = 0;
+      productos.map(item => {
+        totalInv += item.cantidadTotal * item.costo;
+        totalVentaInv += item.cantidadTotal * item.precio
+
+        item.utilidad = item.cantidadTotal * (item.precio - item.costo)
+        // item.precio = this.formatCurrency(item.precio)
+        // item.costo = this.formatCurrency(item.costo)
+      })
+
+      productos.map(item => {
+        totalUtilidad += item.utilidad
+      })
+
+      const rows = this.data.products.map(item =>
+        ["", ...filteredHeaders.map(header => item[header.key] || 0)]
+      );
+
+      const today = new Date()
+      const dateNow = `${("0" + today.getDate()).slice(-2)}/${("0" + (today.getMonth() + 1)).slice(-2)}/${today.getFullYear().toString().slice(-2)}`
+      const timeNow = `${("0" + today.getHours()).slice(-2)}:${("0" + today.getMinutes()).slice(-2)}:${("0" + today.getSeconds()).slice(-2)}`;
+
+      // const clienteR = go.data.clientes.find(item => item.value === go.data.clienteObj.cliente)
+      // const objetivoR = go.data.objetivos.find(item => item.value === go.data.clienteObj.objetivo)
+
+      const exporData = [
+          // [],
+          ["", "", "", "", "", "FECHA-HORA", `${dateNow} - ${timeNow}`],
+          ["", "", "", "TOTAL INVENTARIO", this.formatCurrency(totalInv)
+            || "", "TOTAL INV VENTA", this.formatCurrency(totalVentaInv)
+            || "", "TOTAL UTILIDAD", this.formatCurrency(totalUtilidad)]]
+
+      exporData.push([])
+      exporData.push(header)
+      exporData.push(...rows)
+      
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet(`Inventario - IZ`)
+
+      worksheet.mergeCells('E1:H1');
+      worksheet.getCell('E1').value = "REPORTE DE INVENTARIO INVERSIONES Z."
+      const titleCell = worksheet.getCell('E1')
+      titleCell.font = {
+          bold: true,
+          size: 16
+      }
+
+      // Insertar los datos
+      worksheet.addRows(exporData);
+
+      const titlesRowIndices = [2, 3]
+      const columns = [5, 7, 9]
+      titlesRowIndices.forEach(rowIndex => {
+          const row = worksheet.getRow(rowIndex)
+          row.eachCell((cell, colNumber) => {
+              if(columns.includes(colNumber)) {
+                  cell.font = { bold: true}
+              }
+          })
+      })
+
+      const headerRowIndex = exporData.length - rows.length; // Índice de la fila de encabezados
+      const tableSize = exporData.length + 1
+      for (let i = headerRowIndex + 1; i <= tableSize; i++) {  // Desde la fila de datos hasta el final
+          const row = worksheet.getRow(i);
+          if (i % 2 === 0) {
+              row.eachCell((cell, col) => {
+                  if (col !== 1) {
+                      cell.fill = {
+                          type: 'pattern',
+                          pattern: 'solid',
+                          fgColor: { argb: 'e8eaf6' }
+                      }
+                  }
+              })
+          }
+
+          row.eachCell((cell, col) => {
+              // Asignar bordes a cada celda
+              if (1 !== col) {
+                  cell.border = {
+                      top: { style: 'thin', color: { argb: '000000' } },
+                      left: { style: 'thin', color: { argb: '000000' } },
+                      bottom: { style: 'thin', color: { argb: '000000' } },
+                      right: { style: 'thin', color: { argb: '000000' } }
+                  };
+              }
+          });
+      }
+
+      const headerRow = worksheet.getRow(headerRowIndex + 1);
+      headerRow.eachCell((cell, col) => {
+          if (1 !== col) {
+              cell.font = { bold: true, color: {argb: 'ffffff'} }; // Negrita en los encabezados
+              cell.style.fill = {
+                  type: 'pattern',
+                  pattern: 'solid',
+                  fgColor: {argb: '0a008c'}
+              },
+              cell.border = {
+                  top: {style: 'thin', color: {argb: '000000'}},
+                  left: {style: 'thin', color: {argb: '000000'}},
+                  bottom: {style: 'thin', color: {argb: '000000'}},
+                  right: {style: 'thin', color: {argb: '000000'}},
+              }
+          }
+      })
+      headerRow.commit()
+
+      worksheet.eachRow((row) => {
+          row.eachCell((cell) => {
+              cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+          })
+      })
+
+      // // Agregar una imagen (ejemplo con imagen en Base64)
+      // const logoBase64 = imgsBase64.emprovisa;  // Tu imagen en Base64 aquí
+      // // Agregar la imagen en la celda A1
+      // const imageId = workbook.addImage({
+      //     base64: logoBase64,
+      //     extension: 'svg',  // o 'jpeg' dependiendo del tipo de imagen
+      // });
+      // worksheet.getRow(1).height = 70
+      // worksheet.getColumn(2).width = 250
+      // // Colocar la imagen en la posición deseada (en A1)
+      // worksheet.addImage(imageId, {
+      //     tl: { col: 1, row: 0 }, // Esquina superior izquierda (A1)
+      //     ext: { width: 200, height: 80, align: 'center' } // Tamaño de la imagen
+      // });
+
+      // Configurar el ancho de las columnas
+      worksheet.columns = [
+          { width: 10 },
+          { width: 30 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+          { width: 18 },
+      ];
+
+      // Crear y descargar el archivo
+      workbook.xlsx.writeBuffer().then((buffer) => {
+          const data = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+          saveAs(data, `Reporte - Inventario ${dateNow}.xlsx`);
+      });
+    },
+
     deleteAction(val) {
       if (val === true) {
         this.deleteItem()
@@ -1333,9 +1591,9 @@ export default {
     },
 
     formatCurrency(key) {
-      return new Intl.NumberFormat('es-MX', {
+      return new Intl.NumberFormat('es-NI', {
         style: 'currency',
-        currency: 'MXN'
+        currency: 'NIO'
       }).format(key)
     },
 

@@ -50,9 +50,9 @@
 <script>
 import { formatters } from '@/helpers/formatters';
 import { utilsFunctions } from '@/helpers/utilFunctions';
-import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
 import { useStore } from '@/store';
+import RequestHttp from '@/services/requestHttp';
 
 export default {    
     props: {
