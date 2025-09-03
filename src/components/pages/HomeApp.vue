@@ -1,5 +1,40 @@
 <template>
   <div class="pa-2">
+    <v-dialog v-model="displayCtrl.config" width="300">
+      <v-card>
+        <v-card-title>
+          Configuración de Dashboard
+        </v-card-title>
+        <v-card-subtitle>
+          Editar intervalo de fechas
+        </v-card-subtitle>
+        <v-divider></v-divider>
+        <v-card-text>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                  v-model="desde"
+                  label="Fecha desde:"
+                  type="date"
+                  hide-details
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-text-field
+                  v-model="hasta"
+                  label="Fecha hasta:"
+                  type="date"
+                  hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-btn color="primary" variant="flat" @click="displayCtrl.config = false">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-row class="no-gutters" dense>
       <v-col cols="12">
         <v-card elevation="3" class="pa-2">
@@ -9,12 +44,16 @@
               <h4 class="text-grey">
                 Sistema de Información
               </h4>
+              <h5>{{ `${desde} al ${hasta}` }}</h5>
             </v-col>
-            <v-col>
+            <v-col class="d-flex">
               <img
                 src="/128px.svg"
                 width="250"
               />
+              <div class="d-flex flex-column align-end ml-auto">
+                <v-btn @click="displayCtrl.config = true" color="primary" class="mx-4"><v-icon>mdi-cog</v-icon></v-btn>
+              </div>
             </v-col>
           </v-row>
         </v-card>
@@ -173,6 +212,8 @@ import {
 } from 'echarts/components'
 import VChart from 'vue-echarts'
 import {httpGet} from "@/scripts/api.js";
+import {getIntervaloMesActual} from "@/scripts/utils.js";
+import {formatters} from "@/helpers/formatters.js";
 
 use([
   BarChart,
@@ -194,6 +235,13 @@ export default {
   },
   data() {
     return {
+      displayCtrl: {
+        config: false,
+      },
+
+      desde: getIntervaloMesActual().fechaDesde,
+      hasta: getIntervaloMesActual().fechaHasta,
+
       cantidadVentasLocal: 0,
       valorVentasLocal: 0,
 
@@ -301,9 +349,18 @@ export default {
     }
   },
 
+  computed: {
+    configuracion(){
+      return {
+        desde: this.desde,
+        hasta: this.hasta
+      }
+    }
+  },
+
   methods: {
     async loadDataVentas(){
-      var result = await httpGet('api/estadisticas/ventas-mes')
+      var result = await httpGet(`api/estadisticas/ventas-mes?desde=${this.desde}&hasta=${this.hasta}`)
 
       this.ventas.xAxis.data = result.nombresRutas
       this.ventas.series[0].data = result.data
@@ -321,7 +378,21 @@ export default {
       this.valorVentas = result.valorVentas
 
       this.utilidades = result.utilidades
-    }
+    },
+
+    formatedDate(dataString) {
+      const value = formatters.formatDate(dataString)
+      return value
+    },
+  },
+
+  watch: {
+    configuracion: {
+      handler(){
+        this.loadDataVentas()
+      },
+      deep: true
+    },
   }
 }
 </script>
