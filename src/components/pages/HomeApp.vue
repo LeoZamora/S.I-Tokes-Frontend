@@ -44,7 +44,7 @@
               <h4 class="text-grey">
                 Sistema de Información
               </h4>
-              <h5>{{ `${formatedDate(desde)} al ${formatedDate(hasta)}` }}</h5>
+              <h5>{{ `${desde} al ${hasta}` }}</h5>
             </v-col>
             <v-col class="d-flex">
               <img
