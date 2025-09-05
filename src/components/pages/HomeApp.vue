@@ -44,7 +44,7 @@
               <h4 class="text-grey">
                 Sistema de Información
               </h4>
-              <h5>{{ `${desde} al ${hasta}` }}</h5>
+              <h5>{{ `${formatedDate(desde)} al ${formatedDate(hasta)}` }}</h5>
             </v-col>
             <v-col class="d-flex">
               <img
@@ -69,7 +69,7 @@
               width="50"
             />
             <div style="font-size: 14px;">
-              {{ `(${cantidadVentasPOS}) C$ ${valorVentasPOS}` }}
+              {{ `(${cantidadVentasPOS}) ${formatedCurrency(valorVentasPOS)}` }}
             </div>
           </div>
         </v-card>
@@ -85,7 +85,7 @@
               width="50"
             />
             <div style="font-size: 14px;">
-              {{ `(${cantidadVentasLocal}) C$ ${valorVentasLocal}` }}
+              {{ `(${cantidadVentasLocal}) ${formatedCurrency(valorVentasLocal)}` }}
             </div>
           </div>
         </v-card>
@@ -101,7 +101,7 @@
               width="50"
             />
             <div style="font-size: 14px;">
-              {{ `(${cantidadVentas}) C$ ${valorVentas}` }}
+              {{ `(${cantidadVentas}) ${formatedCurrency(valorVentas) }` }}
             </div>
           </div>
         </v-card>
@@ -117,7 +117,7 @@
               width="50"
             />
             <div style="font-size: 14px;">
-              {{ `(${cantidadVentas}) C$ ${utilidades}` }}
+              {{ `(${cantidadVentas}) ${formatedCurrency(utilidades) }` }}
             </div>
           </div>
         </v-card>
@@ -383,6 +383,11 @@ export default {
     formatedDate(dataString) {
       const value = formatters.formatDate(dataString)
       return value
+    },
+
+    formatedCurrency(value) {
+      const valueFormatted = formatters.formatCurrency(value, 'NIO')
+      return valueFormatted
     },
   },
 

@@ -22,7 +22,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'CXC | Inversiones Zafiro'
+                title: 'R. Inventario | Inversiones Zafiro'
             }
         },
         {
