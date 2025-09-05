@@ -10,12 +10,12 @@ const formatDate = (dataString) => {
         return 'xx/xx/xxxx xx:xx'
     } else {
         const date = new Date(dataString)
-        return date.toLocaleString('es-MX', {
+        return date.toLocaleString('es-NI', {
             year: 'numeric',
-            month: 'long',
+            month: 'short',
             day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+            // hour: '2-digit',
+            // minute: '2-digit'
         })
     }
 }
