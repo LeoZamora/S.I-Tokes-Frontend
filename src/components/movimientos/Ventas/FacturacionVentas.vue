@@ -50,7 +50,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
-            v-model="data.search"
+            v-model="search.desde"
             label="Fecha desde:"
             type="date"
             density="compact"
@@ -60,7 +60,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
-            v-model="data.search"
+            v-model="search.hasta"
             label="Fecha hasta:"
             type="date"
             density="compact"
@@ -125,16 +125,25 @@
         >
           <template v-slot:top>
             <div
-              style="border-bottom: 1px solid #e0e0e0; font-size: 14px"
+              style="
+                border-bottom: 1px solid #e0e0e0;
+                font-size: 14px;
+              "
               class="pa-1 font-weight-bold d-flex"
             >
               <div class="mx-2">
                 <v-icon>mdi-pound</v-icon>
-                {{ `Cantidad ventas: ${data.facturas.length}` }}
+                {{
+                  `Cantidad ventas: ${data.facturas.length}`
+                }}
               </div>
               <div class="mx-2">
-                <v-icon color="green">mdi-cash</v-icon>
-                {{ `Total facturado: ${formatedCurrency(totalFacturado)}` }}
+                <v-icon color="green"
+                  >mdi-cash</v-icon
+                >
+                {{
+                  `Total facturado: ${formatedCurrency(totalFacturado)}`
+                }}
               </div>
               <!--<div class="mx-2">
                 <v-btn
@@ -151,6 +160,7 @@
           <template v-slot:header.rutaCliente>
             <div>Ruta</div>
             <v-autocomplete
+              v-model="search.idRuta"
               variant="outlined"
               density="compact"
               :items="cmb.rutas"
@@ -162,6 +172,7 @@
           <template v-slot:header.cliente>
             <div>Cliente</div>
             <v-autocomplete
+              v-model="search.idCliente"
               variant="outlined"
               density="compact"
               :items="cmb.clientes"
@@ -320,8 +331,14 @@ import ViewVenta from './ViewVenta.vue'
 import RequestHttp from '@/services/requestHttp'
 import AlertComp from '@/components/widgets/AlertComp.vue'
 import { useStore } from '@/store'
-import { getItemsCombobox } from '@/scripts/api.js'
+import {
+  getItemsCombobox,
+  httpGet,
+  httpPost
+} from '@/scripts/api.js'
 import { useSnackbar } from '@/composables/use-snackbar.js'
+import { getIntervaloMesActual } from '@/scripts/utils.js'
+import * as sea from 'node:sea'
 
 export default {
   mounted() {
@@ -338,21 +355,31 @@ export default {
   },
 
   computed: {
-    totalFacturado(){
-      return this.data.facturas.reduce((acc, factura) => {
-        acc += factura.total
-        return acc
-      }, 0)
-    }
+    totalFacturado() {
+      return this.data.facturas.reduce(
+        (acc, factura) => {
+          acc += factura.total
+          return acc
+        },
+        0
+      )
+    },
   },
 
-  data(){
+  data() {
     return {
       snackbar: useSnackbar(),
 
       cmb: {
         clientes: [],
-        rutas: [],
+        rutas: []
+      },
+
+      search: {
+        desde: getIntervaloMesActual().fechaDesde,
+        hasta: getIntervaloMesActual().fechaHasta,
+        idCliente: null,
+        idRuta: null
       }
     }
   },
@@ -438,8 +465,8 @@ export default {
           headerProps: {
             class: 'pa-1',
             style: {
-              width: '150px',
-            },
+              width: '300px'
+            }
           }
         },
         {
@@ -453,8 +480,8 @@ export default {
           headerProps: {
             class: 'pa-1',
             style: {
-              width: '300px',
-            },
+              width: '300px'
+            }
           }
         },
 
@@ -462,13 +489,12 @@ export default {
           title: 'Total',
           key: 'total',
           align: 'center'
-        },/*
+        } /*
         {
           title: 'Dirección',
           key: 'enviarA',
           align: 'center'
-        },*/
-
+        },*/,
 
         {
           title: 'Observaciones',
@@ -486,8 +512,8 @@ export default {
           headerProps: {
             class: 'pa-1',
             style: {
-              width: '200px',
-            },
+              width: '200px'
+            }
           }
         },
         {
@@ -552,13 +578,17 @@ export default {
   },
 
   methods: {
-    async loadCmbClientes(){
-      const clientes = await getItemsCombobox('api/cliente/combobox')
+    async loadCmbClientes() {
+      const clientes = await getItemsCombobox(
+        'api/cliente/combobox'
+      )
       this.cmb.clientes = clientes
     },
 
-    async loadCmbRutas(){
-      const rutas = await getItemsCombobox('api/rutas/combobox')
+    async loadCmbRutas() {
+      const rutas = await getItemsCombobox(
+        'api/rutas/combobox'
+      )
       this.cmb.rutas = rutas
     },
 
@@ -595,15 +625,14 @@ export default {
     async getVentas() {
       this.data.facturas = []
       this.data.loading = true
-      const result =
-        await this.data.requestHttp.getVentas()
-      if (result !== null) {
-        result.map((item) => {
-          this.data.facturas.push(item)
-        })
-      }
+      const result = await httpPost(
+        'api/venta/lista',
+        this.search
+      )
+      this.data.facturas = result.data
       this.data.loading = false
     },
+
     formatedCurrency(key) {
       const value = formatters.formatCurrency(key)
       return value
@@ -676,6 +705,15 @@ export default {
       this.data.editFactura.editar = val
       this.data.editFactura.show = val
       this.data.editFactura.title = ''
+    }
+  },
+
+  watch: {
+    search: {
+      handler(){
+        this.getVentas()
+      },
+      deep: true
     }
   }
 }
