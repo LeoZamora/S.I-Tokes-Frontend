@@ -16,7 +16,51 @@
         <v-data-table
             :headers="tbl.headers"
             :items="tbl.items"
+            :search="tbl.search"
         >
+
+          <template v-slot:top>
+            <v-row dense>
+              <v-col cols="2">
+                <v-card style="border: 1px #e0e0e0 solid">
+                  <v-card-text class="d-flex flex-column align-center">
+                    <v-icon color="primary" size="50">mdi-file-document-check</v-icon>
+                    <div style="font-weight: bold">Total de cuentas pagadas</div>
+                    <div style="font-weight: bold">{{ totalCuentasPagadas }}</div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="2">
+                <v-card style="border: 1px #e0e0e0 solid">
+                  <v-card-text class="d-flex flex-column align-center">
+                    <v-icon color="primary" size="50">mdi-file-document-alert</v-icon>
+                    <div style="font-weight: bold">Total de cuentas pendientes</div>
+                    <div style="font-weight: bold">{{ totalCuentasPendientes }}</div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="2">
+                <v-card style="border: 1px #e0e0e0 solid">
+                  <v-card-text class="d-flex flex-column align-center">
+                    <v-icon color="primary" size="50">mdi-cash-clock</v-icon>
+                    <div style="font-weight: bold">Total saldo pendiente</div>
+                    <div style="font-weight: bold">{{ formatedCurrency(totalFacturado) }}</div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="tbl.search"
+                  label="Búsqueda:"
+                  prepend-inner-icon="mdi-magnify"
+                  hint="Buscar texto en la tabla."
+                  persistent-hint
+                >
+
+                </v-text-field>
+              </v-col>
+            </v-row>
+          </template>
           <template v-slot:item="{ item }">
             <tr>
               <td class="text-center" style="border: 1px solid #e0e0e0">
@@ -85,6 +129,36 @@ export default {
   name: 'cuentas-por-cobrar',
   components: {VisualizarCuentas},
 
+  computed: {
+    totalFacturado() {
+      return this.tbl.items.reduce(
+        (acc, cuenta) => {
+          acc += cuenta.saldoPendienteTotal
+          return acc
+        },
+        0
+      )
+    },
+    totalCuentasPendientes() {
+      return this.tbl.items.reduce(
+        (acc, cuenta) => {
+          acc += cuenta.nCreditosPendientes
+          return acc
+        },
+        0
+      )
+    },
+    totalCuentasPagadas() {
+      return this.tbl.items.reduce(
+        (acc, cuenta) => {
+          acc += cuenta.nCreditosPagados
+          return acc
+        },
+        0
+      )
+    },
+  },
+
   data(){
     return {
       display: {
@@ -92,6 +166,8 @@ export default {
       },
 
       tbl: {
+        search: '',
+        items: [],
         headers: [
           {
             title: 'Opciones',
