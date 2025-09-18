@@ -11,9 +11,9 @@
           <v-card-text class="pt-0">
             <div class="text-subtitle-1 text-medium-emphasis">Usuario</div>
             <v-text-field color="primary" v-model="data.data.usuario" placeholder="Ingrese su usuario" type="email"
-                          :rules="data.rules.userRules" @input="clearError" variant="outlined"
-                          prepend-inner-icon="mdi-account-outline"
-                          aria-describedby="input-username-messages" autocomplete="username" density="compact"/>
+              :rules="data.rules.userRules" @input="clearError" variant="outlined"
+              prepend-inner-icon="mdi-account-outline" aria-describedby="input-username-messages" 
+              autocomplete="username" density="compact"/>
             <div class="text-subtitle-1 text-medium-emphasis">Contraseña</div>
             <v-text-field
                 color="primary" v-model="data.data.password" placeholder="Ingrese su contraseña"
@@ -152,7 +152,9 @@ export default {
         let jwtHandler = new JWTDecoder(result.token)
         const decode = jwtHandler.decodeToken()
         this.useAuth.login(decode)
+        this.useAuth.sendExp(decode.exp)
         this.useAuth.sendNameUser(this.data.data.usuario)
+        this.$router.push({ path: '/' })
       } else if (result.code == 404 || result.code == 400) {
         this.data.count += 1;
         if (this.data.count === 5) {

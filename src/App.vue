@@ -19,11 +19,12 @@
         </div>
       </div>
     </v-snackbar>
-    <LoginAuth v-if="!isLoggeInd"/>
-    <v-app v-else id="app" class="w-100 h-100">
-      <AppBar @toggle-drawer="toggleDrawer" @nameRoute="nameTab" @logout="clearApp"/>
-      <v-navigation-drawer id="drawer" v-model="data.drawer" class="position-fixed bg-indigo-darken-4 font">
+    <!-- <LoginAuth v-if="!isLoggeInd"/> -->
+    <v-app id="app" class="w-100 h-100">
+      <AppBar v-if="isLoggeInd" @toggle-drawer="toggleDrawer" @nameRoute="nameTab" @logout="clearApp"/>
 
+      <v-navigation-drawer v-if="isLoggeInd" id="drawer" v-model="data.drawer" 
+        class="position-fixed bg-indigo-darken-4 font">
         <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf">
           <v-list-item prepend-icon="mdi-home" color="white" title="Inicio" :lines="true" rounded
             value="Inicio" @click="clearApp()" variant="elevated"/>
@@ -175,10 +176,10 @@
           </div>
         </template>
       </v-navigation-drawer>
+
       <v-main class="w-100 position-relative">
-        <TabsRoutes :routes="data.nameTabs" :name="data.nameCurrentTab" :index-tab="data.activeTab"/>
-
-
+        <TabsRoutes :routes="data.nameTabs" :name="data.nameCurrentTab" :index-tab="data.activeTab"
+          v-if="isLoggeInd"/>
         <router-view v-slot="{ Component }">
           <v-progress-linear indeterminate :active="loading.show" height="5" color="primary"></v-progress-linear>
           <transition name="slide-x-transition">
@@ -188,13 +189,8 @@
           </transition>
         </router-view>
       </v-main>
-      <v-footer
-          app
-          inset
-          absolute
-          height="45"
-          class="px-0"
-      >
+      <v-footer app inset absolute height="45" class="px-0" 
+        v-if="isLoggeInd">
         <v-row dense class="pa-1">
           <v-col>
             <div></div>
@@ -220,18 +216,20 @@
     </v-app>
   </v-layout>
 </template>
+
 <script>
 import { useSnackbar } from "@/composables/use-snackbar.js";
 import {useLoading} from "@/composables/use-loading.js";
 import {ref, reactive, computed, onMounted, onUnmounted} from 'vue';
 import AppBar from './components/layout/AppBar.vue'
 import TabsRoutes from './components/widgets/TabsRoutes.vue';
-import LoginAuth from './components/login/LoginAuth.vue';
+// import LoginAuth from './components/login/LoginAuth.vue';
 import environment from './helpers/environment.js';
 import {useStore} from './store';
 
 export default {
   mounted() {
+    this.verifySession()
     const lastRoute = sessionStorage.getItem('lastRoute')
     this.data.nameTabs = []
     if (lastRoute) {
@@ -370,6 +368,13 @@ export default {
       })
     },
 
+    verifySession() {
+      const exp = localStorage.getItem('exp')
+      if (this.isLoggeInd) {
+        this.store.deleteSession(exp)
+      }
+    },
+
     toggleDrawer() {
       this.data.drawer = !this.data.drawer
     },
@@ -405,7 +410,7 @@ export default {
   components: {
     AppBar,
     TabsRoutes,
-    LoginAuth
+    // LoginAuth
   }
 }
 </script>

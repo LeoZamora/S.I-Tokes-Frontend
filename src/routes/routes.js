@@ -12,6 +12,7 @@ const routes = createRouter({
             name: 'Home',
             component: () => import('@/components/pages/HomeApp.vue'),
             meta: {
+                requiredAuth: true,
                 title: 'Inicio | Inversiones Zafiro'
             }
         },
@@ -23,6 +24,14 @@ const routes = createRouter({
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'R. Inventario | Inversiones Zafiro'
+            }
+        },
+        {
+            path: '/login',
+            name: 'Login',
+            component: () => import('@/components/login/LoginAuth.vue'),
+            meta: {
+                title: 'Login | Inversiones Zafiro'
             }
         },
         {
@@ -84,8 +93,8 @@ const routes = createRouter({
         }, {
             path: '/ordenes',
             name: 'Ordenes',
-            // component: () => import('@/components/dev-alert.vue'),
-            component: () => import('@/components/movimientos/Compras/FacturacionCompras.vue'),
+            component: () => import('@/components/dev-alert.vue'),
+            // component: () => import('@/components/movimientos/Compras/FacturacionCompras.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
@@ -195,29 +204,25 @@ const routes = createRouter({
             }
         },
     ],
-
-    scrollBehavior(to, from, savePosition) {
-        if (savePosition) {
-            return savePosition
-        } else {
-            return {
-                top: 0
-            }
-        }
-    }
 })
 
 routes.beforeEach((to, from, next) => {
-    const store = useStore()
-    const isLoggedIn = store.isLoggedIn
+
     const defaultTitle = 'Inversiones Zafiro'
-    if (!isLoggedIn) {
-        document.title = defaultTitle
-    } else {
-        document.title = to.meta.title
+    document.title = to.meta.title || defaultTitle
+
+    const authStore = useStore()
+    const isAuthenticated = authStore.isLoggedIn
+    
+    if (to.meta.requiredAuth && !isAuthenticated) {
+        return next({ path: '/login' })
+    } 
+
+    if (to.path === '/login' && isAuthenticated) {
+        return next({ path: '/'})
     }
 
-    !isLoggedIn && to.meta.requiredAuth ? next({path: '/'}) : next()
+    !isAuthenticated && to.meta.requiredAuth ? next({path: '/login'}) : next()
 })
 
 export default routes

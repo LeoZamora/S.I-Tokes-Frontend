@@ -77,6 +77,10 @@ export default {
        
         watch(() => props.show, (newValue) => {
             localShow.value = newValue
+            if (newValue) {
+                data.usuario.usuarioRegistro = store.getNameUser()
+            }
+            
         })
 
         const data = reactive({
@@ -85,7 +89,7 @@ export default {
                 idrol: null,
                 username: null,
                 password: null,
-                usuarioRegistro: store.getNameUser(),
+                usuarioRegistro: null,
             },
             roles: [],
             showPass: false,
