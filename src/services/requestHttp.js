@@ -747,6 +747,7 @@ class RequestHttp {
             }
         }
     }
+
     async putTipoMov(data, id) {
         try {
             const result  = await axios.put(`${endPoints.putTipoMov}${id}`, data)
@@ -778,12 +779,28 @@ class RequestHttp {
             }
         }
     }
+
     async putTipoVenta(data, id) {
         try {
             const result  = await axios.put(`${endPoints.putTipoVenta}${id}`, data)
             return result.data
         } catch (error) {
             return null
+        }
+    }
+
+    // CODIGO RECOMENDADO
+    async getCodigo() {
+        try {
+            const result  = await axios.get('api/Compra/codigo-recomendado')
+            return {
+                code: result.data
+            }
+        } catch (error) {            
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
 }

@@ -141,10 +141,11 @@ export default {
       this.data.dataLoader.visible = true
       this.data.dataLoader.msg = 'Cerrando Sesion'
       this.$emit('logout')
-
+      
       await this.delay(1500);
-
+      
       this.store.logout()
+      this.$router.push({ path: '/login' })
       this.data.dataLoader.visible = false
     }
   }

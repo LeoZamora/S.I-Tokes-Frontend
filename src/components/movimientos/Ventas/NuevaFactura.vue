@@ -107,9 +107,10 @@
                         </v-btn>
                     </v-col>
                 </v-row>
-                <v-row>
+                <v-row dense>
                     <v-col cols="12" sm="12" md="12">
-                        <v-data-table class="border rounded font" density="compact" :headers="data.headers" :items="data.items"
+                        <v-data-table class="border rounded font" density="compact" :headers="data.headers" 
+                            :items="data.items" :header-props="{ class: 'font-weight-bold' }"
                             hide-default-footer :items-per-page="100" height="200px">
                             <template v-slot:item.opc="{ item }">
                                 <v-tooltip text="Eliminar" location="top">
@@ -468,7 +469,10 @@ export default {
                         })
                     })
 
-                    const result = await this.data.requestHttp.putVenta(this.data.venta, this.data.editVenta.idVenta)
+                    const result = await this.data.requestHttp.putVenta(
+                        this.data.venta, 
+                        this.data.editVenta.idVenta
+                    )
 
                     if (result !== null) {
                         alert('Registro Editado')
@@ -549,5 +553,6 @@ export default {
 
 .font{
     font-size: 12px !important;
+    font-weight: bold !important;
 }
 </style>
