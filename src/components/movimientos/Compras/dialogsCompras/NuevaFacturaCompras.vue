@@ -50,7 +50,7 @@
                     <v-col cols="12" md="4" sm="6" class="py-1">
                         <v-text-field v-model="data.orden.noOrden" prepend-inner-icon="mdi-file-document" 
                             density="compact" variant="outlined" hide-details label="Num. Órden" 
-                            placeholder="número de orden"  persistent-placeholder :readonly="false"/>
+                            placeholder="número de orden"  persistent-placeholder readonly/>
                     </v-col>
                     <v-col cols="12" md="4" sm="6" class="py-1">
                         <v-autocomplete v-model="data.orden.idProveedor" prepend-inner-icon="mdi-account" 

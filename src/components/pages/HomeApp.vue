@@ -37,14 +37,14 @@
     </v-dialog>
     <v-row class="no-gutters" dense>
       <v-col cols="12">
-        <v-card elevation="3" class="pa-2">
+        <v-card elevation="0" class="pa-2">
           <v-row dense>
             <v-col class="text-center" >
               <h1>Bienvenido</h1>
               <h4 class="text-grey">
                 Sistema de Información
               </h4>
-              <h5>{{ `${desde} al ${hasta}` }}</h5>
+              <h5>{{ `${formatedDate(desde)} al ${formatedDate(hasta)}` }}</h5>
             </v-col>
             <v-col class="d-flex">
               <img
@@ -52,14 +52,17 @@
                 width="250"
               />
               <div class="d-flex flex-column align-end ml-auto">
-                <v-btn @click="displayCtrl.config = true" color="primary" class="mx-4"><v-icon>mdi-cog</v-icon></v-btn>
+                <v-btn @click="displayCtrl.config = true" color="primary" class="mx-4" icon size="small"
+                  variant="tonal">
+                  <v-icon>mdi-cog</v-icon>
+                </v-btn>
               </div>
             </v-col>
           </v-row>
         </v-card>
       </v-col>
       <v-col cols="6" md="3" sm="3">
-        <v-card elevation="3" class="" height="100" >
+        <v-card elevation="0" class="border" height="100" >
           <div class="d-flex flex-column align-center">
             <div style="font-size: 14px; color: grey">
               Ventas desde POS
@@ -75,7 +78,7 @@
         </v-card>
       </v-col>
       <v-col cols="6" md="3" sm="3">
-        <v-card elevation="3" class="" height="100" >
+        <v-card elevation="0" class="border" height="100" >
           <div class="d-flex flex-column align-center">
             <div style="font-size: 14px; color: grey">
               Ventas en Local
@@ -91,7 +94,7 @@
         </v-card>
       </v-col>
       <v-col>
-        <v-card elevation="3" class=" d-flex align-center justify-center" height="100">
+        <v-card elevation="0" class="d-flex align-center justify-center border" height="100">
           <div class="d-flex flex-column align-center">
             <div style="font-size: 14px; color: grey">
               Total de Ventas
@@ -107,7 +110,7 @@
         </v-card>
       </v-col>
       <v-col>
-        <v-card elevation="3" class=" d-flex align-center justify-center" height="100">
+        <v-card elevation="0" class="d-flex align-center justify-center border" height="100">
           <div class="d-flex flex-column align-center">
             <div style="font-size: 14px; color: grey">
               Total de Utilidades
@@ -123,7 +126,7 @@
         </v-card>
       </v-col>
       <v-col cols="6">
-        <v-card elevation="3" height="300">
+        <v-card elevation="0" height="300">
           <v-chart
             :option="ventas"
             autoresize
@@ -131,75 +134,17 @@
           />
         </v-card>
       </v-col>
-      <v-col cols="6">
+      <v-col cols="6" class="border-s">
         <v-row dense>
-          <v-col cols="12">
-            <v-card elevation="3" height="300">
+          <v-col cols="12" sm="12" md="12">
+            <v-card elevation="0" height="300">
               <v-chart :option="pieChart" autoresize style="height: 300px;" />
             </v-card>
           </v-col>
         </v-row>
       </v-col>
-      <!--<v-col cols="4">
-        <v-card elevation="3" class=" d-flex align-center justify-center" height="100">
-          <div class="d-flex flex-column align-center">
-            <div style="font-size: 14px; color: grey">
-              Últimas Transacciones
-            </div>
-            <img
-              src="/dashboard/beneficios.png"
-              width="50"
-            />
-            <div style="font-size: 14px;">
-              (98) C$ 12,327.08
-            </div>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="6" md="3" sm="3">
-        <v-card
-          elevation="3"
-          class=""
-          height="150"
-        >
-        </v-card>
-      </v-col>
-      <v-col cols="6" md="3" sm="3">
-        <v-card
-          elevation="3"
-          class=""
-          height="150"
-        >
-        </v-card>
-      </v-col>
-      <v-col cols="4">
-        <v-card
-          elevation="3"
-          class=""
-          height="150"
-        >
-        </v-card>
-      </v-col>-->
     </v-row>
   </div>
-  <!--<div
-    id="logo"
-    class="pa-1 position-absolute"
-    style="
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    "
-  >
-    <div class="d-flex flex-column align-center">
-      <img src="/logoIZ.jpg" width="400" />
-      <h1>Bienvenido</h1>
-      <h4 class="text-grey">
-        Sistema de Información
-      </h4>
-      <v-chart :option="ventas" autoresize style="height: 400px;" />
-    </div>
-  </div>-->
 </template>
 
 <script>

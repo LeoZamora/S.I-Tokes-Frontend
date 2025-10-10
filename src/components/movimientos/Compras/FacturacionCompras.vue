@@ -53,14 +53,14 @@
                         <div>{{ item.aprobada ? 'SI' : 'NO' }}</div>
                     </template>
                     <template v-slot:item.opc="{ item }">
-                        <v-tooltip text="Editar" location="top">
+                        <!-- <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
                                 <v-icon v-if="data.crud.edit" v-bind="props" size="small" 
                                     color="green" @click="editOrden(item)" class="mr-1" >
                                     mdi-pencil
                                 </v-icon>
                             </template>
-                        </v-tooltip>
+                        </v-tooltip> -->
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
