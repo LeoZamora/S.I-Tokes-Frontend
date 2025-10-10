@@ -34,6 +34,7 @@ const endPoints = {
     postCompra: 'api/Compra',
     putCompra: 'api/Compra',
     deleteCompra: 'api/Compra',
+    geCodeCompra: 'api/Compra/codigo-recomendado',
 
     getCliente: 'api/Cliente',
     postCliente: 'api/Cliente',

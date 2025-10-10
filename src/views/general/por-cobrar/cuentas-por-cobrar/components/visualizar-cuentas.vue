@@ -1,11 +1,12 @@
 <template>
   <div>
     <!--WIN1: PRINCIPAL-->
-    <v-card>
+    <v-card class="border">
       <template v-slot:prepend>
         <v-btn
             @click="close"
-            color="secondary"
+            color="grey"
+            variant="tonal"
             class="mr-2"
             size="small"
         >
@@ -20,24 +21,107 @@
         </div>
       </template>
 
+      <v-card-subtitle
+          class="d-flex align-center text-center"
+        >
+          <v-divider thickness="2" />
+          <span
+            class="mx-6 text-grey font-weight-bold"
+            >Datos Generales</span
+          >
+          <v-divider thickness="2" />
+      </v-card-subtitle>
+
+      <v-row dense class="pa-2">
+        <v-col cols="12" sm="8" md="8">
+          <div v-for="(param, index) in tbl.params" :key="index" 
+            class="d-flex justify-start align-start">
+            <div class="mr-4">
+              <v-icon :color="param.color" class="mx-2">{{ param.icon }}</v-icon>
+              <span>
+                {{ param.title }}:
+              </span>
+            </div>
+            <strong v-if="param.value === 1">
+              {{ cxc.cliente }}
+            </strong>
+            <strong v-else-if="param.value === 2">
+              {{ cxc.nCreditosPagados }}
+            </strong>
+            <strong v-else-if="param.value === 3">
+              {{ cxc.nCreditosPendientes }}
+            </strong>
+          </div>
+        </v-col>
+      </v-row>
+
       <v-card-text>
-        <div style="font-size: 16px; font-weight: bold">
-          {{ `Cliente: ${cxc.cliente}` }}
-        </div>
-        <div style="font-size: 16px; font-weight: bold">
-          {{ `N° Créditos Pagados: ${cxc.nCreditosPagados}` }}
-        </div>
-        <div style="font-size: 16px; font-weight: bold">
-          {{ `N° Créditos Pendientes: ${cxc.nCreditosPendientes}` }}
-        </div>
+        <v-card-subtitle
+          class="d-flex align-center text-center"
+        >
+          <v-divider thickness="2" />
+          <span
+            class="mx-6 text-grey font-weight-bold"
+            >Tabla de Créditos</span
+          >
+          <v-divider thickness="2" />
+        </v-card-subtitle>
         <v-data-table
             :headers="tbl.headers"
             :items="tbl.items"
+            class="border rounded font"
         >
-          <template v-slot:top>
-            <h3 class="text-center">Tabla de Créditos</h3>
+        <template v-slot:item.opc="{ item }">
+            <div class="d-flex justify-center">
+              <v-tooltip text="Visualizar Abonos" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    variant="text"
+                    @click="openVisualizarAbonosDisplay(item)"
+                    v-bind="props" icon size="x-small" class="mx-1">
+                    <v-icon color="indigo-darken-4" size="large">
+                      mdi-table-eye
+                    </v-icon>
+                  </v-btn>
+                </template>
+              </v-tooltip>
+              <v-tooltip text="Abonar" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    variant="text"
+                    v-show="!item.cancelado"
+                    @click="openAbonarDisplay(item)"
+                    v-bind="props" icon size="x-small" class="mx-1">
+                    <v-icon color="green" size="large">
+                      mdi-cash-plus
+                    </v-icon>
+                  </v-btn>
+                </template>
+              </v-tooltip>
+            </div>
           </template>
-          <template v-slot:item="{ item }">
+
+          <template v-slot:item.totalVenta="{ item }">
+            <div>{{ formatedCurrency(item.totalVenta) }}</div>
+          </template>
+          <template v-slot:item.montoCredito="{ item }">
+            <div>{{ formatedCurrency(item.montoCredito) }}</div>
+          </template>
+          <template v-slot:item.saldo="{ item }">
+            <div>{{ formatedCurrency(item.saldo) }}</div>
+          </template>
+          <template v-slot:item.fechaRegistro="{ item }">
+            <div>{{ formatedDate(item.fechaRegistro) }}</div>
+          </template>
+          <template v-slot:item.cancelado="{ item }">
+            <div>
+              <v-chip :color="item.cancelado ? 'green-darken-4' : 'orange-darken-4'">
+                {{ item.cancelado ? 'Saldada' : 'Pendiente' }}
+              </v-chip>
+            </div>
+          </template>
+
+          <!-- <template v-slot:item="{ item }">
             <tr>
               <td class="text-center" style="border: 1px solid #e0e0e0">
                 <div class="d-flex justify-center">
@@ -45,7 +129,7 @@
                     <template v-slot:activator="{ props }">
                       <v-btn
                           @click="openVisualizarAbonosDisplay(item)"
-                          v-bind="props" icon size="x-small" color="grey-lighten-4" class="mx-1">
+                          v-bind="props" icon size="x-small" class="mx-1">
                         <v-icon color="indigo-darken-4">mdi-table-eye</v-icon>
                       </v-btn>
                     </template>
@@ -55,7 +139,7 @@
                       <v-btn
                           v-show="!item.cancelado"
                           @click="openAbonarDisplay(item)"
-                          v-bind="props" icon size="x-small" color="grey-lighten-4" class="mx-1">
+                          v-bind="props" icon size="x-small" class="mx-1">
                         <v-icon color="green-darken-4">mdi-cash-plus</v-icon>
                       </v-btn>
                     </template>
@@ -70,7 +154,6 @@
                     header.align === 'end' && 'text-right',
                     header.align === 'start' && 'text-left'
                   ]"
-                  style="border: 1px solid #e0e0e0"
               >
                 <span v-if="header.format === 'currency'">
                   {{ formatedCurrency(item[header.key]) }}
@@ -92,7 +175,7 @@
                 </div>
               </td>
             </tr>
-          </template>
+          </template> -->
         </v-data-table>
       </v-card-text>
     </v-card>
@@ -130,17 +213,17 @@ export default {
       tbl: {
         headers: [
           {
-            title: 'Opciones',
+            title: '',
             key: 'opc',
             align: 'center',
             opciones: true,
             sortable: false,
             width: 1,
             headerProps: {
-              class: 'pa-1',
+              class: 'pa-0',
             },
             cellProps: {
-              class: 'pa-1',
+              class: 'pa-0',
             }
           },
           {
@@ -255,13 +338,19 @@ export default {
             width: 1,
             opciones: true,
             headerProps: {
-              class: 'pa-1',
+              class: 'pa-0',
             },
             cellProps: {
-              class: 'pa-1',
+              class: 'pa-0',
             }
           },
         ],
+
+        params: [
+          { title: 'Cliente', icon: 'mdi-account', color: 'grey', value: 1 },
+          { title: 'N° Créditos Pagados', icon: 'mdi-cash-check', color: 'grey', value: 2 },
+          { title: 'N° Créditos Pendientes', icon: 'mdi-cash-clock', color: 'grey', value: 3 },
+        ]
       },
 
       display: {
@@ -355,5 +444,8 @@ export default {
 </script>
 
 <style scoped>
-
+.font {
+  font-size: 12px !important;
+  font-weight: 500;
+}
 </style>

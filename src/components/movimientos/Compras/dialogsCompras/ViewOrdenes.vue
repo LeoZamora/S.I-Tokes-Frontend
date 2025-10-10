@@ -135,11 +135,10 @@ export default {
     setup(props) {
         const localShow = ref(props.show)
         const localOrden = ref(props.orden)
-        
-        watch(() => props.show, async (newValue) => {
-            localShow.value = newValue
-            if (newValue) {
-                const result = await data.requestHttp.getByIdCompra(localOrden.value.idCompra)
+
+        watch(() => props.orden, async (val) => {
+            if (localOrden.value.idCompra !== val.idCompra) {
+                const result = await data.requestHttp.getByIdCompra(val.idCompra)
                 const proveedor = await data.requestHttp.getByIdProveedor(result.idProveedor)
 
                 data.items = []
@@ -166,6 +165,10 @@ export default {
                 }))
                 calcularTotals()
             }
+        })
+        
+        watch(() => props.show, async (newValue) => {
+            localShow.value = newValue
         })
         const  calcularTotals = () => {
             let subTotal = 0

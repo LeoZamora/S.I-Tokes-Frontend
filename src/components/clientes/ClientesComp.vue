@@ -44,9 +44,9 @@
           <span class="mx-6 text-grey font-weight-bold">Clientes</span>
           <v-divider/>
         </v-card-subtitle>
-        <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border"
-                      :headers="data.headers" density="compact"
-                      :items="data.items" :row-props="setStyle" hover :header-props="{ class: 'font-weight-bold' }">
+        <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border font"
+          :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle" hover 
+          :header-props="{ class: 'font-weight-bold' }" height="400" fixed-header>
           <template v-slot:loader>
             <v-progress-linear color="indigo" indeterminate height="2"/>
           </template>
@@ -62,7 +62,7 @@
           <template v-slot:item.idCategoriaClienteNavigation="{ item }">
             <div>{{ item.idCategoriaClienteNavigation.nombre }}</div>
           </template>
-          <template v-slot:item.opc="{ item }">
+          <template v-slot:item.opc="{  }">
             <!--<v-tooltip text="Editar" location="top">
               <template v-slot:activator="{ props }">
                 <v-icon v-bind="props" size="small" color="green" @click="openDialog('prov', 'edit', item)"
@@ -95,9 +95,9 @@
           <span class="mx-6 text-grey font-weight-bold">Tipo de Clientes</span>
           <v-divider/>
         </v-card-subtitle>
-        <v-data-table :loading="data.loadingTipo" :search="data.search" :mobile="isMobile" class="border"
-                      :headers="data.headersCat" density="compact"
-                      :items="data.itemsCat" :row-props="setStyle" hover :header-props="{ class: 'font-weight-bold' }">
+        <v-data-table :loading="data.loadingTipo" :search="data.search" :mobile="isMobile" class="border font"
+          :headers="data.headersCat" density="compact" :items="data.itemsCat" :row-props="setStyle" 
+          hover :header-props="{ class: 'font-weight-bold' }" height="400" fixed-header>
           <template v-slot:loader>
             <v-progress-linear color="indigo" indeterminate height="2"/>
           </template>
@@ -111,7 +111,7 @@
             <v-tooltip text="Editar" location="top">
               <template v-slot:activator="{ props }">
                 <v-icon v-bind="props" size="small" color="green" @click="openDialog('tipo', 'edit', item)"
-                        class="mr-1">mdi-pencil
+                  class="mr-1">mdi-pencil
                 </v-icon>
               </template>
             </v-tooltip>
@@ -141,8 +141,8 @@
     <NewCliente v-if="data.newCliente.show" :editar="data.newCliente.editar" :title="data.newCliente.title"
                 :prov="data.newCliente.item" :ver="data.newCliente.ver" @closeDialog="closeDialog"/>
     <NewTipoCliente :show="data.newCatCliente.show" :editar="data.newCatCliente.editar"
-                    :title="data.newCatCliente.title"
-                    :prov="data.newCatCliente.item" :ver="data.newCatCliente.ver" @closeDialog="closeDialogCat"/>
+      :title="data.newCatCliente.title"
+      :prov="data.newCatCliente.item" :ver="data.newCatCliente.ver" @closeDialog="closeDialogCat"/>
     <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
   </div>
 </template>
@@ -371,5 +371,8 @@ export default {
 </script>
 
 <style scoped>
-
+.font {
+  font-size: 12px !important;
+  font-weight: 500;
+}
 </style>

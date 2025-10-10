@@ -1480,6 +1480,16 @@ export default {
 
           row.eachCell((cell, col) => {
               // Asignar bordes a cada celda
+              // Formato especial para columnas numéricas
+              
+              if (col === 7 ) { // Total
+                cell.numFmt = '"C$"#,##0.00';
+              }
+
+              if (col === 8 ) { // Total
+                cell.numFmt = '"C$"#,##0.00';
+              }
+
               if (1 !== col) {
                   cell.border = {
                       top: { style: 'thin', color: { argb: '000000' } },
@@ -1494,7 +1504,7 @@ export default {
       const headerRow = worksheet.getRow(headerRowIndex + 1);
       headerRow.eachCell((cell, col) => {
           if (1 !== col) {
-              cell.font = { bold: true, color: {argb: 'ffffff'} }; // Negrita en los encabezados
+              cell.font = { bold: true, color: {argb: 'ffffff'} };
               cell.style.fill = {
                   type: 'pattern',
                   pattern: 'solid',

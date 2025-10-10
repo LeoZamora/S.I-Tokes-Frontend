@@ -16,6 +16,7 @@
                   label="Fecha desde:"
                   density="compact"
                   type="date"
+                  variant="outlined"
                   :rules="[v => !!v || 'Requerido.']"
               ></v-text-field>
             </v-col>
@@ -25,12 +26,13 @@
                   label="Fecha hasta:"
                   density="compact"
                   type="date"
+                  variant="outlined"
                   :rules="[v => !!v || 'Requerido.']"
               ></v-text-field>
             </v-col>
           </v-row>
         </v-form>
-        <v-row>
+        <v-row dense>
           <v-col>
             <v-row>
               <v-col cols="4" class="py-4">
@@ -144,14 +146,28 @@
                   </v-row>
                 </div>
               </v-col>
-              <v-col cols="12">
-                <v-card elevation="3" height="300">
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-card-subtitle
+                class="d-flex align-center text-center mb-2"
+              >
+                <v-divider thickness="2" />
+                <span
+                  class="mx-6 text-grey font-weight-bold"
+                  >Estadísticas</span
+                >
+                <v-divider thickness="2" />
+              </v-card-subtitle>
+              <v-col cols="12" sm="12" md="12">
+                <v-card elevation="0" height="300">
                   <v-chart
-                      :option="ventas"
-                      autoresize
-                      style="height: 300px"
+                    :option="ventas"
+                    autoresize
+                    style="height: 300px"
                   />
                 </v-card>
+              </v-col>
               </v-col>
             </v-row>
           </v-col>

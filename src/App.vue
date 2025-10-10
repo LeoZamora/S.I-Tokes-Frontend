@@ -441,12 +441,17 @@ export default {
   font-size: 12px !important;
 } */
 
-:deep() .v-table .v-table__wrapper > table > thead > tr > th:not(:last-child) {
-    border-right: 2px solid rgba(var(--v-border-color), var(--v-border-opacity));
+:deep() .v-table .v-table__wrapper > table > thead > tr > th{
+    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)  );
 }
 :deep() .v-table .v-table__wrapper > table > tbody > tr > td:not(:last-child), .v-table .v-table__wrapper > table > tbody > tr > th:not(:last-child) { 
-    border-right: 2zpx solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
+:deep() .v-table .v-table__wrapper > table > tbody > tr > td, .v-table .v-table__wrapper > table > tbody > tr > th:is(:last-child) { 
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
 
 :deep() .v-list-group__items .v-list-item {
   padding-inline-start: 30px !important;

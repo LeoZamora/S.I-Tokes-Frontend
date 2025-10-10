@@ -33,67 +33,96 @@
           >
         </v-btn>
       </template>
-      <v-divider />
+      <v-divider thickness="2" />
       <v-row class="pa-2" dense>
-        <v-col cols="3" md="3" sm="3">
-          <v-text-field
-            v-model="data.search"
-            color="primary"
-            density="compact"
-            variant="outlined"
-            append-inner-icon="mdi-magnify"
-            label="Buscar en tabla:"
-            hide-details
-            placeholder="Ingrese un texto a buscar..."
-            persistent-placeholder
-          />
+        <v-col cols="12" md="12" sm="12">
+          <v-row dense>
+            <v-col>
+              <v-text-field
+                v-model="data.search"
+                color="primary"
+                density="compact"
+                variant="outlined"
+                append-inner-icon="mdi-magnify"
+                label="Buscar en tabla:"
+                hide-details
+                placeholder="Ingrese un texto a buscar..."
+                persistent-placeholder
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="search.desde"
+                label="Fecha desde:"
+                type="date"
+                density="compact"
+                variant="outlined"
+                hide-details
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="search.hasta"
+                label="Fecha hasta:"
+                type="date"
+                density="compact"
+                variant="outlined"
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
         </v-col>
-        <v-col cols="2">
-          <v-text-field
-            v-model="search.desde"
-            label="Fecha desde:"
-            type="date"
-            density="compact"
-            variant="outlined"
-            hide-details
-          ></v-text-field>
-        </v-col>
-        <v-col cols="2">
-          <v-text-field
-            v-model="search.hasta"
-            label="Fecha hasta:"
-            type="date"
-            density="compact"
-            variant="outlined"
-            hide-details
-          ></v-text-field>
-        </v-col>
-        <v-col
-          cols="5"
-          md="5"
-          sm="5"
-          class="d-flex justify-end align-center"
-        >
-          <v-btn
-            icon
-            color="green"
-            size="small"
-            variant="text"
-            class="mr-2 border"
-            @click="getVentas()"
-          >
-            <v-icon>mdi-refresh</v-icon>
-          </v-btn>
-          <v-btn
-            icon
-            color="grey"
-            size="small"
-            variant="text"
-            class="border"
-            @click="data.search = null"
-          >
-            <v-icon>mdi-broom</v-icon>
-          </v-btn>
+        <v-col cols="12" md="12" sm="12" class="d-flex justify-center align-center">
+          <v-row dense>
+            <v-col cols="12" md="6" sm="6" class="border-e align-center">
+              <div class="mx-2">
+                <v-icon>mdi-pound</v-icon>
+                <span>
+                  Cantidad ventas:
+                  <strong>
+                    {{
+                      data.facturas.length
+                    }}
+                  </strong>
+                </span>
+              </div>
+              <div class="mx-2">
+                <v-icon color="green"
+                  >mdi-cash-multiple</v-icon
+                >
+                <span>
+                  Total facturado: 
+                  <strong>
+                    {{
+                      formatedCurrency(totalFacturado)
+                    }}
+                  </strong>
+                </span>
+              </div>
+            </v-col>
+            <v-col cols="12" md="6" sm="6" class="d-flex align-center justify-end">
+              <v-btn
+                icon
+                color="green"
+                size="small"
+                variant="text"
+                class="mr-2 border"
+                @click="getVentas()"
+              >
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                color="grey"
+                size="small"
+                variant="text"
+                class="border"
+                @click="data.search = null"
+              >
+                <v-icon>mdi-broom</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
 
@@ -101,12 +130,12 @@
         <v-card-subtitle
           class="d-flex align-center text-center mb-2"
         >
-          <v-divider />
+          <v-divider thickness="2" />
           <span
             class="mx-6 text-grey font-weight-bold"
             >Registros</span
           >
-          <v-divider />
+          <v-divider thickness="2" />
         </v-card-subtitle>
         <v-data-table
           :search="data.search"
@@ -123,40 +152,6 @@
           items-per-page="10"
           hover
         >
-          <template v-slot:top>
-            <div
-              style="
-                border-bottom: 1px solid #e0e0e0;
-                font-size: 14px;
-              "
-              class="pa-1 font-weight-bold d-flex"
-            >
-              <div class="mx-2">
-                <v-icon>mdi-pound</v-icon>
-                {{
-                  `Cantidad ventas: ${data.facturas.length}`
-                }}
-              </div>
-              <div class="mx-2">
-                <v-icon color="green"
-                  >mdi-cash</v-icon
-                >
-                {{
-                  `Total facturado: ${formatedCurrency(totalFacturado)}`
-                }}
-              </div>
-              <!--<div class="mx-2">
-                <v-btn
-                  @click="snackbar.notify('warn', 'Visualizar el detalle de movimientos estará disponible proximamente.')"
-                  color="primary"
-                  size="x-small"
-                  prepend-icon="mdi-eye"
-                >
-                  Ver Detalles
-                </v-btn>
-              </div>-->
-            </div>
-          </template>
           <template v-slot:header.rutaCliente>
             <div>Ruta</div>
             <v-autocomplete
@@ -338,7 +333,6 @@ import {
 } from '@/scripts/api.js'
 import { useSnackbar } from '@/composables/use-snackbar.js'
 import { getIntervaloMesActual } from '@/scripts/utils.js'
-import * as sea from 'node:sea'
 
 export default {
   mounted() {
@@ -629,6 +623,7 @@ export default {
         'api/venta/lista',
         this.search
       )
+
       this.data.facturas = result.data
       this.data.loading = false
     },

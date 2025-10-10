@@ -2,53 +2,67 @@
   <v-card>
     <v-card-title>{{ `Abonar a cuenta (Factura N° ${credito.noVenta})` }}</v-card-title>
     <v-card-subtitle>
-      {{ `Saldo: ${formatedCurrency(credito.saldo)}` }}
+      Saldo actual: 
+      <strong>
+        {{ formatedCurrency(credito.saldo) }}
+      </strong>
     </v-card-subtitle>
     <v-divider></v-divider>
     <v-card-text>
       <v-form ref="form" :disabled="disabledForm">
         <v-row dense>
           <v-col cols="12">
-            <v-autocomplete
-                v-model="abono.idModalidad"
-                label="Modalidad:"
-                density="comfortable"
-                :items="cmb.modalidades"
-                :rules="[v => !!v || 'Requerido.']"
+            <v-autocomplete                
+              variant="outlined"
+              v-model="abono.idModalidad"
+              label="Modalidad:"
+              density="compact"
+              :items="cmb.modalidades"
+              :rules="[v => !!v || 'Requerido.']"
             ></v-autocomplete>
           </v-col>
           <v-col cols="12">
             <v-text-field
-                v-model="abono.numReferencia"
-                label="N° Referencia:"
-                density="comfortable"
+              variant="outlined"
+              v-model="abono.numReferencia"
+              label="N° Referencia:"
+              placeholder="n° de cheque, transferencia, etc."
+              persistent-placeholder
+              density="compact"
             ></v-text-field>
           </v-col>
           <v-col cols="12">
             <v-text-field
-                v-model="abono.monto"
-                label="Monto:"
-                density="comfortable"
-                type="number"
-                :rules="[v => !!v || 'Requerido.']"
+              variant="outlined"
+              v-model="abono.monto"
+              label="Monto:"
+              density="compact"
+              placeholder="0.00"
+              persistent-placeholder
+              type="number"
+              :rules="[v => !!v || 'Requerido.']"
             ></v-text-field>
           </v-col>
           <v-col cols="12">
             <v-text-field
-                v-model="abono.fechaMovimiento"
-                label="Fecha:"
-                type="date"
-                density="comfortable"
+              variant="outlined"
+              v-model="abono.fechaMovimiento"
+              label="Fecha:"
+              type="date"
+                density="compact"
                 :rules="[v => !!v || 'Requerido.']"
             ></v-text-field>
           </v-col>
           <v-col cols="12">
             <v-textarea
-                v-model="abono.observaciones"
-                label="Observaciones:"
-                density="comfortable"
-                rows="2"
-                auto-grow
+              variant="outlined"
+              v-model="abono.observaciones"
+              label="Observaciones:"
+              density="compact"
+              placeholder="Observaciones del abono..."
+              persistent-placeholder
+              rows="2"
+              auto-grow
             ></v-textarea>
           </v-col>
         </v-row>
@@ -89,7 +103,7 @@ export default {
       abono: {
         idModalidad: 1,
         numReferencia: '',
-        monto: 0,
+        monto: null,
         fechaMovimiento: getDate(),
         observaciones: '',
         usuarioRegistro: JSON.parse(localStorage.getItem('token')).usuario

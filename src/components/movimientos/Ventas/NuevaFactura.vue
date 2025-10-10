@@ -19,22 +19,29 @@
                     <v-col cols="6" md="4" sm="3" class="d-flex justify-start align-center pb-0">
                         <div class="d-flex justify-end align-center">
                             <small class="mr-2">Emision: </small>
-                            <small><strong>{{ localEdit ? formatedDate(data.editVenta.fechaRegistro) : formatedDate(data.emision) }}</strong></small>
+                            <small>
+                                <strong>
+                                    {{ localEdit ? formatedDate(data.editVenta.fechaRegistro) : formatedDate(data.emision) }}
+                                </strong>
+                            </small>
                         </div>
                     </v-col>
                     <v-col cols="12" md="4" sm="3" class="d-flex justify-start align-center pb-0">
                         <div class="d-flex align-center">
-                            <v-checkbox v-model="data.nio" color="indigo" density="compact" class="label" :hide-details="data.hide ? true : false">
+                            <v-checkbox v-model="data.nio" color="indigo" density="compact" class="label" 
+                                :hide-details="data.hide ? true : false">
                                 <template v-slot:label>
                                     <span id="checkLabel">Córdobas</span>
                                 </template>
                             </v-checkbox>
-                            <v-checkbox v-model="data.usd" color="indigo" density="compact" class="label" :hide-details="data.hide ? true : false">
+                            <v-checkbox v-model="data.usd" color="indigo" density="compact" class="label" 
+                                :hide-details="data.hide ? true : false">
                                 <template v-slot:label>
                                     <span id="checkLabel">Dólares</span>
                                 </template>
                             </v-checkbox>
-                            <v-checkbox v-model="data.venta.credito" color="indigo" density="compact" class="label" :hide-details="data.hide ? true : false">
+                            <v-checkbox v-model="data.venta.credito" color="indigo" density="compact" class="label" 
+                                :hide-details="data.hide ? true : false">
                                 <template v-slot:label>
                                     <span id="checkLabel">Crédito</span>
                                 </template>
@@ -61,7 +68,8 @@
                         <v-col cols="12" md="4" sm="4">
                             <v-autocomplete :rules="data.rules.rule" v-model="data.venta.idCliente" prepend-inner-icon="mdi-account" density="compact" 
                                 variant="outlined" :hide-details="data.hide ? true : false" label="Cliente" 
-                                placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes" clearable>
+                                placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes" 
+                                clearable>
                               <template v-slot:append-inner>
                                 <v-btn icon variant="text" size="small" @click="getClientes">
                                   <v-icon color="secondary">
@@ -88,11 +96,14 @@
                 </v-card-subtitle>
                 <v-row>
                     <v-col cols="12" md="4" sm="6">
-                        <v-autocomplete v-model="data.producto.idProducto" prepend-inner-icon="mdi-shopping" density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
-                            label="Productos" placeholder="productos a agregar" persistent-placeholder :items="data.productos"/>
+                        <v-autocomplete v-model="data.producto.idProducto" prepend-inner-icon="mdi-shopping" 
+                            density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
+                            label="Productos" placeholder="productos a agregar" persistent-placeholder 
+                            :items="data.productos"/>
                     </v-col>
                     <v-col cols="6" md="4" sm="6">
-                        <v-text-field v-model="data.producto.cantidad" prepend-inner-icon="mdi-numeric" density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
+                        <v-text-field v-model="data.producto.cantidad" prepend-inner-icon="mdi-numeric" 
+                            density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
                             label="Cantidad" placeholder="cantidad de productos" persistent-placeholder type="number"/>
                     </v-col>
                     <v-col cols="6" md="4" sm="6" class="d-flex justify-end align-center py-0">
@@ -115,7 +126,9 @@
                             <template v-slot:item.opc="{ item }">
                                 <v-tooltip text="Eliminar" location="top">
                                     <template v-slot:activator="{ props }">
-                                        <v-icon v-bind="props" color="error" @click="deleteProduct(item)" class="mr-1">mdi-delete</v-icon>
+                                        <v-icon v-bind="props" color="error" @click="deleteProduct(item)" class="mr-1">
+                                            mdi-delete
+                                        </v-icon>
                                     </template>
                                 </v-tooltip>
                             </template>
@@ -154,8 +167,15 @@
                 <v-btn color="grey" variant="outlined" @click="closeDialog()">
                     Cancelar
                 </v-btn>
-                <v-btn class="bg-indigo-darken-4" @click="guardarFactura()">
-                    Guardar
+                <v-btn class="bg-indigo-darken-4" @click="guardarFactura()"
+                    :disabled="data.contDisableBtn">
+                    <template v-if="data.contDisableBtn">
+                        <v-progress-circular color="blue-lighten-3" indeterminate
+                            :size="24" />
+                    </template>
+                    <template v-else>
+                        Guardar
+                    </template>
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -167,6 +187,7 @@ import { formatters } from '@/helpers/formatters';
 import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
 import { httpGet } from '@/scripts/api.js'
+import { useStore } from '@/store';
 
 export default {
     mounted() {
@@ -228,8 +249,12 @@ export default {
         const localTitle = ref(props.title)
         watch(() => props.show, async (newValue) => {
             localShow.value = newValue
-            var cod = await httpGet('api/venta/no-factura')
-            data.venta.noVenta = String(cod)
+            if (newValue) {
+                data.venta.usuarioRegistro = useStore().getNameUser()
+                console.log(data.venta.usuarioRegistro);
+                var cod = await httpGet('api/venta/no-factura')
+                data.venta.noVenta = String(cod)
+            }
         })
         watch(() => props.editar, async (val) => {
             localEdit.value = val
@@ -310,7 +335,7 @@ export default {
                 credito: false,
                 observaciones: null,
                 enviarA: null,
-                usuarioRegistro: 'Roberto',
+                usuarioRegistro: null,
                 detalleVenta: []
             },
             editVenta: {
@@ -320,7 +345,7 @@ export default {
                 idClienteNavigation: null,
                 detalleCxcs: [],
             },
-
+            contDisableBtn: false,
             hide: true,
             idVenta: null,
             emision: new Date(),
@@ -343,6 +368,13 @@ export default {
     },
 
     methods: {
+        probarBtn() {
+            this.data.contDisableBtn = true
+            setTimeout(() => {
+                this.data.contDisableBtn = false
+            }, 2000)
+        },
+
         async getClientes() {
             this.data.clientes = []
             this.data.loading = true
@@ -426,7 +458,7 @@ export default {
                     this.data.hide = false
                     setTimeout(() => {
                         this.data.hide = true
-                    }, 3000)
+                    }, 1500)
                     alert('Complete la informacion de la orden')
                     return
                 } else {
@@ -439,7 +471,10 @@ export default {
                             "observaciones": item.observaciones
                         })
                     })
+
+                    this.data.contDisableBtn = true
                     const result = await this.data.requestHttp.postVenta(this.data.venta)
+                    this.data.contDisableBtn = false
 
                     if (!result.code) {
                         alert('Registro Guardado')
@@ -469,10 +504,12 @@ export default {
                         })
                     })
 
+                    this.data.contDisableBtn = true
                     const result = await this.data.requestHttp.putVenta(
                         this.data.venta, 
                         this.data.editVenta.idVenta
                     )
+                    this.data.contDisableBtn = false
 
                     if (result !== null) {
                         alert('Registro Editado')
