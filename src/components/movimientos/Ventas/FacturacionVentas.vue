@@ -513,6 +513,21 @@ export default {
           }
         },
         {
+          title: 'Estado Mensaje',
+          key: 'estadoMensaje',
+          align: 'center',
+          sortable: false,
+          cellProps: {
+            class: 'pa-1'
+          },
+          headerProps: {
+            class: 'pa-1',
+            style: {
+              width: '1px'
+            }
+          }
+        },
+        {
           title: 'Fecha Registro',
           key: 'fechaRegistro',
           align: 'center'
