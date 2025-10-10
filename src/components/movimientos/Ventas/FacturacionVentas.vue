@@ -335,11 +335,13 @@ import { useSnackbar } from '@/composables/use-snackbar.js'
 import { getIntervaloMesActual } from '@/scripts/utils.js'
 
 export default {
-  mounted() {
-    this.verifyDataSecurity()
-    this.getVentas()
-    this.loadCmbClientes()
-    this.loadCmbRutas()
+  beforeRouteEnter(from, to, next) {
+    next(vm => {
+      vm.getVentas()
+      vm.loadCmbClientes()
+      vm.loadCmbRutas()
+      vm.verifyDataSecurity()
+    })
   },
 
   components: {

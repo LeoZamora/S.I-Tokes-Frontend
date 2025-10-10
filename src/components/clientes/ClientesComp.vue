@@ -26,7 +26,7 @@
         <v-row dense class="px-0" style="margin: 0;">
           <v-col cols="6" sm="6" md="6">
             <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details
-                          placeholder="Buscar textos" persistent-placeholder/>
+              placeholder="Buscar textos" persistent-placeholder/>
           </v-col>
           <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
             <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="refresData()">
@@ -62,29 +62,31 @@
           <template v-slot:item.idCategoriaClienteNavigation="{ item }">
             <div>{{ item.idCategoriaClienteNavigation.nombre }}</div>
           </template>
-          <template v-slot:item.opc="{  }">
-            <!--<v-tooltip text="Editar" location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" size="small" color="green" @click="openDialog('prov', 'edit', item)"
-                        class="mr-1">mdi-pencil
-                </v-icon>
-              </template>
-            </v-tooltip>-->
+          <template v-slot:item.opc="{ item }">
+            <div class="d-flex justify-space-between align-center">
+              <v-tooltip text="Editar" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-icon v-bind="props" size="small" color="green" @click="openDialog('prov', 'edit', item)"
+                    class="mr-1">mdi-pencil
+                  </v-icon>
+                </template>
+              </v-tooltip>
 
-            <!--<v-tooltip text="Eliminar" location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" size="small" color="error" @click="showAlert(item)" class="mr-1">mdi-delete
-                </v-icon>
-              </template>
-            </v-tooltip>-->
+              <!-- <v-tooltip text="Eliminar" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-icon v-bind="props" size="small" color="error" @click="showAlert(item)" class="mr-1">mdi-delete
+                  </v-icon>
+                </template>
+              </v-tooltip> -->
 
-            <!--<v-tooltip text="Ver" location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialog('prov', 'view', item)">
-                  mdi-eye
-                </v-icon>
-              </template>
-            </v-tooltip>-->
+              <v-tooltip text="Ver" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialog('prov', 'view', item)">
+                    mdi-eye
+                  </v-icon>
+                </template>
+              </v-tooltip>
+            </div>
           </template>
           <template v-slot:item.estado="{ item }">
             <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
@@ -138,8 +140,9 @@
       </v-card-text>
     </v-card>
 
-    <NewCliente v-if="data.newCliente.show" :editar="data.newCliente.editar" :title="data.newCliente.title"
-                :prov="data.newCliente.item" :ver="data.newCliente.ver" @closeDialog="closeDialog"/>
+    <!-- v-if="data.newCliente.show" -->
+    <NewCliente :show="data.newCliente.show" :editar="data.newCliente.editar" :title="data.newCliente.title"
+      :prov="data.newCliente.item" :ver="data.newCliente.ver" @closeDialog="closeDialog"/>
     <NewTipoCliente :show="data.newCatCliente.show" :editar="data.newCatCliente.editar"
       :title="data.newCatCliente.title"
       :prov="data.newCatCliente.item" :ver="data.newCatCliente.ver" @closeDialog="closeDialogCat"/>
@@ -246,6 +249,8 @@ export default {
       result.map(item => {
         this.data.items.push(item)
       })
+
+      this.data.items.reverse()
     },
     async getCategoriaClientes() {
       this.data.itemsCat = []

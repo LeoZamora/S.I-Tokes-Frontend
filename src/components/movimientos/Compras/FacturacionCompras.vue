@@ -107,7 +107,7 @@ import { useStore } from '@/store';
 export default {
     mounted() {
         this.verifyDataSecurity()
-        this.getOrdenes()    
+        this.getOrdenes()
     },
 
     components: {
