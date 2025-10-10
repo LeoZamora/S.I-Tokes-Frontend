@@ -21,12 +21,19 @@
     </v-snackbar>
     <!-- <LoginAuth v-if="!isLoggeInd"/> -->
     <v-app id="app" class="w-100 h-100">
-      <AppBar v-if="isLoggeInd" @toggle-drawer="toggleDrawer" @nameRoute="nameTab" @logout="clearApp"/>
-
       <v-navigation-drawer v-if="isLoggeInd" id="drawer" v-model="data.drawer" 
-        class="position-fixed bg-indigo-darken-4 font">
+        class="position-fixed font">
+        <!-- bg-indigo-darken-4 -->
+          <template v-slot:prepend>
+            <div class="d-flex bg-white rounded-pill justify-center align-center
+              elevation-4 pa-2 ma-2">
+              <img src="../public/128px.svg" alt="Emprovisa" height="80px">
+            </div>
+            <!-- <v-container >
+            </v-container> -->
+        </template>
         <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf">
-          <v-list-item prepend-icon="mdi-home" color="white" title="Inicio" :lines="true" rounded
+          <v-list-item prepend-icon="mdi-home" color="indigo" title="Inicio" :lines="true" rounded
             value="Inicio" @click="clearApp()" variant="elevated"/>
 
           <v-list-item
@@ -34,14 +41,17 @@
               prepend-icon="mdi-package" title="Resumen Inventario" :lines="true" rounded
               value="Resumen Inventario"></v-list-item>
 
-          <v-list-subheader><small class="font-weight-bold text-white">Gestión General</small></v-list-subheader>
+          <v-list-subheader>
+            <small class="font-weight-bold">Gestión General
+            </small>
+          </v-list-subheader>
 
           <v-list-group prepend-icon="mdi-cash-register">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="white"
+              <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="primary"
                 title="Ventas"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="white"
+            <v-list-item class="mx-2" rounded :lines="true" color="primary"
               v-for="([title, route, icon], i) in ventasFiltradas"
               :key="i" :value="title" @click="nameTab(route)">
               <template v-slot:prepend>
@@ -53,10 +63,10 @@
 
           <v-list-group prepend-icon="mdi-cash-clock">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Por Cobrar" :lines="true" color="white"
+              <v-list-item v-bind="props" rounded value="Por Cobrar" :lines="true" color="primary"
                            title="Por Cobrar"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="white"
+            <v-list-item class="mx-2" rounded :lines="true" color="primary"
                          v-for="([title, route, icon], i) in data.cxcActions"
                          :key="i" :value="title" @click="nameTab(route)">
               <template v-slot:prepend>
@@ -68,10 +78,10 @@
 
           <v-list-group prepend-icon="mdi-cart-arrow-down">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="white"
+              <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="primary"
                 title="Compras"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="white"
+            <v-list-item class="mx-2" rounded :lines="true" color="primary"
               v-for="([title, route, icon], i) in comprasFiltradas"
               :key="i" :value="title" @click="nameTab(route)">
               <template v-slot:prepend>
@@ -82,10 +92,10 @@
           </v-list-group>
           <v-list-group prepend-icon="mdi-account">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Clientes" :lines="true" color="white"
+              <v-list-item v-bind="props" rounded value="Clientes" :lines="true" color="primary"
                            title="Clientes"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="white"
+            <v-list-item class="mx-2" rounded :lines="true" color="primary"
                          v-for="([title, route, icon], i) in data.clientes"
                          :key="i" :value="title" @click="nameTab(route)">
               <template v-slot:prepend>
@@ -94,14 +104,17 @@
               <small>{{ title }}</small>
             </v-list-item>
           </v-list-group>
-          <v-list-subheader><small class="font-weight-bold text-white">Gestión Logística</small></v-list-subheader>
+          <v-list-subheader>
+            <small class="font-weight-bold">Gestión Logística
+            </small>
+          </v-list-subheader>
 
           <v-list-group prepend-icon="mdi-truck-off-road">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Rutas" :lines="true" color="white"
+              <v-list-item v-bind="props" rounded value="Rutas" :lines="true" color="primary"
                 title="Rutas"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="white"
+            <v-list-item class="mx-2" rounded :lines="true" color="primary"
               v-for="([title, route, icon], i) in data.rutas"
               :key="i" :value="title" @click="nameTab(route)">
               <template v-slot:prepend>
@@ -113,10 +126,10 @@
 
           <v-list-group prepend-icon="mdi-package-variant">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="white"
+              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="primary"
                 title="Inventario"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="white"
+            <v-list-item class="mx-2" rounded :lines="true" color="primary"
               v-for="([title, route, icon], i) in data.managerStock"
               :key="i" :value="title" @click="nameTab(route)">
               <template v-slot:prepend>
@@ -127,13 +140,16 @@
           </v-list-group>
 
 
-          <v-list-subheader><small class="font-weight-bold text-white">Gestión Empresarial</small></v-list-subheader>
+          <v-list-subheader>
+            <small class="font-weight-bold">Gestión Empresarial
+            </small>
+          </v-list-subheader>
           <v-list-group prepend-icon="mdi-abacus">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Movimientos" :lines="true" color="white"
+              <v-list-item v-bind="props" rounded value="Movimientos" :lines="true" color="primary"
                 title="Movimientos"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="white"
+            <v-list-item class="mx-2" rounded :lines="true" color="primary"
               v-for="([title, route, icon], i) in data.movimientos"
               :key="i" :value="title" @click="nameTab(route)">
               <template v-slot:prepend>
@@ -145,10 +161,10 @@
 
           <v-list-group prepend-icon="mdi-calendar">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Cierres" :lines="true" color="white"
+              <v-list-item v-bind="props" rounded value="Cierres" :lines="true" color="primary"
                 title="Cierres"/> 
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="white"
+            <v-list-item class="mx-2" rounded :lines="true" color="primary"
               v-for="([title, route, icon], i) in data.cierres"
               :key="i" :value="title" @click="nameTab(route)">
               <template v-slot:prepend>
@@ -176,6 +192,8 @@
           </div>
         </template>
       </v-navigation-drawer>
+
+      <AppBar v-if="isLoggeInd" @toggle-drawer="toggleDrawer" @nameRoute="nameTab" @logout="clearApp"/>
 
       <v-main class="w-100 position-relative">
         <TabsRoutes :routes="data.nameTabs" :name="data.nameCurrentTab" :index-tab="data.activeTab"

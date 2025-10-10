@@ -447,7 +447,10 @@ class RequestHttp {
             return result.data
         } catch (error) {
             // console.error('Error on request', error.response.data);
-            return null
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
     async deleteCliente(id) {

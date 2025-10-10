@@ -53,40 +53,40 @@
             </v-col>
             <v-col cols="12" md="12" sm="12" class="py-2">
               <v-text-field v-model="data.dataCliente.nombre" prepend-inner-icon="mdi-account" density="compact"
-                            :rules="[v => !!v || 'Requerido.']"
-                            variant="outlined" hide-details label="Nombre:" placeholder="Ingrese el nombre del cliente"
-                            persistent-placeholder :readonly="readonlyOption()"/>
+                :rules="[v => !!v || 'Requerido.']"
+                variant="outlined" hide-details label="Nombre:" placeholder="Ingrese el nombre del cliente"
+                persistent-placeholder :readonly="readonlyOption()"/>
             </v-col>
             <v-col cols="12" md="6" sm="6" class="py-2">
               <v-autocomplete :items="data.departamentos" v-model="data.dataCliente.idDepartamento"
-                              @update:model-value="getMunicipios"
-                              density="compact"
-                              :rules="[v => !!v || 'Requerido.']"
-                              variant="outlined" hide-details label="Departamento" placeholder="ingrese un departamento"
-                              persistent-placeholder :readonly="readonlyOption()"/>
+                @update:model-value="getMunicipios"
+                density="compact"
+                :rules="[v => !!v || 'Requerido.']"
+                variant="outlined" hide-details label="Departamento" placeholder="ingrese un departamento"
+                persistent-placeholder :readonly="readonlyOption()"/>
             </v-col>
             <v-col cols="12" md="6" sm="6" class="py-2">
-              <v-autocomplete :items="data.municipios" v-model="data.dataCliente.idMunicipio"
-                              density="compact"
-                              variant="outlined" hide-details label="Municipio" placeholder="ingrese un municipio"
-                              persistent-placeholder :readonly="readonlyOption()"/>
+            <v-autocomplete :items="data.municipios" v-model="data.dataCliente.idMunicipio"
+              density="compact"
+              variant="outlined" hide-details label="Municipio" placeholder="ingrese un municipio"
+              persistent-placeholder :readonly="readonlyOption()"/>
             </v-col>
             <v-col cols="12" md="6" sm="6" class="py-2">
               <v-autocomplete :items="cmb.rutas" v-model="data.dataCliente.idRuta"
-                              :rules="[v => !!v || 'Requerido.']"
-                              prepend-inner-icon="mdi-map-marker" density="compact"
-                              variant="outlined" hide-details label="Ruta:" placeholder="Ruta que cubre al cliente"
-                              persistent-placeholder :readonly="readonlyOption()"/>
+                :rules="[v => !!v || 'Requerido.']"
+                prepend-inner-icon="mdi-map-marker" density="compact"
+                variant="outlined" hide-details label="Ruta:" placeholder="Ruta que cubre al cliente"
+                persistent-placeholder :readonly="readonlyOption()"/>
             </v-col>
             <v-col cols="12" md="6" sm="6" class="py-2">
               <v-text-field v-model="data.dataCliente.telefono" prepend-inner-icon="mdi-phone" density="compact"
-                            variant="outlined" hide-details label="Teléfono" placeholder="teléfono del Cliente"
-                            persistent-placeholder type="number" :readonly="readonlyOption()"/>
+                variant="outlined" hide-details label="Teléfono" placeholder="teléfono del Cliente"
+                persistent-placeholder type="number" :readonly="readonlyOption()"/>
             </v-col>
             <v-col cols="12" md="12" sm="12" class="py-2">
               <v-textarea v-model="data.dataCliente.direccion" prepend-inner-icon="mdi-text" density="compact"
-                          variant="outlined" hide-details label="Dirección" placeholder="dirección del Cliente"
-                          persistent-placeholder :rows="2" :readonly="readonlyOption()"/>
+                variant="outlined" hide-details label="Dirección" placeholder="dirección del Cliente"
+                persistent-placeholder :rows="2" :readonly="readonlyOption()"/>
             </v-col>
           </v-row>
         </v-form>
@@ -116,6 +116,8 @@ export default {
     this.getCategoriaCliente()
     this.getDepartamentos()
     this.loadCmbRutas()
+
+    this.data.dataCliente.usuarioRegistro = JSON.parse(localStorage.getItem('token')).usuario
   },
 
   props: {
@@ -156,11 +158,38 @@ export default {
     const localCliente = ref(props.prov)
     const localTitle = ref(props.title)
     const localView = ref(props.ver)
+    const data = reactive({
+      nowDate: new Date(),
+      dataCliente: {
+        categoriaCliente: null,
+        departamento: null,
+        direccion: null,
+        estado: null,
+        fechaRegistro: null,
+        idCategoriaCliente: null,
+        idCliente: null,
+        idDepartamento: null,
+        idMunicipio: null,
+        idRuta: null,
+        municipio: null,
+        nombre: null,
+        ruta: null,
+        telefono: null,
+        usuarioRegistro: null,
+      },
+      departamentos: [],
+      municipios: [],
+      idCliente: null,
+      categoriaCliente: [],
+      requestHttp: new RequestHttp()
+    })
+    
     watch(() => props.show, (newValue) => {
       localShow.value = newValue
     })
     watch(() => props.editar, (val) => {
       localEdit.value = val
+            
       if (val === true) {
         data.dataCliente.codigo = localCliente.value.codigo
         data.dataCliente.usuarioRegistro = localCliente.value.usuarioRegistro
@@ -169,48 +198,39 @@ export default {
         data.dataCliente.municipio = localCliente.value.municipio
         data.dataCliente.direccion = localCliente.value.direccion
         data.dataCliente.idCategoriaCliente = localCliente.value.idCategoriaCliente
-        data.idClient = localCliente.value.idCliente
+        data.idCliente = localCliente.value.idCliente
       }
     })
     watch(() => props.prov, (val) => {
       localCliente.value = val
+      
+      if (val) {
+        data.dataCliente = localCliente.value
+        data.idCliente = localCliente.value.idCliente
+      }
     })
     watch(() => props.title, (val) => {
       localTitle.value = val
     })
-    watch(() => props.ver, (val) => {
-      localView.value = val
-      if (val === true) {
-        data.dataCliente.codigo = localCliente.value.codigo
-        data.dataCliente.usuarioRegistro = localCliente.value.usuarioRegistro
-        data.dataCliente.telefono = localCliente.value.telefono
-        data.dataCliente.departamento = localCliente.value.departamento
-        data.dataCliente.municipio = localCliente.value.municipio
-        data.dataCliente.direccion = localCliente.value.direccion
-        data.dataCliente.personaNatural = localCliente.value.personaNatural
-        data.dataCliente.idCategoriaCliente = localCliente.value.idCategoriaCliente
-        data.idClient = localCliente.value.idClienteedor
+
+    async function getMunicipios() {
+      data.municipios = []
+      const result = await data.requestHttp.getMunById(data.dataCliente.idDepartamento)
+      result.map(item => {
+        data.municipios.push({title: item.nombre, value: item.id})
+      })
+    }
+
+    watch(() => data.dataCliente.idDepartamento, (val) => {
+      if (val) {
+        getMunicipios()
       }
     })
 
-    const data = reactive({
-      nowDate: new Date(),
-      dataCliente: {
-        nombre: null,
-        idRuta: null,
-        idCategoriaCliente: null,
-        telefono: null,
-        idDepartamento: null,
-        idMunicipio: null,
-        direccion: null,
-        personaNatural: false,
-        usuarioRegistro: JSON.parse(localStorage.getItem('token')).usuario
-      },
-      departamentos: [],
-      municipios: [],
-      idClient: localCliente.value.idCliente,
-      categoriaCliente: [],
-      requestHttp: new RequestHttp()
+    watch(() => props.ver, (val) => {
+      localView.value = val
+      if (val === true) {        
+      }
     })
 
     return {
@@ -219,7 +239,8 @@ export default {
       localTitle,
       localCliente,
       localView,
-      data
+      data,
+      getMunicipios,
     }
   },
 
@@ -246,8 +267,8 @@ export default {
           return
         }
       } else {
-        if (this.$refs.form.validate() && this.data.idClient) {
-          const result = await this.data.requestHttp.putCliente(this.data.dataCliente, this.data.idClient)
+        if (this.$refs.form.validate() && this.data.idCliente) {
+          const result = await this.data.requestHttp.putCliente(this.data.dataCliente, this.data.idCliente)
           if (result !== null) {
             alert('Registro Editado')
             this.$emit('closeDialog', false)
@@ -273,18 +294,8 @@ export default {
     async getDepartamentos() {
       this.data.departamentos = []
       const result = await this.data.requestHttp.getDepartamentos()
-      console.log(result);
       result.map(item => {
         this.data.departamentos.push({title: item.nombre, value: item.id})
-      })
-    },
-
-    async getMunicipios() {
-      this.data.municipios = []
-      const result = await this.data.requestHttp.getMunById(this.data.dataCliente.idDepartamento)
-      console.log(result);
-      result.map(item => {
-        this.data.municipios.push({title: item.nombre, value: item.id})
       })
     },
 
