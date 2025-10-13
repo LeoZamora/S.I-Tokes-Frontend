@@ -193,6 +193,16 @@
               {{ formatedCurrency(item.total) }}
             </div>
           </template>
+          <template v-slot:item.estadoMensaje="{ item }">
+            <v-btn icon size="small" variant="flat" class="border">
+              <v-icon :color="setIcon(item.estadoMensaje).color ?  setIcon(item.estadoMensaje).color : 'grey'">
+                {{ setIcon(item.estadoMensaje).icon }}
+              </v-icon>
+              <v-tooltip activator="parent" location="top center">
+                {{ setIcon(item.estadoMensaje).msg }}
+              </v-tooltip>
+            </v-btn>
+          </template>
           <template
             v-slot:item.fechaRegistro="{ item }"
           >
@@ -591,6 +601,42 @@ export default {
 
   methods: {
     hasAccessToFunct,
+    
+    setIcon(estado) { 
+      if (estado === 'No Enviado') {
+        return {
+          color: 'red',
+          icon: 'mdi-check',
+          msg: 'No enviado'
+        } 
+      }
+
+      if (estado === 'Enviado') {
+        
+        return {
+          color: 'grey',
+          icon:  'mdi-check',
+          msg: 'Enviado'
+        } 
+      }
+
+      if (estado === 'Entregado') {
+        return {
+          color: 'grey',
+          icon:  'mdi-check-all',
+          msg: 'Entregado'
+        } 
+      }
+
+      if (estado == 'Leído') {
+        return {
+          color: 'primary',
+          icon:  'mdi-check-all',
+          msg: 'Leído'
+        } 
+      }
+    },
+
     async loadCmbClientes() {
       const clientes = await getItemsCombobox(
         'api/cliente/combobox'
