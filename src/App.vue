@@ -37,6 +37,7 @@
             value="Inicio" @click="clearApp()" variant="elevated"/>
 
           <v-list-item
+            v-if="hasAccessToMenu('10')"
               @click="nameTab('Resumen Inventario')"
               prepend-icon="mdi-package" title="Resumen Inventario" :lines="true" rounded
               value="Resumen Inventario"></v-list-item>
@@ -46,131 +47,135 @@
             </small>
           </v-list-subheader>
 
-          <v-list-group prepend-icon="mdi-cash-register">
+          <v-list-group prepend-icon="mdi-cash-register" v-if="data.ventas.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="primary"
                 title="Ventas"/>
             </template>
             <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="([title, route, icon], i) in ventasFiltradas"
-              :key="i" :value="title" @click="nameTab(route)">
+              v-for="i in data.ventas.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="i.route" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
-                <small>{{ title }}</small>
+                <small>{{ i.title }}</small>
             </v-list-item>
           </v-list-group>
 
-          <v-list-group prepend-icon="mdi-cash-clock">
+          <v-list-group prepend-icon="mdi-cash-clock" v-if="data.porCobrar.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Por Cobrar" :lines="true" color="primary"
                            title="Por Cobrar"/>
             </template>
             <v-list-item class="mx-2" rounded :lines="true" color="primary"
-                         v-for="([title, route, icon], i) in data.cxcActions"
-                         :key="i" :value="title" @click="nameTab(route)">
+                         v-for="i in data.porCobrar.filter(c => hasAccessToMenu(c.idVentana))"
+                         :key="i.route" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                 <v-icon>mdi-menu-right</v-icon>
               </template>
-              <small>{{ title }}</small>
+              <small>{{ i.title }}</small>
             </v-list-item>
           </v-list-group>
-
-          <v-list-group prepend-icon="mdi-cart-arrow-down">
+          <!--POR COBRAR-->
+          <v-list-group prepend-icon="mdi-cart-arrow-down" v-if="data.compras.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="primary"
                 title="Compras"/>
             </template>
             <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="([title, route, icon], i) in comprasFiltradas"
-              :key="i" :value="title" @click="nameTab(route)">
+              v-for="i in data.compras.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="i.route" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
-                <small>{{ title }}</small>
+                <small>{{ i.title }}</small>
             </v-list-item>
           </v-list-group>
-          <v-list-group prepend-icon="mdi-account">
+          <!--CLIENTES-->
+          <v-list-group prepend-icon="mdi-account" v-if="data.clientes.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Clientes" :lines="true" color="primary"
                            title="Clientes"/>
             </template>
             <v-list-item class="mx-2" rounded :lines="true" color="primary"
-                         v-for="([title, route, icon], i) in data.clientes"
-                         :key="i" :value="title" @click="nameTab(route)">
+                         v-for="i in data.clientes.filter(c => hasAccessToMenu(c.idVentana))"
+                         :key="i.route" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                 <v-icon>mdi-menu-right</v-icon>
               </template>
-              <small>{{ title }}</small>
+              <small>{{ i.title }}</small>
             </v-list-item>
           </v-list-group>
+
           <v-list-subheader>
             <small class="font-weight-bold">Gestión Logística
             </small>
           </v-list-subheader>
 
-          <v-list-group prepend-icon="mdi-truck-off-road">
+          <!--RUTAS-->
+          <v-list-group prepend-icon="mdi-truck-off-road" v-if="data.rutas.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Rutas" :lines="true" color="primary"
                 title="Rutas"/>
             </template>
             <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="([title, route, icon], i) in data.rutas"
-              :key="i" :value="title" @click="nameTab(route)">
+              v-for="i in data.rutas.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="i.route" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
-                <small>{{ title }}</small>
+                <small>{{ i.title }}</small>
             </v-list-item>
           </v-list-group>
 
-          <v-list-group prepend-icon="mdi-package-variant">
+          <!--INVENTARIO-->
+          <v-list-group prepend-icon="mdi-package-variant" v-if="data.inventario.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="primary"
                 title="Inventario"/>
             </template>
             <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="([title, route, icon], i) in data.managerStock"
-              :key="i" :value="title" @click="nameTab(route)">
+              v-for="i in data.inventario.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="i.route" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
-                <small>{{ title }}</small>
+                <small>{{ i.title }}</small>
             </v-list-item>
           </v-list-group>
-
 
           <v-list-subheader>
             <small class="font-weight-bold">Gestión Empresarial
             </small>
           </v-list-subheader>
-          <v-list-group prepend-icon="mdi-abacus">
+
+          <v-list-group prepend-icon="mdi-abacus" v-if="data.movimientos.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Movimientos" :lines="true" color="primary"
                 title="Movimientos"/>
             </template>
             <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="([title, route, icon], i) in data.movimientos"
-              :key="i" :value="title" @click="nameTab(route)">
+              v-for="i in data.movimientos.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="i.route" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
-                <small>{{ title }}</small>
+                <small>{{ i.title }}</small>
             </v-list-item>
           </v-list-group>
 
-          <v-list-group prepend-icon="mdi-calendar">
+          <v-list-group prepend-icon="mdi-calendar" v-if="data.cierres.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" rounded value="Cierres" :lines="true" color="primary"
                 title="Cierres"/> 
             </template>
             <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="([title, route, icon], i) in data.cierres"
-              :key="i" :value="title" @click="nameTab(route)">
+              v-for="i in data.cierres.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="i.route" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
-                <small>{{ title }}</small>
+                <small>{{ i.title }}</small>
             </v-list-item>
           </v-list-group>
         </v-list>
@@ -244,6 +249,7 @@ import TabsRoutes from './components/widgets/TabsRoutes.vue';
 // import LoginAuth from './components/login/LoginAuth.vue';
 import environment from './helpers/environment.js';
 import {useStore} from './store';
+import { hasAccessToMenu } from '@/scripts/Seguridad.js'
 
 export default {
   mounted() {
@@ -285,10 +291,6 @@ export default {
 
     const data = reactive({
       drawer: true,
-      clientes: [
-        // ['Tipos de Cliente', 'Tipos de Cliente'],
-        ['Clientes', 'Clientes'],
-      ],
       cxcActions: [
         ['Cuentas por Cobrar', 'CXC'],
       ],
@@ -297,20 +299,97 @@ export default {
         ['Facturación', 'Facturacion'],
         //['Cuentas por Cobrar', 'CPC'],
       ],
+      porCobrar: [
+        {
+          title: 'Cuentas por Cobrar',
+          route: 'CXC',
+          idVentana: '8'
+        },
+      ],
+      clientes: [
+        {
+          title: 'Clientes',
+          route: 'Clientes',
+          idVentana: '9'
+        },
+      ],
+      ventas: [
+        {
+          title: 'Tipos de Venta',
+          route: 'Tipos de Venta',
+          idVentana: '3'
+        },
+        {
+          title: 'Facturación',
+          route: 'Facturacion',
+          idVentana: '3'
+        },
+      ],
+      compras: [
+        {
+          title: 'Proveedores',
+          route: 'Proveedores',
+          idVentana: '10'
+        },
+        {
+          title: 'Órdenes de compra',
+          route: 'Ordenes',
+          idVentana: '7'
+        },
+      ],
+      rutas: [
+        {
+          title: 'Rutas',
+          route: 'Rutas',
+          idVentana: '11'
+        },
+      ],
+      inventario: [
+        {
+          title: 'Categorías Productos',
+          route: 'Categorias',
+          idVentana: '12'
+        },
+        {
+          title: 'Productos',
+          route: 'Productos',
+          idVentana: '12'
+        },
+        {
+          title: 'Movimientos',
+          route: 'Movimientos_Facturacion',
+          idVentana: '12'
+        },
+      ],
+
+      movimientos: [
+        {
+          title: 'Tipos Movimiento',
+          route: 'Tipos M.',
+          idVentana: '13'
+        },
+        {
+          title: 'Conceptos',
+          route: 'Conceptos',
+          idVentana: '13'
+        },
+        {
+          title: 'Movimientos Empresariales',
+          route: 'Movimientos E.',
+          idVentana: '13'
+        },
+      ],
+      cierres: [
+        {
+          title: 'Cierres',
+          route: 'Cierres',
+          idVentana: '13'
+        },
+      ],
+
       compraActions: [
         ['Proveedores', 'Proveedores'],
         ['Órdenes de compra', 'Ordenes']
-      ],
-      movimientos: [
-        ['Tipos Movimiento', 'Tipos M.'],
-        ['Conceptos', 'Conceptos'],
-        ['Movimientos E.', 'Movimientos E.'],
-      ],
-      rutas: [
-        ['Rutas', 'Rutas'],
-      ],
-      cierres: [
-        ['Cierres', 'Cierres'],
       ],
       managerStock: [
         ['Categorías  Productos', 'Categorias'],
@@ -344,6 +423,28 @@ export default {
   },
 
   computed: {
+    showGestionLogisticaSubTitle(){
+      let rutas = !!this.data.rutas.filter(c => hasAccessToMenu(c.idVentana)).length
+      let inventario = !!this.data.inventario.filter(c => hasAccessToMenu(c.idVentana)).length
+
+      if(rutas || inventario){
+        return true
+      }
+      else{
+        return false
+      }
+    },
+    showGestionEmpresarialSubTitle(){
+      let movimientos = this.data.movimientos.filter(c => hasAccessToMenu(c.idVentana)).length
+      let cierres = this.data.cierres.filter(c => hasAccessToMenu(c.idVentana)).length
+
+      if(movimientos || cierres){
+        return true
+      }
+      else{
+        return false
+      }
+    },
     ventasFiltradas() {
       return this.data.ventasActions.filter(([title]) => {
         if (!this.isLoggeInd && title === 'Facturación' && !this.data.views.fact) return false;
@@ -366,6 +467,7 @@ export default {
   },
 
   methods: {
+    hasAccessToMenu,
     verifyDataSecurity() {
       const token = this.store.getInfoUser()
       const ventanas = token.ventanasAcceso.split(",")

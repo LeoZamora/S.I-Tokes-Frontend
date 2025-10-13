@@ -12,7 +12,7 @@
         </div>
       </template>
       <template v-slot:append>
-        <v-btn class="bg-primary rounded-" @click="openRegistrarDisplay">
+        <v-btn v-if="hasAccessToFunct('132')" class="bg-primary rounded-" @click="openRegistrarDisplay">
           <v-icon>mdi-plus</v-icon>
           <v-tooltip activator="parent" location="left">Nuevo cierre</v-tooltip>
         </v-btn>
@@ -65,6 +65,7 @@ import nuevoCierre from "@/views/empresa/cierres/components/nuevo-cierre.vue";
 import {httpGet} from "@/scripts/api.js";
 import {formatters} from "@/helpers/formatters.js";
 import {he} from "vuetify/locale";
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 export default {
   components: {
     nuevoCierre
@@ -245,6 +246,7 @@ export default {
   },
 
   methods: {
+    hasAccessToFunct,
     async loadTblCierres(){
       this.loading.load(true)
       try{
