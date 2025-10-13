@@ -20,7 +20,8 @@
             <v-card-text class="py-2 px-0">
                 <v-row dense class="px-0" style="margin: 0;">
                     <v-col cols="6" sm="6" md="6">
-                        <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
+                        <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" 
+                            hide-details placeholder="Buscar textos" persistent-placeholder/>
                     </v-col>
                     <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
                         <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getUsuarios()">
@@ -38,7 +39,9 @@
                     <span class="mx-6 text-grey font-weight-bold">Usuarios</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" :headers="data.headers" density="compact" :items="data.items">
+                <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" 
+                    :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle"
+                    :header-props="{ class: 'font-weight-bold text-uppercase' }">
                     <template v-slot:item.fechaRegistro="{ item }">
                         <div>{{ formateDate(item.fechaRegistro) }}</div>
                     </template>
@@ -107,6 +110,14 @@ export default {
 
     methods: {
       hasAccessToFunct,
+        setStyle({ index }) {
+            return {
+                class:
+                index % 2 === 0
+                    ? 'bg-white'
+                    : 'bg-indigo-lighten-5'
+            }
+        },
         async getUsuarios() {
             this.data.items = []
             this.data.loading = true

@@ -183,7 +183,7 @@
           <v-divider class="mx-4"/>
           <div class="d-flex justify-center pa-2 align-center">
             <div class="d-flex flex-column align-center bg-white pa-1 rounded-lg">
-              <v-img width="30" src="/32px.png"></v-img>
+              <v-img width="50" src="/32px.png"></v-img>
             </div>
             <v-divider vertical class="mx-3"></v-divider>
             <div class="d-flex flex-column align-center">
