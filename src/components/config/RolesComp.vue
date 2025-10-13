@@ -11,7 +11,7 @@
         </div>
       </template>
       <template v-slot:append>
-        <v-btn icon color="primary" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
+        <v-btn v-if="hasAccessToFunct('42')" icon color="primary" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
           <v-icon>mdi-account-plus</v-icon>
           <v-tooltip activator="parent" location="left">Agregar Usuario</v-tooltip>
         </v-btn>
@@ -50,7 +50,7 @@
           <template v-slot:item.opc="{ item }">
             <v-tooltip text="Editar Permisos" location="top">
               <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" size="small" color="green" @click="openPermisos(item)"
+                <v-icon v-if="hasAccessToFunct('43')" v-bind="props" size="small" color="green" @click="openPermisos(item)"
                         class="mr-1">mdi-pencil
                 </v-icon>
               </template>
@@ -73,7 +73,7 @@
                 border: 1px solid #e0e0e0;
               '
             >
-              <div class="d-flex justify-center">Movimientos</div>
+              <div class="d-flex justify-center">Gestión General</div>
               <div
                   class="ma-2"
                   style='border: 1px solid #e0e0e0;'
@@ -101,7 +101,7 @@
                 border: 1px solid #e0e0e0;
               '
             >
-              <div class="d-flex justify-center">Configuración</div>
+              <div class="d-flex justify-center">Gestión General</div>
               <div
                   class="ma-2"
                   style='border: 1px solid #e0e0e0;'
@@ -151,6 +151,7 @@ import RequestHttp from '@/services/requestHttp';
 import {httpGet, httpPut} from "@/scripts/api.js";
 
 import { VTreeview } from 'vuetify/labs/VTreeview'
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 export default {
   mounted() {
@@ -194,8 +195,20 @@ export default {
         setup: {
           facturacionPermisosTreeItems: [
             {
+              id: 10,
+              title: 'Dashboard',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '10-1',
+                  title: 'Resumen Inventario',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
               id: 3,
-              title: 'Facturacion',
+              title: 'Ventas',
               icon: 'mdi-menu',
               children: [
                 {
@@ -214,16 +227,33 @@ export default {
                   icon: 'mdi-monitor',
                 },
 
-                {
+                /*{
                   id: '3-4',
                   title: 'Eliminar',
+                  icon: 'mdi-monitor',
+                },*/
+              ],
+            },
+            {
+              id: 8,
+              title: 'Por Cobrar',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '8-1',
+                  title: 'Visualizar',
+                  icon: 'mdi-monitor',
+                },
+                {
+                  id: '8-5',
+                  title: 'Abonar',
                   icon: 'mdi-monitor',
                 },
               ],
             },
             {
               id: 7,
-              title: 'Órdenes de Compras',
+              title: 'Compras',
               icon: 'mdi-menu',
               children: [
                 {
@@ -233,23 +263,106 @@ export default {
                 },
                 {
                   id: '7-2',
+                  title: 'Registrar',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
+              id: 9,
+              title: 'Clientes',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '9-1',
+                  title: 'Visualizar',
+                  icon: 'mdi-monitor',
+                },
+                {
+                  id: '9-2',
+                  title: 'Registrar',
+                  icon: 'mdi-monitor',
+                },
+                {
+                  id: '9-3',
+                  title: 'Editar',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
+              id: 11,
+              title: 'Rutas',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '11-1',
+                  title: 'Visualizar',
+                  icon: 'mdi-monitor',
+                },
+                {
+                  id: '11-2',
                   title: 'Crear',
                   icon: 'mdi-monitor',
                 },
                 {
-                  id: '7-3',
+                  id: '11-3',
                   title: 'Editar',
-                  icon: 'mdi-monitor',
-                },
-                {
-                  id: '7-4',
-                  title: 'Eliminar',
                   icon: 'mdi-monitor',
                 },
               ],
             },
           ],
           configuracionPermisosTreeItems: [
+            {
+              id: 12,
+              title: 'Inventario - Productos',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '12-1',
+                  title: 'Visualizar',
+                  icon: 'mdi-monitor',
+                },
+                {
+                  id: '12-6',
+                  title: 'Exportar / Descargar',
+                  icon: 'mdi-monitor',
+                },
+                {
+                  id: '12-2',
+                  title: 'Crear',
+                  icon: 'mdi-monitor',
+                },
+                {
+                  id: '12-3',
+                  title: 'Editar',
+                  icon: 'mdi-monitor',
+                },
+                {
+                  id: '12-4',
+                  title: 'Eliminar',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
+              id: 13,
+              title: 'Cierres',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '13-1',
+                  title: 'Visualizar',
+                  icon: 'mdi-monitor',
+                },
+                {
+                  id: '13-2',
+                  title: 'Crear',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
             {
               id: 4,
               title: 'Roles',
@@ -270,12 +383,6 @@ export default {
                   title: 'Editar',
                   icon: 'mdi-monitor',
                 },
-
-                {
-                  id: '4-4',
-                  title: 'Eliminar',
-                  icon: 'mdi-monitor',
-                },
               ],
             },
             {
@@ -291,17 +398,6 @@ export default {
                 {
                   id: '5-2',
                   title: 'Crear',
-                  icon: 'mdi-monitor',
-                },
-                {
-                  id: '5-3',
-                  title: 'Editar',
-                  icon: 'mdi-monitor',
-                },
-
-                {
-                  id: '5-4',
-                  title: 'Eliminar',
                   icon: 'mdi-monitor',
                 },
               ],
@@ -324,6 +420,7 @@ export default {
   },
 
   methods: {
+    hasAccessToFunct,
     async guardarPermisos(){
       try {
         await httpPut('api/Rol/EditarPermisos', this.data.win2.data.permisos)
@@ -387,6 +484,12 @@ export default {
               me.win2.data.permisos.configuracion.push(x.idCompuesto)
               break
             default:
+              if([3, 7, 8, 9, 10, 11].includes(x.idVentana)){
+                me.win2.data.permisos.facturacion.push(x.idCompuesto)
+              }
+              else{
+                me.win2.data.permisos.configuracion.push(x.idCompuesto)
+              }
               break
           }
         })

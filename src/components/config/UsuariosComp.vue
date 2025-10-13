@@ -11,7 +11,7 @@
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn icon color="primary" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
+                <v-btn v-if="hasAccessToFunct('52')" icon color="primary" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
                     <v-icon>mdi-account-plus</v-icon>
                     <v-tooltip activator="parent" location="left">Agregar Usuario</v-tooltip> 
                 </v-btn>
@@ -59,6 +59,7 @@ import { formatters } from '@/helpers/formatters';
 import NewUsuario from './dialogsUsuario/NewUsuario.vue';
 import RequestHttp from '@/services/requestHttp';
 import { useStore } from '@/store';
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 
 export default {
@@ -105,6 +106,7 @@ export default {
     },
 
     methods: {
+      hasAccessToFunct,
         async getUsuarios() {
             this.data.items = []
             this.data.loading = true

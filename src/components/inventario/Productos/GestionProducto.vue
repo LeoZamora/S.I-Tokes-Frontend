@@ -21,7 +21,7 @@
         </div>
       </template>
       <template v-slot:append>
-        <v-btn class="mr-4" variant="tonal" color="error" @click="exportToExcel">
+        <v-btn v-if="hasAccessToFunct('126')" class="mr-4" variant="tonal" color="error" @click="exportToExcel">
           <v-icon>
             mdi-download-multiple
           </v-icon>
@@ -30,6 +30,7 @@
           </v-tooltip>
         </v-btn>
         <v-btn
+          v-if="hasAccessToFunct('122')"
             class="bg-indigo rounded-"
             @click="openDialog('create')"
         >
@@ -149,6 +150,7 @@
                 v-slot:activator="{ props }"
             >
               <v-icon
+                v-if="hasAccessToFunct('123')"
                   v-bind="props"
                   size="small"
                   color="green"
@@ -168,6 +170,7 @@
                 v-slot:activator="{ props }"
             >
               <v-icon
+                v-if="hasAccessToFunct('124')"
                   v-bind="props"
                   size="small"
                   color="error"
@@ -776,6 +779,7 @@ import axios from "axios";
 import NewCategoria from "@/components/inventario/Categorias/modalsCategorias/NewCategoria.vue";
 import NewSubCategoria from "@/components/inventario/Categorias/modalsCategorias/NewSubCat.vue";
 import { time } from 'echarts'
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 export default {
   mounted() {
@@ -1035,6 +1039,7 @@ export default {
   },
 
   methods: {
+    hasAccessToFunct,
     openNuevaCategoriaDisplay() {
       this.nuevaCategoriaDisplay.show = true
     },

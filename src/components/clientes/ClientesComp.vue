@@ -16,7 +16,7 @@
           <v-icon>mdi-account-plus</v-icon>
           <v-tooltip activator="parent" location="left">Agregar Tipo Clientes</v-tooltip>
         </v-btn>
-        <v-btn icon color="primary" variant="tonal" @click="openDialog('prov', 'create', null)">
+        <v-btn v-if="hasAccessToFunct('92')" icon color="primary" variant="tonal" @click="openDialog('prov', 'create', null)">
           <v-icon>mdi-account-outline</v-icon>
           <v-tooltip activator="parent" location="left">Agregar Cliente</v-tooltip>
         </v-btn>
@@ -66,7 +66,7 @@
             <div class="d-flex justify-space-between align-center">
               <v-tooltip text="Editar" location="top">
                 <template v-slot:activator="{ props }">
-                  <v-icon v-bind="props" size="small" color="green" @click="openDialog('prov', 'edit', item)"
+                  <v-icon v-if="hasAccessToFunct('93')" v-bind="props" size="small" color="green" @click="openDialog('prov', 'edit', item)"
                     class="mr-1">mdi-pencil
                   </v-icon>
                 </template>
@@ -157,6 +157,7 @@ import NewCliente from './dialogsClientes/NewCliente.vue';
 import NewTipoCliente from './dialogsClientes/NewTipoCliente.vue';
 import RequestHttp from '@/services/requestHttp';
 import AlertComp from '@/components/widgets/AlertComp.vue';
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 export default {
   mounted() {
@@ -235,6 +236,7 @@ export default {
   },
 
   methods: {
+    hasAccessToFunct,
     setStyle({index}) {
       return {
         class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',

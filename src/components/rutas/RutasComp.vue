@@ -12,7 +12,7 @@
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn v-if="data.crud.create" class="bg-primary rounded-" @click="createRutas()">
+                <v-btn v-if="hasAccessToFunct('112')" class="bg-primary rounded-" @click="createRutas()">
                     <v-icon>mdi-plus</v-icon>
                     <v-tooltip activator="parent" location="left">Nueva Rutas</v-tooltip> 
                 </v-btn>
@@ -60,7 +60,7 @@
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.edit" v-bind="props" size="small" color="green" @click="editRuta(item)" class="mr-1" >mdi-pencil</v-icon>
+                                <v-icon v-if="hasAccessToFunct('113')" v-bind="props" size="small" color="green" @click="editRuta(item)" class="mr-1" >mdi-pencil</v-icon>
                             </template>
                         </v-tooltip>
                         
@@ -99,6 +99,7 @@ import ViewRuta from './ViewRuta.vue';
 import RequestHttp from '@/services/requestHttp';
 import AlertComp from '@/components/widgets/AlertComp.vue';
 import { useStore } from '@/store';
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 export default {
     mounted() {
@@ -194,6 +195,7 @@ export default {
     },
 
     methods: {
+      hasAccessToFunct,
         setStyle({index}) {
             return {
                 class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',

@@ -21,7 +21,7 @@
       </template>
       <template v-slot:append>
         <v-btn
-          v-if="data.crud.create"
+          v-if="hasAccessToFunct('32')"
           class="bg-primary rounded-"
           @click="createFactura()"
         >
@@ -227,7 +227,7 @@
                 v-slot:activator="{ props }"
               >
                 <v-icon
-                  v-if="data.crud.edit"
+                  v-if="hasAccessToFunct('33')"
                   v-bind="props"
                   size="small"
                   color="green"
@@ -333,6 +333,7 @@ import {
 } from '@/scripts/api.js'
 import { useSnackbar } from '@/composables/use-snackbar.js'
 import { getIntervaloMesActual } from '@/scripts/utils.js'
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 export default {
   beforeRouteEnter(from, to, next) {
@@ -589,6 +590,7 @@ export default {
   },
 
   methods: {
+    hasAccessToFunct,
     async loadCmbClientes() {
       const clientes = await getItemsCombobox(
         'api/cliente/combobox'

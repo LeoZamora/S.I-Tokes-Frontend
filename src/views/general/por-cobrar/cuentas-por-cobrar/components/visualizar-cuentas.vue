@@ -88,6 +88,7 @@
               <v-tooltip text="Abonar" location="top">
                 <template v-slot:activator="{ props }">
                   <v-btn
+                    v-if="hasAccessToFunct('85')"
                     variant="text"
                     v-show="!item.cancelado"
                     @click="openAbonarDisplay(item)"
@@ -197,6 +198,7 @@ import {useSnackbar} from "@/composables/use-snackbar.js";
 import {formatters} from "@/helpers/formatters.js";
 import AbonarCuenta from "@/views/general/por-cobrar/cuentas-por-cobrar/components/abonar-cuenta.vue";
 import VisualizarAbonos from "@/views/general/por-cobrar/cuentas-por-cobrar/components/visualizar-abonos.vue";
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 export default {
   name: 'visualizar-cuentas',
   components: {VisualizarAbonos, AbonarCuenta},
@@ -370,6 +372,7 @@ export default {
   },
 
   methods: {
+    hasAccessToFunct,
     async loadTblCuentas(){
       this.loading.load(true)
       try{
