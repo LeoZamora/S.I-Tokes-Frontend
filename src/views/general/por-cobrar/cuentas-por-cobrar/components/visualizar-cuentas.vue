@@ -69,8 +69,20 @@
         <v-data-table
             :headers="tbl.headers"
             :items="tbl.items"
+            :search="search"
             class="border rounded font"
         >
+        <template v-slot:top>
+          <v-container>
+            <v-row>
+              <v-col>
+                <v-text-field v-model="search" variant="outlined" label="Buscar" density="comfortable"
+                  placeholder="Buscar Créditos" persistentPlaceholder/>
+              </v-col>
+            </v-row>
+          </v-container>
+          <v-divider />
+        </template>
         <template v-slot:item.opc="{ item }">
             <div class="d-flex justify-center">
               <v-tooltip text="Visualizar Abonos" location="top">
@@ -212,6 +224,7 @@ export default {
 
   data(){
     return {
+      search: null,
       tbl: {
         headers: [
           {
