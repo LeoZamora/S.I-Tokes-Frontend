@@ -93,62 +93,85 @@
       </v-card-subtitle>
 
       <v-card-text>
-        <v-data-table
+        <div>
+          <span style="font-size: 16px">Visualizar cuentas por:</span>
+          <v-btn-toggle
+            v-model="tbl.agruparXCliente"
+            color="primary"
+            class="ml-2"
+            mandatory
+          >
+            <v-btn :value="true">
+              <v-icon start>mdi-account</v-icon>
+              Clientes
+            </v-btn>
+
+            <v-btn :value="false">
+              <v-icon start>mdi-cash-register</v-icon>
+              Ventas
+            </v-btn>
+          </v-btn-toggle>
+        </div>
+        <template v-if="tbl.agruparXCliente">
+          <v-data-table
             :headers="tbl.headers"
             :items="tbl.items"
             :search="tbl.search"
             class="border rounded font"
-        >
-
-          <template v-slot:item.opc="{ item }">
-            <div>
-              <v-tooltip text="Visualizar Cuentas" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-btn
+          >
+            <template v-slot:item.opc="{ item }">
+              <div>
+                <v-tooltip text="Visualizar Cuentas" location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
                       @click="openVisualizarCuentasDisplay(item)"
                       v-bind="props" icon size="x-small" class="mx-1" variant="tonal">
-                    <v-icon color="indigo-darken-4">
-                      mdi-eye
-                    </v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
-            </div>
-          </template>
-          <template v-slot:item.saldoPendienteTotal="{ item }">
-            <div>{{ formatedCurrency(item.saldoPendienteTotal) }}</div>
-          </template>
-          <template v-slot:item.fechaRegistro="{ item }">
-            <div>{{ formatedDate(item.fechaRegistro) }}</div>
-          </template>
-          <!-- <template v-slot:item="{ item }">
-            <tr>
-              <td class="text-center" style="border: 1px solid #e0e0e0">
-                <div class="d-flex justify-center">
-                </div>
-              </td>
-              <td
-                  v-for="header in tbl.headers.filter(c => !c.opciones)"
-                  :key="header.key"
-                  :class="[
-                    header.align === 'center' && 'text-center',
-                    header.align === 'end' && 'text-right',
-                    header.align === 'start' && 'text-left'
-                  ]"   
-              >
-                <span v-if="header.format === 'currency'">
-                  {{ formatedCurrency(item[header.key]) }}
-                </span>
-                <span v-else-if="header.format === 'date'">
-                  {{ formatedDate(item[header.key]) }}
-                </span>
-                <span v-else>
-                  {{ `${header.format}${item[header.key]}` }}
-                </span>
-              </td>
-            </tr>
-          </template> -->
-        </v-data-table>
+                      <v-icon color="indigo-darken-4">
+                        mdi-eye
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                </v-tooltip>
+              </div>
+            </template>
+            <template v-slot:item.saldoPendienteTotal="{ item }">
+              <div>{{ formatedCurrency(item.saldoPendienteTotal) }}</div>
+            </template>
+            <template v-slot:item.fechaRegistro="{ item }">
+              <div>{{ formatedDate(item.fechaRegistro) }}</div>
+            </template>
+            <!-- <template v-slot:item="{ item }">
+              <tr>
+                <td class="text-center" style="border: 1px solid #e0e0e0">
+                  <div class="d-flex justify-center">
+                  </div>
+                </td>
+                <td
+                    v-for="header in tbl.headers.filter(c => !c.opciones)"
+                    :key="header.key"
+                    :class="[
+                      header.align === 'center' && 'text-center',
+                      header.align === 'end' && 'text-right',
+                      header.align === 'start' && 'text-left'
+                    ]"
+                >
+                  <span v-if="header.format === 'currency'">
+                    {{ formatedCurrency(item[header.key]) }}
+                  </span>
+                  <span v-else-if="header.format === 'date'">
+                    {{ formatedDate(item[header.key]) }}
+                  </span>
+                  <span v-else>
+                    {{ `${header.format}${item[header.key]}` }}
+                  </span>
+                </td>
+              </tr>
+            </template> -->
+          </v-data-table>
+        </template>
+        <template v-else>
+          <tabla-cuentas-por-venta class="border rounded font"></tabla-cuentas-por-venta>
+        </template>
       </v-card-text>
     </v-card>
 
@@ -166,11 +189,12 @@ import {httpGet} from "@/scripts/api.js";
 import {useLoading} from "@/composables/use-loading.js";
 import {useSnackbar} from "@/composables/use-snackbar.js";
 import {formatters} from "@/helpers/formatters.js";
+import TablaCuentasPorVenta from '@/views/general/por-cobrar/cuentas-por-cobrar/components/tabla-cuentas-por-venta.vue'
 import VisualizarCuentas from "@/views/general/por-cobrar/cuentas-por-cobrar/components/visualizar-cuentas.vue";
 
 export default {
   name: 'cuentas-por-cobrar',
-  components: {VisualizarCuentas},
+  components: {VisualizarCuentas, TablaCuentasPorVenta},
 
   computed: {
     totalFacturado() {
@@ -205,10 +229,11 @@ export default {
   data(){
     return {
       display: {
-        visualizarCuentas: false,
+        visualizarCuentas: 0,
       },
 
       tbl: {
+        agruparXCliente: true,
         search: '',
         items: [],
         headers: [
