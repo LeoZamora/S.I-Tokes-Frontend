@@ -3,24 +3,52 @@
     <v-data-table
       :headers="tbl.headers"
       :items="tbl.items"
-      :search="search"
+      :search="tbl.search"
+      :row-props="getRowStyles"
     >
       <template v-slot:top>
-        <v-container>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-model="search"
-                variant="outlined"
-                label="Buscar"
-                density="comfortable"
-                placeholder="Buscar Créditos"
-                persistent-placeholder
-                hide-details
-              />
-            </v-col>
-          </v-row>
-        </v-container>
+        <v-row dense class="pa-2">
+          <v-col>
+            <v-text-field
+              v-model="tbl.search"
+              variant="outlined"
+              label="Buscar"
+              density="comfortable"
+              placeholder="Buscar Créditos"
+              persistent-placeholder
+              hide-details
+            />
+          </v-col>
+          <v-col class="d-flex justify-end">
+            <div>
+              <div style="font-size: 16px">
+                Mostrar cuentas:
+              </div>
+              <div class="d-flex">
+                <v-btn-toggle
+                  v-model="search.estados"
+                  color="primary"
+                  class="ml-2"
+                  rounded="xl"
+                  variant="plain"
+                  mandatory
+                  multiple
+                  border
+                >
+                  <v-btn :value="1" color="orange-darken-4">
+                    Pendientes
+                  </v-btn>
+                  <v-btn :value="2" color="green-darken-4">
+                    Saldadas
+                  </v-btn>
+                  <v-btn :value="3" color="red-darken-4">
+                    Vencidas
+                  </v-btn>
+                </v-btn-toggle>
+              </div>
+            </div>
+          </v-col>
+        </v-row>
       </template>
       <template v-slot:item.opc="{ item }">
         <div class="d-flex justify-center">
@@ -92,6 +120,15 @@
           }}
         </div>
       </template>
+      <template
+        v-slot:item.totalAbonado="{ item }"
+      >
+        <div>
+          {{
+            `(${item.abonosRealizados}) ${formatedCurrency(item.totalAbonado)}`
+          }}
+        </div>
+      </template>
       <template v-slot:item.saldo="{ item }">
         <div>
           {{ formatedCurrency(item.saldo) }}
@@ -104,19 +141,19 @@
           {{ formatedDate(item.fechaRegistro) }}
         </div>
       </template>
-      <template v-slot:item.cancelado="{ item }">
+      <template v-slot:item.estado="{ item }">
         <div>
           <v-chip
             :color="
               item.cancelado
                 ? 'green-darken-4'
-                : 'orange-darken-4'
+                : (item.vencida ? 'red-darken-4' : 'orange-darken-4')
             "
           >
             {{
               item.cancelado
                 ? 'Saldada'
-                : 'Pendiente'
+                : (item.vencida ? 'Vencida' : 'Pendiente')
             }}
           </v-chip>
         </div>
@@ -202,7 +239,10 @@
 </template>
 
 <script>
-import { httpGet } from '@/scripts/api.js'
+import {
+  httpGet,
+  httpPost
+} from '@/scripts/api.js'
 import { useLoading } from '@/composables/use-loading.js'
 import { useSnackbar } from '@/composables/use-snackbar.js'
 import { formatters } from '@/helpers/formatters.js'
@@ -210,16 +250,21 @@ import AbonarCuenta from '@/views/general/por-cobrar/cuentas-por-cobrar/componen
 import VisualizarAbonos from '@/views/general/por-cobrar/cuentas-por-cobrar/components/visualizar-abonos.vue'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 export default {
-  name: 'visualizar-cuentas',
+  name: 'tabla-cuentas-por-venta',
   components: { VisualizarAbonos, AbonarCuenta },
 
   data() {
     return {
-      search: null,
+      search: {
+        idCliente: 0,
+        estados: [1, 3]
+      },
+
       tbl: {
+        search: '',
         headers: [
           {
-            title: '',
+            title: 'Opciones',
             key: 'opc',
             align: 'center',
             opciones: true,
@@ -230,19 +275,6 @@ export default {
             },
             cellProps: {
               class: 'pa-0'
-            }
-          },
-          {
-            title: 'Cliente',
-            key: 'cliente',
-            format: '',
-            align: 'center',
-            width: 1,
-            headerProps: {
-              class: 'pa-1'
-            },
-            cellProps: {
-              class: 'pa-1'
             }
           },
           {
@@ -272,8 +304,8 @@ export default {
             }
           },
           {
-            title: 'Productos Facturados',
-            key: 'productosVendidos',
+            title: 'Ruta Cliente',
+            key: 'rutaCliente',
             format: '',
             align: 'center',
             width: 1,
@@ -284,6 +316,20 @@ export default {
               class: 'pa-1'
             }
           },
+          {
+            title: 'Cliente',
+            key: 'cliente',
+            format: '',
+            align: 'center',
+            width: 1,
+            headerProps: {
+              class: 'pa-1'
+            },
+            cellProps: {
+              class: 'pa-1'
+            }
+          },
+
           {
             title: 'Total Facturado',
             key: 'totalVenta',
@@ -300,6 +346,19 @@ export default {
           {
             title: 'Monto Crédito',
             key: 'montoCredito',
+            format: 'currency',
+            align: 'center',
+            width: 1,
+            headerProps: {
+              class: 'pa-1'
+            },
+            cellProps: {
+              class: 'pa-1'
+            }
+          },
+          {
+            title: 'Total Abonado',
+            key: 'totalAbonado',
             format: 'currency',
             align: 'center',
             width: 1,
@@ -350,8 +409,22 @@ export default {
             }
           },
           {
-            title: 'Cuenta Saldada',
-            key: 'cancelado',
+            title: 'Días Vencido',
+            key: 'diasVencido',
+            format: '',
+            align: 'center',
+            width: 1,
+            opciones: true,
+            headerProps: {
+              class: 'pa-0'
+            },
+            cellProps: {
+              class: 'pa-0'
+            }
+          },
+          {
+            title: 'Estado',
+            key: 'estado',
             format: '',
             align: 'center',
             width: 1,
@@ -408,15 +481,25 @@ export default {
     async loadTblCuentas() {
       this.loading.load(true)
       try {
-        const cxc = await httpGet(
-          `api/cuentas-cobrar/creditos`
+        const cxc = await httpPost(
+          `api/cuentas-cobrar/creditos`,
+          this.search
         )
-        this.tbl.items = cxc
+        this.tbl.items = cxc.data
 
         this.loading.load(false)
       } catch (e) {
         this.handleException(e)
       }
+    },
+
+    getRowStyles(data){
+      if (data.item.vencida) {
+        return {
+          style: 'background-color: #FFEBEE;',
+        }
+      }
+      return {}
     },
 
     //FORMATERS
@@ -473,6 +556,15 @@ export default {
     close() {
       this.$emit('close')
     }
+  },
+
+  watch: {
+    search: {
+      handler() {
+        this.loadTblCuentas()
+      },
+      deep: true,
+    },
   },
 
   mounted() {
