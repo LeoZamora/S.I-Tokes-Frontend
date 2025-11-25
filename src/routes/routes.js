@@ -13,7 +13,7 @@ const routes = createRouter({
             component: () => import('@/components/pages/HomeApp.vue'),
             meta: {
                 requiredAuth: true,
-                title: 'Inicio | DevoDigital'
+                title: 'Inicio | I. Zafiro'
             } 
         },
         {
@@ -23,7 +23,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'R. Inventario | DevoDigital'
+                title: 'R. Inventario | I. Zafiro'
             }
         },
         {
@@ -31,7 +31,7 @@ const routes = createRouter({
             name: 'Login',
             component: () => import('@/components/login/LoginAuth.vue'),
             meta: {
-                title: 'Login | DevoDigital'
+                title: 'Login | I. Zafiro'
             }
         },
         {
@@ -41,7 +41,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'CXC | DevoDigital'
+                title: 'CXC | I. Zafiro'
             }
         },
         {
@@ -51,7 +51,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Conceptos | DevoDigital'
+                title: 'Conceptos | I. Zafiro'
             }
         },
         {
@@ -61,7 +61,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Movimientos E. | DevoDigital'
+                title: 'Movimientos E. | I. Zafiro'
             }
         }, {
             path: '/cierres/cierres',
@@ -70,7 +70,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Cierres | DevoDigital'
+                title: 'Cierres | I. Zafiro'
             }
         }, {
             path: '/gestion-productos',
@@ -79,7 +79,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Productos | DevoDigital'
+                title: 'Productos | I. Zafiro'
             }
         }, {
             path: '/facturacion',
@@ -88,7 +88,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Facturación | DevoDigital'
+                title: 'Facturación | I. Zafiro'
             }
         }, {
             path: '/ordenes',
@@ -98,7 +98,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Compras | DevoDigital'
+                title: 'Compras | I. Zafiro'
             }
         }, {
             path: '/proveedores',
@@ -107,7 +107,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Proveedores | DevoDigital'
+                title: 'Proveedores | I. Zafiro'
             }
         }, {
             path: '/categorias',
@@ -116,7 +116,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Categorías | DevoDigital'
+                title: 'Categorías | I. Zafiro'
             }
         }, {
             path: '/clientes',
@@ -125,7 +125,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Clientes | DevoDigital'
+                title: 'Clientes | I. Zafiro'
             }
         }, {
             path: '/cpc',
@@ -134,7 +134,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'CxC | DevoDigital'
+                title: 'CxC | I. Zafiro'
             }
         }, {
             path: '/movimientos-facturacion',
@@ -143,7 +143,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Movimientos | DevoDigital'
+                title: 'Movimientos | I. Zafiro'
             }
         }, {
             path: '/usuario',
@@ -152,7 +152,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Usuario | DevoDigital'
+                title: 'Usuario | I. Zafiro'
             }
         }, {
             path: '/roles-permisos',
@@ -161,7 +161,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Roles | DevoDigital'
+                title: 'Roles | I. Zafiro'
             }
         }, {
             path: '/rutas',
@@ -170,7 +170,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Roles | DevoDigital'
+                title: 'Roles | I. Zafiro'
             }
         }, {
             path: '/tipo-ventas',
@@ -180,7 +180,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'T. Ventas | DevoDigital'
+                title: 'T. Ventas | I. Zafiro'
             }
         }, {
             path: '/tipo-cliente',
@@ -190,7 +190,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'T. Cliente | DevoDigital'
+                title: 'T. Cliente | I. Zafiro'
             }
         }, {
             path: '/tipo-movimiento',
@@ -200,7 +200,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'T. Movimiento | DevoDigital'
+                title: 'T. Movimiento | I. Zafiro'
             }
         },
     ],
