@@ -520,8 +520,8 @@
                         <v-text-field
                             color="indigo"
                             v-model="
-                        data.form.cantidadTotal
-                      "
+                              data.form.cantidadTotal
+                            "
                             label="Stock"
                             :rules="[
                               rules.required,
@@ -532,6 +532,7 @@
                             density="compact"
                             type="number"
                             prepend-inner-icon="mdi-numeric"
+                            disabled
                         />
                       </v-col>
                     </v-row>
@@ -1345,7 +1346,9 @@ export default {
       this.data.dialog = false
       this.selectedProduct = null
       this.data.form.idSubCatProd = null
-      this.data.form = {}
+      this.data.form = {
+        cantidadTotal: 0,
+      }
     },
 
     async handleSave(productData) {
