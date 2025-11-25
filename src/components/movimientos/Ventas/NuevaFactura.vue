@@ -29,19 +29,19 @@
                     <v-col cols="12" md="4" sm="3" class="d-flex justify-start align-center pb-0">
                         <div class="d-flex align-center">
                             <v-checkbox v-model="data.nio" color="indigo" density="compact" class="label" 
-                                :hide-details="data.hide ? true : false">
+                                :hide-details="data.hide">
                                 <template v-slot:label>
                                     <span id="checkLabel">Córdobas</span>
                                 </template>
                             </v-checkbox>
                             <v-checkbox v-model="data.usd" color="indigo" density="compact" class="label" 
-                                :hide-details="data.hide ? true : false">
+                                :hide-details="data.hide">
                                 <template v-slot:label>
                                     <span id="checkLabel">Dólares</span>
                                 </template>
                             </v-checkbox>
                             <v-checkbox v-model="data.venta.credito" color="indigo" density="compact" class="label" 
-                                :hide-details="data.hide ? true : false">
+                                :hide-details="data.hide">
                                 <template v-slot:label>
                                     <span id="checkLabel">Crédito</span>
                                 </template>
@@ -57,17 +57,17 @@
                     <v-row dense>
                         <v-col cols="12" md="4" sm="4">
                             <v-text-field :rules="data.rules.rule" v-model="data.venta.noVenta" prepend-inner-icon="mdi-shopping" 
-                                density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
+                                density="compact" variant="outlined" :hide-details="data.hide"
                                 label="Nº Factura" placeholder="nº factura" persistent-placeholder readonly/>
                         </v-col>
                         <v-col cols="12" md="4" sm="4">
                             <v-autocomplete :rules="data.rules.rule" v-model="data.venta.idTipoVenta" :items="data.tipoVenta"
-                                prepend-inner-icon="mdi-file-document-check" density="compact" variant="outlined" :hide-details="data.hide ? true : false"
+                                prepend-inner-icon="mdi-file-document-check" density="compact" variant="outlined" :hide-details="data.hide"
                                 label="Tipo de Venta" placeholder="tipos de ventas" persistent-placeholder clearable/>
                         </v-col>
                         <v-col cols="12" md="4" sm="4">
                             <v-autocomplete :rules="data.rules.rule" v-model="data.venta.idCliente" prepend-inner-icon="mdi-account" density="compact" 
-                                variant="outlined" :hide-details="data.hide ? true : false" label="Cliente" 
+                                variant="outlined" :hide-details="data.hide" label="Cliente"
                                 placeholder="ingrese el nombre del cliente" persistent-placeholder :items="data.clientes" 
                                 clearable>
                               <template v-slot:append-inner>
@@ -81,11 +81,11 @@
                         </v-col>
                         <!--<v-col cols="12" md="6" sm="6">
                             <v-autocomplete :rules="data.rules.rule" :items="data.empleados" v-model="data.venta.usuarioRegistro" 
-                                prepend-inner-icon="mdi-account-cog" density="compact" variant="outlined" :hide-details="data.hide ? true : false"
+                                prepend-inner-icon="mdi-account-cog" density="compact" variant="outlined" :hide-details="data.hide"
                                 label="Empleado" placeholder="empleado de registro" persistent-placeholder/>
                         </v-col>-->
                         <v-col cols="12" md="12" sm="12">
-                            <v-textarea v-model="data.venta.enviarA" density="compact" variant="outlined" :hide-details="data.hide ? true : false" label="Dirección de envio" placeholder="ingrese una dirección" 
+                            <v-textarea v-model="data.venta.enviarA" density="compact" variant="outlined" :hide-details="data.hide" label="Dirección de envio" placeholder="ingrese una dirección"
                                 persistent-placeholder rows="2"/>                        
                         </v-col>
                     </v-row>
@@ -97,13 +97,13 @@
                 <v-row>
                     <v-col cols="12" md="4" sm="6">
                         <v-autocomplete v-model="data.producto.idProducto" prepend-inner-icon="mdi-shopping" 
-                            density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
+                            density="compact" variant="outlined" :hide-details="data.hide"
                             label="Productos" placeholder="productos a agregar" persistent-placeholder 
                             :items="data.productos"/>
                     </v-col>
                     <v-col cols="6" md="4" sm="6">
                         <v-text-field v-model="data.producto.cantidad" prepend-inner-icon="mdi-numeric" 
-                            density="compact" variant="outlined" :hide-details="data.hide ? true : false" 
+                            density="compact" variant="outlined" :hide-details="data.hide"
                             label="Cantidad" placeholder="cantidad de productos" persistent-placeholder type="number"/>
                     </v-col>
                     <v-col cols="6" md="4" sm="6" class="d-flex justify-end align-center py-0">
@@ -142,7 +142,7 @@
                     </v-col>
                     <v-col cols="12" md="6" sm="6">
                         <v-textarea v-model="data.venta.observaciones" density="compact" variant="outlined" 
-                            :hide-details="data.hide ? true : false" label="Observaciones" placeholder="ingrese algunos detalles de la factura" 
+                            :hide-details="data.hide" label="Observaciones" placeholder="ingrese algunos detalles de la factura"
                             persistent-placeholder rows="3"/>                        
                     </v-col>
                     <v-col cols="12" md="6" sm="6" class="d-flex flex-column justify-end align-end">

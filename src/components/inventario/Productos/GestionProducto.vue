@@ -144,6 +144,14 @@
           </v-chip>
         </template>
 
+        <template v-slot:item.stockMin="{ item }">
+          <v-chip :color="setStockMinimo(item.cantidadMinima, item.cantidadTotal) ? 'green' : 'error'">
+            {{
+              setStockMinimo(item.cantidadMinima, item.cantidadTotal) ? 'NO' : 'SI'
+            }}
+          </v-chip>
+        </template>
+
         <template v-slot:item.actions="{ item }">
           <v-tooltip text="Editar" location="top">
             <template
@@ -782,10 +790,10 @@ import { time } from 'echarts'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 export default {
-  mounted() {
-    this.getProductos()
-    this.loadCmbCategoria()
-  },
+  // mounted() {
+  //   this.getProductos()
+  //   this.loadCmbCategoria()
+  // },
 
   components: {
     NewCategoria,
@@ -869,6 +877,16 @@ export default {
         {
           title: 'Stock',
           key: 'cantidadTotal',
+          align: 'center'
+        },
+        {
+          title: 'Stock Min',
+          key: 'cantidadMinima',
+          align: 'center'
+        },
+        {
+          title: 'Debajo del Mínimo',
+          key: 'stockMin',
           align: 'center'
         },
         {
@@ -1007,7 +1025,7 @@ export default {
           'image/png'
         ],
         eliminarImagen: false,
-        maxFileSize: 1 * 1024 * 1024,
+        maxFileSize: 1024 * 1024,
         actualizandoCosto: false
       },
 
@@ -1038,10 +1056,25 @@ export default {
     }
   },
 
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      vm.getProductos()
+      vm.loadCmbCategoria()
+    })
+  },
+
   methods: {
     hasAccessToFunct,
     openNuevaCategoriaDisplay() {
       this.nuevaCategoriaDisplay.show = true
+    },
+
+    setStockMinimo(cantMin, cant) {
+      if(cantMin < cant) {
+        return true
+      } else {
+        return false
+      }
     },
 
     async closeNuevaCategoriaDisplay() {
@@ -1157,9 +1190,8 @@ export default {
     async getProductos() {
       this.data.products = []
       this.data.loading = true
-      const result =
-          await this.data.requestHttp.getProductos()
-      this.data.products = result
+      const result = await this.data.requestHttp.getProductos()
+      this.data.products = result.map(item => ({...item, stockMin: item.cantidadMinima > item.cantidadTotal ? 'SI' : 'NO'}))
       this.data.loading = false
     },
 
@@ -1407,10 +1439,11 @@ export default {
       let totalInv = 0;
       let totalVentaInv = 0;
       let totalUtilidad = 0;
+
       productos.map(item => {
         totalInv += item.cantidadTotal * item.costo;
         totalVentaInv += item.cantidadTotal * item.precio
-
+        
         item.utilidad = item.cantidadTotal * (item.precio - item.costo)
         // item.precio = this.formatCurrency(item.precio)
         // item.costo = this.formatCurrency(item.costo)
@@ -1469,7 +1502,8 @@ export default {
 
       const headerRowIndex = exporData.length - rows.length; // Índice de la fila de encabezados
       const tableSize = exporData.length + 1
-      for (let i = headerRowIndex + 1; i <= tableSize; i++) {  // Desde la fila de datos hasta el final
+      const fechasFormatted = [12]
+      for (let i = headerRowIndex + 2; i <= tableSize; i++) {  // Desde la fila de datos hasta el final
           const row = worksheet.getRow(i);
           if (i % 2 === 0) {
               row.eachCell((cell, col) => {
@@ -1484,25 +1518,30 @@ export default {
           }
 
           row.eachCell((cell, col) => {
-              // Asignar bordes a cada celda
-              // Formato especial para columnas numéricas
-              
-              if (col === 7 ) { // Total
-                cell.numFmt = '"C$"#,##0.00';
-              }
+            if (fechasFormatted.includes(col)) {
+              const fechaISO = cell.value
+              const fechaObj = new Date(fechaISO)
 
-              if (col === 8 ) { // Total
-                cell.numFmt = '"C$"#,##0.00';
-              }
+              cell.value = fechaObj
+              cell.numFmt = 'dd/mm/yyyy'
+            }
 
-              if (1 !== col) {
-                  cell.border = {
-                      top: { style: 'thin', color: { argb: '000000' } },
-                      left: { style: 'thin', color: { argb: '000000' } },
-                      bottom: { style: 'thin', color: { argb: '000000' } },
-                      right: { style: 'thin', color: { argb: '000000' } }
-                  };
-              }
+            if (col === 7 ) { // Tota   l
+              cell.numFmt = '"C$"#,##0.00';
+            }
+
+            if (col === 8 ) { // Total
+              cell.numFmt = '"C$"#,##0.00';
+            }
+
+            if (1 !== col) {
+              cell.border = {
+                top: { style: 'thin', color: { argb: '000000' } },
+                left: { style: 'thin', color: { argb: '000000' } },
+                bottom: { style: 'thin', color: { argb: '000000' } },
+                right: { style: 'thin', color: { argb: '000000' } }
+              };
+            }
           });
       }
 

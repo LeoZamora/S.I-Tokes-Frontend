@@ -7,19 +7,20 @@
       :row-props="getRowStyles"
     >
       <template v-slot:top>
-        <v-row dense class="pa-2">
-          <v-col>
+        <v-row dense class="pa-2 align-center">
+          <v-col cols="12" md="6" sm="6">
             <v-text-field
               v-model="tbl.search"
               variant="outlined"
               label="Buscar"
+              color="indigo-darken-4"
               density="comfortable"
               placeholder="Buscar Créditos"
               persistent-placeholder
               hide-details
             />
           </v-col>
-          <v-col class="d-flex justify-end">
+          <v-col cols="12" md="6" sm="6" class="d-flex justify-end">
             <div>
               <div style="font-size: 16px">
                 Mostrar cuentas:
@@ -49,6 +50,7 @@
             </div>
           </v-col>
         </v-row>
+        <v-divider />
       </template>
       <template v-slot:item.opc="{ item }">
         <div class="d-flex justify-center">

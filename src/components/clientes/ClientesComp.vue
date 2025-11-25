@@ -44,7 +44,8 @@
           <span class="mx-6 text-grey font-weight-bold">Clientes</span>
           <v-divider/>
         </v-card-subtitle>
-        <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border font"
+        <!-- :mobile="isMobile" -->
+        <v-data-table :loading="data.loading" :search="data.search" class="border font"
           :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle" hover 
           :header-props="{ class: 'font-weight-bold' }" height="400" fixed-header>
           <template v-slot:loader>
@@ -97,7 +98,8 @@
           <span class="mx-6 text-grey font-weight-bold">Tipo de Clientes</span>
           <v-divider/>
         </v-card-subtitle>
-        <v-data-table :loading="data.loadingTipo" :search="data.search" :mobile="isMobile" class="border font"
+        <!-- :mobile="isMobile" -->
+        <v-data-table :loading="data.loadingTipo" :search="data.search" class="border font"
           :headers="data.headersCat" density="compact" :items="data.itemsCat" :row-props="setStyle" 
           hover :header-props="{ class: 'font-weight-bold' }" height="400" fixed-header>
           <template v-slot:loader>

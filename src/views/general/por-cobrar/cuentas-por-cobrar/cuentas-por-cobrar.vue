@@ -92,13 +92,13 @@
         <v-divider thickness="2" />
       </v-card-subtitle>
 
-      <v-card-text>
-        <div>
+      <v-card-text class="pt-0">
+        <v-container class="px-0 py-2">
           <span style="font-size: 16px">Visualizar cuentas por:</span>
           <v-btn-toggle
             v-model="tbl.agruparXCliente"
             color="primary"
-            class="ml-2"
+            class="ml-2 border"
             mandatory
           >
             <v-btn :value="true">
@@ -111,7 +111,7 @@
               Ventas
             </v-btn>
           </v-btn-toggle>
-        </div>
+        </v-container>
         <template v-if="tbl.agruparXCliente">
           <v-data-table
             :headers="tbl.headers"

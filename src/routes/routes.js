@@ -13,8 +13,8 @@ const routes = createRouter({
             component: () => import('@/components/pages/HomeApp.vue'),
             meta: {
                 requiredAuth: true,
-                title: 'Inicio | Inversiones Zafiro'
-            }
+                title: 'Inicio | DevoDigital'
+            } 
         },
         {
             path: '/resumen-inventario',
@@ -23,7 +23,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'R. Inventario | Inversiones Zafiro'
+                title: 'R. Inventario | DevoDigital'
             }
         },
         {
@@ -31,17 +31,17 @@ const routes = createRouter({
             name: 'Login',
             component: () => import('@/components/login/LoginAuth.vue'),
             meta: {
-                title: 'Login | Inversiones Zafiro'
+                title: 'Login | DevoDigital'
             }
         },
         {
             path: '/cuentas-por-cobrar',
-            name: 'CXC',
+            name: 'Cuentas por Cobrar',
             component: () => import('@/views/general/por-cobrar/cuentas-por-cobrar/cuentas-por-cobrar.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'CXC | Inversiones Zafiro'
+                title: 'CXC | DevoDigital'
             }
         },
         {
@@ -51,7 +51,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Conceptos | Inversiones Zafiro'
+                title: 'Conceptos | DevoDigital'
             }
         },
         {
@@ -61,7 +61,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Movimientos E. | Inversiones Zafiro'
+                title: 'Movimientos E. | DevoDigital'
             }
         }, {
             path: '/cierres/cierres',
@@ -70,7 +70,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Cierres | Inversiones Zafiro'
+                title: 'Cierres | DevoDigital'
             }
         }, {
             path: '/gestion-productos',
@@ -79,26 +79,26 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Productos | Inversiones Zafiro'
+                title: 'Productos | DevoDigital'
             }
         }, {
             path: '/facturacion',
-            name: 'Facturacion',
+            name: 'Facturación',
             component: () => import('@/components/movimientos/Ventas/FacturacionVentas.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Facturación | Inversiones Zafiro'
+                title: 'Facturación | DevoDigital'
             }
         }, {
             path: '/ordenes',
-            name: 'Ordenes',
+            name: 'Órdenes de compra',
             // component: () => import('@/components/dev-alert.vue'),
             component: () => import('@/components/movimientos/Compras/FacturacionCompras.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Compras | Inversiones Zafiro'
+                title: 'Compras | DevoDigital'
             }
         }, {
             path: '/proveedores',
@@ -107,16 +107,16 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Proveedores | Inversiones Zafiro'
+                title: 'Proveedores | DevoDigital'
             }
         }, {
             path: '/categorias',
-            name: 'Categorias',
+            name: 'Categorías Productos',
             component: () => import('@/components/inventario/Categorias/CategoriasProductos.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Categorías | Inversiones Zafiro'
+                title: 'Categorías | DevoDigital'
             }
         }, {
             path: '/clientes',
@@ -125,7 +125,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Clientes | Inversiones Zafiro'
+                title: 'Clientes | DevoDigital'
             }
         }, {
             path: '/cpc',
@@ -134,16 +134,16 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'CxC | Inversiones Zafiro'
+                title: 'CxC | DevoDigital'
             }
         }, {
             path: '/movimientos-facturacion',
-            name: 'Movimientos_Facturacion',
+            name: 'Movimientos',
             component: () => import('@/components/inventario/Movimientos/MovimientosComp.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Movimientos | Inversiones Zafiro'
+                title: 'Movimientos | DevoDigital'
             }
         }, {
             path: '/usuario',
@@ -152,7 +152,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Usuario | Inversiones Zafiro'
+                title: 'Usuario | DevoDigital'
             }
         }, {
             path: '/roles-permisos',
@@ -161,7 +161,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Roles | Inversiones Zafiro'
+                title: 'Roles | DevoDigital'
             }
         }, {
             path: '/rutas',
@@ -170,7 +170,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'Roles | Inversiones Zafiro'
+                title: 'Roles | DevoDigital'
             }
         }, {
             path: '/tipo-ventas',
@@ -180,7 +180,7 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'T. Ventas | Inversiones Zafiro'
+                title: 'T. Ventas | DevoDigital'
             }
         }, {
             path: '/tipo-cliente',
@@ -190,17 +190,17 @@ const routes = createRouter({
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'T. Cliente | Inversiones Zafiro'
+                title: 'T. Cliente | DevoDigital'
             }
         }, {
             path: '/tipo-movimiento',
-            name: 'Tipos M.',
+            name: 'Tipos Movimiento',
             // component: () => import('@/components/dev-alert.vue'),
             component: () => import('@/components/inventario/Movimientos/TiposMov.vue'),
             meta: {
                 keepAlive: true,
                 requiredAuth: true,
-                title: 'T. Movimiento | Inversiones Zafiro'
+                title: 'T. Movimiento | DevoDigital'
             }
         },
     ],

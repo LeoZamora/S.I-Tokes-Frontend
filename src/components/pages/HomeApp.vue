@@ -93,7 +93,7 @@
           </div>
         </v-card>
       </v-col>
-      <v-col>
+      <v-col cols="6" md="3" sm="3">
         <v-card elevation="0" class="d-flex align-center justify-center border" height="100">
           <div class="d-flex flex-column align-center">
             <div style="font-size: 14px; color: grey">
@@ -109,7 +109,7 @@
           </div>
         </v-card>
       </v-col>
-      <v-col>
+      <v-col cols="6" md="3" sm="3">
         <v-card elevation="0" class="d-flex align-center justify-center border" height="100">
           <div class="d-flex flex-column align-center">
             <div style="font-size: 14px; color: grey">
@@ -125,7 +125,7 @@
           </div>
         </v-card>
       </v-col>
-      <v-col cols="6">
+      <v-col cols="12" md="6" sm="6">
         <v-card elevation="0" height="300">
           <v-chart
             :option="ventas"
@@ -134,7 +134,7 @@
           />
         </v-card>
       </v-col>
-      <v-col cols="6" class="border-s">
+      <v-col cols="12" md="6" sm="3" class="border-s">
         <v-row dense>
           <v-col cols="12" sm="12" md="12">
             <v-card elevation="0" height="300">

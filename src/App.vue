@@ -1,5 +1,5 @@
 <template>
-  <v-layout>
+  <v-responsive>
     <v-snackbar
         v-model="snackbar.show"
         :color="snackbar.color"
@@ -19,22 +19,23 @@
         </div>
       </div>
     </v-snackbar>
-    <!-- <LoginAuth v-if="!isLoggeInd"/> -->
-    <v-app id="app" class="w-100 h-100">
-      <v-navigation-drawer v-if="isLoggeInd" id="drawer" v-model="data.drawer" 
-        class="position-fixed font">
+
+    <v-app id="app">
+      <v-navigation-drawer v-if="isLoggeInd" v-model="data.drawer"
+        class="font">
         <!-- bg-indigo-darken-4 -->
           <template v-slot:prepend>
             <div class="d-flex bg-white rounded-pill justify-center align-center
               elevation-4 pa-2 ma-2">
-              <img src="../public/128px.svg" alt="Emprovisa" height="80px">
+              <img src="/128px.svg" alt="Emprovisa" height="80px">
             </div>
             <!-- <v-container >
             </v-container> -->
         </template>
-        <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf">
-          <v-list-item prepend-icon="mdi-home" color="indigo" title="Inicio" :lines="true" rounded
-            value="Inicio" @click="clearApp()" variant="elevated"/>
+        <v-list density="compact" v-model:selected="data.selectedItems" :mandatory="true" select-strategy="leaf"
+          class="mx-2">
+          <v-list-item prepend-icon="mdi-home" color="indigo-darken-4" title="Inicio" :lines="true" rounded
+            value="Inicio" @click="goToHome()" variant="elevated"/>
 
           <v-list-item
             v-if="hasAccessToMenu('10')"
@@ -47,44 +48,46 @@
             </small>
           </v-list-subheader>
 
+          <!-- VENTAS -->
           <v-list-group prepend-icon="mdi-cash-register" v-if="data.ventas.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="primary"
+              <v-list-item v-bind="props" rounded value="Venta" :lines="true" color="indigo-darken-4"
                 title="Ventas"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="i in data.ventas.filter(c => hasAccessToMenu(c.idVentana))"
-              :key="i.route" :value="i.title" @click="nameTab(i.route)">
-              <template v-slot:prepend>
-                  <v-icon>mdi-menu-right</v-icon>
-                </template>
-                <small>{{ i.title }}</small>
-            </v-list-item>
-          </v-list-group>
-
-          <v-list-group prepend-icon="mdi-cash-clock" v-if="data.porCobrar.filter(c => hasAccessToMenu(c.idVentana)).length">
-            <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Por Cobrar" :lines="true" color="primary"
-                           title="Por Cobrar"/>
-            </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
-                         v-for="i in data.porCobrar.filter(c => hasAccessToMenu(c.idVentana))"
-                         :key="i.route" :value="i.title" @click="nameTab(i.route)">
+            <v-list-item class="mx-2" rounded :lines="true" color="indigo-darken-4"
+              v-for="(i, index) in data.ventas.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="index" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                 <v-icon>mdi-menu-right</v-icon>
               </template>
               <small>{{ i.title }}</small>
             </v-list-item>
           </v-list-group>
-          <!--POR COBRAR-->
+
+          <!-- POR COBRAR -->
+          <v-list-group prepend-icon="mdi-cash-clock" v-if="data.porCobrar.filter(c => hasAccessToMenu(c.idVentana)).length">
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" rounded value="Por Cobrar" :lines="true" color="indigo-darken-4"
+                title="Por Cobrar"/>
+            </template>
+            <v-list-item class="mx-2" rounded :lines="true" color="indigo-darken-4"
+                v-for="(i, index) in data.porCobrar.filter(c => hasAccessToMenu(c.idVentana))"
+                :key="index" :value="i.title" @click="nameTab(i.route)">
+              <template v-slot:prepend>
+                <v-icon>mdi-menu-right</v-icon>
+              </template>
+              <small>{{ i.title }}</small>
+            </v-list-item>
+          </v-list-group>
+
           <v-list-group prepend-icon="mdi-cart-arrow-down" v-if="data.compras.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="primary"
+              <v-list-item v-bind="props" rounded value="Compras" :lines="true" color="indigo-darken-4"
                 title="Compras"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="i in data.compras.filter(c => hasAccessToMenu(c.idVentana))"
-              :key="i.route" :value="i.title" @click="nameTab(i.route)">
+            <v-list-item class="mx-2" rounded :lines="true" color="indigo-darken-4"
+              v-for="(i, index) in data.compras.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="index" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
@@ -94,12 +97,12 @@
           <!--CLIENTES-->
           <v-list-group prepend-icon="mdi-account" v-if="data.clientes.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Clientes" :lines="true" color="primary"
-                           title="Clientes"/>
+              <v-list-item v-bind="props" rounded value="Clientes" :lines="true" color="indigo-darken-4"
+                title="Clientes"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
-                         v-for="i in data.clientes.filter(c => hasAccessToMenu(c.idVentana))"
-                         :key="i.route" :value="i.title" @click="nameTab(i.route)">
+            <v-list-item class="mx-2" rounded :lines="true" color="indigo-darken-4"
+                v-for="(i, index) in data.clientes.filter(c => hasAccessToMenu(c.idVentana))"
+                :key="index" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                 <v-icon>mdi-menu-right</v-icon>
               </template>
@@ -115,12 +118,12 @@
           <!--RUTAS-->
           <v-list-group prepend-icon="mdi-truck-off-road" v-if="data.rutas.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Rutas" :lines="true" color="primary"
+              <v-list-item v-bind="props" rounded value="Rutas" :lines="true" color="indigo-darken-4"
                 title="Rutas"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="i in data.rutas.filter(c => hasAccessToMenu(c.idVentana))"
-              :key="i.route" :value="i.title" @click="nameTab(i.route)">
+            <v-list-item class="mx-2" rounded :lines="true" color="indigo-darken-4"
+              v-for="(i, index) in data.rutas.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="index" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
@@ -131,12 +134,12 @@
           <!--INVENTARIO-->
           <v-list-group prepend-icon="mdi-package-variant" v-if="data.inventario.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="primary"
+              <v-list-item v-bind="props" rounded value="Inventario" :lines="true" color="indigo-darken-4"
                 title="Inventario"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="i in data.inventario.filter(c => hasAccessToMenu(c.idVentana))"
-              :key="i.route" :value="i.title" @click="nameTab(i.route)">
+            <v-list-item class="mx-2" rounded :lines="true" color="indigo-darken-4"
+              v-for="(i, index) in data.inventario.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="index" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
@@ -151,12 +154,12 @@
 
           <v-list-group prepend-icon="mdi-abacus" v-if="data.movimientos.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Movimientos" :lines="true" color="primary"
+              <v-list-item v-bind="props" rounded value="Movimientos" :lines="true" color="indigo-darken-4"
                 title="Movimientos"/>
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="i in data.movimientos.filter(c => hasAccessToMenu(c.idVentana))"
-              :key="i.route" :value="i.title" @click="nameTab(i.route)">
+            <v-list-item class="mx-2" rounded :lines="true" color="indigo-darken-4"
+              v-for="(i, index) in data.movimientos.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="index" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
@@ -166,12 +169,12 @@
 
           <v-list-group prepend-icon="mdi-calendar" v-if="data.cierres.filter(c => hasAccessToMenu(c.idVentana)).length">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" rounded value="Cierres" :lines="true" color="primary"
+              <v-list-item v-bind="props" rounded value="Cierres" :lines="true" color="indigo-darken-4"
                 title="Cierres"/> 
             </template>
-            <v-list-item class="mx-2" rounded :lines="true" color="primary"
-              v-for="i in data.cierres.filter(c => hasAccessToMenu(c.idVentana))"
-              :key="i.route" :value="i.title" @click="nameTab(i.route)">
+            <v-list-item class="mx-2" rounded :lines="true" color="indigo-darken-4"
+              v-for="(i, index) in data.cierres.filter(c => hasAccessToMenu(c.idVentana))"
+              :key="index" :value="i.title" @click="nameTab(i.route)">
               <template v-slot:prepend>
                   <v-icon>mdi-menu-right</v-icon>
                 </template>
@@ -202,9 +205,9 @@
 
       <v-main class="w-100 position-relative">
         <TabsRoutes :routes="data.nameTabs" :name="data.nameCurrentTab" :index-tab="data.activeTab"
-          v-if="isLoggeInd"/>
+          v-if="isLoggeInd" @nameTab="nameTab"/>
         <router-view v-slot="{ Component }">
-          <v-progress-linear indeterminate :active="loading.show" height="5" color="primary"></v-progress-linear>
+          <v-progress-linear indeterminate :active="loading.show" height="5" color="indigo-darken-4"></v-progress-linear>
           <transition name="slide-x-transition">
             <keep-alive>
               <component :is="Component"/>
@@ -237,7 +240,8 @@
         </v-row>
       </v-footer>
     </v-app>
-  </v-layout>
+
+  </v-responsive>
 </template>
 
 <script>
@@ -254,14 +258,14 @@ import { hasAccessToMenu } from '@/scripts/Seguridad.js'
 export default {
   mounted() {
     this.verifySession()
-    const lastRoute = sessionStorage.getItem('lastRoute')
-    this.data.nameTabs = []
-    if (lastRoute) {
-      this.data.nameTabs.push(lastRoute);
-      this.data.activeTab = this.data.nameTabs.indexOf(lastRoute)
-      this.data.selectedItems.splice(this.data.selectedItems.length - 1)
-      this.data.selectedItems.push(lastRoute)
-    }
+    // const lastRoute = sessionStorage.getItem('lastRoute')
+    // this.data.nameTabs = []
+    // if (lastRoute) {
+    //   this.data.nameTabs.push(lastRoute);
+    //   this.data.activeTab = this.data.nameTabs.indexOf(lastRoute)
+    //   this.data.selectedItems.splice(this.data.selectedItems.length - 1)
+    //   this.data.selectedItems.push(lastRoute)
+    // }
   },
 
   data(){
@@ -292,7 +296,7 @@ export default {
     const data = reactive({
       drawer: true,
       cxcActions: [
-        ['Cuentas por Cobrar', 'CXC'],
+        ['Cuentas por Cobrar', 'Cuentas por Cobrar'],
       ],
       ventasActions: [
         ['Tipos de Venta', 'Tipos de Venta'],
@@ -302,7 +306,7 @@ export default {
       porCobrar: [
         {
           title: 'Cuentas por Cobrar',
-          route: 'CXC',
+          route: 'Cuentas por Cobrar',
           idVentana: '8'
         },
       ],
@@ -321,7 +325,7 @@ export default {
         },
         {
           title: 'Facturación',
-          route: 'Facturacion',
+          route: 'Facturación',
           idVentana: '3'
         },
       ],
@@ -333,7 +337,7 @@ export default {
         },
         {
           title: 'Órdenes de compra',
-          route: 'Ordenes',
+          route: 'Órdenes de compra',
           idVentana: '7'
         },
       ],
@@ -347,7 +351,7 @@ export default {
       inventario: [
         {
           title: 'Categorías Productos',
-          route: 'Categorias',
+          route: 'Categorías Productos',
           idVentana: '12'
         },
         {
@@ -357,7 +361,7 @@ export default {
         },
         {
           title: 'Movimientos',
-          route: 'Movimientos_Facturacion',
+          route: 'Movimientos',
           idVentana: '12'
         },
       ],
@@ -365,7 +369,7 @@ export default {
       movimientos: [
         {
           title: 'Tipos Movimiento',
-          route: 'Tipos M.',
+          route: 'Tipos Movimiento',
           idVentana: '13'
         },
         {
@@ -374,7 +378,7 @@ export default {
           idVentana: '13'
         },
         {
-          title: 'Movimientos Empresariales',
+          title: 'Movimientos E.',
           route: 'Movimientos E.',
           idVentana: '13'
         },
@@ -492,6 +496,10 @@ export default {
       const exp = localStorage.getItem('exp')
       if (this.isLoggeInd) {
         this.store.deleteSession(exp)
+        const lastRoute = sessionStorage.getItem('lastRoute')
+        if (lastRoute) {
+          this.nameTab(lastRoute)
+        }
       }
     },
 
@@ -500,6 +508,10 @@ export default {
     },
 
     nameTab(name) {
+      if (name === 'Home') {
+        this.goToHome()
+        return
+      }
       this.data.selectedItems.splice(this.data.selectedItems.length - 1)
       this.data.nameCurrentTab = name
       this.data.visible = true
@@ -515,7 +527,17 @@ export default {
         this.data.selectedItems.push(name)
       }
 
-      this.$router.push({name: name})
+      this.$router.push({ name: name })
+    },
+
+    goToHome() {
+      this.data.selectedItems.splice(this.data.selectedItems.length - 1)
+      this.data.selectedItems = ['Inicio']
+
+      this.$router.push({ name: 'Home' })
+      this.data.visible = false
+      sessionStorage.removeItem('lastRoute')
+      this.data.nameTabs = []
     },
 
     clearApp() {
