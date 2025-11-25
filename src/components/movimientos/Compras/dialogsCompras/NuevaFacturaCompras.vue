@@ -177,7 +177,7 @@
                 variant="outlined"
                 hide-details
                 label="Empleado"
-                clearable
+                readonly
                 placeholder="empleado de registro"
                 persistent-placeholder
                 :items="data.empleados"
@@ -214,11 +214,14 @@
               placeholder="productos a agregar"
               persistent-placeholder
               :items="data.productos"
+              @update:modelValue="
+                handleChangeProducto
+              "
             />
           </v-col>
           <v-col
             cols="12"
-            md="4"
+            md="3"
             sm="6"
             class="py-1"
           >
@@ -237,7 +240,27 @@
           </v-col>
           <v-col
             cols="12"
-            md="4"
+            md="3"
+            sm="6"
+            class="py-1"
+          >
+            <v-text-field
+              v-model="
+                data.producto.costoUnitario
+              "
+              prepend-inner-icon="mdi-numeric"
+              density="compact"
+              variant="outlined"
+              hide-details
+              label="Costo unitario:"
+              clearable
+              persistent-placeholder
+              type="number"
+            />
+          </v-col>
+          <v-col
+            cols="12"
+            md="2"
             sm="12"
             class="d-flex justify-end align-center py-0"
           >
@@ -541,6 +564,9 @@ export default {
     )
 
     const data = reactive({
+      loading: {
+        costoProducto: false,
+      },
       headers: [
         {
           title: '',
@@ -581,7 +607,7 @@ export default {
         idCompra: 0,
         idProducto: null,
         cantidad: 0,
-        costoUnitario: null,
+        costoUnitario: 0,
         observaciones: null
       },
       factura: {
@@ -631,7 +657,23 @@ export default {
     }
   },
 
+  data(){
+    return {
+      loading: {
+        costoProducto: false,
+      }
+    }
+  },
+
   methods: {
+    async handleChangeProducto() {
+      const product =
+        await this.data.requestHttp.getByIdProducto(
+          this.data.producto.idProducto
+        )
+      this.data.producto.costoUnitario = product.costo
+    },
+
     async getEmpleados() {
       this.data.empleados = []
       this.data.loading = true
@@ -687,10 +729,11 @@ export default {
       this.data.items.push({
         ...this.data.producto,
         producto: product.nombre,
-        costoUnitario: product.precio,
+        costoUnitario:
+          this.data.producto.costoUnitario,
         subTotal:
           this.data.producto.cantidad *
-          product.precio
+          this.data.producto.costoUnitario
       })
       this.calcularTotals()
       this.data.producto.idProducto = null
@@ -720,7 +763,7 @@ export default {
               idProducto: item.idProducto,
               cantidad: item.cantidad,
               costoUnitario: item.costoUnitario,
-              observaciones: ""
+              observaciones: ''
             })
           })
 
@@ -729,7 +772,10 @@ export default {
               this.data.orden
             )
 
-          if (result.code === 200 || result.code === 201) {
+          if (
+            result.code === 200 ||
+            result.code === 201
+          ) {
             alert('Registro Guardado')
             this.closeDialog()
           } else {
@@ -754,7 +800,7 @@ export default {
               idProducto: item.idProducto,
               cantidad: item.cantidad,
               costoUnitario: item.costoUnitario,
-              observaciones: ""
+              observaciones: ''
             })
           })
 
