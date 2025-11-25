@@ -105,10 +105,10 @@ import RequestHttp from '@/services/requestHttp';
 import { useStore } from '@/store';
 
 export default {
-    mounted() {
-        this.verifyDataSecurity()
-        this.getOrdenes()
-    },
+    // mounted() {
+    //     this.verifyDataSecurity()
+    //     this.getOrdenes()
+    // },
 
     components: {
         NuevaFacturaCompras,
@@ -158,6 +158,13 @@ export default {
             data,
             store
         }
+    },
+
+    beforeRouteEnter(to, from, next) {
+      next(vm => {
+        vm.getOrdenes()
+        vm.verifyDataSecurity()
+      })
     },
 
     methods: {

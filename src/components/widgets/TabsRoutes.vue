@@ -5,7 +5,12 @@
         <v-tabs v-model="activeTab" color="primary" density="compact" class="mt-2">
             <v-tab draggable="true" @dragstart="onDragstart(index)" @dragover.prevent @drop="onDrop(index)" height="25" @click="redirectOpc(name)" 
                 v-for="(name, index) in routes" :key="index" density="compact" class="border custom-border">
-                <small>{{ name }}</small> <v-icon @click.stop="closeTab(index)" size="14" class="ml-2">mdi-close-circle</v-icon>
+                <small>
+                    {{ name }}
+                </small> 
+                <v-icon @click.stop="closeTab(index)" size="14" class="ml-2">
+                    mdi-close-circle
+                </v-icon>
             </v-tab>
         </v-tabs>
     </div>
@@ -53,6 +58,8 @@ export default {
 
         redirectOpc(name) {
             let arr = this.routes
+
+            this.$emit('nameTab', name);
             
             this.activeTab = arr.indexOf(name)
             this.$router.push({ name })

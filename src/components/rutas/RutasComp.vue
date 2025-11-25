@@ -20,7 +20,8 @@
             <v-divider /> 
             <v-row class="pa-2" dense>
                 <v-col cols="6" md="6" sm="6">
-                    <v-text-field v-model="data.search" color="primary" density="compact" variant="outlined" append-inner-icon="mdi-magnify" label="Buscar productos"
+                    <v-text-field v-model="data.search" color="primary" density="compact" variant="outlined" 
+                        append-inner-icon="mdi-magnify" label="Buscar productos"
                         hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
                 </v-col>
                 <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
@@ -39,8 +40,11 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :search="data.search" :mobile="isMobile" :headers="data.header" :items="data.rutas" class="border font" 
-                    density="compact" :loading="data.loading" :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }"
+                
+                <!-- :mobile="isMobile" -->
+                <v-data-table :search="data.search" :headers="data.header" :items="data.rutas"
+                    class="border font" density="compact" :loading="data.loading" 
+                    :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }"
                     items-per-page="20" hover>
                     <template v-slot:loader>
                         <v-progress-linear color="indigo" indeterminate height="2"/>
@@ -49,7 +53,7 @@
                         <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
                     </template>
                   <template v-slot:item.descripcion="{ item }">
-                    {{ item.descripcion ?? '- - -' }}
+                    {{ !item.descripcion ? '- - -' : item.descripcion }}
                   </template>
                     <template v-slot:item.total="{ item }">
                         <div>{{ formatedCurrency(item.total) }}</div>
@@ -60,19 +64,28 @@
                     <template v-slot:item.opc="{ item }">
                         <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="hasAccessToFunct('113')" v-bind="props" size="small" color="green" @click="editRuta(item)" class="mr-1" >mdi-pencil</v-icon>
+                                <v-icon v-if="hasAccessToFunct('113')" v-bind="props" 
+                                    size="small" color="green" @click="editRuta(item)" class="mr-1" 
+                                    >mdi-pencil
+                                </v-icon>
                             </template>
                         </v-tooltip>
                         
                         <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.delete" v-bind="props" size="small" color="error" class="mr-1" @click="showAlert(item)">mdi-delete</v-icon>
+                                <v-icon v-if="data.crud.delete" v-bind="props" size="small" 
+                                    color="error" class="mr-1" @click="showAlert(item)">
+                                    mdi-delete
+                                </v-icon>
                             </template>
                         </v-tooltip>
 
                         <v-tooltip text="Ver" location="top">
                             <template v-slot:activator="{ props }">
-                                <v-icon v-if="data.crud.view" v-bind="props" size="small" color="indigo-darken-4" @click="viewRuta(item)">mdi-eye</v-icon>
+                                <v-icon v-if="data.crud.view" v-bind="props" size="small" 
+                                    color="indigo-darken-4" @click="viewRuta(item)">
+                                    mdi-eye
+                                </v-icon>
                             </template>
                         </v-tooltip>
                     </template>

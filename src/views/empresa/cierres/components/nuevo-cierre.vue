@@ -1,9 +1,10 @@
 <template>
-  <v-card>
+  <v-card class="border-t">
     <v-card-title class="font-weight-bold">
       <v-btn
           @click="close"
           color="secondary"
+          variant="tonal"
       >
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
@@ -19,6 +20,7 @@
             <v-col>
               <v-text-field
                   v-model="fechaDesde"
+                  variant="outlined"
                   label="Fecha desde:"
                   density="compact"
                   type="date"
@@ -28,6 +30,7 @@
             <v-col>
               <v-text-field
                   v-model="fechaHasta"
+                  variant="outlined"
                   label="Fecha hasta:"
                   density="compact"
                   type="date"
@@ -40,7 +43,7 @@
           <v-col>
             <v-progress-linear indeterminate :active="loadStates.resumen"></v-progress-linear>
             <v-row>
-              <v-col cols="6">
+              <v-col cols="12" md="6" sm="6">
                 <div style="font-size: 18px; font-weight: bold" class="mb-2">
                   Ingresos del Periodo
                 </div>
@@ -53,7 +56,7 @@
                 }"
                   >
                     <v-col
-                        cols="7"
+                        cols="12" md="6" sm="6"
                         :style="{
                     'border': '1px solid #BDBDBD',
                     'border-bottom': [2].includes(index) ? '1px solid #BDBDBD' : 'none',
@@ -64,6 +67,7 @@
                       <span class="font-weight-bold">{{ item.concepto }}</span>
                     </v-col>
                     <v-col
+                      cols="12" md="6" sm="6"
                         class="text-center"
                         :style="{
                     'border': '1px solid #BDBDBD',
@@ -75,7 +79,7 @@
                   </v-row>
                 </div>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="12" md="6" sm="6">
                 <div style="font-size: 18px; font-weight: bold" class="mb-2">
                   Egresos del Periodo
                 </div>
@@ -88,7 +92,7 @@
                 }"
                   >
                     <v-col
-                        cols="7"
+                        cols="12" md="6" sm="6"
                         style="border: 1px solid #BDBDBD; border-bottom: none"
                         :style="{
                     'border': '1px solid #BDBDBD',
@@ -112,7 +116,7 @@
                   </v-row>
                 </div>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="12" md="6" sm="6">
                 <div style="font-size: 18px; font-weight: bold" class="mb-2">
                   Utilidad del Periodo
                 </div>
@@ -125,7 +129,7 @@
                 }"
                   >
                     <v-col
-                        cols="7"
+                        cols="12" md="6" sm="6"
                         style="border: 1px solid #BDBDBD; border-bottom: none"
                         :style="{
                     'border': '1px solid #BDBDBD',
@@ -225,13 +229,17 @@
               </v-col>-->
             </v-row>
           </v-col>
-          <v-col cols="3">
+          <v-col cols="12" md="6" sm="6" class="border rounded">
             <v-chart :option="pieChart" autoresize style="height: 300px;"/>
           </v-col>
           <v-col cols="12">
             <v-textarea
                 v-model="descripcion"
                 label="Descipción para el cierre:"
+                placeholder="Ingrese una descripción del cierre"
+                persistent-placeholder
+                variant="outlined"
+                density="comfortable"
                 rows="2"
                 auto-grow
             ></v-textarea>
@@ -240,7 +248,7 @@
             <v-btn color="secondary" variant="outlined" class="mr-2">
               Cancelar
             </v-btn>
-            <v-btn @click="guardarCierre" color="primary">
+            <v-btn @click="guardarCierre" color="indigo-darken-4">
               Guardar
             </v-btn>
           </v-col>
@@ -313,7 +321,7 @@ export default {
         },
         tooltip: {
           trigger: 'item',
-          formatter: '{a} <br/>{b}: {c} ({d}%)'
+          formatter: `{a} <br/>{b}: {c} ({d}%)`
         },
         legend: {
           orient: 'horizontal',
@@ -334,7 +342,7 @@ export default {
                             name,
                             percent,
                             value
-                          }) => name ? `${name}\n${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`,
+                          }) => name ? `${ name}\n${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`,
               position: 'outside',
               color: '#000000'
             },

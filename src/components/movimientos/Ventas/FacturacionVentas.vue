@@ -137,9 +137,10 @@
           >
           <v-divider thickness="2" />
         </v-card-subtitle>
+        
+        <!-- :mobile="isMobile" -->
         <v-data-table
           :search="data.search"
-          :mobile="isMobile"
           :headers="data.header"
           :items="data.facturas"
           class="border font"

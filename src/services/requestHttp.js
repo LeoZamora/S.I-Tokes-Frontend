@@ -8,7 +8,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getCategoria)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -18,7 +17,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getCategoria}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -27,7 +25,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postCategoria, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -36,7 +33,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putCategoria}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return null
         }
     }
@@ -45,7 +42,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteCategoria}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -57,7 +53,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getSubCategoria)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -67,7 +62,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getCode}?idCategoria=${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -76,7 +70,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getSubCategoria}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -85,7 +78,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postSubCategoria, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -94,7 +86,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putSubCategoria}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return null
         }
     }
@@ -103,7 +95,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteSubCategoria}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -118,7 +109,6 @@ class RequestHttp {
             const result  = await axios.get(url)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -128,7 +118,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getProducto}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -137,7 +126,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postProducto, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -146,7 +134,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putProducto}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return null
         }
     }
@@ -155,7 +143,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteProducto}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -166,7 +153,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getProveedor)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -176,7 +162,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getProveedor}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -185,7 +170,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postProveedor, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -194,7 +178,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putProveedor}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return null
         }
     }
@@ -203,7 +187,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteProveedor}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -214,7 +197,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getTipoProveedor)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -224,7 +206,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getTipoProveedor}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -233,7 +214,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postTipoProveedor, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -242,7 +222,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putTipoProveedor}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return null
         }
     }
@@ -251,7 +231,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteTipoProveedor}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -262,7 +241,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getProveedorProducto)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -272,7 +250,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getProveedorProducto}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -281,7 +258,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postProveedorProducto, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -290,7 +266,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putProveedorProducto}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return null
         }
     }
@@ -299,7 +275,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteProveedorProducto}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -310,7 +285,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getCompra)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -320,17 +294,21 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getCompra}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
     async postCompra(data) {
         try {
             const result  = await axios.post(endPoints.postCompra, data)
-            return result.data
+            return {
+              code: result.status,
+              data: result.data
+            }
         } catch (error) {
-            console.error('Error on request', error.response.data);
-            return null
+          return {
+            code: error.response.status,
+            data: error.response.data
+          }
         }
     }
     async putCompra(data, id) {
@@ -338,7 +316,6 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putCompra}/${id}`, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -347,7 +324,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteCompra}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -358,7 +334,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getVenta)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -369,7 +344,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getTipoVenta)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -380,7 +354,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getVenta}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -389,7 +362,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postVenta, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return error.response.data
         }
     }
@@ -398,7 +370,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putVenta}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return null
         }
     }
@@ -407,7 +379,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteVenta}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -418,7 +389,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getCliente)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -428,7 +398,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getCliente}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -437,7 +406,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postCliente, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -446,7 +414,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putCliente}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return {
                 code: error.response.status,
                 data: error.response.data
@@ -458,7 +426,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteCliente}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -469,7 +436,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getCategoriaCliente)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -479,7 +445,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getCategoriaCliente}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -488,7 +453,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postCategoriaCliente, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -497,7 +461,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putCategoriaCliente}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return null
         }
     }
@@ -506,7 +470,6 @@ class RequestHttp {
             const result  = await axios.delete(`${endPoints.deleteCategoriaCliente}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -518,7 +481,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getUsuario)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -528,7 +490,6 @@ class RequestHttp {
             const result = await axios.post(endPoints.postUsuario, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -540,7 +501,7 @@ class RequestHttp {
             })
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return error.response.data
         }
     }
@@ -551,7 +512,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getRol)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -561,7 +521,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getByIdRol}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -570,7 +529,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postRol, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -579,7 +537,6 @@ class RequestHttp {
             const result  = await axios.put(endPoints.putRol, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -589,7 +546,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getDepartamentos)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -600,7 +556,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getMunicipios}?idDepartamento=${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -611,7 +566,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getRutas)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -621,7 +575,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getRutas}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -630,7 +583,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postRutas, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -639,7 +591,7 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putRutas}/${id}`, data)
             return result.data
         } catch (error) {
-            // console.error('Error on request', error.response.data);
+
             return null
         }
     }
@@ -651,7 +603,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getMov)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -661,7 +612,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getMov}/${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -670,7 +620,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postMov, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -690,7 +639,6 @@ class RequestHttp {
             const result  = await axios.get(url)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -701,7 +649,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getConcepto}?idTipoMov=${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -712,7 +659,6 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getUnidadMedida)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
             
         }
@@ -722,7 +668,6 @@ class RequestHttp {
             const result = await axios.post(endPoints.postUnidadMedida, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -734,7 +679,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getTipoMovById}${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -743,7 +687,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postTipoMov, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return {
                 code: error.response.status,
                 data: error.response.data
@@ -766,7 +709,6 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getTipoVentaById}${id}`)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return null
         }
     }
@@ -775,7 +717,6 @@ class RequestHttp {
             const result  = await axios.post(endPoints.postTipoVenta, data)
             return result.data
         } catch (error) {
-            console.error('Error on request', error.response.data);
             return {
                 code: error.response.status,
                 data: error.response.data

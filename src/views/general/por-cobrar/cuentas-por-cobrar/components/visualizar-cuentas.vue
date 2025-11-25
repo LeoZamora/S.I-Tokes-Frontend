@@ -76,7 +76,7 @@
           <v-container>
             <v-row>
               <v-col>
-                <v-text-field v-model="search" variant="outlined" label="Buscar" density="comfortable"
+                <v-text-field v-model="search " variant="outlined" label="Buscar" density="comfortable"
                   placeholder="Buscar Créditos" persistentPlaceholder/>
               </v-col>
             </v-row>
