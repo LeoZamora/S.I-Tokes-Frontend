@@ -39,9 +39,7 @@
             class="d-flex justify-start align-center pb-0"
           >
             <small class="mr-2">Nº Órden: </small>
-            <strong>{{
-              data.orden.noOrden
-            }}</strong>
+            <strong>{{data.orden.noOrden }}</strong>
           </v-col>
           <v-col
             v-if="!localEdit"
@@ -420,10 +418,17 @@
           Cancelar
         </v-btn>
         <v-btn
+         :disabled="data.disableBtn"
           class="bg-indigo-darken-4"
           @click="guardarFactura()"
         >
-          Guardar
+          <template v-if="data.disableBtn">
+            <v-progress-circular color="blue-lighten-3" indeterminate
+              :size="24"/>
+          </template>
+          <template v-else>
+              Guardar
+          </template>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -441,7 +446,7 @@ export default {
     await this.getCodigoRecomendado()
     this.getEmpleados()
     this.getProductos()
-  },
+  },  
 
   props: {
     show: {
@@ -599,6 +604,7 @@ export default {
           (v) => !!v || 'Este campo obligatorio'
         ]
       },
+      disableBtn: false,
       items: [],
       proveedores: [],
       empleados: [],
@@ -767,15 +773,11 @@ export default {
             })
           })
 
-          const result =
-            await this.data.requestHttp.postCompra(
-              this.data.orden
-            )
+          this.data.disableBtn = true
+          const result = await this.data.requestHttp.postCompra(this.data.orden)
+          this.data.disableBtn = false
 
-          if (
-            result.code === 200 ||
-            result.code === 201
-          ) {
+          if (result.code === 200 || result.code === 201) {
             alert('Registro Guardado')
             this.closeDialog()
           } else {
@@ -804,11 +806,12 @@ export default {
             })
           })
 
-          const result =
-            await this.data.requestHttp.putCompra(
+          this.data.disableBtn = true
+          const result = await this.data.requestHttp.putCompra(
               this.data.orden,
               this.data.idOrden
             )
+          this.data.disableBtn = false
           if (result !== null) {
             alert('Registro Editado')
             this.closeDialog()

@@ -211,17 +211,21 @@ export default {
         async getTipoMov() {
             this.data.tiposMov = []
             const result = await this.data.requestHttp.getCombobox(endPoints.getTipoMov)
-            result.map(item => {
-              this.data.tiposMov.push({title: item.nombre, value: item.id})  
-            })
+            if (result.code === 200) {
+                result.data.map(item => {
+                  this.data.tiposMov.push({title: item.nombre, value: item.id})  
+                })
+            }
         },
 
         async getModalidad() {
             this.data.modalidades = []
             const result = await this.data.requestHttp.getCombobox(endPoints.getModalidades)
-            result.map(item => {
-              this.data.modalidades.push({title: item.nombre, value: item.id})
-            })
+            if (result.code === 200) {
+                result.data.map(item => {
+                  this.data.tiposMov.push({title: item.nombre, value: item.id})  
+                })
+            }
         },
 
         async getData() {

@@ -55,6 +55,7 @@ const endPoints = {
     putVenta: 'api/Venta',
     deleteVenta: 'api/Venta',
     getTipoVenta: 'api/tipos-venta/combobox',
+    anularVenta: 'api/Venta',
 
     getUsuario: 'api/Usuario',
     postUsuario: 'api/Usuario/Crear',

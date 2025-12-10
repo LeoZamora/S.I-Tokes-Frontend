@@ -192,9 +192,11 @@ export default {
     async getTipoMov() {
       this.data.movimientos = []
       const result = await this.data.requestHttp.getCombobox(endPoints.getTipoMov)
-      result.map(item => {
-        this.data.movimientos.push({title: item.nombre, value: item.id})
-      })
+      if (result.code === 200) {
+        result.map(item => {
+          this.data.movimientos.push({title: item.nombre, value: item.id})
+        })
+      }
     },
 
     async getMovs() {

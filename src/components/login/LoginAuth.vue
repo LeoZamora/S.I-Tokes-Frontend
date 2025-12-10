@@ -1,49 +1,80 @@
 <template>
-  <div id="cont">
-    <LoaderComp :data="data.msgLoader" v-show="data.loading"/>
-    <div id="logo-auth" class="w-100 d-flex flex-column  align-center">
-      <div>
-        <img width="300px" class="my-10" src="/logoIZ.jpg"/>
-      </div>
-      <v-card id="card-form" elevation="0" class="bg-transparent border" rounded="lg">
-        <v-card-title class="text-center mt-2"><strong>INICIO DE SESION</strong></v-card-title>
-        <v-form id="form-login" v-model="data.valid" class="mx-2 mb-8 px-4" ref="form" lazy-validation>
-          <v-card-text class="pt-0">
-            <div class="text-subtitle-1 text-medium-emphasis">Usuario</div>
-            <v-text-field color="primary" v-model="data.data.usuario" placeholder="Ingrese su usuario" type="email"
-              :rules="data.rules.userRules" @input="clearError" variant="outlined"
-              prepend-inner-icon="mdi-account-outline" aria-describedby="input-username-messages" 
-              autocomplete="username" density="compact"/>
-            <div class="text-subtitle-1 text-medium-emphasis">Contraseña</div>
-            <v-text-field
-                color="primary" v-model="data.data.password" placeholder="Ingrese su contraseña"
-                @keydown.enter="authLoging"
-                autocomplete="current-password" @click:append-inner="passVisible"
-                :append-inner-icon="data.showPass ? 'mdi-eye-outline' : 'mdi-eye-off-outline'" prepend-inner-icon="mdi-lock-outline"
-                @input="clearError"
-                variant="outlined" density="compact" :type="data.showPass ? 'text': 'password'"
-                :rules="data.rules.passRules"/>
-          </v-card-text>
-          <v-fade-transition>
-            <v-alert density="compact" v-if="data.error" type="warning" variant="tonal">
-              {{ data.errorMsg }}
-            </v-alert>
-          </v-fade-transition>
-          <span v-show="data.count">Intentos restantes: {{ 5 - data.count }}</span>
-          <div v-if="data.count === 5" class="w-100 d-flex justify-space-between align-center">
-
-            <span>Volver a intentar en: </span>
-            <strong class="ml-1">{{ cronometro }}</strong>
+  <div class="cont">
+    <LoaderComp :data="data.msgLoader" v-if="data.loading"/>
+    <v-container class="w-100 h-100 d-flex align-center">
+      <v-row>
+        <v-col cols="12" md="6" sm="12" class="d-flex flex-column align-center 
+          position-relative">
+          <div>
+            <v-img src="/gorro.png" id="gorro"/>
+            <v-img width="500" src="/128px.svg"/>
           </div>
-          <v-card-actions id="btn" class="pb-8 d-flex justify-center">
-            <v-btn :disabled="data.disableBtn" size="large" @click="authLoging()" class="bg-primary" block>Acceder
-            </v-btn>
-          </v-card-actions>
-        </v-form>
-      </v-card>
-    </div>
+          <v-card-text class="d-flex flex-column align-center">
+            <div style="width: 100%;" class="d-flex justify-center align-center text-center">
+                <h1 id="name">
+                  Inversiones Zafiro
+                </h1>
+            </div>
+            <div class="text-center">
+                <span id="slogan" class="text-grey">
+                  "Herramientas, Insumos y Platería"
+                </span>
+            </div>
+          </v-card-text>
+        </v-col>
+        <v-col cols="12" md="6" sm="12" class="d-flex flex-column justify-center align-center">
+          <v-card id="card-form" elevation="4" class="border" rounded="lg">
+            <v-card-title class="text-center my-2">
+              INICIO DE SESION
+            </v-card-title>
+            <v-card-text class="pa-4">
+              <v-form id="form-login" v-model="data.valid" ref="form" lazy-validation>
+                <v-row>
+                  <v-col cols="12" md="12" sm="12">
+                    <v-text-field color="primary" v-model="data.data.usuario" placeholder="Ingrese su usuario"
+                      :rules="data.rules.userRules" @input="clearError" variant="outlined"
+                      prepend-inner-icon="mdi-account-outline" aria-describedby="input-username-messages" 
+                      autocomplete="username" persistent-placeholder label="Usuario"
+                      hide-details density="comfortable" clearable/>
+                  </v-col>
+                  <v-col cols="12" md="12" sm="12">
+                    <v-text-field
+                      color="primary" v-model="data.data.password" placeholder="Ingrese su contraseña"
+                      @keydown.enter="authLoging" label="Contraseña" 
+                      autocomplete="current-password" @click:append-inner="passVisible"
+                      :append-inner-icon="data.showPass ? 'mdi-eye-outline' : 'mdi-eye-off-outline'" prepend-inner-icon="mdi-lock-outline"
+                      @input="clearError" hide-details density="comfortable"
+                      variant="outlined" :type="data.showPass ? 'text': 'password'"
+                      :rules="data.rules.passRules" persistent-placeholder/>
+                  </v-col>
+                </v-row>
+                <v-fade-transition>
+                  <v-alert density="compact" v-if="data.error" type="warning" variant="tonal">
+                    {{ data.errorMsg }}
+                  </v-alert>
+                </v-fade-transition>
+
+                <span v-show="data.count">Intentos restantes: {{ 5 - data.count }}</span>
+                <div v-if="data.count === 5" class="w-100 d-flex justify-space-between align-center">
+                  <span>Volver a intentar en: </span>
+                  <strong class="ml-1">{{ cronometro }}</strong>
+                </div>
+
+                <v-card-actions class="d-flex justify-center mt-10">
+                  <v-btn :disabled="data.disableBtn" size="large" elevation="4"
+                    @click="authLoging()" class="bg-indigo-darken-4" block>
+                    Acceder
+                  </v-btn>
+                </v-card-actions>
+              </v-form>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
+
 
 <script>
 import RequestHttp from '@/services/requestHttp';
@@ -155,6 +186,7 @@ export default {
         this.useAuth.sendExp(decode.exp)
         this.useAuth.sendNameUser(this.data.data.usuario)
         this.$router.push({ path: '/' })
+        this.$router.go(0)
       } else if (result.code == 404 || result.code == 400) {
         this.data.count += 1;
         if (this.data.count === 5) {
@@ -193,7 +225,17 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-#cont {
+#gorro {
+  position: absolute;
+  width: 40%;
+  top: -15%;
+  left: -10%;
+  transform: scaleX(-1) rotate(45deg);
+  padding: 0px !important;
+  z-index: 999;
+}
+
+.cont {
   width: 100%;
   height: 100vh;
   font-family: Poppins;

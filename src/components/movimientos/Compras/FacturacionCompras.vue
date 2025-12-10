@@ -40,9 +40,21 @@
                     <span class="mx-6 text-grey font-weight-bold">Registros</span>
                     <v-divider />
                 </v-card-subtitle>
-                <v-data-table :search="data.search" :headers="data.header" 
+                <v-data-table :search="data.search" :headers="data.header" :loading="data.loading"
                     :items="data.ordenes" class="border font" density="compact" :items-per-page="50"
                     :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }" hover>
+                    <template v-slot:loader>
+                        <v-progress-linear
+                            color="indigo"
+                            indeterminate
+                            height="2"
+                        />
+                    </template>
+                    <template v-slot:loading>
+                        <v-skeleton-loader
+                            type="table-row@10"
+                        ></v-skeleton-loader>
+                    </template>
                     <template v-slot:item.total="{ item }">
                         <div>{{ formatedCurrency(item.total) }}</div>
                     </template>

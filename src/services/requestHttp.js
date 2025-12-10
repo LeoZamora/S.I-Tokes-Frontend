@@ -86,7 +86,6 @@ class RequestHttp {
             const result  = await axios.put(`${endPoints.putSubCategoria}/${id}`, data)
             return result.data
         } catch (error) {
-
             return null
         }
     }
@@ -501,7 +500,6 @@ class RequestHttp {
             })
             return result.data
         } catch (error) {
-
             return error.response.data
         }
     }
@@ -637,10 +635,15 @@ class RequestHttp {
     async getCombobox(url) {
         try {
             const result  = await axios.get(url)
-            return result.data
+            return {
+                data: result.data,
+                code: 200
+            } 
         } catch (error) {
-            return null
-            
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
 
@@ -730,6 +733,22 @@ class RequestHttp {
             return result.data
         } catch (error) {
             return null
+        }
+    }
+
+
+    async anularVenta(id) {
+        try {
+            const result  = await axios.put(`${endPoints.anularVenta}/${id}/anulacion`)
+            return {
+                data: result.data,
+                code: 200
+            }
+        } catch (error) {
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
 
