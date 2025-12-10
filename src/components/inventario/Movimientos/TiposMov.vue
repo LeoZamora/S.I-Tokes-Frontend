@@ -327,12 +327,12 @@ export default {
             this.data.tipoMov = []
             this.data.loading = true
             const result = await this.data.requestHttp.getCombobox(endPoints.getTipoMov)
-            if (result !== null) {
-                result.map(item => {
+            this.data.loading = false
+            if (result.code === 200) {
+                result.data.map(item => {
                     this.data.tipoMov.push(item)
                 })
             }
-            this.data.loading = false
         },
 
         async getTipoMovById(id, type) {

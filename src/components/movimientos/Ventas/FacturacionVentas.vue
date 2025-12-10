@@ -1,7 +1,7 @@
 <template>
   <div class="w-100">
     <v-card
-      class="border"
+      class="border-t border-b"
       elevation="0"
       rounded="0"
     >
@@ -143,7 +143,7 @@
           :search="data.search"
           :headers="data.header"
           :items="data.facturas"
-          class="border font"
+          class="font"
           density="compact"
           :loading="data.loading"
           :row-props="setStyle"
@@ -230,7 +230,49 @@
             />
           </template>
           <template v-slot:item.opc="{ item }">
-            <v-tooltip
+            <v-menu close-on-content-click location="right center"
+              origin="auto">
+              <template v-slot:activator="{ props }">
+                <v-tooltip text="Opciones" location="top">
+                  <template v-slot:activator="{ props: tooltipProps }">
+                    <v-btn icon variant="text" color="grey-darken-1"
+                      v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                      <v-icon size="22">mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                </v-tooltip>
+              </template>
+
+              <v-card rounded="lg" elevation="6" min-width="160" class="pa-1">
+                <v-list density="compact" class="py-1">
+                  <v-list-item v-if="hasAccessToFunct('33') && item.estado" rounded density="compact" prepend-icon="mdi-pencil"
+                    color="indigo" @click="editFactura(item)">
+                    <template v-slot:title>
+                        <v-divider vertical />
+                        Editar
+                    </template>
+                  </v-list-item>
+
+                  <v-list-item rounded density="compact" prepend-icon="mdi-eye"
+                    color="indigo" @click="viewFactura(item)">
+                    <template v-slot:title>
+                        <v-divider vertical />
+                        Ver Factura
+                    </template>
+                  </v-list-item>
+
+                  <v-list-item v-if="hasAccessToFunct('33') && item.estado" rounded density="compact" prepend-icon="mdi-cancel"
+                    color="indigo" @click="showAnular(item)">
+                    <template v-slot:title>
+                        <v-divider vertical />
+                        Anular Factura
+                    </template>
+                  </v-list-item>
+                </v-list>
+              </v-card>
+            </v-menu>
+            
+            <!-- <v-tooltip
               text="Editar"
               location="top"
             >
@@ -284,25 +326,66 @@
                   mdi-eye
                 </v-icon>
               </template>
-            </v-tooltip>
+            </v-tooltip> -->
+          
           </template>
           <template v-slot:item.estado="{ item }">
-            <v-chip
-              :color="
-                item.estado ? 'green' : 'error'
-              "
-              small
-            >
+            <v-chip :color="item.estado ? 'green' : 'error'" small>
               {{
                 item.estado
                   ? 'Activo'
-                  : 'Inactivo'
+                  : 'Anulada'
               }}
             </v-chip>
           </template>
         </v-data-table>
       </v-card-text>
     </v-card>
+
+    <v-dialog v-model="data.showAlertAnular" max-width="400px" persistent>
+      <v-card elevation="10" rounded>
+          <v-card-title class="bg-indigo-darken-4 d-flex justify-space-between 
+              align-center px-6">
+              Anular Factura
+          </v-card-title>
+
+          <v-card-text class="d-flex justify-center align-center">
+            <span>
+              ¿Desea anular esta factura?
+            </span>
+          </v-card-text>
+
+          <v-card-actions class="justify-end px-6 pb-4">
+              <v-btn color="grey" variant="tonal" @click="closeAnular()">
+                  Cerrar
+              </v-btn>
+              <v-btn class="bg-indigo-darken-4" @click="anularFactura()">
+                  Guardar
+              </v-btn>
+          </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="data.showNotify" max-width="300px" persistent>
+      <v-card elevation="10" rounded>
+          <v-card-text v-if="data.showMsg" class="d-flex flex-column justify-center align-center">
+            <v-progress-circular color="indigo-darken-4" size="50" indeterminate/>
+            <strong class="mt-2">
+              {{ data.msgAnular }}
+            </strong>
+          </v-card-text>
+
+          <v-card-text v-else class="d-flex flex-column justify-center align-center">
+            <v-icon :color="data.facturaAnulada ? 'green' : 'error'" size="50">
+              {{ data.facturaAnulada ? 'mdi-check-circle-outline' : 'mdi-cancel' }}
+            </v-icon>
+            <strong class="mt-2">
+              {{ data.msgAnular }}
+            </strong>
+          </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <NuevaFactura
       :show="data.editFactura.show"
       :editar="data.editFactura.editar"
@@ -436,7 +519,13 @@ export default {
         {
           title: '',
           key: 'opc',
-          align: 'center'
+          align: 'center',
+          headerProps: {
+            class: 'pa-0'
+          },
+          cellProps: {
+            class: 'pa-0'
+          }
         },
         {
           title: 'Nº Factura',
@@ -579,6 +668,15 @@ export default {
         edit: false,
         delete: false
       },
+
+      // ANULAR FACTURA
+      itemSelected: null,
+      showAlertAnular: false,
+      showNotify: false, 
+      showMsg: false,
+      msgAnular: null,
+      facturaAnulada: false,
+
       loading: false,
       search: null,
       viewAlert: false,
@@ -740,6 +838,51 @@ export default {
         this.deleteItem()
       }
       this.data.viewAlert = false
+    },
+
+    showAnular(item) {
+      this.data.itemSelected = item
+      this.data.showAlertAnular = true
+    },
+
+    async anularFactura() {
+      try {
+        this.data.showAlertAnular = false
+        this.data.showNotify = true
+        this.data.showMsg = true
+        this.data.msgAnular = 'Anulando factura...'
+        const result = await this.data.requestHttp.anularVenta(this.data.itemSelected.idVenta)
+
+        if (result.code === 200) {
+          this.data.showMsg = false
+          this.data.facturaAnulada = true
+          this.data.msgAnular = 'Factura Anulada'
+          setTimeout(() => {
+            this.data.showNotify = false
+          }, 1500)
+        } else {
+          this.data.showMsg = false
+          this.data.facturaAnulada = false
+          this.data.msgAnular = 'No se pudo anular la factura'
+          setTimeout(() => {
+            this.data.showNotify = false
+          }, 1500)
+        }
+      } catch (error) {
+        this.data.showMsg = false
+        this.data.facturaAnulada = false
+        this.data.msgAnular = 'Error al anular la factura'
+        setTimeout(() => {
+          this.data.showNotify = false
+        }, 1500) 
+      }
+
+      this.getVentas()
+    },
+
+    closeAnular() {
+      this.data.itemSelected = null
+      this.data.showAlertAnular = false
     },
 
     showAlert(item) {

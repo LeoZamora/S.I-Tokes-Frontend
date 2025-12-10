@@ -145,6 +145,7 @@ export default {
       await this.delay(1500);
       
       this.store.logout()
+      this.$router.go(0)
       this.$router.push({ path: '/login' })
       this.data.dataLoader.visible = false
     }
