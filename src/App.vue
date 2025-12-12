@@ -207,7 +207,7 @@
         <TabsRoutes :routes="data.nameTabs" :name="data.nameCurrentTab" :index-tab="data.activeTab"
           v-if="isLoggeInd" @nameTab="nameTab"/>
         <router-view v-slot="{ Component }">
-          <v-progress-linear indeterminate :active="loading.show" height="5" color="indigo-darken-4"></v-progress-linear>
+          <v-progress-linear indeterminate :active="loading.show" height="5" color="indigo-darken-4" />
           <transition name="slide-x-transition">
             <keep-alive>
               <component :is="Component"/>

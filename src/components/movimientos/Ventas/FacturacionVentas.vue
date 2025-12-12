@@ -652,6 +652,23 @@ export default {
       facturas: [],
       visibleDialog: false,
 
+      options: [
+        {
+          title: 'Ventas',
+          icon: 'mdi-account',
+          value: 'Ventas',
+          wind: 1
+        },
+        {
+          title: 'Detalle de Venta',
+          icon: 'mdi-account',
+          value: 'Detalle de Venta',
+          wind: 2
+        }
+      ],
+      selectedOptions: ['Ventas'],
+      drawer: true,
+
       editFactura: {
         show: false,
         item: {},
