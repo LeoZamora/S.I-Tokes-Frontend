@@ -1,364 +1,364 @@
 <template>
     <v-dialog v-model="localShow" max-width="900" persistent>
-    <v-card id="diag-fact" class="" elevation="12">
-        <!-- Header mejorado con gradiente y sombra -->
-        <v-card-title class="bg-gradient-primary d-flex align-center py-2 px-3">
-            <v-avatar size="40" color="white" class="mr-4" variant="flat">
-                <v-icon color="primary" size="24">mdi-file-document-outline</v-icon>
-            </v-avatar>
-            <h5 class="text-white font-weight-bold text-h6">
-                {{ localTitle }}
-            </h5>
-            <v-spacer />
-            <v-btn icon size="small" color="white" variant="text" @click="closeDialog()" class="ml-2">
-                <v-icon size="24">mdi-close</v-icon>
-                <v-tooltip activator="parent" location="top" text="Cerrar" />
-            </v-btn>
-        </v-card-title>
+        <v-card id="diag-fact" class="" elevation="12">
+            <!-- Header mejorado con gradiente y sombra -->
+            <v-card-title class="bg-gradient-primary d-flex align-center py-2 px-3">
+                <v-avatar size="40" color="white" class="mr-4" variant="flat">
+                    <v-icon color="primary" size="24">mdi-file-document-outline</v-icon>
+                </v-avatar>
+                <h5 class="text-white font-weight-bold text-h6">
+                    {{ localTitle }}
+                </h5>
+                <v-spacer />
+                <v-btn icon size="small" color="white" variant="text" @click="closeDialog()" class="ml-2">
+                    <v-icon size="24">mdi-close</v-icon>
+                    <v-tooltip activator="parent" location="top" text="Cerrar" />
+                </v-btn>
+            </v-card-title>
 
-        <!-- Indicador de estado -->
-        <div class="status-bar d-flex align-center px-3 py-2 bg-grey-lighten-4">
-            <v-chip size="small" class="mr-2" color="primary" variant="flat">
-                <v-icon size="16" class="mr-1">mdi-information</v-icon>
-                <span class="font-weight-bold">Nº Factura: {{ data.venta.noVenta }}</span>
-            </v-chip>
-            <v-chip size="small" class="mr-2" color="grey-darken-1" variant="flat">
-                <v-icon size="16" class="mr-1">mdi-calendar</v-icon>
-                <span>
-                    Emisión: 
-                    {{ localEdit ? formatedDate(data.editVenta.fechaRegistro) : formatedDate(data.emision) }}
-                </span>
-            </v-chip>
-            <v-spacer />
-            <div class="currency-selector d-flex align-center">
-                <v-chip-group multiple class="pa-0">
-                    <v-chip size="small" color="deep-purple" variant="tonal" filter
-                        @click="data.usd = !data.usd">
-                        <v-icon size="16" class="mr-1">mdi-currency-usd</v-icon>
-                        Dólares
-                    </v-chip>
-                    <v-chip size="small" color="teal" variant="tonal" :filter="data.nio"
-                        @click="data.venta.credito = !data.venta.credito">
-                        Córdobas
-                    </v-chip>
-                    <v-chip size="small" color="orange" variant="tonal" filter 
-                        @click="data.venta.credito = !data.venta.credito">
-                        <v-icon size="16" class="mr-1">mdi-credit-card-outline</v-icon>
-                        Crédito
-                    </v-chip>
-                </v-chip-group>
+            <!-- Indicador de estado -->
+            <div class="status-bar d-flex align-center px-3 py-2 bg-grey-lighten-4">
+                <v-chip size="small" class="mr-2" color="primary" variant="flat">
+                    <v-icon size="16" class="mr-1">mdi-information</v-icon>
+                    <span class="font-weight-bold">Nº Factura: {{ data.venta.noVenta }}</span>
+                </v-chip>
+                <v-chip size="small" class="mr-2" color="grey-darken-1" variant="flat">
+                    <v-icon size="16" class="mr-1">mdi-calendar</v-icon>
+                    <span>
+                        Emisión: 
+                        {{ localEdit ? formatedDate(data.editVenta.fechaRegistro) : formatedDate(data.emision) }}
+                    </span>
+                </v-chip>
+                <v-spacer />
+                <div class="currency-selector d-flex align-center">
+                    <v-chip-group multiple class="pa-0">
+                        <v-chip size="small" color="deep-purple" variant="tonal" filter
+                            @click="data.usd = !data.usd">
+                            <v-icon size="16" class="mr-1">mdi-currency-usd</v-icon>
+                            Dólares
+                        </v-chip>
+                        <v-chip size="small" color="teal" variant="tonal" :filter="data.nio"
+                            @click="data.venta.credito = !data.venta.credito">
+                            Córdobas
+                        </v-chip>
+                        <v-chip size="small" color="orange" variant="tonal" filter 
+                            @click="data.venta.credito = !data.venta.credito">
+                            <v-icon size="16" class="mr-1">mdi-credit-card-outline</v-icon>
+                            Crédito
+                        </v-chip>
+                    </v-chip-group>
+                </div>
             </div>
-        </div>
 
-        <v-card-text id="body-card" class="pa-6">
+            <v-card-text id="body-card" class="pa-6">
 
-            <v-form validate-on="invalid-input" ref="form">
-                <v-row dense>
-                    <v-col cols="12" md="6" sm="6">
-                        <v-row dense>
-                            <!-- Sección Generales -->
-                            <div class="section-header mb-4">
+                <v-form validate-on="invalid-input" ref="form">
+                    <v-row dense>
+                        <v-col cols="12" md="6" sm="6">
+                            <v-row dense>
+                                <!-- Sección Generales -->
+                                <div class="section-header mb-4">
+                                    <div class="d-flex align-center">
+                                        <div class="section-icon mr-3">
+                                            <v-icon color="primary" size="28">mdi-cog-outline</v-icon>
+                                        </div>
+                                        <h6 class="text-h6 font-weight-bold text-primary">
+                                            Generales
+                                        </h6>
+                                        <v-divider class="ml-4" />
+                                    </div>
+                                </div>
+                                <v-col cols="12" md="12" sm="12">
+                                    <v-text-field 
+                                        :rules="data.rules.rule" 
+                                        v-model="data.venta.noVenta"
+                                        prepend-inner-icon="mdi-shopping" 
+                                        density="compact"
+                                        variant="outlined"
+                                        :hide-details="data.hide"
+                                        label="Nº Factura"
+                                        placeholder="nº factura"
+                                        persistent-placeholder
+                                        readonly
+                                        color="primary"
+                                        bg-color="grey-lighten-4"
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="12" sm="12">
+                                    <v-autocomplete 
+                                        :rules="data.rules.rule" 
+                                        v-model="data.venta.idTipoVenta"
+                                        :items="data.tipoVenta"
+                                        prepend-inner-icon="mdi-file-document-check"
+                                        density="compact"
+                                        variant="outlined"
+                                        :hide-details="data.hide"
+                                        label="Tipo de Venta"
+                                        placeholder="Seleccione tipo"
+                                        persistent-placeholder
+                                        clearable
+                                        color="primary"
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="12" sm="12">
+                                    <v-autocomplete 
+                                        :rules="data.rules.rule" 
+                                        v-model="data.venta.idCliente"
+                                        prepend-inner-icon="mdi-account"
+                                        density="compact"
+                                        variant="outlined"
+                                        :hide-details="data.hide"
+                                        label="Cliente"
+                                        placeholder="Busque un cliente"
+                                        persistent-placeholder
+                                        :items="data.clientes"
+                                        clearable
+                                        color="primary"
+                                    >
+                                        <template v-slot:append-inner>
+                                            <v-btn icon variant="text" size="small" @click="getClientes" class="refresh-btn">
+                                                <v-icon color="primary" size="20">
+                                                    mdi-refresh
+                                                </v-icon>
+                                                <v-tooltip activator="parent" location="top">Actualizar lista</v-tooltip>
+                                            </v-btn>
+                                        </template>
+                                    </v-autocomplete>
+                                </v-col>
+                                <v-col cols="12" md="12" sm="12">
+                                    <v-textarea 
+                                        v-model="data.venta.enviarA"
+                                        density="compact"
+                                        variant="outlined"
+                                        :hide-details="data.hide"
+                                        label="Dirección de envío"
+                                        placeholder="Ingrese dirección completa"
+                                        clearable
+                                        persistent-placeholder
+                                        rows="2"
+                                        color="primary"
+                                        auto-grow
+                                    />
+                                </v-col>
+                            </v-row>
+                        </v-col>
+                        <v-col cols="12" md="6" sm="6">
+
+                            <!-- Sección Productos -->
+                            <div class="section-header mb-6">
                                 <div class="d-flex align-center">
                                     <div class="section-icon mr-3">
-                                        <v-icon color="primary" size="28">mdi-cog-outline</v-icon>
+                                        <v-icon color="secondary" size="28">mdi-package-variant</v-icon>
                                     </div>
-                                    <h6 class="text-h6 font-weight-bold text-primary">
-                                        Generales
+                                    <h6 class="text-h6 font-weight-bold text-secondary">
+                                        Productos
                                     </h6>
                                     <v-divider class="ml-4" />
                                 </div>
                             </div>
-                            <v-col cols="12" md="12" sm="12">
-                                <v-text-field 
-                                    :rules="data.rules.rule" 
-                                    v-model="data.venta.noVenta"
-                                    prepend-inner-icon="mdi-shopping" 
-                                    density="compact"
-                                    variant="outlined"
-                                    :hide-details="data.hide"
-                                    label="Nº Factura"
-                                    placeholder="nº factura"
-                                    persistent-placeholder
-                                    readonly
-                                    color="primary"
-                                    bg-color="grey-lighten-4"
-                                />
-                            </v-col>
-                            <v-col cols="12" md="12" sm="12">
-                                <v-autocomplete 
-                                    :rules="data.rules.rule" 
-                                    v-model="data.venta.idTipoVenta"
-                                    :items="data.tipoVenta"
-                                    prepend-inner-icon="mdi-file-document-check"
-                                    density="compact"
-                                    variant="outlined"
-                                    :hide-details="data.hide"
-                                    label="Tipo de Venta"
-                                    placeholder="Seleccione tipo"
-                                    persistent-placeholder
-                                    clearable
-                                    color="primary"
-                                />
-                            </v-col>
-                            <v-col cols="12" md="12" sm="12">
-                                <v-autocomplete 
-                                    :rules="data.rules.rule" 
-                                    v-model="data.venta.idCliente"
-                                    prepend-inner-icon="mdi-account"
-                                    density="compact"
-                                    variant="outlined"
-                                    :hide-details="data.hide"
-                                    label="Cliente"
-                                    placeholder="Busque un cliente"
-                                    persistent-placeholder
-                                    :items="data.clientes"
-                                    clearable
-                                    color="primary"
-                                >
-                                    <template v-slot:append-inner>
-                                        <v-btn icon variant="text" size="small" @click="getClientes" class="refresh-btn">
-                                            <v-icon color="primary" size="20">
-                                                mdi-refresh
-                                            </v-icon>
-                                            <v-tooltip activator="parent" location="top">Actualizar lista</v-tooltip>
-                                        </v-btn>
-                                    </template>
-                                </v-autocomplete>
-                            </v-col>
-                            <v-col cols="12" md="12" sm="12">
+
+                            <!-- Buscador de productos -->
+                            <v-card class="product-search mb-6" variant="outlined">
+                                <v-card-text class="px-4">
+                                    <v-row align="center">
+                                        <v-col cols="12" md="12" sm="12">
+                                            <v-autocomplete 
+                                                v-model="data.producto.idProducto"
+                                                prepend-inner-icon="mdi-magnify"
+                                                density="compact"
+                                                variant="outlined"
+                                                :hide-details="data.hide"
+                                                clearable
+                                                label="Buscar producto"
+                                                placeholder="Escriba para buscar..."
+                                                persistent-placeholder
+                                                :items="data.productos"
+                                                color="secondary"
+                                            />
+                                        </v-col>
+                                        <v-col cols="12" md="12" sm="12">
+                                            <v-text-field 
+                                                v-model="data.producto.cantidad"
+                                                prepend-inner-icon="mdi-numeric"
+                                                density="compact"
+                                                variant="outlined"
+                                                :hide-details="data.hide"
+                                                clearable
+                                                label="Cantidad"
+                                                placeholder="Cantidad"
+                                                persistent-placeholder
+                                                type="number"
+                                                min="1"
+                                                color="secondary"
+                                            />
+                                        </v-col>
+                                        <v-col cols="12" md="12" sm="12" class="d-flex justify-end align-center">
+                                            <v-btn 
+                                                class="mr-2" 
+                                                color="grey-darken-1" 
+                                                size="small" 
+                                                variant="outlined"
+                                                @click="clearProductos()"
+                                                prepend-icon="mdi-broom"
+                                            >
+                                                Limpiar
+                                            </v-btn>
+                                            <v-btn 
+                                                color="secondary" 
+                                                size="small" 
+                                                variant="flat"
+                                                @click="addProducts()"
+                                                prepend-icon="mdi-plus"
+                                            >
+                                                Agregar
+                                            </v-btn>
+                                        </v-col>
+                                    </v-row>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </v-form>
+
+
+                <v-card-subtitle class="d-flex align-center text-center mb-2">
+                    <v-divider /> 
+                    <small class="mx-6 text-grey font-weight-bold">
+                        Detalles de Productos
+                    </small>
+                    <v-divider />
+                </v-card-subtitle>
+                
+                <!-- Tabla de productos -->
+                <v-card class="mb-6">
+                    <v-data-table
+                        class="rounded border"
+                        density="compact"
+                        :headers="data.headers"
+                        :items="data.items"
+                        hide-default-footer
+                        :items-per-page="100"
+                        height="250px"
+                        fixed-header
+                    >
+                        <template v-slot:item.opc="{ item }">
+                            <v-btn 
+                                icon 
+                                size="small" 
+                                color="error" 
+                                variant="text"
+                                @click="deleteProduct(item)"
+                            >
+                                <v-icon size="20">mdi-trash-can-outline</v-icon>
+                                <v-tooltip activator="parent" location="top">Eliminar</v-tooltip>
+                            </v-btn>
+                        </template>
+                        <template v-slot:item.costoUnitario="{ item }">
+                            <div class="font-weight-medium text-body-2">
+                                {{ formatedCurrency(item.costoUnitario, data.fornates.nio) }}
+                            </div>
+                        </template>
+                        <template v-slot:item.subTotal="{ item }">
+                            <div class="font-weight-bold text-body-2 text-primary">
+                                {{ formatedCurrency(item.subTotal, data.fornates.nio) }}
+                            </div>
+                        </template>
+                    </v-data-table>
+                </v-card>
+
+                <!-- Resumen y observaciones -->
+                <v-row dense>
+                    <v-col cols="12" md="6" sm="6">
+                        <v-card variant="outlined" class="h-100">
+                            <v-card-text class="pa-4">
+                                <div class="text-subtitle-2 font-weight-bold mb-2 text-grey-darken-2">
+                                    <v-icon size="18" class="mr-2">mdi-text-box-outline</v-icon>
+                                    Observaciones
+                                </div>
                                 <v-textarea 
-                                    v-model="data.venta.enviarA"
-                                    density="compact"
-                                    variant="outlined"
-                                    :hide-details="data.hide"
-                                    label="Dirección de envío"
-                                    placeholder="Ingrese dirección completa"
-                                    clearable
-                                    persistent-placeholder
-                                    rows="2"
-                                    color="primary"
+                                    v-model="data.venta.observaciones"
+                                    variant="plain"
+                                    :hide-details="true"
+                                    placeholder="Ingrese observaciones adicionales..."
+                                    rows="4"
                                     auto-grow
+                                    class="mt-2"
                                 />
-                            </v-col>
-                        </v-row>
+                            </v-card-text>
+                        </v-card>
                     </v-col>
                     <v-col cols="12" md="6" sm="6">
-
-                        <!-- Sección Productos -->
-                        <div class="section-header mb-6">
-                            <div class="d-flex align-center">
-                                <div class="section-icon mr-3">
-                                    <v-icon color="secondary" size="28">mdi-package-variant</v-icon>
+                        <v-card variant="flat" color="grey-lighten-4" class="h-100">
+                            <v-card-text class="pa-4">
+                                <div class="text-subtitle-2 font-weight-bold mb-4 text-grey-darken-2">
+                                    <v-icon size="18" class="mr-2">mdi-calculator</v-icon>
+                                    Resumen de Factura
                                 </div>
-                                <h6 class="text-h6 font-weight-bold text-secondary">
-                                    Productos
-                                </h6>
-                                <v-divider class="ml-4" />
-                            </div>
-                        </div>
-
-                        <!-- Buscador de productos -->
-                        <v-card class="product-search mb-6" variant="outlined">
-                            <v-card-text class="px-4">
-                                <v-row align="center">
-                                    <v-col cols="12" md="12" sm="12">
-                                        <v-autocomplete 
-                                            v-model="data.producto.idProducto"
-                                            prepend-inner-icon="mdi-magnify"
-                                            density="compact"
-                                            variant="outlined"
-                                            :hide-details="data.hide"
-                                            clearable
-                                            label="Buscar producto"
-                                            placeholder="Escriba para buscar..."
-                                            persistent-placeholder
-                                            :items="data.productos"
-                                            color="secondary"
-                                        />
-                                    </v-col>
-                                    <v-col cols="12" md="12" sm="12">
-                                        <v-text-field 
-                                            v-model="data.producto.cantidad"
-                                            prepend-inner-icon="mdi-numeric"
-                                            density="compact"
-                                            variant="outlined"
-                                            :hide-details="data.hide"
-                                            clearable
-                                            label="Cantidad"
-                                            placeholder="Cantidad"
-                                            persistent-placeholder
-                                            type="number"
-                                            min="1"
-                                            color="secondary"
-                                        />
-                                    </v-col>
-                                    <v-col cols="12" md="12" sm="12" class="d-flex justify-end align-center">
-                                        <v-btn 
-                                            class="mr-2" 
-                                            color="grey-darken-1" 
-                                            size="small" 
-                                            variant="outlined"
-                                            @click="clearProductos()"
-                                            prepend-icon="mdi-broom"
-                                        >
-                                            Limpiar
-                                        </v-btn>
-                                        <v-btn 
-                                            color="secondary" 
-                                            size="small" 
-                                            variant="flat"
-                                            @click="addProducts()"
-                                            prepend-icon="mdi-plus"
-                                        >
-                                            Agregar
-                                        </v-btn>
-                                    </v-col>
-                                </v-row>
+                                <div class="amount-row d-flex justify-space-between align-center mb-3">
+                                    <span class="text-body-2">Sub Total:</span>
+                                    <span class="text-h6 font-weight-bold text-grey-darken-3">
+                                        {{ formatedCurrency(data.factura.subTotal, data.fornates.nio) }}
+                                    </span>
+                                </div>
+                                <v-divider class="my-2" />
+                                <div class="amount-row d-flex justify-space-between align-center mb-3">
+                                    <span class="text-body-2">Total:</span>
+                                    <span class="text-h5 font-weight-bold text-primary">
+                                        {{ formatedCurrency(data.factura.total, data.fornates.nio) }}
+                                    </span>
+                                </div>
+                                <div v-if="data.usd" class="amount-row d-flex justify-space-between align-center mt-4 pt-3 border-t">
+                                    <span class="text-body-2 text-grey-darken-1">
+                                        <v-icon size="16" class="mr-1">mdi-currency-usd</v-icon>
+                                        TOTAL USD:
+                                    </span>
+                                    <span class="text-h6 font-weight-bold text-green-darken-2">
+                                        {{ formatedCurrency(data.factura.usdTotal, data.fornates.usd) }}
+                                    </span>
+                                </div>
                             </v-card-text>
                         </v-card>
                     </v-col>
                 </v-row>
-            </v-form>
+            </v-card-text>
 
-
-            <v-card-subtitle class="d-flex align-center text-center mb-2">
-                <v-divider /> 
-                <small class="mx-6 text-grey font-weight-bold">
-                    Detalles de Productos
-                </small>
-                <v-divider />
-            </v-card-subtitle>
-            
-            <!-- Tabla de productos -->
-            <v-card class="mb-6">
-                <v-data-table
-                    class="rounded border"
-                    density="compact"
-                    :headers="data.headers"
-                    :items="data.items"
-                    hide-default-footer
-                    :items-per-page="100"
-                    height="250px"
-                    fixed-header
+            <!-- Footer de acciones -->
+            <v-divider thickness="2" />
+            <v-card-actions class="">
+                <v-btn 
+                    color="grey-darken-2" 
+                    variant="outlined" 
+                    @click="closeDialog()"
+                    prepend-icon="mdi-close-circle-outline"
+                    class="px-6"
                 >
-                    <template v-slot:item.opc="{ item }">
-                        <v-btn 
-                            icon 
-                            size="small" 
-                            color="error" 
-                            variant="text"
-                            @click="deleteProduct(item)"
-                        >
-                            <v-icon size="20">mdi-trash-can-outline</v-icon>
-                            <v-tooltip activator="parent" location="top">Eliminar</v-tooltip>
-                        </v-btn>
+                    Cancelar
+                </v-btn>
+                <v-spacer />
+                <v-btn 
+                    class="bg-indigo-darken-4 px-8" 
+                    @click="guardarFactura()"
+                    :disabled="data.contDisableBtn"
+                    prepend-icon="mdi-content-save-outline"
+                    elevation="2"
+                >
+                    <template v-if="data.contDisableBtn">
+                        <v-progress-circular 
+                            color="white" 
+                            indeterminate
+                            :size="24" 
+                            :width="3"
+                            class="mr-2"
+                        />
+                        <span class="text-white">Guardando...</span>
                     </template>
-                    <template v-slot:item.costoUnitario="{ item }">
-                        <div class="font-weight-medium text-body-2">
-                            {{ formatedCurrency(item.costoUnitario, data.fornates.nio) }}
-                        </div>
+                    <template v-else>
+                        <span class="text-white font-weight-bold">Guardar</span>
                     </template>
-                    <template v-slot:item.subTotal="{ item }">
-                        <div class="font-weight-bold text-body-2 text-primary">
-                            {{ formatedCurrency(item.subTotal, data.fornates.nio) }}
-                        </div>
-                    </template>
-                </v-data-table>
-            </v-card>
-
-            <!-- Resumen y observaciones -->
-            <v-row dense>
-                <v-col cols="12" md="6" sm="6">
-                    <v-card variant="outlined" class="h-100">
-                        <v-card-text class="pa-4">
-                            <div class="text-subtitle-2 font-weight-bold mb-2 text-grey-darken-2">
-                                <v-icon size="18" class="mr-2">mdi-text-box-outline</v-icon>
-                                Observaciones
-                            </div>
-                            <v-textarea 
-                                v-model="data.venta.observaciones"
-                                variant="plain"
-                                :hide-details="true"
-                                placeholder="Ingrese observaciones adicionales..."
-                                rows="4"
-                                auto-grow
-                                class="mt-2"
-                            />
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" md="6" sm="6">
-                    <v-card variant="flat" color="grey-lighten-4" class="h-100">
-                        <v-card-text class="pa-4">
-                            <div class="text-subtitle-2 font-weight-bold mb-4 text-grey-darken-2">
-                                <v-icon size="18" class="mr-2">mdi-calculator</v-icon>
-                                Resumen de Factura
-                            </div>
-                            <div class="amount-row d-flex justify-space-between align-center mb-3">
-                                <span class="text-body-2">Sub Total:</span>
-                                <span class="text-h6 font-weight-bold text-grey-darken-3">
-                                    {{ formatedCurrency(data.factura.subTotal, data.fornates.nio) }}
-                                </span>
-                            </div>
-                            <v-divider class="my-2" />
-                            <div class="amount-row d-flex justify-space-between align-center mb-3">
-                                <span class="text-body-2">Total:</span>
-                                <span class="text-h5 font-weight-bold text-primary">
-                                    {{ formatedCurrency(data.factura.total, data.fornates.nio) }}
-                                </span>
-                            </div>
-                            <div v-if="data.usd" class="amount-row d-flex justify-space-between align-center mt-4 pt-3 border-t">
-                                <span class="text-body-2 text-grey-darken-1">
-                                    <v-icon size="16" class="mr-1">mdi-currency-usd</v-icon>
-                                    TOTAL USD:
-                                </span>
-                                <span class="text-h6 font-weight-bold text-green-darken-2">
-                                    {{ formatedCurrency(data.factura.usdTotal, data.fornates.usd) }}
-                                </span>
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
-        </v-card-text>
-
-        <!-- Footer de acciones -->
-        <v-divider thickness="2" />
-        <v-card-actions class="">
-            <v-btn 
-                color="grey-darken-2" 
-                variant="outlined" 
-                @click="closeDialog()"
-                prepend-icon="mdi-close-circle-outline"
-                class="px-6"
-            >
-                Cancelar
-            </v-btn>
-            <v-spacer />
-            <v-btn 
-                class="bg-indigo-darken-4 px-8" 
-                @click="guardarFactura()"
-                :disabled="data.contDisableBtn"
-                prepend-icon="mdi-content-save-outline"
-                elevation="2"
-            >
-                <template v-if="data.contDisableBtn">
-                    <v-progress-circular 
-                        color="white" 
-                        indeterminate
-                        :size="24" 
-                        :width="3"
-                        class="mr-2"
-                    />
-                    <span class="text-white">Guardando...</span>
-                </template>
-                <template v-else>
-                    <span class="text-white font-weight-bold">Guardar</span>
-                </template>
-            </v-btn>
-        </v-card-actions>
-    </v-card>
-</v-dialog>
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script>
