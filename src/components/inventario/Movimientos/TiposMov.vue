@@ -16,7 +16,9 @@
                 <v-col cols="12" md="4" sm="4" class="align-top">
                     <v-card-subtitle class="d-flex align-center text-center mb-2">
                         <v-divider /> 
-                        <span class="mx-6 text-grey font-weight-bold">Busqueda</span>
+                        <span class="mx-6 text-grey font-weight-bold">
+                            Busqueda
+                        </span>
                         <v-divider />
                     </v-card-subtitle>
                     <v-row dense>
@@ -153,7 +155,7 @@
 import { formatters } from '@/helpers/formatters.js';
 import { reactive, computed, ref, onMounted, onUnmounted } from 'vue';
 import RequestHttp from '@/services/requestHttp';
-import AlertComp from '@/components/widgets/AlertComp.vue';
+import AlertComp from '@/components/widgets/AlertaAction.vue';
 import { useStore } from '@/store';
 import endPoints from '@/services/endPoints';
 

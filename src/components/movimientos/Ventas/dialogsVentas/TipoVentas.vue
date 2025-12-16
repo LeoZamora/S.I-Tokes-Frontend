@@ -153,7 +153,7 @@
 import { formatters } from '@/helpers/formatters.js';
 import { reactive, computed, ref, onMounted, onUnmounted } from 'vue';
 import RequestHttp from '@/services/requestHttp';
-import AlertComp from '@/components/widgets/AlertComp.vue';
+import AlertComp from '@/components/widgets/AlertaAction.vue';
 import { useStore } from '@/store';
 import endPoints from '@/services/endPoints';
 

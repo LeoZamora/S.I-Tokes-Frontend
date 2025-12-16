@@ -122,7 +122,7 @@ import { formatters } from '@/helpers/formatters';
 import NewProveedor from './dialogsCompras/NewProveedor.vue';
 import NewTipoProv from './dialogsCompras/NewTipoProv.vue';
 import RequestHttp from '@/services/requestHttp';
-import AlertComp from '@/components/widgets/AlertComp.vue';
+import AlertComp from '@/components/widgets/AlertaAction.vue';
 
 export default {
     mounted() {

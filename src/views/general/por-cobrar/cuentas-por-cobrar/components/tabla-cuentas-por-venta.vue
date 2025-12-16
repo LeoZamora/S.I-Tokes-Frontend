@@ -4,7 +4,8 @@
       :headers="tbl.headers"
       :items="tbl.items"
       :search="tbl.search"
-      :row-props="getRowStyles"
+      :headerProps="{class: 'font-weight-bold' }"
+      :row-props="setStyle"      
     >
       <template v-slot:top>
         <v-row dense class="pa-2 align-center">
@@ -53,7 +54,31 @@
         <v-divider />
       </template>
       <template v-slot:item.opc="{ item }">
-        <div class="d-flex justify-center">
+        <v-menu :close-on-content-click="false" offset-y>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" icon variant="text">
+              <v-icon color="grey">
+                mdi-dots-vertical
+              </v-icon>
+            </v-btn>
+          </template>
+          <v-list nav rounded="lg">
+            <v-list-item @click="openVisualizarAbonosDisplay(item)"
+              prepend-icon="mdi-table-eye">
+              <v-list-item-title>
+                Visualizar Abonos
+              </v-list-item-title>
+            </v-list-item>
+
+            <v-list-item v-if="hasAccessToFunct('85')" v-show="!item.cancelado"
+              @click="openAbonarDisplay(item)" prepend-icon="mdi-cash-plus">
+              <v-list-item-title>
+                Abonar
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+        <!-- <div class="d-flex justify-center">
           <v-tooltip
             text="Visualizar Abonos"
             location="top"
@@ -105,7 +130,7 @@
               </v-btn>
             </template>
           </v-tooltip>
-        </div>
+        </div> -->
       </template>
 
       <template v-slot:item.totalVenta="{ item }">
@@ -266,12 +291,11 @@ export default {
         search: '',
         headers: [
           {
-            title: 'Opciones',
+            title: '',
             key: 'opc',
             align: 'center',
             opciones: true,
             sortable: false,
-            width: 1,
             headerProps: {
               class: 'pa-0'
             },
@@ -284,7 +308,6 @@ export default {
             key: 'noVenta',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -297,7 +320,6 @@ export default {
             key: 'tipoVenta',
             align: 'center',
             format: '',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -310,7 +332,6 @@ export default {
             key: 'rutaCliente',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -323,7 +344,6 @@ export default {
             key: 'cliente',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -337,7 +357,6 @@ export default {
             key: 'totalVenta',
             format: 'currency',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -350,7 +369,6 @@ export default {
             key: 'montoCredito',
             format: 'currency',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -363,7 +381,6 @@ export default {
             key: 'totalAbonado',
             format: 'currency',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -376,7 +393,6 @@ export default {
             key: 'saldo',
             format: 'currency',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -389,7 +405,6 @@ export default {
             key: 'fechaRegistro',
             format: 'date',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -402,7 +417,6 @@ export default {
             key: 'usuarioRegistro',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1'
             },
@@ -415,7 +429,6 @@ export default {
             key: 'diasVencido',
             format: '',
             align: 'center',
-            width: 1,
             opciones: true,
             headerProps: {
               class: 'pa-0'
@@ -429,7 +442,6 @@ export default {
             key: 'estado',
             format: '',
             align: 'center',
-            width: 1,
             opciones: true,
             headerProps: {
               class: 'pa-0'
@@ -492,6 +504,15 @@ export default {
         this.loading.load(false)
       } catch (e) {
         this.handleException(e)
+      }
+    },
+
+    setStyle({ index }) {
+      return {
+        class:
+          index % 2 === 0
+            ? 'bg-white'
+            : 'bg-indigo-lighten-5'
       }
     },
 

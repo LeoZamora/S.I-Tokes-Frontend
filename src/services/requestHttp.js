@@ -106,10 +106,15 @@ class RequestHttp {
                 url = `${endPoints.getProducto}?tipoProducto=${type}`
             }
             const result  = await axios.get(url)
-            return result.data
+            return {
+                code: 200,
+                data: result.data
+            }
         } catch (error) {
-            return null
-            
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
     async getByIdProducto(id) {
@@ -117,7 +122,10 @@ class RequestHttp {
             const result  = await axios.get(`${endPoints.getProducto}/${id}`)
             return result.data
         } catch (error) {
-            return null
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
     async postProducto(data) {
@@ -333,7 +341,10 @@ class RequestHttp {
             const result  = await axios.get(endPoints.getVenta)
             return result.data
         } catch (error) {
-            return null
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
             
         }
     }
@@ -341,36 +352,58 @@ class RequestHttp {
     async getTipoVentas() {
         try {
             const result  = await axios.get(endPoints.getTipoVenta)
-            return result.data
+            return {
+                code: 200,
+                data: result.data
+            }
         } catch (error) {
-            return null
-            
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
 
     async getByIdVenta(id) {
         try {
             const result  = await axios.get(`${endPoints.getVenta}/${id}`)
-            return result.data
+            return {
+                code: 200,
+                data: result.data
+            }
         } catch (error) {
-            return null
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
     async postVenta(data) {
         try {
             const result  = await axios.post(endPoints.postVenta, data)
-            return result.data
+            return {
+                code: 200,
+                data: result.data
+            }
         } catch (error) {
-            return error.response.data
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
     async putVenta(data, id) {
         try {
             const result  = await axios.put(`${endPoints.putVenta}/${id}`, data)
-            return result.data
+            return {
+                code: 200,
+                data: result.data
+            }
         } catch (error) {
-
-            return null
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
     async deleteVenta(id) {

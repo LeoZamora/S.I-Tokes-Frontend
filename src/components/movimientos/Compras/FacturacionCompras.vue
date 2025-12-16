@@ -110,7 +110,7 @@
 <script>
 import { formatters } from '@/helpers/formatters.js';
 import { reactive } from 'vue';
-import AlertComp from '@/components/widgets/AlertComp.vue';
+import AlertComp from '@/components/widgets/AlertaAction.vue';
 import NuevaFacturaCompras from './dialogsCompras/NuevaFacturaCompras.vue';
 import ViewOrdenes from './dialogsCompras/ViewOrdenes.vue';
 import RequestHttp from '@/services/requestHttp';

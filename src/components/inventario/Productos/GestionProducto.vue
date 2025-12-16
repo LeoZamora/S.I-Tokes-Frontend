@@ -777,7 +777,7 @@ import {
 import {utilsFunctions} from '@/helpers/utilFunctions'
 import DetallesProducto from './modalsProductos/DetallesProducto.vue'
 import RequestHttp from '@/services/requestHttp'
-import AlertComp from '@/components/widgets/AlertComp.vue'
+import AlertComp from '@/components/widgets/AlertaAction.vue'
 import {
   getItemsCombobox,
   httpGet, httpPost, httpPut

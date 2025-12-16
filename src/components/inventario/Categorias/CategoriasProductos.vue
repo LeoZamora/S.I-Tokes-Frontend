@@ -94,7 +94,7 @@ import NewCategoria from './modalsCategorias/NewCategoria.vue';
 import NewSubCat from './modalsCategorias/NewSubCat.vue';
 import RequestHttp from '@/services/requestHttp';
 import { formatters } from '@/helpers/formatters';
-import AlertComp from '@/components/widgets/AlertComp.vue';
+import AlertComp from '@/components/widgets/AlertaAction.vue';
 
 export default {
     mounted() {
