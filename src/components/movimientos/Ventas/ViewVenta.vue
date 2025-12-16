@@ -1,123 +1,215 @@
 <template>
-    <v-dialog v-model="localShow" max-width="600" persistent>
-        <v-card id="diag-fact">
-            <v-card-title class="bg-indigo-darken-4 d-flex align-center">
-                <h5><v-icon>mdi-file-document-outline</v-icon>FACTURA</h5>
-                <v-spacer />
-                <v-btn icon size="small" color="white" variant="tonal" @click="closeDialog()">
-                    <v-icon>mdi-close</v-icon>
-                    <v-tooltip activator="parent" location="top" text="Cerrar" />
-                </v-btn>
-            </v-card-title>
-            <v-divider />
-            <v-card-text id="body-card" >
-                <v-card-subtitle class="d-flex align-center text-center mb-2">
-                    <v-divider /> 
-                    <small class="mx-6 text-black">GENERALES</small>
-                    <v-divider />
-                </v-card-subtitle>
-                <div class="w-100 d-flex align-center">
-                    <div class="w-50 pa-2 ma-1 border rounded">
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-black"> Nº Factura:</small>
-                            <small><strong>{{ data.venta.noVenta }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-black"><strong>C$</strong> Córdobas:</small>
-                            <small><strong>{{ data.nio ? 'Si' : 'No' }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-black"><strong>$</strong> Dólares:</small>
-                            <small><strong>{{ data.usd ? 'Si' : 'No' }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-black">Crédito:</small>
-                            <small><strong>{{ data.venta.credito ? 'Si' : 'No' }}</strong></small>
-                        </div>
-                    </div>
-                    <div class="w-50 pa-2 ma-1 border rounded">
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-black">Fecha Registro:</small>
-                            <small><strong>{{ formateDate(data.editVenta.fechaRegistro) }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-black">Cliente:</small>
-                            <small><strong>{{ data.venta.cliente }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-black">Dirección:</small>
-                            <small><strong>{{ data.venta.enviarA }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-black">Emp. Registro:</small>
-                            <small><strong>{{ data.venta.usuarioRegistro }}</strong></small>
-                        </div>
+    <v-dialog v-model="localShow" max-width="800" persistent>
+        <v-card class="rounded-lg" elevation="10">
+            <!-- Header con gradiente profesional -->
+            <v-card-title class="d-flex align-center bg-indigo-darken-4 text-white ">
+                <v-avatar size="48" color="white" class="mr-4" variant="flat">
+                    <v-icon color="indigo-darken-4" size="28">mdi-receipt</v-icon>
+                </v-avatar>
+                <div class="text-white">
+                    <h6 class="font-weight-bold">FACTURA</h6>
+                    <div class="text-subtitle-1 text-grey-lighten-3">
+                        Documento No. {{ data.venta.noVenta }}
                     </div>
                 </div>
-                <v-card-subtitle class="d-flex align-center text-center mb-2">
-                    <v-divider /> 
-                    <small class="mx-6 text-black">DETALLES</small>
-                    <v-divider />
-                </v-card-subtitle>
-                <v-row dense>
-                    <v-col cols="12" sm="12" md="12">
-                        <v-data-table class="border rounded font" density="compact" :headers="data.headers" 
-                            :items="data.items" :header-props="{ class: 'font-weight-bold text-uppercase' }"
-                            height="200" fixed-header hide-default-footer>
-                            <template v-slot:item.opc>
-                                <v-tooltip text="Eliminar" location="top">
-                                    <template v-slot:activator="{ props }">
-                                        <v-icon v-bind="props" color="error" class="mr-1">mdi-delete</v-icon>
-                                    </template>
-                                </v-tooltip>
-                            </template>
-                            <template v-slot:item.costoUnitario="{ item }">
-                                <div>{{ formatedCurrency(item.costoUnitario) }}</div>
-                            </template>
-                            <template v-slot:item.subTotal="{ item }">
-                                <div>{{ formatedCurrency(item.subTotal) }}</div>
-                            </template>
-                        </v-data-table>
+                <v-spacer />
+                <v-btn icon color="white" variant="text" @click="closeDialog()" size="small" class="ml-2">
+                    <v-icon>mdi-close</v-icon>
+                </v-btn>
+            </v-card-title>
+
+            <!-- Cuerpo del documento -->
+            <v-card-text class="pa-2 bg-grey-lighten-4">
+                <!-- Encabezado informativo -->
+                <v-card color="white" class="details px-4 py-2 mb-2 rounded-lg border" elevation="0">
+                    <v-row dense>
+                        <v-col>
+                            <div class="text-grey">INFORMACIÓN DEL CLIENTE</div>
+                            <v-divider />
+                            <v-row>
+                                <v-col cols="4">
+                                    <div class="text-caption text-grey">
+                                        NOMBRE DEL CLIENTE
+                                    </div>
+                                    <div class="text-subtitle-2 font-weight-bold">
+                                        {{ data.venta.cliente }}
+                                    </div>
+                                </v-col>
+                                <v-col cols="4">
+                                    <div class="text-caption text-grey">
+                                        DIRECCIÓN DE ENVÍO
+                                    </div>
+                                    <div class="text-subtitle-2">
+                                        {{ data.venta.enviarA }}
+                                    </div>
+                                </v-col>
+                                <v-col cols="4">
+                                    <div class="text-caption text-grey">
+                                        REGISTRADO POR
+                                    </div>
+                                    <div class="text-subtitle-2">
+                                        {{ data.venta.usuarioRegistro }}
+                                    </div>
+                                </v-col>
+                            </v-row>
+                        </v-col>
+                        <v-divider vertical/>
+                        <v-col cols="2" class="d-flex flex-column justify-center align-center">
+                            <div>
+                                <div class="text-caption text-grey">
+                                    FECHA EMISIÓN
+                                </div>
+                                <div class="text-subtitle-2 font-weight-bold">
+                                    {{ formateDate(data.editVenta.fechaRegistro) }}
+                                </div>
+                            </div>
+                            <div>
+                                <v-chip :color="data.venta.credito ? 'orange-darken-3' : 'green-darken-3'">
+                                    {{ data.venta.credito ? 'Crédito' : 'Contado' }}
+                                </v-chip>
+                            </div>
+                        </v-col>
+                    </v-row>
+                </v-card>                
+
+                <!-- Tabla de productos -->
+                <v-card variant="flat" class="rounded-lg overflow-hidden mb-2 border" elevation="0">
+                    <v-card-title class="px-4" style="background-color: #e8eaf6;">
+                        <v-icon color="indigo-darken-3" class="mr-2">mdi-cart</v-icon>
+                        <span class="text-subtitle-1 font-weight-bold">DETALLE DE PRODUCTOS</span>
+                    </v-card-title>
+                    
+                    <v-data-table
+                        :headers="data.headers"
+                        :items="data.items"
+                        density="compact"
+                        hide-default-footer
+                        class="elevation-0"
+                        :header-props="{
+                            class: 'text-uppercase font-weight-bold bg-indigo-lighten-5'
+                        }"
+                        fixed-header
+                        height="250px"                        
+                    >
+                        <template v-slot:item.opc>
+                            <v-btn icon variant="text" color="grey" size="x-small">
+                                <v-icon>mdi-dots-vertical</v-icon>
+                            </v-btn>
+                        </template>
+                        
+                        <template v-slot:item.costoUnitario="{ item }">
+                            <div class="text-right font-weight-medium">
+                                {{ formatedCurrency(item.costoUnitario) }}
+                            </div>
+                        </template>
+                        
+                        <template v-slot:item.subTotal="{ item }">
+                            <div class="text-right font-weight-bold text-indigo-darken-3">
+                                {{ formatedCurrency(item.subTotal) }}
+                            </div>
+                        </template>
+                    </v-data-table>
+                </v-card>
+
+                <!-- Totales y observaciones -->
+                <v-row>
+                    <v-col cols="7">
+                        <v-card variant="flat" color="white" class="px-4 rounded-lg border h-100">
+                            <div class="text-overline text-grey mb-2">OBSERVACIONES</div>
+                            <v-textarea
+                                v-model="data.venta.observaciones"
+                                variant="plain"
+                                hide-details
+                                auto-grow
+                                rows="4"
+                                class="pa-2"
+                                readonly
+                                style="background-color: #f9f9f9;"
+                            />
+                        </v-card>
                     </v-col>
-                    <v-col cols="12" md="6" sm="6">
-                        <v-textarea v-model="data.venta.observaciones" density="compact" variant="outlined" hide-details label="Observaciones" placeholder="ingrese algunos detalles de la factura" 
-                            persistent-placeholder rows="3"/>                        
-                    </v-col>
-                    <v-col cols="12" md="6" sm="6" class="d-flex flex-column justify-end align-end">
-                        <div class="d-flex justify-end align-center">
-                            <small class="mr-2">Sub Total: </small>
-                            <strong>{{ formatedCurrency(data.factura.subTotal, data.fomates.nio) }}</strong>
-                        </div>
-                        <div class="d-flex justify-end align-center">
-                            <small class="mr-2">TOTAL: </small>
-                            <strong>{{ formatedCurrency(data.factura.total, data.fomates.nio) }}</strong>
-                        </div>
-                        <div v-if="data.usd" class="d-flex justify-end align-center">
-                            <small class="mr-2">TOTAL $: </small>
-                            <strong>{{ formatedCurrency(data.factura.usdTotal, data.fomates.usd) }}</strong>
-                        </div>
+                    
+                    <v-col cols="5">
+                        <v-card variant="flat" color="#f3f4f6" class="px-4 rounded-lg border h-100">
+                            <div class="text-overline text-grey mb-3">RESUMEN DE PAGO</div>
+                            
+                            <div class="d-flex justify-space-between align-center mb-3">
+                                <span class="text-body-2">Sub Total</span>
+                                <span class="text-body-1 font-weight-medium">{{ formatedCurrency(data.factura.subTotal, data.fomates.nio) }}</span>
+                            </div>
+                            
+                            <div class="d-flex justify-space-between align-center mb-4">
+                                <span class="text-body-1 font-weight-bold">TOTAL GENERAL</span>
+                                <span class="text-h6 font-weight-bold text-indigo-darken-4">
+                                    {{ formatedCurrency(data.factura.total, data.fomates.nio) }}
+                                </span>
+                            </div>
+                            
+                            <v-divider class="my-3" />
+                            
+                            <div v-if="data.usd" class="d-flex justify-space-between align-center mt-4">
+                                <div>
+                                    <span class="text-body-2">Equivalente en USD</span>
+                                    <div class="text-caption text-grey">Tipo de cambio aplicado</div>
+                                </div>
+                                <span class="text-body-1 font-weight-bold text-blue-darken-3">
+                                    {{ formatedCurrency(data.factura.usdTotal, data.fomates.usd) }}
+                                </span>
+                            </div>
+                        </v-card>
                     </v-col>
                 </v-row>
 
+                <!-- Información adicional -->
+                <v-card variant="flat" color="#e8f5e9" class="pa-3 rounded-lg mt-4 border" v-if="data.venta.credito">
+                    <div class="d-flex align-center">
+                        <v-icon color="orange-darken-3" class="mr-3">mdi-clock-outline</v-icon>
+                        <div>
+                            <div class="text-caption font-weight-bold">
+                                ESTA FACTURA ES A CRÉDITO
+                            </div>
+                        </div>
+                    </div>
+                </v-card>
+
             </v-card-text>
 
-            <v-divider/>
-            <v-card-actions>
-                <v-btn color="grey" variant="outlined" @click="closeDialog()">
+            <!-- Footer con acciones -->
+            <v-divider />
+            <v-card-actions class="pa-4 bg-white">
+                <v-btn 
+                    color="grey-darken-2" 
+                    variant="tonal" 
+                    @click="closeDialog()"
+                    class="px-5"
+                >
+                    <v-icon size="small" class="mr-2">
+                        mdi-close
+                    </v-icon>
                     Cerrar
                 </v-btn>
-                <v-btn color="indigo-darken-4" variant="flat" @click="exportDialogToPDF()">
-                    <template v-slot:prepend>
-                        <v-icon>mdi-printer</v-icon>
-                    </template>
-                    Imprimir
+                
+                <v-btn 
+                    color="indigo-darken-3" 
+                    variant="flat" 
+                    @click="exportDialogToPDF()"
+                    class="px-6"
+                    elevation="2"
+                >
+                    <v-icon class="mr-2">
+                        mdi-printer
+                    </v-icon>
+                    Descargar
                 </v-btn>
             </v-card-actions>
+
+            <OverlayComp :show="data.overlay.show"/>
         </v-card>
     </v-dialog>
 </template>
 
 <script>
+import OverlayComp from '@/components/reutilizable/OverlayComp.vue';
 import { formatters } from '@/helpers/formatters';
 import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
@@ -134,6 +226,10 @@ export default {
             type: Object,
             required: false
         }
+    },
+
+    components: {
+        OverlayComp
     },
 
     setup(props) {
@@ -170,22 +266,24 @@ export default {
                 data.venta = {}
                 data.editVenta = {}
 
+                data.overlay.show = true
+
                 const result = await getVenta(val.idVenta)
-                data.venta.credito = result.credito
-                data.venta.enviarA = result.enviarA
-                data.venta.idCliente = result.idCliente
-                data.venta.noVenta = result.noVenta
-                data.venta.cliente = await getCliente(result.idCliente)
-                data.venta.observaciones = result.observaciones
-                data.venta.usuarioRegistro = result.usuarioRegistro
-                data.editVenta.estado = result.estado
-                data.editVenta.fechaRegistro = result.fechaRegistro
-                data.editVenta.idVenta = result.idVenta
-                data.editVenta.idClienteNavigation = result.idClienteNavigation
-                result.detalleCxcs.map(item => {
+                data.venta.credito = result.data.credito
+                data.venta.enviarA = result.data.enviarA
+                data.venta.idCliente = result.data.idCliente
+                data.venta.noVenta = result.data.noVenta
+                data.venta.cliente = await getCliente(result.data.idCliente)
+                data.venta.observaciones = result.data.observaciones
+                data.venta.usuarioRegistro = result.data.usuarioRegistro
+                data.editVenta.estado = result.data.estado
+                data.editVenta.fechaRegistro = result.data.fechaRegistro
+                data.editVenta.idVenta = result.data.idVenta
+                data.editVenta.idClienteNavigation = result.data.idClienteNavigation
+                result.data.detalleCxcs.map(item => {
                     data.editVenta.detalleCxcs.push(item)
                 })
-                const promises = result.detalleVenta.map(async (item) => {
+                const promises = result.data.detalleVenta.map(async (item) => {
                     const product = await data.requestHttp.getByIdProducto(item.idProducto)
                     data.items.push({
                         idDetalleVenta: item.idDetalleVenta,
@@ -203,6 +301,8 @@ export default {
     
                 await Promise.all(promises)
                 calcularFactura()
+
+                data.overlay.show = false
             }
             
         })
@@ -239,6 +339,11 @@ export default {
                 estado: false,
                 idClienteNavigation: null,
                 detalleCxcs: [],
+            },
+
+            // Overlay
+            overlay: {
+                show: false
             },
 
             idVenta: null,
@@ -399,6 +504,10 @@ export default {
 <style scoped>
 .v-card-item{
     padding: 8px 12px !important;
+}
+
+.details {
+    font-size: 12px !important;
 }
 
 #diag-fact{

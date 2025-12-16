@@ -33,11 +33,58 @@
       </v-card-subtitle>
 
       <v-row dense class="pa-2">
-        <v-col cols="12" sm="8" md="8">
+        <v-col cols="12" md="8" sm="8">
+          <div class="d-flex flex-wrap align-center ga-3">
+            <v-card v-for="(param, index) in tbl.params" :key="index" 
+              variant="flat" class="pa-2" :color="`${param.color}-lighten-5`">
+              <div class="d-flex align-center">
+                <v-avatar size="36" :color="`${param.color}-lighten-4`" class="mr-2">
+                  <v-icon :color="param.color" size="small">
+                    {{ param.icon }}
+                  </v-icon>
+                </v-avatar>
+                <div class="mr-4">
+                  <span>
+                    {{ param.title }}:
+                  </span>
+                </div>
+                <div style="font-size: 10px !important;" class="text-body-3 font-weight-bold">
+                  <strong v-if="param.value === 1">
+                    {{ cxc.cliente }}
+                  </strong>
+                  <strong v-else-if="param.value === 2">
+                    {{ cxc.nCreditosPagados }}
+                  </strong>
+                  <strong v-else-if="param.value === 3">
+                    {{ cxc.nCreditosPendientes }}
+                  </strong>
+                </div>
+              </div>
+            </v-card>
+          </div>
+        </v-col>
+
+        <!-- BUSCADOR -->
+        <v-col cols="12" md="4">
+          <v-text-field
+            v-model="search"
+            label="Buscar"
+            prepend-inner-icon="mdi-magnify"
+            hide-details
+            placeholder="Filtrar datos por cliente"
+            persistent-placeholder
+            variant="outlined"
+            density="compact"
+            clearable
+          />
+        </v-col>
+        <!-- <v-col cols="12" sm="8" md="8">
           <div v-for="(param, index) in tbl.params" :key="index" 
             class="d-flex justify-start align-start">
             <div class="mr-4">
-              <v-icon :color="param.color" class="mx-2">{{ param.icon }}</v-icon>
+              <v-icon :color="param.color" class="mx-2">
+                {{ param.icon }}
+              </v-icon>
               <span>
                 {{ param.title }}:
               </span>
@@ -52,7 +99,7 @@
               {{ cxc.nCreditosPendientes }}
             </strong>
           </div>
-        </v-col>
+        </v-col> -->
       </v-row>
 
       <v-card-text>
@@ -70,48 +117,65 @@
             :headers="tbl.headers"
             :items="tbl.items"
             :search="search"
+            :headerProps="{class: 'font-weight-bold' }"
+            :row-props="setStyle"
             class="border rounded font"
         >
-        <template v-slot:top>
-          <v-container>
-            <v-row>
-              <v-col>
-                <v-text-field v-model="search " variant="outlined" label="Buscar" density="comfortable"
-                  placeholder="Buscar Créditos" persistentPlaceholder/>
-              </v-col>
-            </v-row>
-          </v-container>
-          <v-divider />
-        </template>
-        <template v-slot:item.opc="{ item }">
-            <div class="d-flex justify-center">
-              <v-tooltip text="Visualizar Abonos" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    variant="text"
-                    @click="openVisualizarAbonosDisplay(item)"
-                    v-bind="props" icon size="x-small" class="mx-1">
-                    <v-icon color="indigo-darken-4" size="large">
-                      mdi-table-eye
-                    </v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
-              <v-tooltip text="Abonar" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    v-if="hasAccessToFunct('85')"
-                    variant="text"
-                    v-show="!item.cancelado"
-                    @click="openAbonarDisplay(item)"
-                    v-bind="props" icon size="x-small" class="mx-1">
-                    <v-icon color="green" size="large">
-                      mdi-cash-plus
-                    </v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
-            </div>
+          <template v-slot:item.opc="{ item }">
+            <v-menu :close-on-content-click="false" offset-y>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props" icon variant="text">
+                  <v-icon color="grey">
+                    mdi-dots-vertical
+                  </v-icon>
+                </v-btn>
+              </template>
+              <v-list nav rounded="lg">
+                <v-list-item @click="openVisualizarAbonosDisplay(item)" 
+                  prepend-icon="mdi-eye">
+                  <v-list-item-title>
+                    Visualizar Abonos
+                  </v-list-item-title>
+                </v-list-item>
+
+                <v-list-item v-if="hasAccessToFunct('85')" v-show="!item.cancelado"
+                  @click="openAbonarDisplay(item)"
+                  prepend-icon="mdi-cash-plus">
+                  <v-list-item-title>
+                    Nuevo Abonar
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+
+              <!-- <div class="d-flex justify-center">
+                <v-tooltip text="Visualizar Abonos" location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      variant="text"
+                      @click="openVisualizarAbonosDisplay(item)"
+                      v-bind="props" icon size="x-small" class="mx-1">
+                      <v-icon color="indigo-darken-4" size="large">
+                        mdi-table-eye
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                </v-tooltip>
+                <v-tooltip text="Abonar" location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-if="hasAccessToFunct('85')"
+                      variant="text"
+                      v-show="!item.cancelado"
+                      @click="openAbonarDisplay(item)"
+                      v-bind="props" icon size="x-small" class="mx-1">
+                      <v-icon color="green" size="large">
+                        mdi-cash-plus
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                </v-tooltip>
+              </div> -->
           </template>
 
           <template v-slot:item.totalVenta="{ item }">
@@ -213,6 +277,7 @@ import VisualizarAbonos from "@/views/general/por-cobrar/cuentas-por-cobrar/comp
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 export default {
   name: 'visualizar-cuentas',
+  
   components: {VisualizarAbonos, AbonarCuenta},
 
   props: {
@@ -233,7 +298,6 @@ export default {
             align: 'center',
             opciones: true,
             sortable: false,
-            width: 1,
             headerProps: {
               class: 'pa-0',
             },
@@ -246,7 +310,6 @@ export default {
             key: 'noVenta',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -259,7 +322,6 @@ export default {
             key: 'tipoVenta',
             align: 'center',
             format: '',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -272,7 +334,6 @@ export default {
             key: 'productosVendidos',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -285,7 +346,6 @@ export default {
             key: 'totalVenta',
             format: 'currency',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -298,7 +358,6 @@ export default {
             key: 'montoCredito',
             format: 'currency',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -311,7 +370,6 @@ export default {
             key: 'saldo',
             format: 'currency',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -324,7 +382,6 @@ export default {
             key: 'fechaRegistro',
             format: 'date',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -337,7 +394,6 @@ export default {
             key: 'usuarioRegistro',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -350,7 +406,6 @@ export default {
             key: 'cancelado',
             format: '',
             align: 'center',
-            width: 1,
             opciones: true,
             headerProps: {
               class: 'pa-0',
@@ -362,9 +417,9 @@ export default {
         ],
 
         params: [
-          { title: 'Cliente', icon: 'mdi-account', color: 'grey', value: 1 },
-          { title: 'N° Créditos Pagados', icon: 'mdi-cash-check', color: 'grey', value: 2 },
-          { title: 'N° Créditos Pendientes', icon: 'mdi-cash-clock', color: 'grey', value: 3 },
+          { title: 'Cliente', icon: 'mdi-account', color: 'indigo', value: 1 },
+          { title: 'N° Créditos Pagados', icon: 'mdi-cash-check', color: 'green', value: 2 },
+          { title: 'N° Créditos Pendientes', icon: 'mdi-cash-clock', color: 'red', value: 3 },
         ]
       },
 
@@ -386,6 +441,16 @@ export default {
 
   methods: {
     hasAccessToFunct,
+
+    setStyle({ index }) {
+      return {
+        class:
+          index % 2 === 0
+            ? 'bg-white'
+            : 'bg-indigo-lighten-5'
+      }
+    },
+
     async loadTblCuentas(){
       this.loading.load(true)
       try{

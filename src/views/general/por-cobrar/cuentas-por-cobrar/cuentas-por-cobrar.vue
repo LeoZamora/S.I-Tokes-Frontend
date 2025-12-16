@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--WIN1: PRINCIPAL-->
-    <v-card v-if="!display.visualizarCuentas">
+    <v-card v-if="!display.visualizarCuentas" class="border-t">
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <!-- Título -->
@@ -14,70 +14,96 @@
       <v-card-subtitle
           class="d-flex align-center text-center"
         >
-          <v-divider thickness="2" />
-          <span
-            class="mx-6 text-grey font-weight-bold"
-            >Datos Generales</span
-          >
+          <v-divider />
+          <span class="mx-6 text-grey font-weight-bold">
+            Datos Generales
+          </span>
         <v-divider thickness="2" />
       </v-card-subtitle>
-      <v-row dense class="pa-2">
-        <v-col cols="12" sm="8" md="8">
-          <div v-for="(param, index) in tbl.params" :key="index" 
-            class="d-flex justify-start align-start">
-            <div class="mr-4">
-              <v-icon :color="param.color" class="mx-2">{{ param.icon }}</v-icon>
-              <span>
-                {{ param.title }}:
-              </span>
-            </div>
-            <strong v-if="param.value === 1">
-              {{ totalCuentasPagadas }}
-            </strong>
-            <strong v-else-if="param.value === 2">
-              {{ totalCuentasPendientes }}
-            </strong>
-            <strong v-else-if="param.value === 3">
-              {{ formatedCurrency(totalFacturado) }}
-            </strong>
-          </div>
-          <!-- <v-card style="border: 1px #e0e0e0 solid">
-            <v-card-text class="d-flex flex-column align-center">
-              <v-icon color="primary" size="50">mdi-file-document-check</v-icon>
-              <div style="font-weight: bold">Total de cuentas pagadas</div>
-              <div style="font-weight: bold">{{ totalCuentasPagadas }}</div>
-            </v-card-text>
-          </v-card> -->
-        </v-col>
-        <!-- <v-col cols="2">
-          <v-card style="border: 1px #e0e0e0 solid">
-            <v-card-text class="d-flex flex-column align-center">
-              <v-icon color="primary" size="50">mdi-file-document-alert</v-icon>
-              <div style="font-weight: bold">Total de cuentas pendientes</div>
-              <div style="font-weight: bold">{{ totalCuentasPendientes }}</div>
-            </v-card-text>
+      <v-row class="px-2" dense>
+        <v-col cols="12">
+          <v-card elevation="0" class="pa-4">
+            <!-- PRIMERA FILA: MÉTRICAS Y BUSCADOR -->
+            <v-row dense align="center">
+              <!-- MÉTRICAS -->
+              <v-col cols="12" md="8">
+                <div class="d-flex flex-wrap align-center ga-3">
+                  <v-card v-for="(param, index) in tbl.params" :key="index" 
+                    variant="flat" class="pa-2" :color="`${param.color}-lighten-5`">
+                    <div class="d-flex align-center">
+                      <v-avatar size="36" :color="`${param.color}-lighten-4`" class="mr-2">
+                        <v-icon :color="param.color" size="small">
+                          {{ param.icon }}
+                        </v-icon>
+                      </v-avatar>
+                      <div>
+                        <div class="text-caption text-grey">
+                          {{ param.title }}
+                        </div>
+                        <div class="text-body-1 font-weight-bold">
+                          <template v-if="param.value === 1">
+                            {{ totalCuentasPagadas }}
+                          </template>
+                          <template v-else-if="param.value === 2">
+                            {{ totalCuentasPendientes }}
+                          </template>
+                          <template v-else-if="param.value === 3">
+                            {{ formatedCurrency(totalFacturado) }}
+                          </template>
+                        </div>
+                      </div>
+                    </div>
+                  </v-card>
+                </div>
+              </v-col>
+              
+              <!-- BUSCADOR -->
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model="tbl.search"
+                  label="Buscar"
+                  prepend-inner-icon="mdi-magnify"
+                  hide-details
+                  placeholder="Filtrar datos por cliente"
+                  persistent-placeholder
+                  :disabled="!tbl.agruparXCliente"
+                  variant="outlined"
+                  density="compact"
+                  clearable
+                />
+              </v-col>
+            </v-row>
+            
+            <!-- SEGUNDA FILA: OPCIONES DE VISUALIZACIÓN -->
+            <v-row dense class="mt-3" align="center">
+              <v-col cols="12">
+                <div class="d-flex align-center justify-space-between pa-2 bg-grey-lighten-4 rounded">
+                  <div class="d-flex align-center">
+                    <v-icon size="small" class="mr-2" color="primary">mdi-view-dashboard</v-icon>
+                    <span class="text-subtitle-2">Agrupar por:</span>
+                  </div>
+                  
+                  <v-btn-toggle
+                    v-model="tbl.agruparXCliente"
+                    color="primary"
+                    density="comfortable"
+                    mandatory
+                    rounded="lg"
+                  >
+                    <v-btn :value="true" variant="flat">
+                      <v-icon start>mdi-account</v-icon>
+                      Cliente
+                    </v-btn>
+                    
+                    <v-btn :value="false" variant="flat">
+                      <v-icon start>mdi-receipt</v-icon>
+                      Venta
+                    </v-btn>
+                  </v-btn-toggle>
+                </div>
+              </v-col>
+            </v-row>
           </v-card>
-        </v-col>
-        <v-col cols="2">
-          <v-card style="border: 1px #e0e0e0 solid">
-            <v-card-text class="d-flex flex-column align-center">
-              <v-icon color="primary" size="50">mdi-cash-clock</v-icon>
-              <div style="font-weight: bold">Total saldo pendiente</div>
-              <div style="font-weight: bold">{{ formatedCurrency(totalFacturado) }}</div>
-            </v-card-text>
-          </v-card>
-        </v-col> -->
-        <v-col cols="12" sm="4" md="4">
-          <v-text-field
-            v-model="tbl.search"
-            label="Búsqueda:"
-            prepend-inner-icon="mdi-magnify"
-            hint="Buscar texto en la tabla."            
-            persistent-hint
-            variant="outlined"
-            density="compact"
-          >
-          </v-text-field>
         </v-col>
       </v-row>
 
@@ -93,46 +119,30 @@
       </v-card-subtitle>
 
       <v-card-text class="pt-0">
-        <v-container class="px-0 py-2">
-          <span style="font-size: 16px">Visualizar cuentas por:</span>
-          <v-btn-toggle
-            v-model="tbl.agruparXCliente"
-            color="primary"
-            class="ml-2 border"
-            mandatory
-          >
-            <v-btn :value="true">
-              <v-icon start>mdi-account</v-icon>
-              Clientes
-            </v-btn>
-
-            <v-btn :value="false">
-              <v-icon start>mdi-cash-register</v-icon>
-              Ventas
-            </v-btn>
-          </v-btn-toggle>
-        </v-container>
         <template v-if="tbl.agruparXCliente">
           <v-data-table
             :headers="tbl.headers"
             :items="tbl.items"
             :search="tbl.search"
+            :row-props="setStyle"
             class="border rounded font"
           >
             <template v-slot:item.opc="{ item }">
-              <div>
-                <v-tooltip text="Visualizar Cuentas" location="top">
-                  <template v-slot:activator="{ props }">
-                    <v-btn
-                      @click="openVisualizarCuentasDisplay(item)"
-                      v-bind="props" icon size="x-small" class="mx-1" variant="tonal">
-                      <v-icon color="indigo-darken-4">
-                        mdi-eye
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                </v-tooltip>
-              </div>
+              <v-menu :close-on-content-click="false" offset-y>
+                <template v-slot:activator="{ props }">
+                  <v-btn v-bind="props" icon variant="text">
+                    <v-icon color="grey">
+                      mdi-dots-vertical
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <v-list nav rounded="lg">
+                  <v-list-item @click="openVisualizarCuentasDisplay(item)" 
+                    prepend-icon="mdi-eye">
+                    <v-list-item-title>Visualizar Cuentas</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </template>
             <template v-slot:item.saldoPendienteTotal="{ item }">
               <div>{{ formatedCurrency(item.saldoPendienteTotal) }}</div>
@@ -170,7 +180,7 @@
           </v-data-table>
         </template>
         <template v-else>
-          <tabla-cuentas-por-venta class="border rounded font"></tabla-cuentas-por-venta>
+          <tabla-cuentas-por-venta class="border rounded font" />
         </template>
       </v-card-text>
     </v-card>
@@ -243,7 +253,6 @@ export default {
             align: 'center',
             opciones: true,
             sortable: false,
-            width: 1,
             headerProps: {
               class: 'pa-0',
             },
@@ -256,7 +265,6 @@ export default {
             key: 'cliente',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -269,7 +277,6 @@ export default {
             key: 'rutaCliente',
             align: 'center',
             format: '',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -282,7 +289,6 @@ export default {
             key: 'nCreditosPagados',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -295,7 +301,6 @@ export default {
             key: 'nCreditosPendientes',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -308,7 +313,6 @@ export default {
             key: 'saldoPendienteTotal',
             format: 'currency',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -321,7 +325,6 @@ export default {
             key: 'fechaRegistro',
             format: 'date',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -334,7 +337,6 @@ export default {
             key: 'usuarioRegistro',
             format: '',
             align: 'center',
-            width: 1,
             headerProps: {
               class: 'pa-1',
             },
@@ -360,6 +362,15 @@ export default {
   },
 
   methods: {
+    setStyle({ index }) {
+      return {
+        class:
+          index % 2 === 0
+            ? 'bg-white'
+            : 'bg-indigo-lighten-5'
+      }
+    },
+
     async loadTblCxc(){
       this.loading.load(true)
       try{

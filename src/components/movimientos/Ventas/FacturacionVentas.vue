@@ -9,150 +9,156 @@
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <!-- Título -->
-          <div
-            class="text-h6 font-weight-bold d-flex align-center"
-          >
-            <v-icon class="me-2" color="primary"
-              >mdi-package-variant</v-icon
-            >
+          <div class="text-h6 font-weight-bold d-flex align-center">
+            <v-icon class="me-2" color="primary">
+              mdi-package-variant
+            </v-icon>
             Facturación
           </div>
         </div>
       </template>
       <template v-slot:append>
-        <v-btn
-          v-if="hasAccessToFunct('32')"
-          class="bg-primary rounded-"
-          @click="createFactura()"
-        >
-          <v-icon>mdi-plus</v-icon>
-          <v-tooltip
-            activator="parent"
-            location="left"
-            >Nueva Factura</v-tooltip
-          >
+        <v-btn v-if="hasAccessToFunct('32')" class="rounded" @click="createFactura()"
+          color="indigo-darken-4"
+          prepend-icon="mdi-plus" variant="tonal">
+          Nueva Venta
         </v-btn>
       </template>
-      <v-divider thickness="2" />
-      <v-row class="pa-2" dense>
-        <v-col cols="12" md="12" sm="12">
-          <v-row dense>
-            <v-col>
-              <v-text-field
-                v-model="data.search"
-                color="primary"
-                density="compact"
-                variant="outlined"
-                append-inner-icon="mdi-magnify"
-                label="Buscar en tabla:"
-                hide-details
-                placeholder="Ingrese un texto a buscar..."
-                persistent-placeholder
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-model="search.desde"
-                label="Fecha desde:"
-                type="date"
-                density="compact"
-                variant="outlined"
-                hide-details
-              ></v-text-field>
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-model="search.hasta"
-                label="Fecha hasta:"
-                type="date"
-                density="compact"
-                variant="outlined"
-                hide-details
-              ></v-text-field>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col cols="12" md="12" sm="12" class="d-flex justify-center align-center">
-          <v-row dense>
-            <v-col cols="12" md="6" sm="6" class="border-e align-center">
-              <div class="mx-2">
-                <v-icon>mdi-pound</v-icon>
-                <span>
-                  Cantidad ventas:
-                  <strong>
-                    {{
-                      data.facturas.length
-                    }}
-                  </strong>
-                </span>
-              </div>
-              <div class="mx-2">
-                <v-icon color="green"
-                  >mdi-cash-multiple</v-icon
-                >
-                <span>
-                  Total facturado: 
-                  <strong>
-                    {{
-                      formatedCurrency(totalFacturado)
-                    }}
-                  </strong>
-                </span>
-              </div>
-            </v-col>
-            <v-col cols="12" md="6" sm="6" class="d-flex align-center justify-end">
-              <v-btn
-                icon
-                color="green"
-                size="small"
-                variant="text"
-                class="mr-2 border"
-                @click="getVentas()"
-              >
-                <v-icon>mdi-refresh</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                color="grey"
-                size="small"
-                variant="text"
-                class="border"
-                @click="data.search = null"
-              >
-                <v-icon>mdi-broom</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
+      <v-divider />
+        <!-- FILTROS PRINCIPALES -->
+          <v-card class="pa-2 mb-2" elevation="0">
+            <div class="d-flex align-center">
+              <v-icon color="primary" class="mr-2">
+                mdi-filter
+              </v-icon>
+              <span class="text-subtitle- font-weight-medium">
+                Filtros de búsqueda
+              </span>
+            </div>
+            
+            <v-row dense align="center">
+              <v-col cols="12" md="6" sm="6">
+                <v-row dense>
+                  <v-col cols="12" md="6" sm="6">
+                    <v-text-field
+                      v-model="search.desde"
+                      label="Fecha inicial"
+                      type="date"
+                      density="compact"
+                      variant="outlined"
+                      hide-details
+                      prepend-inner-icon="mdi-calendar-arrow-left"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="6" sm="6">
+                    <v-text-field
+                      v-model="search.hasta"
+                      label="Fecha final"
+                      type="date"
+                      density="compact"
+                      variant="outlined"
+                      hide-details
+                      prepend-inner-icon="mdi-calendar-arrow-right"
+                    />
+
+                  </v-col>
+                </v-row>
+              </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+              <!-- RESÚMENES Y ACCIONES -->
+                <v-card variant="flat" class="px-4 py-2" color="grey-lighten-4">
+                  <v-row dense align="center">
+                    <!-- MÉTRICAS -->
+                    <v-col cols="10" md="10" sm="10">
+                      <div class="d-flex flex-wrap align-center ga-4">
+                        <!-- Resumen de ventas -->
+                        <div class="d-flex align-center">
+                          <v-avatar size="40" color="blue-lighten-5" class="mr-3">
+                            <v-icon color="blue">mdi-chart-box</v-icon>
+                          </v-avatar>
+                          <div>
+                            <div class="text-caption text-grey">Total Ventas</div>
+                            <div class="text-h6 font-weight-bold">{{ data.facturas.length }}</div>
+                          </div>
+                        </div>
+                        
+                        <v-divider vertical />
+                        
+                        <!-- Total facturado -->
+                        <div class="d-flex align-center">
+                          <v-avatar size="40" color="green-lighten-5" class="mr-3">
+                            <v-icon color="green">mdi-cash-multiple</v-icon>
+                          </v-avatar>
+                          <div>
+                            <div class="text-caption text-grey">
+                              Total Facturado
+                            </div>
+                            <div class="font-weight-bold text-green">
+                              {{ formatedCurrency(totalFacturado) }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </v-col>
+                    
+                    <!-- ACCIONES -->
+                    <v-col cols="2" md="2" sm="2">
+                      <div class="d-flex justify-end">
+                        <v-btn icon size="small" @click="getVentas()">
+                          <v-icon color="grey">
+                            mdi-refresh
+                          </v-icon>
+                          <v-tooltip activator="parent" location="top center">
+                            Actualizar
+                          </v-tooltip>
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card>
+        
 
       <v-card-text class="pt-0 px-0">
-        <v-card-subtitle
-          class="d-flex align-center text-center mb-2"
-        >
-          <v-divider thickness="2" />
-          <span
-            class="mx-6 text-grey font-weight-bold"
-            >Registros</span
-          >
-          <v-divider thickness="2" />
-        </v-card-subtitle>
-        
         <!-- :mobile="isMobile" -->
-        <v-data-table
-          :search="data.search"
-          :headers="data.header"
-          :items="data.facturas"
-          class="font"
-          density="compact"
-          :loading="data.loading"
-          :row-props="setStyle"
-          :header-props="{
-            class: 'font-weight-bold'
-          }"
-          items-per-page="10"
-          hover
-        >
+        <v-data-table :search="data.search" :headers="data.header" :items="data.facturas"
+          class="font border-t" density="compact" :loading="data.loading" :row-props="setStyle"
+          :header-props="{ class: 'font-weight-bold' }" items-per-page="10" hover>
+          <template v-slot:top>
+            <v-row dense class="px-4 py-2">
+              <v-col cols="12" md="8" sm="8">
+                <div class="d-flex align-center">
+                  <div class="text-h6 font-weight-bold d-flex align-center
+                    text-grey">
+                    <v-icon class="me-2" color="grey">
+                      mdi-file-document-multiple
+                    </v-icon>
+                    Ventas
+                  </div>
+                </div>
+              </v-col>
+              <v-col cols="12" md="4" sm="4">
+                <v-text-field
+                  v-model="data.search"
+                  color="primary"
+                  density="compact"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-magnify"
+                  label="Buscar ventas"
+                  hide-details
+                  placeholder="Cliente, número, producto..."
+                  clearable
+                  persistent-placeholder
+                  @click:clear="data.search = ''"
+                />
+              </v-col>
+            </v-row>
+            <v-divider />
+          </template>
+
           <template v-slot:header.rutaCliente>
             <div>Ruta</div>
             <v-autocomplete
@@ -165,6 +171,7 @@
             >
             </v-autocomplete>
           </template>
+
           <template v-slot:header.cliente>
             <div>Cliente</div>
             <v-autocomplete
@@ -177,6 +184,7 @@
             >
             </v-autocomplete>
           </template>
+
           <template v-slot:loader>
             <v-progress-linear
               color="indigo"
@@ -184,16 +192,19 @@
               height="2"
             />
           </template>
+
           <template v-slot:loading>
             <v-skeleton-loader
               type="table-row@10"
             ></v-skeleton-loader>
           </template>
+
           <template v-slot:item.total="{ item }">
             <div>
               {{ formatedCurrency(item.total) }}
             </div>
           </template>
+
           <template v-slot:item.estadoMensaje="{ item }">
             <v-btn icon size="small" variant="flat" class="border">
               <v-icon :color="setIcon(item.estadoMensaje).color ?  setIcon(item.estadoMensaje).color : 'grey'">
@@ -204,6 +215,7 @@
               </v-tooltip>
             </v-btn>
           </template>
+
           <template
             v-slot:item.fechaRegistro="{ item }"
           >
@@ -399,7 +411,7 @@
       :factura="data.viewFactura.item"
       @closeDialog="closeDialog"
     />
-    <AlertComp
+    <AlertaAction
       :show="data.viewAlert"
       @deleteItem="deleteAction"
     />
@@ -418,7 +430,7 @@ import {
 import NuevaFactura from './NuevaFactura.vue'
 import ViewVenta from './ViewVenta.vue'
 import RequestHttp from '@/services/requestHttp'
-import AlertComp from '@/components/widgets/AlertComp.vue'
+import AlertaAction from '@/components/widgets/AlertaAction.vue'
 import { useStore } from '@/store'
 import {
   getItemsCombobox,
@@ -442,7 +454,7 @@ export default {
   components: {
     NuevaFactura,
     ViewVenta,
-    AlertComp
+    AlertaAction
   },
 
   computed: {

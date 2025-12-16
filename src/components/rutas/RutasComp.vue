@@ -110,7 +110,7 @@ import { reactive, computed, ref, onMounted, onUnmounted } from 'vue';
 import NuevaRutas from './NuevaRuta.vue';
 import ViewRuta from './ViewRuta.vue';
 import RequestHttp from '@/services/requestHttp';
-import AlertComp from '@/components/widgets/AlertComp.vue';
+import AlertComp from '@/components/widgets/AlertaAction.vue';
 import { useStore } from '@/store';
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 

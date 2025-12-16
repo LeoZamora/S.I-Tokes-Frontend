@@ -158,7 +158,7 @@ import {formatters} from '@/helpers/formatters';
 import NewCliente from './dialogsClientes/NewCliente.vue';
 import NewTipoCliente from './dialogsClientes/NewTipoCliente.vue';
 import RequestHttp from '@/services/requestHttp';
-import AlertComp from '@/components/widgets/AlertComp.vue';
+import AlertComp from '@/components/widgets/AlertaAction.vue';
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 export default {
