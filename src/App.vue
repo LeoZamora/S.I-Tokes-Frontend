@@ -195,7 +195,7 @@
                 Inversiones Zafiro
               </h6>
               <h6 style="font-size: 10px;">
-                v1.0.0
+                v2.0.0
               </h6>
             </div>
           </div>

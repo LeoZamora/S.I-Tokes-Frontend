@@ -155,25 +155,6 @@
               </template>
             </v-list-item>
 
-<<<<<<< Updated upstream
-          <v-tooltip text="Ver" location="top">
-            <template
-                v-slot:activator="{ props }"
-            >
-              <v-icon
-                  v-bind="props"
-                  size="small"
-                  color="indigo-darken-4"
-                  @click="openDialogDet(item)"
-              >mdi-eye
-              </v-icon>
-            </template>
-          </v-tooltip>
-        </template>
-      </v-data-table>
-    </v-card>
-
-=======
             <v-list-item v-if="hasAccessToFunct('124')" rounded density="compact" prepend-icon="mdi-delete"
               color="indigo" @click="showAlert(item)">
               <template v-slot:title>
@@ -354,7 +335,61 @@
       </v-card>
     </v-dialog>
 
->>>>>>> Stashed changes
+     <v-dialog v-model="display.ajusteStock" width="300">
+      <v-card>
+        <v-card-item>
+          <v-card-title>Ajustar stock</v-card-title>
+          <v-card-subtitle>
+            {{ ajusteStock.producto }}
+          </v-card-subtitle>
+        </v-card-item>
+        <v-divider></v-divider>
+        <v-card-text>
+          <v-form ref="formAjusteStock">
+            <v-row dense>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="ajusteStock.data.cantidadTotal"
+                  label="Nuevo stock:"
+                  color="indigo"
+                  variant="outlined"
+                  density="compact"
+                  type="number"
+                  prepend-inner-icon="mdi-numeric"
+                  :rules="[
+                  v => !!v || 'Requerido.'
+                ]"
+                >
+
+                </v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-textarea
+                  v-model="ajusteStock.data.observaciones"
+                  label="Motivo del ajuste:"
+                  color="indigo"
+                  variant="outlined"
+                  density="compact"
+                  rows="2"
+                  auto-grow
+                  :rules="[
+                    v => !!v || 'Requerido.'
+                  ]"
+                >
+
+                </v-textarea>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="justify-end">
+          <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">Cancelar</v-btn>
+          <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">Ajustar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <new-categoria
       :title="nuevaCategoriaDisplay.title"
       :show="nuevaCategoriaDisplay.show"
@@ -681,8 +716,18 @@
                             density="compact"
                             type="number"
                             prepend-inner-icon="mdi-numeric"
-                            disabled
-                        />
+                            readonly
+                        >
+                        <template v-slot:prepend>
+                            <v-btn
+                              @click="loadAjusteStockDisplay"
+                              color="secondary"
+                              size="32"
+                            >
+                              <v-icon>mdi-pencil</v-icon>
+                            </v-btn>
+                          </template>
+                        </v-text-field>
                       </v-col>
                     </v-row>
 
@@ -938,6 +983,7 @@ import NewCategoria from "@/components/inventario/Categorias/modalsCategorias/Ne
 import NewSubCategoria from "@/components/inventario/Categorias/modalsCategorias/NewSubCat.vue";
 import { time } from 'echarts'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
+import {useSnackbar} from "@/composables/use-snackbar.js";
 
 export default {
   // mounted() {
@@ -1147,6 +1193,92 @@ export default {
 
   data() {
     return {
+      display: {
+        ajusteStock: false,
+        verAjusteStock: false,
+      },
+
+      verAjusteStock: {
+        producto: '',
+        cantidadTotal: 0,
+        tbl: {
+          items: [],
+          headers: [
+            {
+              title: 'Stock Anterior',
+              key: 'stockAnterior',
+              align: 'center',
+              width: 1,
+              headerProps: {
+                class: 'pa-1',
+              },
+              cellProps: {
+                class: 'pa-1 border-e',
+              }
+            },
+            {
+              title: 'Stock Ajustado',
+              key: 'stockActual',
+              align: 'center',
+              width: 1,
+              headerProps: {
+                class: 'pa-1',
+              },
+              cellProps: {
+                class: 'pa-1 border-e',
+              }
+            },
+            {
+              title: 'Motivo',
+              key: 'observaciones',
+              align: 'center',
+              //width: 1,
+              headerProps: {
+                class: 'pa-1',
+              },
+              cellProps: {
+                class: 'pa-1 border-e',
+              }
+            },
+            {
+              title: 'Fecha Registro',
+              key: 'fechaRegistro',
+              align: 'center',
+              width: 1,
+              headerProps: {
+                class: 'pa-1',
+              },
+              cellProps: {
+                class: 'pa-1 border-e',
+              }
+            },
+            {
+              title: 'Usuario Registro',
+              key: 'usuarioRegistro',
+              align: 'center',
+              width: 1,
+              headerProps: {
+                class: 'pa-1',
+              },
+              cellProps: {
+                class: 'pa-1',
+              }
+            },
+          ]
+        }
+      },
+
+      ajusteStock: {
+        data: {
+          idProducto: 0,
+          cantidadTotal: 0,
+          observaciones: '',
+          usuarioRegistro: '',
+        },
+        producto: '',
+        loading: false,
+      },
+
       cmb: {
         unidadesMedida: [],
         categorias: [],
@@ -1200,7 +1332,8 @@ export default {
         numeric: (key) =>
             !isNaN(parseFloat(key)) ||
             'Debe ser un número válido'
-      }
+      },
+      snackbar: useSnackbar(),
     }
   },
 
@@ -1221,8 +1354,6 @@ export default {
 
   methods: {
     hasAccessToFunct,
-<<<<<<< Updated upstream
-=======
 
     loadAjusteStockDisplay(){
       this.display.ajusteStock = true
@@ -1280,7 +1411,6 @@ export default {
       }
     },
 
->>>>>>> Stashed changes
     openNuevaCategoriaDisplay() {
       this.nuevaCategoriaDisplay.show = true
     },
