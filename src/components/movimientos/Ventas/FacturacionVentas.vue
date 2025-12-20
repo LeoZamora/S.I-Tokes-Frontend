@@ -18,114 +18,113 @@
         </div>
       </template>
       <template v-slot:append>
-        <v-btn v-if="hasAccessToFunct('32')" class="rounded" @click="createFactura()"
-          color="indigo-darken-4"
-          prepend-icon="mdi-plus" variant="tonal">
+        <v-btn v-if="hasAccessToFunct('32')" class="nuevaVenta rounded" @click="createFactura()"
+          color="indigo-darken-4" prepend-icon="mdi-plus" variant="tonal">
           Nueva Venta
         </v-btn>
       </template>
       <v-divider />
-        <!-- FILTROS PRINCIPALES -->
-          <v-card class="pa-2 mb-2" elevation="0">
-            <div class="d-flex align-center">
-              <v-icon color="primary" class="mr-2">
-                mdi-filter
-              </v-icon>
-              <span class="text-subtitle- font-weight-medium">
-                Filtros de búsqueda
-              </span>
-            </div>
-            
-            <v-row dense align="center">
+    <!-- FILTROS PRINCIPALES -->
+      <v-card class="pa-2 mb-2" elevation="0">
+        <div class="d-flex align-center">
+          <v-icon color="primary" class="mr-2">
+            mdi-filter
+          </v-icon>
+          <span class="text-subtitle- font-weight-medium">
+            Filtros de búsqueda
+          </span>
+        </div>
+        
+        <v-row dense align="center" class="headInfo">
+          <v-col cols="12" md="6" sm="6">
+            <v-row dense>
               <v-col cols="12" md="6" sm="6">
-                <v-row dense>
-                  <v-col cols="12" md="6" sm="6">
-                    <v-text-field
-                      v-model="search.desde"
-                      label="Fecha inicial"
-                      type="date"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      prepend-inner-icon="mdi-calendar-arrow-left"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6" sm="6">
-                    <v-text-field
-                      v-model="search.hasta"
-                      label="Fecha final"
-                      type="date"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      prepend-inner-icon="mdi-calendar-arrow-right"
-                    />
-
-                  </v-col>
-                </v-row>
+                <v-text-field
+                  v-model="search.desde"
+                  label="Fecha inicial"
+                  type="date"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  prepend-inner-icon="mdi-calendar-arrow-left"
+                />
               </v-col>
-
               <v-col cols="12" md="6" sm="6">
-              <!-- RESÚMENES Y ACCIONES -->
-                <v-card variant="flat" class="px-4 py-2" color="grey-lighten-4">
-                  <v-row dense align="center">
-                    <!-- MÉTRICAS -->
-                    <v-col cols="10" md="10" sm="10">
-                      <div class="d-flex flex-wrap align-center ga-4">
-                        <!-- Resumen de ventas -->
-                        <div class="d-flex align-center">
-                          <v-avatar size="40" color="blue-lighten-5" class="mr-3">
-                            <v-icon color="blue">mdi-chart-box</v-icon>
-                          </v-avatar>
-                          <div>
-                            <div class="text-caption text-grey">Total Ventas</div>
-                            <div class="text-h6 font-weight-bold">{{ data.facturas.length }}</div>
-                          </div>
-                        </div>
-                        
-                        <v-divider vertical />
-                        
-                        <!-- Total facturado -->
-                        <div class="d-flex align-center">
-                          <v-avatar size="40" color="green-lighten-5" class="mr-3">
-                            <v-icon color="green">mdi-cash-multiple</v-icon>
-                          </v-avatar>
-                          <div>
-                            <div class="text-caption text-grey">
-                              Total Facturado
-                            </div>
-                            <div class="font-weight-bold text-green">
-                              {{ formatedCurrency(totalFacturado) }}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </v-col>
-                    
-                    <!-- ACCIONES -->
-                    <v-col cols="2" md="2" sm="2">
-                      <div class="d-flex justify-end">
-                        <v-btn icon size="small" @click="getVentas()">
-                          <v-icon color="grey">
-                            mdi-refresh
-                          </v-icon>
-                          <v-tooltip activator="parent" location="top center">
-                            Actualizar
-                          </v-tooltip>
-                        </v-btn>
-                      </div>
-                    </v-col>
-                  </v-row>
-                </v-card>
+                <v-text-field
+                  v-model="search.hasta"
+                  label="Fecha final"
+                  type="date"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  prepend-inner-icon="mdi-calendar-arrow-right"
+                />
+
               </v-col>
             </v-row>
-          </v-card>
+          </v-col>
+
+          <v-col cols="12" md="6" sm="6">
+          <!-- RESÚMENES Y ACCIONES -->
+            <v-card variant="flat" class="px-4 py-2" color="grey-lighten-4">
+              <v-row dense align="center">
+                <!-- MÉTRICAS -->
+                <v-col cols="10" md="10" sm="10">
+                  <div class="d-flex flex-wrap align-center ga-4">
+                    <!-- Resumen de ventas -->
+                    <div class="d-flex align-center">
+                      <v-avatar size="40" color="blue-lighten-5" class="mr-3">
+                        <v-icon color="blue">mdi-chart-box</v-icon>
+                      </v-avatar>
+                      <div>
+                        <div class="text-caption text-grey">Total Ventas</div>
+                        <div class="text-h6 font-weight-bold">{{ data.facturas.length }}</div>
+                      </div>
+                    </div>
+                    
+                    <v-divider vertical />
+                    
+                    <!-- Total facturado -->
+                    <div class="d-flex align-center">
+                      <v-avatar size="40" color="green-lighten-5" class="mr-3">
+                        <v-icon color="green">mdi-cash-multiple</v-icon>
+                      </v-avatar>
+                      <div>
+                        <div class="text-caption text-grey">
+                          Total Facturado
+                        </div>
+                        <div class="font-weight-bold text-green">
+                          {{ formatedCurrency(totalFacturado) }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </v-col>
+                
+                <!-- ACCIONES -->
+                <v-col cols="2" md="2" sm="2">
+                  <div class="d-flex justify-end">
+                    <v-btn icon size="small" @click="getVentas()">
+                      <v-icon color="grey">
+                        mdi-refresh
+                      </v-icon>
+                      <v-tooltip activator="parent" location="top center">
+                        Actualizar
+                      </v-tooltip>
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-card>
         
 
       <v-card-text class="pt-0 px-0">
         <!-- :mobile="isMobile" -->
         <v-data-table :search="data.search" :headers="data.header" :items="data.facturas"
-          class="font border-t" density="compact" :loading="data.loading" :row-props="setStyle"
+          class="font detalleVentas border-t" density="compact" :loading="data.loading" :row-props="setStyle"
           :header-props="{ class: 'font-weight-bold' }" items-per-page="10" hover>
           <template v-slot:top>
             <v-row dense class="px-4 py-2">
@@ -157,6 +156,12 @@
               </v-col>
             </v-row>
             <v-divider />
+          </template>
+
+          <template v-slot:header.opc="{ }">
+            <v-icon class="options">
+              mdi-dots-vertical
+            </v-icon>
           </template>
 
           <template v-slot:header.rutaCliente>
@@ -242,104 +247,48 @@
             />
           </template>
           <template v-slot:item.opc="{ item }">
-            <v-menu close-on-content-click location="right center"
+            <v-menu :close-on-content-click="false" location="right center"
               origin="auto">
               <template v-slot:activator="{ props }">
                 <v-tooltip text="Opciones" location="top">
                   <template v-slot:activator="{ props: tooltipProps }">
-                    <v-btn icon variant="text" color="grey-darken-1"
+                    <v-btn size="small" icon variant="text" color="grey-darken-1"
                       v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
-                      <v-icon size="22">mdi-dots-vertical</v-icon>
+                      <v-icon>mdi-dots-vertical</v-icon>
                     </v-btn>
                   </template>
                 </v-tooltip>
               </template>
 
-              <v-card rounded="lg" elevation="6" min-width="160" class="pa-1">
-                <v-list density="compact" class="py-1">
-                  <v-list-item v-if="hasAccessToFunct('33') && item.estado" rounded density="compact" prepend-icon="mdi-pencil"
-                    color="indigo" @click="editFactura(item)">
-                    <template v-slot:title>
-                        <v-divider vertical />
-                        Editar
-                    </template>
-                  </v-list-item>
+              <v-list nav rounded="lg" >
+                <v-list-item-subtitle class="pa-1">
+                  Opciones
+                </v-list-item-subtitle>
+                <v-list-item v-if="hasAccessToFunct('33') && item.estado" rounded density="compact" prepend-icon="mdi-pencil"
+                  color="indigo" @click="editFactura(item)">
+                  <template v-slot:title>
+                      <v-divider vertical />
+                      Editar
+                  </template>
+                </v-list-item>
 
-                  <v-list-item rounded density="compact" prepend-icon="mdi-eye"
-                    color="indigo" @click="viewFactura(item)">
-                    <template v-slot:title>
-                        <v-divider vertical />
-                        Ver Factura
-                    </template>
-                  </v-list-item>
+                <v-list-item rounded density="compact" prepend-icon="mdi-eye"
+                  color="indigo" @click="viewFactura(item)">
+                  <template v-slot:title>
+                      <v-divider vertical />
+                      Ver Factura
+                  </template>
+                </v-list-item>
 
-                  <v-list-item v-if="hasAccessToFunct('33') && item.estado" rounded density="compact" prepend-icon="mdi-cancel"
-                    color="indigo" @click="showAnular(item)">
-                    <template v-slot:title>
-                        <v-divider vertical />
-                        Anular Factura
-                    </template>
-                  </v-list-item>
-                </v-list>
-              </v-card>
+                <v-list-item v-if="hasAccessToFunct('33') && item.estado" rounded density="compact" prepend-icon="mdi-cancel"
+                  color="indigo" @click="showAnular(item)">
+                  <template v-slot:title>
+                      <v-divider vertical />
+                      Anular Factura
+                  </template>
+                </v-list-item>
+              </v-list>
             </v-menu>
-            
-            <!-- <v-tooltip
-              text="Editar"
-              location="top"
-            >
-              <template
-                v-slot:activator="{ props }"
-              >
-                <v-icon
-                  v-if="hasAccessToFunct('33')"
-                  v-bind="props"
-                  size="small"
-                  color="green"
-                  @click="editFactura(item)"
-                  class="mr-1"
-                >
-                  mdi-pencil
-                </v-icon>
-              </template>
-            </v-tooltip>
-
-            <v-tooltip
-              text="Eliminar"
-              location="top"
-            >
-              <template
-                v-slot:activator="{ props }"
-              >
-                <v-icon
-                  v-if="data.crud.delete"
-                  v-bind="props"
-                  size="small"
-                  color="error"
-                  class="mr-1"
-                  @click="showAlert(item)"
-                >
-                  mdi-delete
-                </v-icon>
-              </template>
-            </v-tooltip>
-
-            <v-tooltip text="Ver" location="top">
-              <template
-                v-slot:activator="{ props }"
-              >
-                <v-icon
-                  v-if="data.crud.view"
-                  v-bind="props"
-                  size="small"
-                  color="indigo-darken-4"
-                  @click="viewFactura(item)"
-                >
-                  mdi-eye
-                </v-icon>
-              </template>
-            </v-tooltip> -->
-          
           </template>
           <template v-slot:item.estado="{ item }">
             <v-chip :color="item.estado ? 'green' : 'error'" small>
@@ -425,7 +374,8 @@ import {
   computed,
   ref,
   onMounted,
-  onUnmounted
+  onUnmounted,
+  nextTick
 } from 'vue'
 import NuevaFactura from './NuevaFactura.vue'
 import ViewVenta from './ViewVenta.vue'
@@ -440,6 +390,8 @@ import {
 import { useSnackbar } from '@/composables/use-snackbar.js'
 import { getIntervaloMesActual } from '@/scripts/utils.js'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
+import introJs from 'intro.js'
+import tourOptions from '@/helpers/utilFunctions'
 
 export default {
   beforeRouteEnter(from, to, next) {
@@ -496,12 +448,55 @@ export default {
     const updateScreen = () => {
       screenWidth.value = window.innerWidth
     }
-    onMounted(() => {
+
+    onMounted(async () => {
       window.addEventListener(
         'resize',
         updateScreen
       )
+
+      await nextTick()
+
+      const introKey = 'tutorialVenta'
+      if (localStorage.getItem(introKey)) return
+      
+      const el = document.querySelector('.headInfo')
+      const el2 = document.querySelector('.detalleVentas')
+      const el3 = document.querySelector('.options')
+      const el4 = document.querySelector('.nuevaVenta')
+
+      if (!el || !el2 || !el3 || !el4) return
+      
+      var steps = [{
+          title: 'Bienvenido',
+          intro: 'Tenemos nuevas cosas para ti!!'
+        }, {
+          title: 'Nuevo diseño de encabezados',
+          element: el,
+          intro: 'Hemos mejorado la visulización de los detalles del módulo de ventas.'
+        }, {
+          title: 'Detalles de Ventas',
+          element: el2,
+          intro: 'Aqui puedes podrás ver todas las facturas registradas, y sus detalles.'
+        }, {
+          title: 'Opciones',
+          element: el3,
+          intro: 'Al dar click en los tres puntitos, podrás visualizar las diferentes opciones para realizar en base a tus permisos.'
+        }, {
+          title: 'Registrar una nueva venta',
+          element: el4,
+          intro: 'Para registrar una nueva venta haz click en el botón "Nueva Venta"'
+        },
+      ]
+
+      tourOptions.steps = steps
+      introJs.tour().setOptions(tourOptions).onComplete(() => {
+        localStorage.setItem(introKey, 'true')
+      }).onExit(() => {
+        localStorage.setItem(introKey, 'true')
+      }).start()
     })
+
     onUnmounted(() => {
       window.addEventListener(
         'resize',

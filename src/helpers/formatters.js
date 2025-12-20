@@ -12,7 +12,7 @@ const formatDate = (dataString) => {
         const date = new Date(dataString)
         return date.toLocaleString('es-NI', {
             year: 'numeric',
-            month: 'short',
+            month: 'numeric',
             day: 'numeric',
             // hour: '2-digit',
             // minute: '2-digit'

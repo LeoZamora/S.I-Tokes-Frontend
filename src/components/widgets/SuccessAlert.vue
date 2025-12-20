@@ -1,18 +1,21 @@
 <template>
     <v-dialog v-model="localShow" max-width="300">
-      <v-card rounded="xl">
-        <v-divider class="mx-4"/>
-
-        <v-card-text class="text-center px-2">
-            <v-icon :color="success ? 'success' : 'error'" size="64">
-                {{ success ? 'mdi-check-circle-outline' : 'mdi-alert-circle-outline' }}
+      <v-card rounded="lg" flat class="pa-3">
+        <v-card-text class="d-flex flex-column text-center align-center pa-4">
+          <!-- Círculo de fondo sutil -->
+          <v-avatar size="48"
+            :class="success ? 'bg-success' : 'bg-error'" 
+            class="rounded-circle pa-4 mb-4"
+          >
+            <v-icon color="'white'" >
+              {{ success ? 'mdi-check' : 'mdi-alert-circle' }}
             </v-icon>
-
-            <h3 class="mt-4 mb-2">
-                {{ msg }}
-            </h3>
+          </v-avatar>
+          
+          <span class="text-uppercase text-body-1 font-weight-bold">
+            {{ msg }}
+          </span>
         </v-card-text>
-
       </v-card>
     </v-dialog>
 </template>
@@ -62,3 +65,12 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.dialog-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+</style>

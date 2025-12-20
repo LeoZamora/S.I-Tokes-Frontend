@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card elevation="0" class="border" rounded="0">
+    <v-card elevation="0" class="border-t border-b" rounded="0">
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <!-- Título -->
@@ -12,136 +12,243 @@
         </div>
       </template>
       <template v-slot:append>
-        <v-btn icon color="primary" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
-          <v-icon>mdi-account-plus</v-icon>
-          <v-tooltip activator="parent" location="left">Agregar Tipo Clientes</v-tooltip>
+        <v-btn v-if="hasAccessToFunct('92') && data.wind === 1" class="rounded" @click="openDialog('prov', 'create', null)"
+            prepend-icon="mdi-account-plus" color="indigo-darken-4" variant="tonal">
+            NUEVO CLIENTE
         </v-btn>
-        <v-btn v-if="hasAccessToFunct('92')" icon color="primary" variant="tonal" @click="openDialog('prov', 'create', null)">
-          <v-icon>mdi-account-outline</v-icon>
-          <v-tooltip activator="parent" location="left">Agregar Cliente</v-tooltip>
+        <v-btn v-if="data.wind === 2" class="rounded" 
+            @click="openDialog('tipo', 'create', null)"
+            prepend-icon="mdi-account-plus" color="indigo-darken-4" variant="tonal">
+            NUEVO T. DE CLIENTE
         </v-btn>
       </template>
+      
       <v-divider/>
-      <v-card-text class="py-2 px-0">
-        <v-row dense class="px-0" style="margin: 0;">
-          <v-col cols="6" sm="6" md="6">
-            <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details
-              placeholder="Buscar textos" persistent-placeholder/>
-          </v-col>
-          <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-            <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="refresData()">
-              <v-icon>mdi-refresh</v-icon>
-            </v-btn>
-            <v-btn icon color="grey" size="small" variant="text" class="border" @click="data.search = null">
-              <v-icon>mdi-broom</v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
-        <v-row dense class="w-100">
-        </v-row>
-        <v-card-subtitle class="d-flex align-center text-center mb-2">
-          <v-divider/>
-          <span class="mx-6 text-grey font-weight-bold">Clientes</span>
-          <v-divider/>
-        </v-card-subtitle>
-        <!-- :mobile="isMobile" -->
-        <v-data-table :loading="data.loading" :search="data.search" class="border font"
-          :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle" hover 
-          :header-props="{ class: 'font-weight-bold' }" height="400" fixed-header>
-          <template v-slot:loader>
-            <v-progress-linear color="indigo" indeterminate height="2"/>
-          </template>
-          <template v-slot:loading>
-            <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
-          </template>
-          <template v-slot:item.ubicacion="{ item }">
-            {{ `${item.departamento}, ${item.municipio}` }}
-          </template>
-          <template v-slot:item.fechaRegistro="{ item }">
-            <div>{{ formateDate(item.fechaRegistro) }}</div>
-          </template>
-          <template v-slot:item.idCategoriaClienteNavigation="{ item }">
-            <div>{{ item.idCategoriaClienteNavigation.nombre }}</div>
-          </template>
-          <template v-slot:item.opc="{ item }">
-            <div class="d-flex justify-space-between align-center">
-              <v-tooltip text="Editar" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-icon v-if="hasAccessToFunct('93')" v-bind="props" size="small" color="green" @click="openDialog('prov', 'edit', item)"
-                    class="mr-1">mdi-pencil
-                  </v-icon>
-                </template>
-              </v-tooltip>
-
-              <!-- <v-tooltip text="Eliminar" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-icon v-bind="props" size="small" color="error" @click="showAlert(item)" class="mr-1">mdi-delete
-                  </v-icon>
-                </template>
-              </v-tooltip> -->
-
-              <v-tooltip text="Ver" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialog('prov', 'view', item)">
-                    mdi-eye
-                  </v-icon>
-                </template>
-              </v-tooltip>
+      
+      <v-card-text class="py-2">
+        <!-- SEGUNDA FILA: OPCIONES DE VISUALIZACIÓN -->
+        <v-row dense class="mt-3 pa-2 bg-grey-lighten-4 rounded" justify="space-between">
+          <v-col cols="12" md="6" sm="6">
+            <div class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center">
+                <v-icon size="small" class="mr-2" color="primary">
+                    mdi-view-dashboard
+                </v-icon>
+                <span class="text-subtitle-2">
+                    Seleccionar: 
+                </span>
+              </div>
+              
+              <v-btn-toggle v-model="data.wind" color="primary"
+                density="comfortable" mandatory rounded="lg">
+                <v-btn :value="1" variant="flat">
+                  <v-icon start>mdi-account</v-icon>
+                  Clientes
+                </v-btn>
+                
+                <v-btn :value="2" variant="flat">
+                  <v-icon start>mdi-account-tie</v-icon>
+                  Tipo de Clientes
+                </v-btn>
+              </v-btn-toggle>
             </div>
-          </template>
-          <template v-slot:item.estado="{ item }">
-            <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
-          </template>
-        </v-data-table>
-        <v-card-subtitle class="d-flex align-center text-center my-2">
-          <v-divider/>
-          <span class="mx-6 text-grey font-weight-bold">Tipo de Clientes</span>
-          <v-divider/>
-        </v-card-subtitle>
-        <!-- :mobile="isMobile" -->
-        <v-data-table :loading="data.loadingTipo" :search="data.search" class="border font"
-          :headers="data.headersCat" density="compact" :items="data.itemsCat" :row-props="setStyle" 
-          hover :header-props="{ class: 'font-weight-bold' }" height="400" fixed-header>
-          <template v-slot:loader>
-            <v-progress-linear color="indigo" indeterminate height="2"/>
-          </template>
-          <template v-slot:loading>
-            <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
-          </template>
-          <template v-slot:item.fechaRegistro="{ item }">
-            <div>{{ formateDate(item.fechaRegistro) }}</div>
-          </template>
-          <template v-slot:item.opc="{ item }">
-            <v-tooltip text="Editar" location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" size="small" color="green" @click="openDialog('tipo', 'edit', item)"
-                  class="mr-1">mdi-pencil
-                </v-icon>
+          </v-col>
+          <v-col cols="12" md="3" sm="3" class="d-flex justify-space-between align-center">
+              <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" 
+                  hide-details placeholder="Buscar textos" persistent-placeholder/>
+              <v-btn icon size="small" class="mx-2 border" @click="refresData()">
+                  <v-icon color="grey">mdi-refresh</v-icon>
+                  <v-tooltip activator="parent" location="top center">
+                      Actualizar
+                  </v-tooltip>
+              </v-btn>
+          </v-col>
+        </v-row>
+        
+        <v-window v-model="data.wind">
+          <v-window-item :value="1">
+            <v-card-subtitle class="d-flex align-center text-center mb-2">
+              <v-divider/>
+              <span class="mx-6 text-grey font-weight-bold">Clientes</span>
+              <v-divider/>
+            </v-card-subtitle>
+            
+            <v-data-table :loading="data.loading" :search="data.search" class="border font"
+              :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle" hover 
+              :header-props="{ class: 'font-weight-bold' }" height="400" fixed-header>
+              <template v-slot:loader>
+                <v-progress-linear color="indigo" indeterminate height="2"/>
               </template>
-            </v-tooltip>
+              <template v-slot:loading>
+                <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+              </template>
+              <template v-slot:item.ubicacion="{ item }">
+                {{ `${item.departamento}, ${item.municipio}` }}
+              </template>
+              <template v-slot:item.fechaRegistro="{ item }">
+                <div>{{ formateDate(item.fechaRegistro) }}</div>
+              </template>
+              <template v-slot:item.idCategoriaClienteNavigation="{ item }">
+                <div>{{ item.idCategoriaClienteNavigation.nombre }}</div>
+              </template>
+              <template v-slot:item.opc="{ item }">
+                <v-menu :close-on-content-click="false" location="right center"
+                  origin="auto">
+                  <template v-slot:activator="{ props }">
+                    <v-tooltip text="Opciones" location="top">
+                      <template v-slot:activator="{ props: tooltipProps }">
+                        <v-btn size="small" icon variant="text" color="grey-darken-1"
+                          v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                          <v-icon>mdi-dots-vertical</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-tooltip>
+                  </template>
 
-            <v-tooltip text="Eliminar" location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" size="small" @click="showAlert(item)" color="error" class="mr-1">mdi-delete
-                </v-icon>
-              </template>
-            </v-tooltip>
+                  <v-list nav rounded="lg" >
+                    <v-list-item-subtitle class="pa-1">
+                      Opciones
+                    </v-list-item-subtitle>
+                    <v-list-item v-if="hasAccessToFunct('93')" rounded density="compact" prepend-icon="mdi-pencil"
+                      color="indigo" @click="openDialog('prov', 'edit', item)">
+                      <template v-slot:title>
+                          <v-divider vertical />
+                          Editar cliente
+                      </template>
+                    </v-list-item>
 
-            <v-tooltip text="Ver" location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialog('tipo', 'view', item)">
-                  mdi-eye
-                </v-icon>
+                    <v-list-item rounded density="compact" prepend-icon="mdi-eye"
+                      color="indigo" @click="openDialog('prov', 'view', item)">
+                      <template v-slot:title>
+                          <v-divider vertical />
+                          Ver cliente
+                      </template>
+                    </v-list-item>
+
+                    <!-- <v-list-item rounded density="compact" prepend-icon="mdi-delete"
+                      color="indigo" @click="showAlert(item)">
+                      <template v-slot:title>
+                          <v-divider vertical />
+                          Eliminar cliente
+                      </template>
+                    </v-list-item> -->
+                  </v-list>
+                </v-menu>
+
+                <!-- <div class="d-flex justify-space-between align-center">
+                  <v-tooltip text="Editar" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-icon v-bind="props" size="small" color="green" @click="openDialog('prov', 'edit', item)"
+                        class="mr-1">mdi-pencil
+                      </v-icon>
+                    </template>
+                  </v-tooltip>
+
+                  <v-tooltip text="Eliminar" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-icon v-bind="props" size="small" color="error" @click="showAlert(item)" class="mr-1">
+                      mdi-delete
+                      </v-icon>
+                    </template>
+                  </v-tooltip>
+
+                  <v-tooltip text="Ver" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialog('prov', 'view', item)">
+                        mdi-eye
+                      </v-icon>
+                    </template>
+                  </v-tooltip>
+                </div> -->
               </template>
-            </v-tooltip>
-          </template>
-          <template v-slot:item.estado="{ item }">
-            <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
-          </template>
-        </v-data-table>
+              <template v-slot:item.estado="{ item }">
+                <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
+              </template>
+            </v-data-table>
+          </v-window-item>
+
+          <v-window-item :value="2">
+            <v-card-subtitle class="d-flex align-center text-center my-2">
+              <v-divider/>
+              <span class="mx-6 text-grey font-weight-bold">Tipo de Clientes</span>
+              <v-divider/>
+            </v-card-subtitle>
+
+            <v-data-table :loading="data.loadingTipo" :search="data.search" class="border font"
+              :headers="data.headersCat" density="compact" :items="data.itemsCat" :row-props="setStyle" 
+              hover :header-props="{ class: 'font-weight-bold' }" height="400" fixed-header>
+
+              <template v-slot:loader>
+                <v-progress-linear color="indigo" indeterminate height="2"/>
+              </template>
+              
+              <template v-slot:loading>
+                <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+              </template>
+
+              <template v-slot:item.fechaRegistro="{ item }">
+                <div>{{ formateDate(item.fechaRegistro) }}</div>
+              </template>
+
+              <template v-slot:item.opc="{ item }">
+                <v-menu :close-on-content-click="false" location="right center"
+                  origin="auto">
+                  <template v-slot:activator="{ props }">
+                    <v-tooltip text="Opciones" location="top">
+                      <template v-slot:activator="{ props: tooltipProps }">
+                        <v-btn size="small" icon variant="text" color="grey-darken-1"
+                          v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                          <v-icon>mdi-dots-vertical</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-tooltip>
+                  </template>
+
+                  <v-list nav rounded="lg" >
+                    <v-list-item-subtitle class="pa-1">
+                      Opciones
+                    </v-list-item-subtitle>
+                    <v-list-item rounded density="compact" prepend-icon="mdi-pencil"
+                      color="indigo" @click="openDialog('tipo', 'edit', item)">
+                      <template v-slot:title>
+                          <v-divider vertical />
+                          Editar tipo cliente
+                      </template>
+                    </v-list-item>
+
+                    <v-list-item rounded density="compact" prepend-icon="mdi-eye"
+                      color="indigo" @click="openDialog('tipo', 'view', item)">
+                      <template v-slot:title>
+                          <v-divider vertical />
+                          Ver tipo cliente
+                      </template>
+                    </v-list-item>
+
+                    <!-- <v-list-item rounded density="compact" prepend-icon="mdi-delete"
+                      color="indigo" @click="showAlert(item)">
+                      <template v-slot:title>
+                          <v-divider vertical />
+                          Eliminar tipo cliente
+                      </template>
+                    </v-list-item> -->
+                  </v-list>
+                </v-menu>
+              </template>
+              <template v-slot:item.estado="{ item }">
+                <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
+              </template>
+            </v-data-table>
+          </v-window-item>
+        </v-window>
       </v-card-text>
+
     </v-card>
 
+    <SuccessAlert 
+        :success="data.alertSuccess.success" 
+        :msg="data.alertSuccess.msg" 
+        :show="data.alertSuccess.show" 
+    />
     <!-- v-if="data.newCliente.show" -->
     <NewCliente :show="data.newCliente.show" :editar="data.newCliente.editar" :title="data.newCliente.title"
       :prov="data.newCliente.item" :ver="data.newCliente.ver" @closeDialog="closeDialog"/>
@@ -160,6 +267,7 @@ import NewTipoCliente from './dialogsClientes/NewTipoCliente.vue';
 import RequestHttp from '@/services/requestHttp';
 import AlertComp from '@/components/widgets/AlertaAction.vue';
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
+import SuccessAlert from '@/components/widgets/SuccessAlert.vue';
 
 export default {
   mounted() {
@@ -170,7 +278,8 @@ export default {
   components: {
     NewCliente,
     AlertComp,
-    NewTipoCliente
+    NewTipoCliente,
+    SuccessAlert
   },
 
   setup() {
@@ -188,7 +297,14 @@ export default {
 
     const data = reactive({
       headers: [
-        {title: '', key: 'opc', align: 'center'},
+        {title: '', key: 'opc', align: 'center', 
+          headerProps: {
+            class: 'pa-0'
+          },
+          cellProps: {
+            class: 'pa-0'
+          }
+        },
         {title: 'Categoría', key: 'categoriaCliente', align: 'center'},
         {title: 'Nombre', key: 'nombre', align: 'center'},
         {title: 'Ruta', key: 'ruta', align: 'center'},
@@ -207,6 +323,14 @@ export default {
         {title: 'Usuario Registro', key: 'usuarioRegistro', align: 'center'},
         {title: 'Estado', key: 'estado', align: 'center'},
       ],
+
+      // ALERT SUCCESS
+      alertSuccess: {
+        show: false,
+        msg: '',
+        success: false,
+      },
+
       items: [],
       itemsCat: [],
       newCliente: {
@@ -223,6 +347,8 @@ export default {
         title: '',
         item: {}
       },
+
+      wind: 1,
       selectedItem: null,
       search: null,
       loading: false,
@@ -231,9 +357,21 @@ export default {
       requestHttp: new RequestHttp()
     })
 
+    function showSuccesAlert(msg, success = true) {
+      data.alertSuccess.msg = msg
+      data.alertSuccess.show = true
+      data.alertSuccess.success = success
+      setTimeout(() => {
+          data.alertSuccess.show = false
+          data.alertSuccess.msg = ''
+      }, 1500);
+    }
+
+
     return {
       isMobile,
-      data
+      data,
+      showSuccesAlert
     }
   },
 
@@ -336,19 +474,21 @@ export default {
     async deleteItem() {
       if (this.data.selectedItem.idCliente) {
         const result = await this.data.requestHttp.deleteCliente(this.data.selectedItem.idCliente)
-        if (result !== null) {
-          alert('Cliente Eliminado')
+        if (result.code === 200) {
+          this.showSuccesAlert('¡Registro Eliminado!', true)
           this.getClientes()
         } else {
-          alert('No se pudo eliminar el registro')
+          this.showSuccesAlert('Hubo un problema al eliminar el registro', false)
+          return
         }
       } else {
         const result = await this.data.requestHttp.deleteCategoriaCliente(this.data.selectedItem.idCategoriaCliente)
-        if (result !== null) {
-          alert('Registro Eliminado')
+        if (result.code === 200) {
+          this.showSuccesAlert('¡Registro Eliminado!', true)
           this.getCategoriaClientes()
         } else {
-          alert('No se pudo eliminar el registro')
+          this.showSuccesAlert('Hubo un problema al eliminar el registro', false)
+          return
         }
       }
     },

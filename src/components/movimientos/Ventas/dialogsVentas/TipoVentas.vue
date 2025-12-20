@@ -281,8 +281,7 @@ export default {
 
         async gaurdarTipoMov() {
             this.$refs.form.validate()
-            const token = this.store.getInfoUser()
-            this.data.tipoMovimiento.usuarioRegistro = token.usuario
+            this.data.tipoMovimiento.usuarioRegistro = this.store.getNameUser()
             if (!this.data.tipoMovimiento.codigo || !this.data.tipoMovimiento.nombre
                 || !this.data.tipoMovimiento.usuarioRegistro
             ) {
@@ -327,8 +326,8 @@ export default {
             this.data.tipoMov = []
             this.data.loading = true
             const result = await this.data.requestHttp.getTipoVentas()
-            if (result !== null) {
-                result.map(item => {
+            if (result.code === 200) {
+                result.data.map(item => {
                     this.data.tipoMov.push(item)
                 })
             }
@@ -400,11 +399,22 @@ export default {
 
         async deleteItem() {
             const result = await this.data.requestHttp.deleteVenta(this.data.selectedItem.idVenta)
-            if (result !== null) {
-                alert('Venta Eliminada')
+            if (result.code === 200) {
+                this.data.alert.show = true
+                this.data.alert.msg = 'Tipo de Venta Eliminada'
+                this.data.alert.tipo = 'success'
+                setTimeout(() => {
+                    this.data.alert.show = false
+                }, 3000)
                 this.getVentas()
             } else {
-                alert('No se pudo eliminar el registro')
+                this.data.alert.show = true
+                this.data.alert.msg = 'No se pudo eliminar el registro'
+                this.data.alert.tipo = 'warning'
+                setTimeout(() => {
+                    this.data.alert.show = false
+                }, 3000)
+                return
             }
         },
 

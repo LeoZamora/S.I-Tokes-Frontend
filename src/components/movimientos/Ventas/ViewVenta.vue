@@ -54,7 +54,7 @@
                             </v-row>
                         </v-col>
                         <v-divider vertical/>
-                        <v-col cols="2" class="d-flex flex-column justify-center align-center">
+                        <v-col cols="2" class="d-flex flex-column text-center justify-center align-center">
                             <div>
                                 <div class="text-caption text-grey">
                                     FECHA EMISIÓN
@@ -89,7 +89,7 @@
                             class: 'text-uppercase font-weight-bold bg-indigo-lighten-5'
                         }"
                         fixed-header
-                        height="250px"                        
+                        height="200px"                        
                     >
                         <template v-slot:item.opc>
                             <v-btn icon variant="text" color="grey" size="x-small">
@@ -130,7 +130,7 @@
                     </v-col>
                     
                     <v-col cols="5">
-                        <v-card variant="flat" color="#f3f4f6" class="px-4 rounded-lg border h-100">
+                        <v-card variant="flat" color="white" class="px-4 rounded-lg border h-100">
                             <div class="text-overline text-grey mb-3">RESUMEN DE PAGO</div>
                             
                             <div class="d-flex justify-space-between align-center mb-3">
@@ -161,7 +161,7 @@
                 </v-row>
 
                 <!-- Información adicional -->
-                <v-card variant="flat" color="#e8f5e9" class="pa-3 rounded-lg mt-4 border" v-if="data.venta.credito">
+                <!-- <v-card variant="flat" color="#e8f5e9" class="pa-3 rounded-lg mt-4 border" v-if="data.venta.credito">
                     <div class="d-flex align-center">
                         <v-icon color="orange-darken-3" class="mr-3">mdi-clock-outline</v-icon>
                         <div>
@@ -170,7 +170,7 @@
                             </div>
                         </div>
                     </div>
-                </v-card>
+                </v-card> -->
 
             </v-card-text>
 

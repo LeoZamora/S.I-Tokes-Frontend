@@ -60,6 +60,7 @@ const endPoints = {
     getUsuario: 'api/Usuario',
     postUsuario: 'api/Usuario/Crear',
     postUsuarioLogin: 'api/Usuario/Login',
+    putEstadoUsuario: 'api/Usuario',
 
     getRol: 'api/Rol',
     postRol: 'api/Rol',

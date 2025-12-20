@@ -24,7 +24,7 @@
         <v-col cols="12">
           <v-card elevation="0" class="pa-4">
             <!-- PRIMERA FILA: MÉTRICAS Y BUSCADOR -->
-            <v-row dense align="center">
+            <v-row dense align="center" class="totalesInfo">
               <!-- MÉTRICAS -->
               <v-col cols="12" md="8">
                 <div class="d-flex flex-wrap align-center ga-3">
@@ -75,7 +75,7 @@
             </v-row>
             
             <!-- SEGUNDA FILA: OPCIONES DE VISUALIZACIÓN -->
-            <v-row dense class="mt-3" align="center">
+            <v-row dense class="alternador mt-3" align="center">
               <v-col cols="12">
                 <div class="d-flex align-center justify-space-between pa-2 bg-grey-lighten-4 rounded">
                   <div class="d-flex align-center">
@@ -125,7 +125,7 @@
             :items="tbl.items"
             :search="tbl.search"
             :row-props="setStyle"
-            class="border rounded font"
+            class="border rounded font detalleRegistros"
           >
             <template v-slot:item.opc="{ item }">
               <v-menu :close-on-content-click="false" offset-y>
@@ -137,6 +137,9 @@
                   </v-btn>
                 </template>
                 <v-list nav rounded="lg">
+                  <v-list-item-subtitle class="pa-1">
+                    Opciones
+                  </v-list-item-subtitle>
                   <v-list-item @click="openVisualizarCuentasDisplay(item)" 
                     prepend-icon="mdi-eye">
                     <v-list-item-title>Visualizar Cuentas</v-list-item-title>
@@ -150,33 +153,12 @@
             <template v-slot:item.fechaRegistro="{ item }">
               <div>{{ formatedDate(item.fechaRegistro) }}</div>
             </template>
-            <!-- <template v-slot:item="{ item }">
-              <tr>
-                <td class="text-center" style="border: 1px solid #e0e0e0">
-                  <div class="d-flex justify-center">
-                  </div>
-                </td>
-                <td
-                    v-for="header in tbl.headers.filter(c => !c.opciones)"
-                    :key="header.key"
-                    :class="[
-                      header.align === 'center' && 'text-center',
-                      header.align === 'end' && 'text-right',
-                      header.align === 'start' && 'text-left'
-                    ]"
-                >
-                  <span v-if="header.format === 'currency'">
-                    {{ formatedCurrency(item[header.key]) }}
-                  </span>
-                  <span v-else-if="header.format === 'date'">
-                    {{ formatedDate(item[header.key]) }}
-                  </span>
-                  <span v-else>
-                    {{ `${header.format}${item[header.key]}` }}
-                  </span>
-                </td>
-              </tr>
-            </template> -->
+            
+            <template v-slot:header.opc="{ }">
+              <v-icon class="options">
+                mdi-dots-vertical
+              </v-icon>
+            </template>
           </v-data-table>
         </template>
         <template v-else>
@@ -201,10 +183,59 @@ import {useSnackbar} from "@/composables/use-snackbar.js";
 import {formatters} from "@/helpers/formatters.js";
 import TablaCuentasPorVenta from '@/views/general/por-cobrar/cuentas-por-cobrar/components/tabla-cuentas-por-venta.vue'
 import VisualizarCuentas from "@/views/general/por-cobrar/cuentas-por-cobrar/components/visualizar-cuentas.vue";
+import { onMounted, nextTick } from "vue";
+import tourOptions from "@/helpers/utilFunctions";
+import introJs from "intro.js";
 
 export default {
   name: 'cuentas-por-cobrar',
   components: {VisualizarCuentas, TablaCuentasPorVenta},
+
+
+  setup() {
+    onMounted(async () => {
+      await nextTick()
+
+      const introKey = 'tutorialPorCobrar'
+      if (localStorage.getItem(introKey)) return
+      
+      const el = document.querySelector('.totalesInfo')
+      const el2 = document.querySelector('.alternador')
+      const el3 = document.querySelector('.detalleRegistros')
+      const el4 = document.querySelector('.options')
+
+      if (!el || !el2 || !el3 || !el4) return
+      
+      var steps = [{
+          title: 'Bienvenido',
+          intro: 'Tenemos nuevas cosas para ti!!'
+        }, {
+          title: 'Nuevo diseño de encabezados',
+          element: el,
+          intro: 'Hemos mejorado la visulización de los totales, como el total de cuentas pagados, pendientes y el total de salfo pendiente'
+        }, {
+          title: 'Opciones de registros',
+          element: el2,
+          intro: 'Aqui podrás alternar entre los detalles de clientes y el de ventas'
+        }, {
+          title: 'Detalles de Registros',
+          element: el3,
+          intro: 'De acuerdo a la opción seleccionada, aqui podras ver los registros correpondientes'
+        }, {
+          title: 'Opciones',
+          element: el4,
+          intro: 'Te mostraremos las direferentes opciones a seleccionar al dar click en los tres puntitos de cada registro'
+        },
+      ]
+
+      tourOptions.steps = steps
+      introJs.tour().setOptions(tourOptions).onComplete(() => {
+        localStorage.setItem(introKey, 'true')
+      }).onExit(() => {
+        localStorage.setItem(introKey, 'true')
+      }).start()
+    })
+  },
 
   computed: {
     totalFacturado() {

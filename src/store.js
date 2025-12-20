@@ -30,6 +30,9 @@ export const useStore = defineStore('auth', {
                 return console.log('Sesión activa');
             }   
         },
+        getExp() {
+            return localStorage.getItem('exp')
+        },
         logout() {
             localStorage.removeItem("token");
             localStorage.removeItem("rol");

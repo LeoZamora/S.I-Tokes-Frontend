@@ -21,7 +21,7 @@
               hide-details
             />
           </v-col>
-          <v-col cols="12" md="6" sm="6" class="d-flex justify-end">
+          <v-col cols="12" md="6" sm="6" class="d-flex justify-end options">
             <div>
               <div style="font-size: 16px">
                 Mostrar cuentas:
@@ -63,6 +63,9 @@
             </v-btn>
           </template>
           <v-list nav rounded="lg">
+            <v-list-item-subtitle class="pa-1">
+                Opciones
+              </v-list-item-subtitle>
             <v-list-item @click="openVisualizarAbonosDisplay(item)"
               prepend-icon="mdi-table-eye">
               <v-list-item-title>
@@ -276,6 +279,10 @@ import { formatters } from '@/helpers/formatters.js'
 import AbonarCuenta from '@/views/general/por-cobrar/cuentas-por-cobrar/components/abonar-cuenta.vue'
 import VisualizarAbonos from '@/views/general/por-cobrar/cuentas-por-cobrar/components/visualizar-abonos.vue'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
+import { onMounted, nextTick } from 'vue'
+import introJs from 'intro.js'
+import tourOptions from '@/helpers/utilFunctions'
+
 export default {
   name: 'tabla-cuentas-por-venta',
   components: { VisualizarAbonos, AbonarCuenta },
@@ -488,6 +495,33 @@ export default {
       snackbar: useSnackbar(),
       loading: useLoading()
     }
+  },
+
+  setup() {
+    onMounted(async () => {
+      await nextTick()
+
+      const introKey = 'tutorialTipoVenta'
+      if (localStorage.getItem(introKey)) return
+      
+      const el = document.querySelector('.options')
+
+      if (!el) return
+      
+      var steps = [{
+          title: '',
+          element: el,
+          intro: 'Aquí podras seleccionar el tipo de ventas que deseas visualizar.'
+        },
+      ]
+
+      tourOptions.steps = steps
+      introJs.tour().setOptions(tourOptions).onComplete(() => {
+        localStorage.setItem(introKey, 'true')
+      }).onExit(() => {
+        localStorage.setItem(introKey, 'true')
+      }).start()
+    })
   },
 
   methods: {

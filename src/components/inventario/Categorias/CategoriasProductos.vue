@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-card elevation="0" class="border" rounded="0">
+        <v-card elevation="0" class="border-t border-b" rounded="0">
             <template v-slot:prepend>
                 <div class="d-flex align-center">
                 <!-- Título -->
@@ -12,71 +12,100 @@
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn icon color="primary" class="mr-2" variant="text" @click="openDialog('sub', 'create', null)">
-                    <v-icon>mdi-tag-plus</v-icon>
-                    <v-tooltip activator="parent" location="left">Agregar Sub Categoría</v-tooltip> 
+                <v-btn color="indigo-darken-4" variant="tonal" @click="openDialog('cat', 'create', null)"
+                    prepend-icon="mdi-tag-multiple">
+                    Nueva Categoría
                 </v-btn>
-                <v-btn icon color="primary" variant="tonal" @click="openDialog('cat', 'create', null)">
-                    <v-icon>mdi-tag-multiple</v-icon>
-                    <v-tooltip activator="parent" location="left">Agregar Categoría</v-tooltip> 
+                <v-btn color="primary" class="mr-2" variant="text" @click="openDialog('sub', 'create', null)"
+                    prepend-icon="mdi-tag-plus">
+                    Nueva SubCategoría
                 </v-btn>
             </template>
             <v-divider />
             <v-card-text class="pa-0">
-                <v-row dense class="pa-2">
-                    <v-col cols="6" sm="6" md="6">
-                        <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
-                    </v-col>
-                    <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-                        <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getCategorias()">
-                            <v-icon>mdi-refresh</v-icon>
-                        </v-btn>
-                        <v-btn icon color="grey" size="small" variant="text" class="border" @click="clearData()">
-                            <v-icon>mdi-broom</v-icon>
-                        </v-btn>
-                    </v-col>
-                </v-row>
-                <v-row dense class="w-100">
-                </v-row>
-                <v-card-subtitle class="d-flex align-center text-center mb-2">
-                    <v-divider /> 
-                    <span class="mx-6 text-grey">Registros</span>
-                    <v-divider />
-                </v-card-subtitle>
-                <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" hover
-                    :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }">
-                    <template v-slot:loader>
-                        <v-progress-linear color="indigo" indeterminate height="2"/>
-                    </template>
-                    <template v-slot:loading>
-                        <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
-                    </template>
-                    <template v-slot:item.opc="{ item }">
-                        <v-tooltip text="Editar" location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="green" @click="openDialog(`${item.tipo !== 'Categoría' ? 'sub' : 'cat'}`, 'edit', item)" class="mr-1" >mdi-pencil</v-icon>
-                            </template>
-                        </v-tooltip>
-                        
-                        <v-tooltip text="Eliminar" location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="error" class="mr-1" @click="showAlert(item)">mdi-delete</v-icon>
-                            </template>
-                        </v-tooltip>
+                <v-container>
+                    <v-row dense class="pa-2">
+                        <v-col cols="6" sm="6" md="6">
+                            <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" 
+                                hide-details placeholder="Buscar textos" persistent-placeholder/>
+                        </v-col>
+                        <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
+                            <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getCategorias()">
+                                <v-icon>mdi-refresh</v-icon>
+                            </v-btn>
+                            <v-btn icon color="grey" size="small" variant="text" class="border" @click="clearData()">
+                                <v-icon>mdi-broom</v-icon>
+                            </v-btn>
+                        </v-col>
+                    </v-row>
 
-                        <v-tooltip text="Ver" location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialog(`${item.tipo !== 'Categoría' ? 'sub' : 'cat'}`, 'view', item)">mdi-eye</v-icon>
-                            </template>
-                        </v-tooltip>
-                    </template>
-                    <template v-slot:item.fechaRegistro="{ item }">
-                        <div>{{ formatedDate(item.fechaRegistro) }}</div>
-                    </template>
-                    <template v-slot:item.estado="{ item }">
-                        <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
-                    </template>
-                </v-data-table>                
+                    <v-card-subtitle class="d-flex align-center text-center mb-2">
+                        <v-divider /> 
+                        <span class="mx-6 text-grey">Registros</span>
+                        <v-divider />
+                    </v-card-subtitle>
+                    <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" hover
+                        :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle" 
+                        :header-props="{ class: 'font-weight-bold' }">
+                        <template v-slot:loader>
+                            <v-progress-linear color="indigo" indeterminate height="2"/>
+                        </template>
+                        <template v-slot:loading>
+                            <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+                        </template>
+                        <template v-slot:item.opc="{ item }">
+                            <v-menu :close-on-content-click="false" location="right center"
+                                origin="auto">
+                                <template v-slot:activator="{ props }">
+                                    <v-tooltip text="Opciones" location="top">
+                                        <template v-slot:activator="{ props: tooltipProps }">
+                                            <v-btn size="small" icon variant="text" color="grey-darken-1"
+                                                v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                                                <v-icon>mdi-dots-vertical</v-icon>
+                                            </v-btn>
+                                        </template>
+                                    </v-tooltip>
+                                </template>
+
+                                <v-list nav rounded="lg" >
+                                    <v-list-item-subtitle class="pa-1">
+                                        Opciones
+                                    </v-list-item-subtitle>
+                                    <v-list-item @click="openDialog(`${item.tipo !== 'Categoría' ? 'sub' : 'cat'}`, 'edit', item)" 
+                                        rounded density="compact" prepend-icon="mdi-pencil" color="indigo">
+                                        <template v-slot:title>
+                                            <v-divider vertical />
+                                            Editar
+                                        </template>
+                                    </v-list-item>
+
+                                    <v-list-item rounded density="compact" prepend-icon="mdi-eye"
+                                        color="indigo" @click="openDialog(`${item.tipo !== 'Categoría' 
+                                            ? 'sub' : 'cat'}`, 'view', item)">
+                                        <template v-slot:title>
+                                            <v-divider vertical />
+                                            Ver
+                                        </template>
+                                    </v-list-item>
+
+                                    <v-list-item rounded density="compact" prepend-icon="mdi-cancel"
+                                        color="indigo" @click="showAlert(item)">
+                                        <template v-slot:title>
+                                            <v-divider vertical />
+                                            Eliminar
+                                        </template>
+                                    </v-list-item>
+                                </v-list>
+                            </v-menu>
+                        </template>
+                        <template v-slot:item.fechaRegistro="{ item }">
+                            <div>{{ formatedDate(item.fechaRegistro) }}</div>
+                        </template>
+                        <template v-slot:item.estado="{ item }">
+                            <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
+                        </template>
+                    </v-data-table>
+                </v-container>
             </v-card-text>
         </v-card>
 
@@ -123,10 +152,10 @@ export default {
             headers: [
                 {title: '', key: 'opc', align: 'center',
                     headerProps: {
-                        class: 'pa-1'
+                        class: 'pa-0'
                     },
-                                        cellProps: {
-                        class: 'pa-1',
+                    cellProps: {
+                        class: 'pa-0',
                     }
                 },
                 {title: 'Tipo', key: 'tipo', align: 'center'},
@@ -175,8 +204,8 @@ export default {
             const result = await this.data.requestHttp.getCategorias()
             const result2 = await this.data.requestHttp.getSubCategorias()
             this.data.loading = false
-            if (result !== null) {
-                result.map(item => {
+            if (result.code === 200) {
+                result.data.map(item => {
                     this.data.items.push({
                         idCategoriaProducto: item.idCategoriaProducto,
                         tipo: 'Categoría',
@@ -187,8 +216,10 @@ export default {
                         usuarioRegistro: item.usuarioRegistro
                     })
                 })
-                result2.map(item => {
-                    
+            } 
+
+            if (result2.code === 200) {
+                result2.data.map(item => {
                     this.data.items.push({
                         idSubCatProd: item.idSubCatProd,
                         idCategoriaProducto: item.idCategoriaProducto,
@@ -202,9 +233,7 @@ export default {
                         productos: item.productos
                     })
                 })
-            } else {
-                console.log('Error en la solicitud');
-            }
+            } 
         },
 
         openDialog(comp, type, item = null) {
@@ -212,38 +241,38 @@ export default {
                 this.data.newCat.show = true
                 switch(type) {
                     case 'create': this.data.newCat.ver = false
-                                    this.data.newCat.editar = false
-                                    this.data.newCat.title = 'Nueva Categoría'
-                                    break;
+                        this.data.newCat.editar = false
+                        this.data.newCat.title = 'Nueva Categoría'
+                        break;
                     case 'edit':  this.data.newCat.ver = false
-                                    this.data.newCat.editar = true
-                                    this.data.newCat.item = item
-                                    this.data.newCat.title = 'Editar Categoría'
-                                    break;
+                        this.data.newCat.editar = true
+                        this.data.newCat.item = item
+                        this.data.newCat.title = 'Editar Categoría'
+                        break;
                     case 'view':  this.data.newCat.ver = true
-                                    this.data.newCat.editar = false
-                                    this.data.newCat.item = item
-                                    this.data.newCat.title = 'Categoría'
-                                    break;
+                        this.data.newCat.editar = false
+                        this.data.newCat.item = item
+                        this.data.newCat.title = 'Categoría'
+                        break;
                     default: break;
                 }
             } else if (comp === 'sub') {
                 this.data.newSubCat.show = true
                 switch(type) {
                     case 'create': this.data.newSubCat.ver = false
-                                    this.data.newSubCat.editar = false
-                                    this.data.newSubCat.title = 'Nuevo Sub Categoría'
-                                    break;
+                        this.data.newSubCat.editar = false
+                        this.data.newSubCat.title = 'Nuevo Sub Categoría'
+                        break;
                     case 'edit':  this.data.newSubCat.ver = false
-                                    this.data.newSubCat.editar = true
-                                    this.data.newSubCat.item = item
-                                    this.data.newSubCat.title = 'Editar Sub Categoría'
-                                    break;
+                        this.data.newSubCat.editar = true
+                        this.data.newSubCat.item = item
+                        this.data.newSubCat.title = 'Editar Sub Categoría'
+                        break;
                     case 'view':  this.data.newSubCat.ver = true
-                                    this.data.newSubCat.editar = false
-                                    this.data.newSubCat.item = item
-                                    this.data.newSubCat.title = 'Sub Categoría'
-                                    break;
+                        this.data.newSubCat.editar = false
+                        this.data.newSubCat.item = item
+                        this.data.newSubCat.title = 'Sub Categoría'
+                        break;
                     default: break;
                 }
             }

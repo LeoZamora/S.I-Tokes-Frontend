@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--WIN1: PRINCIPAL-->
-    <v-card v-if="!display.nuevoCierre">
+    <v-card v-if="!display.nuevoCierre" elevation="0" class="border-t border-b">
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <!-- Título -->
@@ -12,18 +12,21 @@
         </div>
       </template>
       <template v-slot:append>
-        <v-btn v-if="hasAccessToFunct('132')" class="bg-primary rounded-" @click="openRegistrarDisplay">
+        <v-btn v-if="hasAccessToFunct('132')" class="bg-primary rounded" @click="openRegistrarDisplay">
           <v-icon>mdi-plus</v-icon>
           <v-tooltip activator="parent" location="left">Nuevo cierre</v-tooltip>
         </v-btn>
       </template>
 
-      <v-card-text>
+      <v-divider />
+
+      <v-card-text class="pa-0">
         <v-data-table
             :headers="tbl.headers"
             :items="tbl.items"
+            class="font"
         >
-          <template v-slot:item="{ item }">
+          <!-- <template v-slot:item="{ item }">
             <tr>
               <td class="text-center" style="border: 1px solid #e0e0e0">
               </td>
@@ -48,13 +51,23 @@
                 </span>
               </td>
             </tr>
-          </template>
+          </template> -->
+
+          <template v-slot:item="{ item, index, columns }">
+              <tr :class="setStyle(index).class">
+                <td v-for="col in columns" :key="col.key">
+                  <div class="d-flex justify-center align-center">
+                    {{ formatCell(item, col.key) }}
+                  </div>
+                </td>
+              </tr>
+            </template>
         </v-data-table>
       </v-card-text>
     </v-card>
 
     <!--WIN2: NUEVO CIERRE-->
-    <nuevo-cierre v-if="display.nuevoCierre" ref="nuevoCierre" @close="closeRegistrarDisplay"></nuevo-cierre>
+    <nuevo-cierre v-if="display.nuevoCierre" ref="nuevoCierre" @close="closeRegistrarDisplay" />
   </div>
 </template>
 
@@ -64,7 +77,6 @@ import {useSnackbar} from "@/composables/use-snackbar.js";
 import nuevoCierre from "@/views/empresa/cierres/components/nuevo-cierre.vue";
 import {httpGet} from "@/scripts/api.js";
 import {formatters} from "@/helpers/formatters.js";
-import {he} from "vuetify/locale";
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 export default {
   components: {
@@ -79,22 +91,22 @@ export default {
 
       tbl: {
         headers: [
+          // {
+          //   title: 'Opciones',
+          //   key: 'opc',
+          //   align: 'center',
+          //   opciones: true,
+          //   sortable: false,
+          //   width: 1,
+          //   headerProps: {
+          //     class: 'pa-1',
+          //   },
+          //   cellProps: {
+          //     class: 'pa-1',
+          //   }
+          // },
           {
-            title: 'Opciones',
-            key: 'opc',
-            align: 'center',
-            opciones: true,
-            sortable: false,
-            width: 1,
-            headerProps: {
-              class: 'pa-1',
-            },
-            cellProps: {
-              class: 'pa-1',
-            }
-          },
-          {
-            title: 'Desde',
+            title: 'Fecha Desde',
             key: 'desde',
             align: 'center',
             width: 1,
@@ -107,7 +119,7 @@ export default {
             }
           },
           {
-            title: 'Hasta',
+            title: 'Fecha Hasta',
             key: 'hasta',
             format: 'date',
             align: 'center',
@@ -247,6 +259,45 @@ export default {
 
   methods: {
     hasAccessToFunct,
+
+    formatCell(item, key) {
+      const value = item[key]
+
+      // Si la columna es numérica de dinero
+      const moneyKeys = [
+        'ventas',
+        'ingresosAdicionales',
+        'totalIngresos',
+        'costoVentas',
+        'gastosAdicionales',
+        'totalEgresos',
+        'utilidad',
+      ]
+
+      if (moneyKeys.includes(key))
+        return this.formatedCurrency(value)
+
+      // Si la columna es fecha
+      const dateKeys = [
+        'desde',
+        'hasta',
+      ]
+      if (dateKeys.includes(key))
+        return this.formatedDate(value, key === 'fechaRegistro')
+
+      // Si no aplica formato especial
+      return value
+    },
+
+    setStyle(index) {
+      return {
+        class:
+          index % 2 === 0
+            ? 'bg-white'
+            : 'bg-indigo-lighten-5'
+      }
+    },
+
     async loadTblCierres(){
       this.loading.load(true)
       try{
@@ -308,5 +359,8 @@ export default {
 </script>
 
 <style scoped>
-
+.font {
+  font-size: 12px !important;
+  font-weight: 500;
+}
 </style>
