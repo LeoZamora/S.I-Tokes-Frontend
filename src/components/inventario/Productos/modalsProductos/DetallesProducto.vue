@@ -1,187 +1,361 @@
 <template>
   <div>
-    <v-dialog v-model="localShow" max-width="600">
-      <v-card class="rounded-lg">
-        <v-card-title class="font-weight-bold text-center bg-primary text-white">
-          <v-icon class="me-2">mdi-eye</v-icon> Detalles del Producto
+    <v-dialog v-model="localShow" max-width="700" persistent>
+      <v-card class="rounded">
+        <!-- Encabezado mejorado -->
+        <v-card-title class="d-flex align-center justify-center bg-indigo-darken-4 text-white py-2">
+          <v-avatar size="40" color="white" class="me-3">
+            <v-icon color="primary" size="24">mdi-package-variant</v-icon>
+          </v-avatar>
+          <h3 class="font-weight-bold">Detalles del Producto</h3>
+          <v-spacer />
+          <v-btn variant="text" icon size="small" @click="closeDialog">
+            <v-icon>
+              mdi-close
+            </v-icon>
+          </v-btn>
         </v-card-title>
 
-        <v-tabs v-model="tab" color="primary" density="compact" class="mt-2">
-          <v-tab height="25" density="compact" class="border custom-border"><small>Detalles del Producto</small></v-tab>
-          <v-tab height="25" density="compact" class="border custom-border"><small>Detalles del Proveedor</small></v-tab>
-        </v-tabs>
-        <v-divider class="custom-margin"/>
-        <v-card-text>
+        <!-- Contenido principal -->
+        <v-card-text class="px-4 pt-0">
+            <!-- Tabs mejorados -->
+          <v-tabs v-model="tab" color="primary" align-tabs="center" class="px-4">
+            <v-tab :value="1" class="text-capitalize px-4">
+              <v-icon size="18" class="me-2">mdi-package</v-icon>
+              <span class="font-weight-medium">Producto</span>
+            </v-tab>
+            <v-tab :value="2" class="text-capitalize px-4">
+              <v-icon size="18" class="me-2">mdi-truck</v-icon>
+              <span class="font-weight-medium">Proveedores</span>
+            </v-tab>
+          </v-tabs>
+
+          <v-divider class="my-2" />
+
           <v-window v-model="tab">
-            <!-- Detalles del Producto -->
-            <v-window-item>
-              <v-row dense>
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-barcode</v-icon>
-                    <span class="text-caption"><strong>Código:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ producto.codigo }}</div>
-                </v-col>
+            <!-- Pestaña 1: Detalles del Producto -->
+            <v-window-item :value="1">
+              <v-container fluid class="pa-0">
+                <!-- Información principal en tarjetas -->
+                <v-row dense>
+                  <!-- Columna izquierda -->
+                  <v-col cols="12" md="6">
+                    <v-card variant="outlined" class="dashed pa-4 rounded-lg mb-4">
+                      <div class="d-flex align-center mb-3">
+                        <v-icon color="primary" size="20" class="me-2">mdi-information</v-icon>
+                        <h4 class="font-weight-bold text-primary">Información Básica</h4>
+                      </div>
+                      
+                      <v-list density="compact" class="pa-0">
+                        <v-list-item class="px-0">
+                          <template v-slot:prepend>
+                            <v-icon size="18" color="blue-grey" class="me-3">mdi-barcode</v-icon>
+                          </template>
+                          <v-list-item-title class="text-body-2">Código</v-list-item-title>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.codigo || 'N/A' }}</v-list-item-subtitle>
+                        </v-list-item>
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-tag</v-icon>
-                    <span class="text-caption"><strong>Nombre:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ producto.nombre }}</div>
-                </v-col>
+                        <v-divider class="my-1" />
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-currency-usd</v-icon>
-                    <span class="text-caption"><strong>Precio:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ formateCurrency(producto.precio) }}</div>
-                </v-col>
+                        <v-list-item class="px-0">
+                          <template v-slot:prepend>
+                            <v-icon size="18" color="blue-grey" class="me-3">mdi-tag</v-icon>
+                          </template>
+                          <v-list-item-title class="text-body-2">Nombre</v-list-item-title>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.nombre || 'N/A' }}</v-list-item-subtitle>
+                        </v-list-item>
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-currency-usd</v-icon>
-                    <span class="text-caption"><strong>Costo:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ formateCurrency(producto.costo) }}</div>
-                </v-col>
+                        <v-divider class="my-1" />
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-folder-outline</v-icon>
-                    <span class="text-caption"><strong>Sub Categoría:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ producto.categoria }}</div>
-                </v-col>
+                        <v-list-item class="px-0">
+                          <template v-slot:prepend>
+                            <v-icon size="18" color="blue-grey" class="me-3">mdi-folder-outline</v-icon>
+                          </template>
+                          <v-list-item-title class="text-body-2">Sub Categoría</v-list-item-title>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.categoria || 'N/A' }}</v-list-item-subtitle>
+                        </v-list-item>
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-shape-outline</v-icon>
-                    <span class="text-caption"><strong>Tipo:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ producto.tipoProducto }}</div>
-                </v-col>
+                        <v-divider class="my-1" />
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-warehouse</v-icon>
-                    <span class="text-caption"><strong>Stock:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ producto.cantidadTotal }}</div>
-                </v-col>
+                        <v-list-item class="px-0">
+                          <template v-slot:prepend>
+                            <v-icon size="18" color="blue-grey" class="me-3">mdi-shape-outline</v-icon>
+                          </template>
+                          <v-list-item-title class="text-body-2">Tipo</v-list-item-title>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.tipoProducto || 'N/A' }}</v-list-item-subtitle>
+                        </v-list-item>
+                      </v-list>
+                    </v-card>
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-warehouse</v-icon>
-                    <span class="text-caption"><strong>Stock Mínimo:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ producto.cantidadMinima }}</div>
-                </v-col>
+                    <!-- Información financiera -->
+                    <v-card variant="outlined" class="dashed pa-4 rounded-lg">
+                      <div class="d-flex align-center mb-3">
+                        <v-icon color="primary" size="20" class="me-2">mdi-currency-usd</v-icon>
+                        <h4 class="font-weight-bold text-primary">Información Financiera</h4>
+                      </div>
+                      
+                      <v-row dense>
+                        <v-col cols="6">
+                          <div class="mb-2">
+                            <div class="text-caption text-grey">Precio</div>
+                            <div class="text-body-1 font-weight-bold text-success">{{ formateCurrency(producto.precio) }}</div>
+                          </div>
+                        </v-col>
+                        <v-col cols="6">
+                          <div class="mb-2">
+                            <div class="text-caption text-grey">Costo</div>
+                            <div class="text-body-1 font-weight-bold text-error">{{ formateCurrency(producto.costo) }}</div>
+                          </div>
+                        </v-col>
+                      </v-row>
+                    </v-card>
+                  </v-col>
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-check-circle-outline</v-icon>
-                    <span class="text-caption"><strong>Estado:</strong></span>
-                  </div>
-                  <!-- <v-chip density="compact" :color="producto.estado ? 'green' : 'error'" :text="producto.estado ? 'Activo' : 'Inactivo'"></v-chip> -->
-                  <div class="ms-6 text-caption">{{ producto.estado ? 'Activo' : 'Inactivo' }}</div>
-                </v-col>
+                  <!-- Columna derecha -->
+                  <v-col cols="12" md="6">
+                    <v-card variant="outlined" class="dashed pa-4 rounded-lg mb-4">
+                      <div class="d-flex align-center mb-3">
+                        <v-icon color="primary" size="20" class="me-2">mdi-warehouse</v-icon>
+                        <h4 class="font-weight-bold text-primary">Inventario</h4>
+                      </div>
+                      
+                      <v-row dense>
+                        <v-col cols="6">
+                          <div class="text-center pa-3 bg-blue-lighten-5 rounded">
+                            <v-icon size="24" color="blue" class="mb-1">mdi-package</v-icon>
+                            <div class="text-h6 font-weight-bold">{{ producto.cantidadTotal || 0 }}</div>
+                            <div class="text-caption text-grey">Stock Actual</div>
+                          </div>
+                        </v-col>
+                        <v-col cols="6">
+                          <div class="text-center pa-3 bg-orange-lighten-5 rounded">
+                            <v-icon size="24" color="orange" class="mb-1">mdi-alert</v-icon>
+                            <div class="text-h6 font-weight-bold">{{ producto.cantidadMinima || 0 }}</div>
+                            <div class="text-caption text-grey">Stock Mínimo</div>
+                          </div>
+                        </v-col>
+                      </v-row>
+                    </v-card>
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-account</v-icon>
-                    <span class="text-caption"><strong>Registrado por:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ producto.usuarioRegistro }}</div>
-                </v-col>
+                    <!-- Información de registro -->
+                    <v-card variant="outlined" class="dashed pa-4 rounded-lg">
+                      <div class="d-flex align-center mb-3">
+                        <v-icon color="primary" size="20" class="me-2">mdi-history</v-icon>
+                        <h4 class="font-weight-bold text-primary">Información de Registro</h4>
+                      </div>
+                      
+                      <v-list density="compact" class="pa-0">
+                        <v-list-item class="px-0">
+                          <template v-slot:prepend>
+                            <v-avatar size="28" color="grey-lighten-3">
+                              <v-icon size="16">mdi-account</v-icon>
+                            </v-avatar>
+                          </template>
+                          <v-list-item-title class="text-body-2">Registrado por</v-list-item-title>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.usuarioRegistro || 'N/A' }}</v-list-item-subtitle>
+                        </v-list-item>
 
-                <v-col cols="6" sm="4" class="d-flex flex-column align-start py-1 ">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" class="me-1" color="primary">mdi-calendar</v-icon>
-                    <span class="text-caption"><strong>Fecha Registro:</strong></span>
-                  </div>
-                  <div class="ms-6 text-caption">{{ formateDate(producto.fechaRegistro)  }}</div>
-                </v-col>
-              </v-row>
+                        <v-divider class="my-2" />
+
+                        <v-list-item class="px-0">
+                          <template v-slot:prepend>
+                            <v-icon size="18" color="blue-grey" class="me-3">mdi-calendar</v-icon>
+                          </template>
+                          <v-list-item-title class="text-body-2">Fecha Registro</v-list-item-title>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ formateDate(producto.fechaRegistro) || 'N/A' }}</v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-divider class="my-2" />
+
+                        <v-list-item class="px-0">
+                          <template v-slot:prepend>
+                            <v-chip :color="producto.estado ? 'green' : 'red'" size="small" class="me-3">
+                              <v-icon size="14">{{ producto.estado ? 'mdi-check' : 'mdi-close' }}</v-icon>
+                            </v-chip>
+                          </template>
+                          <v-list-item-title class="text-body-2">Estado</v-list-item-title>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.estado ? 'Activo' : 'Inactivo' }}</v-list-item-subtitle>
+                        </v-list-item>
+                      </v-list>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-container>
             </v-window-item>
 
-            <!-- Detalles del Proveedor -->
-            <v-window-item>
-              <v-row class="mt-4" dense>
-                <!-- Imagen del Producto -->
-                <v-col cols="12" md="6" sm="6" class="mb-2">
-                  <div class="d-flex align-center">
-                    <v-icon class="me-2" color="primary">mdi-truck</v-icon>
-                    <strong>Proveedor Principal:</strong>
-                  </div>
-                  <v-list density="compact" v-if="data.proveedoresProducto && data.proveedoresProducto.length" >
-                    <v-list-item density="compact" color="indigo" v-for="(prov, index) in data.proveedoresProducto.filter(p => p.predeterminado)" :key="index">
-                      <template v-slot:prepend>
-                        <v-icon color="indigo" size="small">mdi-check-decagram</v-icon>
-                      </template>
-                      <v-list-item-title>{{ prov.nombre }}</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                  <span class="ms-6" v-else>N/A</span>
-                </v-col>
-                <v-col cols="12" md="6" sm="6" class="mb-2">
-                  <div class="d-flex justify-space-between align-center">
+            <!-- Pestaña 2: Detalles del Proveedor -->
+            <v-window-item :value="2">
+              <v-container fluid class="pa-0">
+                <!-- Proveedor principal destacado -->
+                <v-card variant="outlined" class="dashed pa-4 rounded-lg mb-4">
+                  <div class="d-flex align-center justify-space-between mb-3">
                     <div class="d-flex align-center">
-                      <v-icon class="me-2" color="primary">mdi-truck-delivery</v-icon>
-                      <strong>Proveedores:</strong>
+                      <v-avatar size="40" color="indigo-lighten-5" class="me-3">
+                        <v-icon color="indigo" size="22">mdi-star</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h4 class="font-weight-bold text-indigo">Proveedor Principal</h4>
+                        <div class="text-caption text-grey">Proveedor predeterminado para este producto</div>
+                      </div>
                     </div>
+                    <v-chip color="indigo" variant="tonal" prepend-icon="mdi-check-decagram">
+                      Predeterminado
+                    </v-chip>
                   </div>
-                  <ul class="ms-6 mt-2" v-if="data.proveedoresProducto && data.proveedoresProducto.length">
-                    <li v-for="(prov, index) in data.proveedoresProducto" :key="index">{{ prov.nombre }}</li>
-                  </ul>
-                  <span class="ms-6" v-else>N/A</span>
-                </v-col>
-                <v-col cols="12" sm="12" md="12" class="d-flex justify-end align-end">
-                  <v-btn color="indigo-darken-4" icon="mdi-plus" variant="elevated" size="small" @click="abrirModalProveedor" />
-                </v-col>
-              </v-row>
+
+                  <div v-if="data.proveedoresProducto && data.proveedoresProducto.filter(p => p.predeterminado).length">
+                    <v-list density="comfortable" class="bg-indigo-lighten-5 rounded pa-2">
+                      <v-list-item v-for="(prov, index) in data.proveedoresProducto.filter(p => p.predeterminado)" :key="index">
+                        <template v-slot:prepend>
+                          <v-avatar color="white" size="36" class="me-3">
+                            <v-icon color="indigo">mdi-account-tie</v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="font-weight-medium">{{ prov.nombre }}</v-list-item-title>
+                        <v-list-item-subtitle>Proveedor principal</v-list-item-subtitle>
+                      </v-list-item>
+                    </v-list>
+                  </div>
+                  <v-alert v-else type="info" variant="tonal" density="compact" class="mt-2">
+                    No hay proveedor principal asignado
+                  </v-alert>
+                </v-card>
+
+                <!-- Lista de proveedores secundarios -->
+                <v-card variant="outlined" class="dashed pa-4 rounded-lg">
+                  <div class="d-flex align-center justify-space-between mb-3">
+                    <div class="d-flex align-center">
+                      <v-avatar size="40" color="blue-grey-lighten-5" class="me-3">
+                        <v-icon color="blue-grey" size="22">mdi-account-group</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h4 class="font-weight-bold">Proveedores Secundarios</h4>
+                        <div class="text-caption text-grey">Todos los proveedores asociados</div>
+                      </div>
+                    </div>
+                    <v-btn color="indigo-darken-3" variant="elevated" size="small" @click="abrirModalProveedor" prepend-icon="mdi-plus">
+                      Agregar
+                    </v-btn>
+                  </div>
+
+                  <div v-if="data.proveedoresProducto && data.proveedoresProducto.length">
+                    <v-list density="comfortable" class="pa-0">
+                      <v-list-item v-for="(prov, index) in data.proveedoresProducto" :key="index" 
+                        :class="{'bg-grey-lighten-4': prov.predeterminado}">
+                        <template v-slot:prepend>
+                          <v-avatar :color="prov.predeterminado ? 'indigo-lighten-5' : 'grey-lighten-4'" size="32" class="me-3">
+                            <v-icon :color="prov.predeterminado ? 'indigo' : 'grey'" size="18">
+                              {{ prov.predeterminado ? 'mdi-star' : 'mdi-account' }}
+                            </v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="font-weight-medium">{{ prov.nombre }}</v-list-item-title>
+                        <template v-slot:append>
+                          <v-chip v-if="prov.predeterminado" color="indigo" size="small" variant="tonal">
+                            Principal
+                          </v-chip>
+                        </template>
+                      </v-list-item>
+                    </v-list>
+                  </div>
+                  <v-alert v-else type="warning" variant="tonal" density="compact" class="mt-2">
+                    No hay proveedores asignados a este producto
+                  </v-alert>
+                </v-card>
+              </v-container>
             </v-window-item>
           </v-window>
         </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions class="justify-end">
-          <v-btn color="grey" variant="outlined" @click="closeDialog">Cerrar</v-btn>
+
+        <!-- Acciones -->
+        <v-divider />
+        <v-card-actions >
+          <v-spacer />
+          <v-btn color="grey-darken-2" variant="tonal" @click="closeDialog" prepend-icon="mdi-close">
+            Cerrar
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- MODAL PARA AGREGAR PROVEEDOR SECUNDARIO -->
-    <v-dialog v-model="modalProveedor" max-width="600">
-      <v-card class="rounded-lg">
-        <v-card-title class="font-weight-bold text-center bg-primary text-white">
-          <v-icon class="mr-2">mdi-account-plus</v-icon>
-          Agregar Proveedor Secundario
+    <v-dialog v-model="modalProveedor" max-width="500" persistent>
+      <v-card class="rounded-xl">
+        <v-card-title class="d-flex align-center bg-indigo-darken-4 text-white py-4">
+          <v-avatar size="40" color="white" class="me-3">
+            <v-icon color="primary">mdi-account-plus</v-icon>
+          </v-avatar>
+          <div>
+            <h4 class="font-weight-bold">Agregar Proveedor</h4>
+            <div class="text-caption font-weight-regular">Asociar un nuevo proveedor al producto</div>
+          </div>
         </v-card-title>
-        <v-divider />
-        <v-card-text>
-          <v-row dense>
-            <v-col cols="12" md="6">
-              <v-autocomplete v-model="data.nuevoProveedor.idProveedor" label="Proveedor" prepend-inner-icon="mdi-account" 
-                variant="outlined" density="compact" hide-details :items="data.proveedores"/>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-textarea v-model="data.observaciones" label="Observaciones" prepend-inner-icon="mdi-text" 
-                variant="outlined" density="compact" :rows="1" hide-details/>
-            </v-col>
-            <v-col cols="12" md="12">
-              <v-checkbox color="indigo" density="compact" v-model="data.nuevoProveedor.predeterminado" label="Predeterminado" hide-details/>
-            </v-col>
-          </v-row>
+
+        <v-card-text class="pa-6">
+          <v-form>
+            <v-row dense>
+              <v-col cols="12">
+                <v-autocomplete
+                  v-model="data.nuevoProveedor.idProveedor"
+                  label="Seleccionar Proveedor"
+                  :items="data.proveedores"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-account-search"
+                  placeholder="Buscar proveedor..."
+                  clearable
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-textarea
+                  v-model="data.observaciones"
+                  label="Observaciones"
+                  variant="outlined"
+                  density="comfortable"
+                  :rows="3"
+                  prepend-inner-icon="mdi-text-box-outline"
+                  placeholder="Notas o comentarios sobre este proveedor..."
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-switch
+                  v-model="data.nuevoProveedor.predeterminado"
+                  color="indigo"
+                  density="compact"
+                  label="Establecer como proveedor principal"
+                  hide-details
+                  class="mt-0"
+                />
+                <div class="text-caption text-grey ms-8">
+                  Este proveedor será el predeterminado para compras
+                </div>
+              </v-col>
+            </v-row>
+          </v-form>
         </v-card-text>
+
         <v-divider />
-        <v-card-actions class="justify-end">
-          <v-btn color="grey" variant="outlined" @click="closeModalProveedor()">Cancelar</v-btn>
-          <v-btn class="bg-primary text-white" variant="elevated" @click="postProveedorProducto()">Agregar</v-btn>
+        <v-card-actions class="pa-4">
+          <v-spacer />
+          <v-btn color="grey" variant="outlined" @click="closeModalProveedor" prepend-icon="mdi-close">
+            Cancelar
+          </v-btn>
+          <v-btn color="primary" variant="elevated" @click="postProveedorProducto" prepend-icon="mdi-check">
+            Agregar Proveedor
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <OverlayComp :show="data.overlay.show"/>
+
+    <SuccessAlert 
+      :success="data.alertSuccess.success" 
+      :msg="data.alertSuccess.msg" 
+      :show="data.alertSuccess.show" 
+    />
   </div>
 </template>
 
@@ -189,6 +363,9 @@
 import { reactive, ref, watch } from 'vue'
 import { formatters } from '@/helpers/formatters'
 import RequestHttp from '@/services/requestHttp'
+import SuccessAlert from '@/components/widgets/SuccessAlert.vue';
+import OverlayComp from '@/components/reutilizable/OverlayComp.vue';
+import { useStore } from '@/store';
 
 export default {
   name: 'ProductDetailsDialog',
@@ -203,13 +380,22 @@ export default {
     producto: Object,
   },
 
+  components: {
+    SuccessAlert,
+    OverlayComp
+  },
+
   setup(props) {
-    const tab = ref(0)
+    const tab = ref(1)
     const token = ref(JSON.parse(localStorage.getItem('token')))
     const getProvProduct = async () =>  {
       data.proveedoresProducto = []
       const dataPro = []
+
+      data.overlay.show = true
       const result = await data.requestHttp.getProveedorProductos()
+      data.overlay.show = false
+
       result.map(item => {
         dataPro.push({
           nombre: item.proveedor, 
@@ -220,7 +406,9 @@ export default {
         })
       })
 
-      data.proveedoresProducto = dataPro.filter(item => item.idProducto === props.producto.idProducto)
+      data.proveedoresProducto = dataPro.filter(
+        item => item.idProducto === props.producto.idProducto
+      )
     }
 
     const localShow = ref(props.show)
@@ -229,8 +417,8 @@ export default {
 
       if (val) {        
         getProvProduct()
+        tab.value = 1
       }
-      if (val) tab.value = 0
     })
 
     const modalProveedor = ref(false)
@@ -243,16 +431,38 @@ export default {
         predeterminado: false,
         usuarioRegistro: null,
       },
+      // ALERT SUCCESS
+      alertSuccess: {
+        show: false,
+        msg: '',
+        success: false,
+      },
+
+      // Overlay
+      overlay: {
+        show: false
+      },
       observaciones: null,
       requestHttp: new RequestHttp()
     })
+
+    function showSuccesAlert(msg, success = true) {
+      data.alertSuccess.msg = msg
+      data.alertSuccess.show = true
+      data.alertSuccess.success = success
+      setTimeout(() => {
+        data.alertSuccess.show = false
+        data.alertSuccess.msg = ''
+      }, 1500);
+    }
 
     return {
       tab,
       localShow,
       modalProveedor,
       data,
-      token
+      token,
+      showSuccesAlert
     }
   },
 
@@ -268,7 +478,11 @@ export default {
     async getProveedoresProducto() {
       this.data.proveedoresProducto = []
       const data = []
+
+      this.data.overlay = true
       const result = await this.data.requestHttp.getProveedorProductos()
+      this.data.overlay = false
+      
       result.map(item => {
         data.push({
           nombre: item.nombre, 
@@ -286,13 +500,17 @@ export default {
         alert('Elija un proveedor')
         return
       }
-      this.data.nuevoProveedor.usuarioRegistro = this.token.usuario
+      this.data.nuevoProveedor.usuarioRegistro = useStore().getNameUser()
       this.data.nuevoProveedor.idProducto = this.producto.idProducto
+
+      this.data.overlay.show = true
       const result = await this.data.requestHttp.postProveedorProducto(this.data.nuevoProveedor)
+      this.data.overlay.show = false
+      
       if (result !==  null) {
-        alert('Proveedor agreado')
+        this.showSuccesAlert('¡Registro Guardado!', true)
       } else {
-        alert('No se pudo agregar el proveedor')
+        this.showSuccesAlert('¡No se ha podido guardar el registro!', false)
         return
       }
 
@@ -337,5 +555,9 @@ export default {
 
 .custom-margin{
   margin-top: -10px;
+}
+
+.dashed {
+  border: 1px grey dashed;
 }
 </style>

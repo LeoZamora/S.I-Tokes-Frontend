@@ -2,7 +2,7 @@
   <div class="w-100">
     <!-- Encabezado y botón de agregar -->
     <v-card
-        class="border"
+        class="border-t border-b"
         elevation="0"
         rounded="0"
     >
@@ -10,36 +10,19 @@
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <!-- Título -->
-          <div
-              class="text-h6 font-weight-bold d-flex align-center"
-          >
-            <v-icon class="me-2" color="indigo"
-            >mdi-package-variant
+          <div class="text-h6 font-weight-bold d-flex align-center">
+            <v-icon class="me-2" color="indigo">
+              mdi-package-variant
             </v-icon>
             Productos
           </div>
         </div>
       </template>
       <template v-slot:append>
-        <v-btn v-if="hasAccessToFunct('126')" class="mr-4" variant="tonal" color="error" @click="exportToExcel">
-          <v-icon>
-            mdi-download-multiple
-          </v-icon>
-          <v-tooltip location="top center" activator="parent">
-            Descargar Inventario
-          </v-tooltip>
-        </v-btn>
-        <v-btn
-          v-if="hasAccessToFunct('122')"
-            class="bg-indigo rounded-"
-            @click="openDialog('create')"
+        <v-btn v-if="hasAccessToFunct('122')" color="indigo-darken-4"
+          @click="openDialog('create')" variant="tonal" prepend-icon="mdi-plus"
         >
-          <v-icon>mdi-plus</v-icon>
-          <v-tooltip
-              activator="parent"
-              location="left"
-          >Agregar Producto
-          </v-tooltip>
+          Nuevo Producto
         </v-btn>
       </template>
       <v-divider/>
@@ -64,145 +47,254 @@
             sm="6"
             class="d-flex justify-end align-center"
         >
-          <v-btn
-              icon
-              color="indigo"
-              size="small"
-              @click="getProductos"
-              variant="text"
-              class="mr-2 border"
-          >
-            <v-icon>mdi-magnify</v-icon>
-          </v-btn>
-          <v-btn
-              icon
-              color="grey"
-              size="small"
-              variant="text"
-              class="border"
-          >
-            <v-icon>mdi-broom</v-icon>
+          <v-btn v-if="hasAccessToFunct('126')" class="mr-4" variant="text" color="error" @click="exportToExcel"
+              icon size="small">
+              <v-icon>
+                mdi-download-multiple
+              </v-icon>
+              <v-tooltip location="top center" activator="parent">
+                Descargar Inventario
+              </v-tooltip>
           </v-btn>
         </v-col>
       </v-row>
     </v-card>
+
     <!-- Tabla de productos -->
-    <v-card
-        elevation="0"
-        class="border"
-        rounded="0"
+    <v-data-table
+        class="font"
+        density="compact"
+        :headers="data.headers"
+        :items="data.products"
+        :items-per-page="10"
+        :search="search"
+        :loading="data.loading"
+        :row-props="setStyle"
+        :header-props="{
+        class: 'font-weight-bold'
+      }"
+        hover
     >
-      <v-data-table
-          class="font"
-          density="compact"
-          :headers="data.headers"
-          :items="data.products"
-          :items-per-page="10"
-          :search="search"
-          :loading="data.loading"
-          :row-props="setStyle"
-          :header-props="{
-          class: 'font-weight-bold'
-        }"
-          hover
+      <template v-slot:loader>
+        <v-progress-linear
+            color="indigo"
+            indeterminate
+            height="2"
+        />
+      </template>
+      <template v-slot:loading>
+        <v-skeleton-loader
+            type="table-row@10"
+        ></v-skeleton-loader>
+      </template>
+      <template v-slot:item.costo="{ item }">
+        {{ formatCurrency(item.costo) }}
+      </template>
+      <template v-slot:item.precio="{ item }">
+        {{ formatCurrency(item.precio) }}
+      </template>
+
+      <template
+          v-slot:item.fechaRegistro="{ item }"
       >
-        <template v-slot:loader>
-          <v-progress-linear
-              color="indigo"
-              indeterminate
-              height="2"
-          />
-        </template>
-        <template v-slot:loading>
-          <v-skeleton-loader
-              type="table-row@10"
-          ></v-skeleton-loader>
-        </template>
-        <template v-slot:item.costo="{ item }">
-          {{ formatCurrency(item.costo) }}
-        </template>
-        <template v-slot:item.precio="{ item }">
-          {{ formatCurrency(item.precio) }}
-        </template>
+        {{ formatDate(item.fechaRegistro) }}
+      </template>
 
-        <template
-            v-slot:item.fechaRegistro="{ item }"
+      <template v-slot:item.estado="{ item }">
+        <v-chip
+            :color="
+            item.estado ? 'green' : 'error'
+          "
+            small
         >
-          {{ formatDate(item.fechaRegistro) }}
-        </template>
+          {{
+            item.estado ? 'Activo' : 'Inactivo'
+          }}
+        </v-chip>
+      </template>
 
-        <template v-slot:item.estado="{ item }">
-          <v-chip
-              :color="
-              item.estado ? 'green' : 'error'
-            "
-              small
-          >
-            {{
-              item.estado ? 'Activo' : 'Inactivo'
-            }}
-          </v-chip>
-        </template>
+      <template v-slot:item.stockMin="{ item }">
+        <v-chip :color="setStockMinimo(item.cantidadMinima, item.cantidadTotal) ? 'green' : 'error'">
+          {{
+            setStockMinimo(item.cantidadMinima, item.cantidadTotal) ? 'NO' : 'SI'
+          }}
+        </v-chip>
+      </template>
 
-        <template v-slot:item.stockMin="{ item }">
-          <v-chip :color="setStockMinimo(item.cantidadMinima, item.cantidadTotal) ? 'green' : 'error'">
-            {{
-              setStockMinimo(item.cantidadMinima, item.cantidadTotal) ? 'NO' : 'SI'
-            }}
-          </v-chip>
-        </template>
+      <template v-slot:item.actions="{ item }">
+        <v-menu :close-on-content-click="false" location="right center"
+          origin="auto">
+          <template v-slot:activator="{ props }">
+            <v-tooltip text="Opciones" location="top">
+              <template v-slot:activator="{ props: tooltipProps }">
+                <v-btn size="small" icon variant="text" color="grey-darken-1"
+                  v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </template>
+            </v-tooltip>
+          </template>
 
-        <template v-slot:item.actions="{ item }">
-          <v-tooltip text="Editar" location="top">
-            <template
-                v-slot:activator="{ props }"
+          <v-list nav rounded="lg" >
+            <v-list-item-subtitle class="pa-1">
+              Opciones
+            </v-list-item-subtitle>
+            <v-list-item v-if="hasAccessToFunct('123')" rounded density="compact" prepend-icon="mdi-pencil"
+              color="indigo" @click="openDialog('edit', item)">
+              <template v-slot:title>
+                  <v-divider vertical />
+                  Editar Producto
+              </template>
+            </v-list-item>
+
+            <v-list-item rounded density="compact" prepend-icon="mdi-eye"
+              color="indigo" @click="openDialogDet(item)">
+              <template v-slot:title>
+                  <v-divider vertical />
+                  Ver Producto
+              </template>
+            </v-list-item>
+
+            <v-list-item v-if="hasAccessToFunct('124')" rounded density="compact" prepend-icon="mdi-delete"
+              color="indigo" @click="showAlert(item)">
+              <template v-slot:title>
+                  <v-divider vertical />
+                  Eliminar Producto
+              </template>
+            </v-list-item>
+
+            <v-divider />
+
+            <v-list-item rounded density="compact" prepend-icon="mdi-history"
+              color="indigo" @click="loadVerAjustesStockDisplay(item)">
+              <template v-slot:title>
+                  <v-divider vertical />
+                  Ajustes de Stock
+              </template>
+            </v-list-item>
+          </v-list>
+
+        </v-menu>
+      </template>
+    </v-data-table>
+
+
+    <!-- VER AJUSTES DE STOCK -->
+    <v-dialog v-model="display.verAjusteStock" width="650">
+      <v-card class="rounded" elevation="8">
+        <!-- Header con información del producto -->
+        <v-card-item class="bg-indigo-darken-4">
+          <div class="d-flex align-start justify-space-between w-100">
+            <div>
+              <div class="d-flex align-center mb-2">
+                <v-avatar color="white" class="mr-3" variant="flat">
+                  <v-icon color="#1976d2" size="22">mdi-package-variant</v-icon>
+                </v-avatar>
+                <div>
+                  <v-card-title class="text-h6 font-weight-bold pa-0 text-white">
+                    HISTORIAL DE AJUSTES DE STOCK
+                  </v-card-title>
+                  <v-card-subtitle class="text-caption text-white pa-0 mt-1 opacity-85">
+                    {{ verAjusteStock.producto }}
+                  </v-card-subtitle>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-right">
+              <div class="text-caption text-white mb-1 ">
+                STOCK ACTUAL
+              </div>
+              <v-chip color="white" variant="flat" size="small"
+                class="font-weight-bold text-primary">
+                {{ verAjusteStock.cantidadTotal }} unidades
+              </v-chip>
+            </div>
+          </div>
+        </v-card-item>
+
+        <!-- Resumen de ajustes -->
+        <v-card-text class="pa-4 bg-grey-lighten-4">
+          <v-card variant="flat" color="white" class="mb-4 pa-3 rounded border" elevation="0">
+            <v-row dense>
+              <v-col cols="6">
+                <div class="d-flex align-center">
+                  <v-icon color="green" size="small" class="mr-2">mdi-arrow-up</v-icon>
+                  <div>
+                    <div class="text-caption text-grey-darken-2">
+                      AJUSTES POSITIVOS
+                    </div>
+                    <div class="text-h6 font-weight-bold text-green-darken-2">
+                      +{{ verAjusteStock.tbl.items.filter(item => item.cantidad > 0).length || 0 }}
+                    </div>
+                  </div>
+                </div>
+              </v-col>
+              <v-col cols="6">
+                <div class="d-flex align-center">
+                  <v-icon color="red" size="small" class="mr-2">mdi-arrow-down</v-icon>
+                  <div>
+                    <div class="text-caption text-grey-darken-2">AJUSTES NEGATIVOS</div>
+                    <div class="text-h6 font-weight-bold text-red-darken-2">
+                      {{ verAjusteStock.tbl.items.filter((item) => (item.cantidad < 0)).length || 0 }}
+                    </div>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <!-- Tabla de ajustes -->
+          <v-card variant="flat" class="rounded-lg  border" elevation="0">
+            <v-card-title class="pa-3" style="background-color: #e3f2fd;">
+              <div class="d-flex align-center justify-space-between w-100">
+                <div class="d-flex align-center">
+                  <v-icon color="primary" size="small" class="mr-2">mdi-history</v-icon>
+                  <span class="text-subtitle-2 font-weight-bold">REGISTRO DE AJUSTES</span>
+                </div>
+                <v-chip size="small" color="primary" variant="flat">
+                  {{ verAjusteStock.tbl.items.length || 0 }} registros
+                </v-chip>
+              </div>
+            </v-card-title>
+            
+            <v-data-table
+              :headers="verAjusteStock.tbl.headers"
+              :items="verAjusteStock.tbl.items"
+              class="elevation-1"
+              density="comfortable"
+              :header-props="{
+                class: 'text-uppercase font-weight-bold bg-blue-lighten-5'
+              }"
             >
-              <v-icon
-                v-if="hasAccessToFunct('123')"
-                  v-bind="props"
+              <template v-slot:item.fechaRegistro="{ item }">
+                <div class="d-flex align-center">
+                  <v-icon size="small" color="grey" class="mr-2">mdi-calendar</v-icon>
+                  <span class="font-weight-medium">{{ this.formatDate(item.fechaRegistro) }}</span>
+                </div>
+              </template>
+              
+              <template v-slot:item.cantidad="{ item }">
+                <v-chip 
+                  :color="item.cantidad > 0 ? 'green-lighten-5' : 'red-lighten-5'" 
+                  :variant="item.cantidad > 0 ? 'outlined' : 'outlined'"
                   size="small"
-                  color="green"
-                  class="mr-1"
-                  @click="openDialog('edit', item)"
-              >
-                mdi-pencil
-              </v-icon>
-            </template>
-          </v-tooltip>
-
-          <v-tooltip
-              text="Eliminar"
-              location="top"
-          >
-            <template
-                v-slot:activator="{ props }"
-            >
-              <v-icon
-                v-if="hasAccessToFunct('124')"
-                  v-bind="props"
-                  size="small"
-                  color="error"
-                  class="mr-1"
-                  @click="showAlert(item)"
-              >mdi-delete
-              </v-icon>
-            </template>
-          </v-tooltip>
-
-          <v-tooltip text="Ver" location="top">
-            <template
-                v-slot:activator="{ props }"
-            >
-              <v-icon
-                  v-bind="props"
-                  size="small"
-                  color="indigo-darken-4"
-                  @click="openDialogDet(item)"
-              >mdi-eye
-              </v-icon>
-            </template>
-          </v-tooltip>
-
+                  class="font-weight-bold"
+                >
+                  <v-icon size="small" :color="item.cantidad > 0 ? 'green' : 'red'" class="mr-1">
+                    {{ item.cantidad > 0 ? 'mdi-plus' : 'mdi-minus' }}
+                  </v-icon>
+                  {{ item.cantidad > 0 ? '+' : '' }}{{ item.cantidad }}
+                </v-chip>
+              </template>
+              
+              <template v-slot:no-data>
+                <div class="pa-6 text-center">
+                  <v-icon size="large" color="grey-lighten-2" class="mb-3">mdi-information-outline</v-icon>
+                  <div class="text-body-1 text-grey mb-1">No hay ajustes registrados</div>
+                  <div class="text-caption text-grey">Este producto no tiene historial de ajustes</div>
+                </div>
+      
           <v-tooltip text="Ajustes Stock" location="top">
             <template
               v-slot:activator="{ props }"
@@ -219,8 +311,100 @@
             </template>
           </v-tooltip>
         </template>
-      </v-data-table>
-    </v-card>
+            </v-data-table>
+          </v-card>
+
+          <!-- Resumen final -->
+          <v-card variant="flat" color="blue-lighten-5" class="mt-4 pa-4 rounded-lg border">
+            <div class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center">
+                <v-icon color="primary" class="mr-2">mdi-chart-timeline</v-icon>
+                <div>
+                  <div class="text-caption text-grey-darken-2">TOTAL DE MOVIMIENTOS</div>
+                  <div class="text-body-1 font-weight-bold">
+                    {{ verAjusteStock.tbl.items.length }} ajustes registrados
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-caption text-grey-darken-2">SALDO FINAL</div>
+                <div class="text-h6 font-weight-bold text-primary">
+                  {{ verAjusteStock.cantidadTotal }} unidades
+                </div>
+              </div>
+            </div>
+          </v-card>
+        </v-card-text>
+
+        <!-- Footer -->
+        <v-divider thickness="2" />
+        <v-card-actions class="pa-4 bg-white">
+          <v-btn 
+            color="grey-darken-2" 
+            variant="tonal" 
+            @click="display.verAjusteStock = false"
+            prepend-icon="mdi-close"
+          >
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+     <v-dialog v-model="display.ajusteStock" width="300">
+      <v-card>
+        <v-card-item>
+          <v-card-title>Ajustar stock</v-card-title>
+          <v-card-subtitle>
+            {{ ajusteStock.producto }}
+          </v-card-subtitle>
+        </v-card-item>
+        <v-divider></v-divider>
+        <v-card-text>
+          <v-form ref="formAjusteStock">
+            <v-row dense>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="ajusteStock.data.cantidadTotal"
+                  label="Nuevo stock:"
+                  color="indigo"
+                  variant="outlined"
+                  density="compact"
+                  type="number"
+                  prepend-inner-icon="mdi-numeric"
+                  :rules="[
+                  v => !!v || 'Requerido.'
+                ]"
+                >
+
+                </v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-textarea
+                  v-model="ajusteStock.data.observaciones"
+                  label="Motivo del ajuste:"
+                  color="indigo"
+                  variant="outlined"
+                  density="compact"
+                  rows="2"
+                  auto-grow
+                  :rules="[
+                    v => !!v || 'Requerido.'
+                  ]"
+                >
+
+                </v-textarea>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="justify-end">
+          <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">Cancelar</v-btn>
+          <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">Ajustar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-dialog v-model="display.verAjusteStock" width="550">
       <v-card>
@@ -258,21 +442,21 @@
     </v-dialog>
 
     <new-categoria
-        :title="nuevaCategoriaDisplay.title"
-        :show="nuevaCategoriaDisplay.show"
-        :editar="nuevaCategoriaDisplay.editar"
-        :cat="nuevaCategoriaDisplay.item"
-        :ver="nuevaCategoriaDisplay.ver"
-        @closeDialog="closeNuevaCategoriaDisplay"
+      :title="nuevaCategoriaDisplay.title"
+      :show="nuevaCategoriaDisplay.show"
+      :editar="nuevaCategoriaDisplay.editar"
+      :cat="nuevaCategoriaDisplay.item"
+      :ver="nuevaCategoriaDisplay.ver"
+      @closeDialog="closeNuevaCategoriaDisplay"
     ></new-categoria>
 
     <new-sub-categoria
-        :title="nuevaSubCatDisplay.title"
-        :show="nuevaSubCatDisplay.show"
-        :editar="nuevaSubCatDisplay.editar"
-        :sub-cat="nuevaSubCatDisplay.item"
-        :ver="nuevaSubCatDisplay.ver"
-        @closeDialog="closeNuevaSubCatDisplay"
+      :title="nuevaSubCatDisplay.title"
+      :show="nuevaSubCatDisplay.show"
+      :editar="nuevaSubCatDisplay.editar"
+      :sub-cat="nuevaSubCatDisplay.item"
+      :ver="nuevaSubCatDisplay.ver"
+      @closeDialog="closeNuevaSubCatDisplay"
     ></new-sub-categoria>
 
     <!-- Diálogo para agregar/editar -->
@@ -951,10 +1135,16 @@ export default {
       ],
       headers: [
         {
-          title: 'Acciones',
+          title: '',
           key: 'actions',
           sortable: false,
-          align: 'center'
+          align: 'center',
+          headerProps: {
+            class: 'pa-0'
+          },
+          cellProps: {
+            class: 'pa-0'
+          }
         },
         {
           title: 'Categoría',
@@ -1063,8 +1253,8 @@ export default {
     async function getSubCategorias() {
       data.subCategorias = []
       const result = await data.requestHttp.getSubCategorias()
-      if (result !== null) {
-        result.map((item) => {
+      if (result.code === 200) {
+        result.data.map((item) => {
           data.subCategorias.push({
             title: item.nombre,
             value: item.idSubCatProd
@@ -1247,9 +1437,7 @@ export default {
         numeric: (key) =>
             !isNaN(parseFloat(key)) ||
             'Debe ser un número válido'
-      },
-
-      snackbar: useSnackbar(),
+      }
     }
   },
 
@@ -1270,6 +1458,62 @@ export default {
 
   methods: {
     hasAccessToFunct,
+
+    loadAjusteStockDisplay(){
+      this.display.ajusteStock = true
+      this.ajusteStock.data.idProducto = this.data.form.idProducto
+      this.ajusteStock.producto = this.data.form.nombre
+    },
+
+    closeAjusteStockDisplay(){
+      this.display.ajusteStock = false
+      this.ajusteStock.data.cantidadTotal = 0
+      this.ajusteStock.data.observaciones = ''
+      this.ajusteStock.data.idproducto = 0
+    },
+
+    async saveAjusteStockDisplay(){
+      const validation = await this.$refs.formAjusteStock.validate()
+
+      if(!validation.valid){
+        this.snackbar.notify('error', 'Rellene los campos requeridos.')
+        return
+      }
+
+      this.ajusteStock.loading = true
+      try {
+        this.ajusteStock.data.usuarioRegistro = this.token.usuario
+        await httpPut(
+          `api/producto/${this.ajusteStock.data.idProducto}/cantidad-total`,
+          this.ajusteStock.data
+        )
+
+        this.snackbar.notify('success', 'Ajuste de stock realizado.')
+
+        this.ajusteStock.loading = false
+
+        this.data.form.cantidadTotal = this.ajusteStock.data.cantidadTotal
+        this.closeAjusteStockDisplay()
+      }
+      catch(err) {
+        this.snackbar.notify('error', 'Ocurrió un error al realizar el ajuste de stock, contacte al administrador.')
+        this.ajusteStock.loading = false
+      }
+    },
+
+    async loadVerAjustesStockDisplay(item){
+      try {
+        this.verAjusteStock.producto = item.nombre
+        this.verAjusteStock.cantidadTotal = item.cantidadTotal
+        this.verAjusteStock.tbl.items = []
+        const items = await httpGet(`api/producto/${item.idProducto}/ajustes-stock`)
+        this.verAjusteStock.tbl.items = items
+        this.display.verAjusteStock = true
+      } catch (e) {
+
+      }
+    },
+
 
     loadAjusteStockDisplay(){
       this.display.ajusteStock = true
@@ -1452,7 +1696,13 @@ export default {
       this.data.products = []
       this.data.loading = true
       const result = await this.data.requestHttp.getProductos()
-      this.data.products = result.map(item => ({...item, stockMin: item.cantidadMinima > item.cantidadTotal ? 'SI' : 'NO'}))
+
+      if (result.code === 200) {
+        this.data.products = result.data.map(item => ({
+          ...item, 
+          stockMin: item.cantidadMinima > item.cantidadTotal ? 'SI' : 'NO'
+        }))
+      }
       this.data.loading = false
     },
 

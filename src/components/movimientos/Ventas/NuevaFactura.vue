@@ -331,13 +331,15 @@
                         </v-col>
                         <v-col cols="12" md="6" sm="6">
                             <v-card variant="flat" color="white" class="h-100">
+                                <v-card-title class="d-flex align-center">
+                                    <v-icon size="20" color="grey-darken-2" class="mr-2">
+                                    mdi-calculator
+                                    </v-icon>
+                                    <span class="text-subtitle-2 font-weight-bold text-grey-darken-2">
+                                        Resumen de la Factura
+                                    </span>
+                                </v-card-title>
                                 <v-card-text class="pa-4">
-                                    <div class="text-subtitle-2 font-weight-bold mb-4 text-grey-darken-2">
-                                        <v-icon size="18" class="mr-2">
-                                            mdi-calculator
-                                        </v-icon>
-                                        Resumen de Factura
-                                    </div>
                                     <div class="amount-row d-flex justify-space-between align-center mb-3">
                                         <span class="text-body-2">Sub Total:</span>
                                         <span class="text-h6 font-weight-bold text-grey-darken-3">
@@ -410,8 +412,9 @@
                         </template>
                     </v-btn>
                 </v-card-actions>
-                <OverlayComp :show="data.overlay.show"/>
             </v-card>
+
+            <OverlayComp :show="data.overlay.show"/>
 
             <SuccessAlert 
                 :success="data.alertSuccess.success" 
@@ -735,9 +738,13 @@ export default {
             this.data.loading = true
             const result = await this.data.requestHttp.getUsuarios()
             this.data.loading = false
-            result.map(item => {
-                this.data.empleados.push({title: item.username, value: item.username})
-            })
+            
+            if (result.code === 200) {
+                result.data.map(item => {
+                    this.data.empleados.push({title: item.username, value: item.username})
+                })
+            }
+
         },
 
         async getProductos() {
@@ -794,8 +801,7 @@ export default {
 
             if (!this.localEdit) {
                 if (!this.data.venta.noVenta ||
-                    !this.data.venta.idCliente ||
-                    !this.data.venta.usuarioRegistro
+                    !this.data.venta.idCliente
                 ) {
                     this.data.hide = false
                     setTimeout(() => {
@@ -804,6 +810,7 @@ export default {
                     this.showAlert(2, 'Complete la información de venta', 'warning')
                     return
                 } else {
+                    this.data.venta.detalleVenta = []
                     this.data.items.forEach(item => {
                         this.data.venta.detalleVenta.push({
                             "idVenta": item.idVenta,
@@ -815,13 +822,15 @@ export default {
                     })
 
                     this.data.contDisableBtn = true
+                    this.data.overlay.show = true
                     const result = await this.data.requestHttp.postVenta(this.data.venta)
-                    console.log(result);
-                    
+                    this.data.overlay.show = false
                     this.data.contDisableBtn = false
                     if (result.code === 200) {
                         this.showSuccesAlert('¡Venta registrada!', true)
-                        this.closeDialog()
+                        setTimeout(() => {
+                            this.closeDialog()
+                        }, 1500)
                     } else if(result.data.code === 400.1) {
                         this.showSuccesAlert(`¡${result.data.msg}!`, false)
                         return
@@ -839,6 +848,7 @@ export default {
                     this.showAlert(2, 'Complete la información de venta', 'warning')
                     return
                 } else {
+                    this.data.venta.detalleVenta = []
                     this.data.items.forEach(item => {
                         this.data.venta.detalleVenta.push({
                             "idVenta": item.idVenta,
@@ -857,8 +867,10 @@ export default {
                     this.data.contDisableBtn = false
 
                     if (result.code === 200) {
-                        this.showSuccesAlert('¡Factura editada!')
-                        this.closeDialog()
+                        this.showSuccesAlert('¡Factura editada!', true)
+                        setTimeout(() => {
+                            this.closeDialog()
+                        }, 1500)
                     } else {
                         this.showSuccesAlert('¡No se pudo editar la factura!', false)
                         return
@@ -884,9 +896,6 @@ export default {
             this.data.factura.subTotal = 0.00
             this.data.factura.total = 0.00
             this.data.factura.usdTotal = 0.00
-            this.data.venta = {
-              usuarioRegistro: 'Roberto'
-            }
             this.data.editVenta = {}
 
             this.clearProductos()

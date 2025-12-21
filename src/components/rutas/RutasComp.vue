@@ -1,6 +1,6 @@
 <template>
     <div class="w-100">
-        <v-card class="border" elevation="0" rounded="0">
+        <v-card class="border-t border-b" elevation="0" rounded="0">
             <!-- Encabezado -->
             <template v-slot:prepend>
                 <div class="d-flex align-center">
@@ -12,24 +12,21 @@
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn v-if="hasAccessToFunct('112')" class="bg-primary rounded-" @click="createRutas()">
-                    <v-icon>mdi-plus</v-icon>
-                    <v-tooltip activator="parent" location="left">Nueva Rutas</v-tooltip> 
+                <v-btn v-if="hasAccessToFunct('112')" class="rounded" @click="createRutas()"
+                    prepend-icon="mdi-plus" variant="tonal" color="indigo">
+                    Nueva Ruta
                 </v-btn>
             </template>
             <v-divider /> 
             <v-row class="pa-2" dense>
                 <v-col cols="6" md="6" sm="6">
                     <v-text-field v-model="data.search" color="primary" density="compact" variant="outlined" 
-                        append-inner-icon="mdi-magnify" label="Buscar productos"
+                        append-inner-icon="mdi-magnify" label="Buscar productos" clearable
                         hide-details placeholder="Ingrese un texto a buscar..." persistent-placeholder/>
                 </v-col>
                 <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-                    <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="getRutas()">
-                        <v-icon>mdi-refresh</v-icon>
-                    </v-btn>
-                    <v-btn icon color="grey" size="small" variant="text" class="border" @click="data.search = null">
-                        <v-icon>mdi-broom</v-icon>
+                    <v-btn color="green" variant="text" class="mr-2 border" @click="getRutas()">
+                        Actualizar
                     </v-btn>
                 </v-col>
             </v-row>
@@ -43,7 +40,7 @@
                 
                 <!-- :mobile="isMobile" -->
                 <v-data-table :search="data.search" :headers="data.header" :items="data.rutas"
-                    class="border font" density="compact" :loading="data.loading" 
+                    class="border-b border-t font" density="compact" :loading="data.loading" 
                     :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }"
                     items-per-page="20" hover>
                     <template v-slot:loader>
@@ -62,32 +59,75 @@
                         <div>{{ formatedDate(item.fechaRegistro) }}</div>
                     </template>
                     <template v-slot:item.opc="{ item }">
-                        <v-tooltip text="Editar" location="top">
+                        <v-menu :close-on-content-click="false" location="right center"
+                            origin="auto">
+                            <template v-slot:activator="{ props }">
+                                <v-tooltip text="Opciones" location="top">
+                                    <template v-slot:activator="{ props: tooltipProps }">
+                                        <v-btn size="small" icon variant="text" color="grey-darken-1"
+                                            v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                                            <v-icon>mdi-dots-vertical</v-icon>
+                                        </v-btn>
+                                    </template>
+                                </v-tooltip>
+                            </template>
+
+                            <v-list nav rounded="lg" >
+                                <v-list-item-subtitle class="pa-1">
+                                    Opciones
+                                </v-list-item-subtitle>
+                                <v-list-item v-if="hasAccessToFunct('113')" rounded density="compact" 
+                                    prepend-icon="mdi-pencil" color="indigo" @click="editRuta(item)">
+                                    <template v-slot:title>
+                                        <v-divider vertical />
+                                        Editar Ruta
+                                    </template>
+                                </v-list-item>
+
+                                <v-list-item rounded density="compact" prepend-icon="mdi-eye"
+                                    color="indigo" @click="viewRuta(item)">
+                                    <template v-slot:title>
+                                        <v-divider vertical />
+                                        Ver Ruta
+                                    </template>
+                                </v-list-item>
+
+                                <!-- <v-list-item rounded density="compact" prepend-icon="mdi-delete"
+                                    color="indigo" @click="showAlert(item)">
+                                    <template v-slot:title>
+                                        <v-divider vertical />
+                                        Eliminar Ruta
+                                    </template>
+                                </v-list-item> -->
+                            </v-list>
+                        </v-menu>
+
+                        <!-- <v-tooltip text="Editar" location="top">
                             <template v-slot:activator="{ props }">
                                 <v-icon v-if="hasAccessToFunct('113')" v-bind="props" 
                                     size="small" color="green" @click="editRuta(item)" class="mr-1" 
                                     >mdi-pencil
                                 </v-icon>
                             </template>
-                        </v-tooltip>
+                        </v-tooltip> -->
                         
-                        <v-tooltip text="Eliminar" location="top">
+                        <!-- <v-tooltip text="Eliminar" location="top">
                             <template v-slot:activator="{ props }">
                                 <v-icon v-if="data.crud.delete" v-bind="props" size="small" 
                                     color="error" class="mr-1" @click="showAlert(item)">
                                     mdi-delete
                                 </v-icon>
                             </template>
-                        </v-tooltip>
+                        </v-tooltip> -->
 
-                        <v-tooltip text="Ver" location="top">
+                        <!-- <v-tooltip text="Ver" location="top">
                             <template v-slot:activator="{ props }">
                                 <v-icon v-if="data.crud.view" v-bind="props" size="small" 
-                                    color="indigo-darken-4" @click="viewRuta(item)">
+                                    color="indigo-darken-4" >
                                     mdi-eye
                                 </v-icon>
                             </template>
-                        </v-tooltip>
+                        </v-tooltip> -->
                     </template>
                     <template v-slot:item.estado="{ item }">
                         <v-chip :color="item.estado ? 'green' : 'error'" small>
@@ -151,7 +191,14 @@ export default {
         })
         const data = reactive({
             header: [
-                {title: '', key: 'opc', align: 'center',},
+                {title: '', key: 'opc', align: 'center',
+                    headerProps: {
+                        class: 'pa-0',
+                    },
+                    cellProps: {
+                        class: 'pa-0',  
+                    }
+                },
                 {title: 'Código', key: 'codigo', sortable: false, align: 'center', 
                     headerProps: {
                         class: 'pa-1',

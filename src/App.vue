@@ -182,6 +182,7 @@
             </v-list-item>
           </v-list-group>
         </v-list>
+
         <template v-slot:append>
           <v-divider class="mx-4"/>
           <div class="d-flex justify-center pa-2 align-center">
@@ -194,7 +195,7 @@
                 Inversiones Zafiro
               </h6>
               <h6 style="font-size: 10px;">
-                v1.0.0
+                v2.0.0
               </h6>
             </div>
           </div>
@@ -234,11 +235,14 @@
             Todos los derechos reservados.
           </span>
           </v-col>
-          <v-col class="pa-0 pr-2 justify-end">
-
-          </v-col>
         </v-row>
       </v-footer>
+
+      <VerifySession
+        :show="data.verifySesion"
+        @logout="logout"
+        @reset="setSession"
+      />
     </v-app>
 
   </v-responsive>
@@ -247,25 +251,27 @@
 <script>
 import { useSnackbar } from "@/composables/use-snackbar.js";
 import {useLoading} from "@/composables/use-loading.js";
-import {ref, reactive, computed, onMounted, onUnmounted} from 'vue';
+import {ref, watch, reactive, computed, onMounted, onUnmounted} from 'vue';
 import AppBar from './components/layout/AppBar.vue'
 import TabsRoutes from './components/widgets/TabsRoutes.vue';
 // import LoginAuth from './components/login/LoginAuth.vue';
 import environment from './helpers/environment.js';
 import {useStore} from './store';
 import { hasAccessToMenu } from '@/scripts/Seguridad.js'
+import PrinterServices from "./helpers/qzTray";
+import { useRouter } from "vue-router";
+import VerifySession from "./components/config/VerifySession.vue";
 
 export default {
   mounted() {
     this.verifySession()
-    // const lastRoute = sessionStorage.getItem('lastRoute')
-    // this.data.nameTabs = []
-    // if (lastRoute) {
-    //   this.data.nameTabs.push(lastRoute);
-    //   this.data.activeTab = this.data.nameTabs.indexOf(lastRoute)
-    //   this.data.selectedItems.splice(this.data.selectedItems.length - 1)
-    //   this.data.selectedItems.push(lastRoute)
-    // }
+
+    setInterval(
+      () => {
+        this.verifySession()
+      },
+      1000 * 60 * 120
+    )
   },
 
   data(){
@@ -277,6 +283,7 @@ export default {
 
   setup() {
     const store = useStore()
+    const router = useRouter()
     const { snackbar } = useSnackbar()
     const isLoggeInd = computed(() => store.isLoggedIn)
     const screenWidth = ref(window.innerWidth)
@@ -410,19 +417,86 @@ export default {
         roles: false,
         user: false
       },
+      verifySesion: false,
       selectedItems: ['Inicio'],
       nameTabs: [],
       nameCurrentTab: '',
       activeTab: null,
       visible: false,
-      version: environment.version
+      version: environment.version,
+      printerServices: new PrinterServices()
     })
+
+    watch(() => router.currentRoute.value.meta, (val) => {
+      if (val?.protected) {
+        verifySession()
+      }
+    }, { deep: true })
+
+    function goToHome() {
+      data.selectedItems.splice(data.selectedItems.length - 1)
+      data.selectedItems = ['Inicio']
+
+      router.push({ name: 'Home' })
+      data.visible = false
+      sessionStorage.removeItem('lastRoute')
+      data.nameTabs = []
+    }
+
+    function nameTab(name) {
+      if (name === 'Home') {
+        goToHome()
+        return
+      }
+
+      if (name === null || name === "null") {
+        router.push({ name: 'Home' })
+      } else {
+        data.selectedItems.splice(data.selectedItems.length - 1)
+        data.nameCurrentTab = name
+        data.visible = true
+        const existElement = data.nameTabs.indexOf(name)
+        sessionStorage.setItem('lastRoute', name);
+
+        if (existElement === -1) {
+          data.nameTabs.push(name);
+          data.activeTab = data.nameTabs.indexOf(name)
+          data.selectedItems.push(name)
+        } else {
+          data.activeTab = existElement
+          data.selectedItems.push(name)
+        }
+        router.push({ name: name })
+      }
+
+    }
+
+    function verifySession() {
+      if (isLoggeInd.value) {
+        const exp = store.getExp()
+        const now = Date.now()
+        if ((now / 1000) >= Number(exp)) {
+          data.verifySesion = true
+        }
+        const lastRoute = sessionStorage.getItem('lastRoute')
+
+        if (lastRoute !== 'Login' && lastRoute !== null) {
+          nameTab(lastRoute)
+        } else {
+          router.push({ name: 'Home'})
+        }
+        
+      }
+    }
 
     return {
       data,
       isMobile,
       isLoggeInd,
-      store
+      store,
+      verifySession,
+      goToHome,
+      nameTab
     }
   },
 
@@ -472,6 +546,16 @@ export default {
 
   methods: {
     hasAccessToMenu,
+
+    async printerServ() {
+      try {
+        await this.data.printerServices.findFunction()
+      } catch (error) {
+        console.log(error);
+        
+      }
+    },
+
     verifyDataSecurity() {
       const token = this.store.getInfoUser()
       const ventanas = token.ventanasAcceso.split(",")
@@ -492,52 +576,35 @@ export default {
       })
     },
 
-    verifySession() {
-      const exp = localStorage.getItem('exp')
-      if (this.isLoggeInd) {
-        this.store.deleteSession(exp)
-        const lastRoute = sessionStorage.getItem('lastRoute')
-        if (lastRoute) {
-          this.nameTab(lastRoute)
-        }
-      }
-    },
+    // verifySession() {
+    //   const exp = localStorage.getItem('exp')
+    //   if (this.isLoggeInd) {
+    //     this.store.deleteSession(exp)
+    //     const lastRoute = sessionStorage.getItem('lastRoute')
+    //     if (lastRoute) {
+    //       this.nameTab(lastRoute)
+    //     }
+    //   }
+    // },
 
     toggleDrawer() {
       this.data.drawer = !this.data.drawer
-    },
+    },    
 
-    nameTab(name) {
-      if (name === 'Home') {
-        this.goToHome()
-        return
-      }
-      this.data.selectedItems.splice(this.data.selectedItems.length - 1)
-      this.data.nameCurrentTab = name
-      this.data.visible = true
-      const existElement = this.data.nameTabs.indexOf(name)
-      sessionStorage.setItem('lastRoute', name);
-
-      if (existElement === -1) {
-        this.data.nameTabs.push(name);
-        this.data.activeTab = this.data.nameTabs.indexOf(name)
-        this.data.selectedItems.push(name)
-      } else {
-        this.data.activeTab = existElement
-        this.data.selectedItems.push(name)
-      }
-
-      this.$router.push({ name: name })
-    },
-
-    goToHome() {
-      this.data.selectedItems.splice(this.data.selectedItems.length - 1)
-      this.data.selectedItems = ['Inicio']
-
-      this.$router.push({ name: 'Home' })
-      this.data.visible = false
-      sessionStorage.removeItem('lastRoute')
+    async logout(val) {
+      this.data.verifySesion = val
+      this.data.activeTab = null
       this.data.nameTabs = []
+      this.data.nameCurrentTab = null
+      // await this.delay(1500);
+      this.$router.go(0)
+      this.store.logout()
+      this.$router.push({ path: '/login' })
+    },
+
+    setSession(val) {
+      this.data.verifySesion = val
+      this.$router.go(0)
     },
 
     clearApp() {
@@ -552,6 +619,7 @@ export default {
   components: {
     AppBar,
     TabsRoutes,
+    VerifySession
     // LoginAuth
   }
 }

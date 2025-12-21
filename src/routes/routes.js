@@ -12,6 +12,7 @@ const routes = createRouter({
             name: 'Home',
             component: () => import('@/components/pages/HomeApp.vue'),
             meta: {
+                protected: true,
                 requiredAuth: true,
                 title: 'Inicio | I. Zafiro'
             } 
@@ -21,6 +22,7 @@ const routes = createRouter({
             name: 'Resumen Inventario',
             component: () => import('@/views/resumen-inventario.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'R. Inventario | I. Zafiro'
@@ -39,6 +41,7 @@ const routes = createRouter({
             name: 'Cuentas por Cobrar',
             component: () => import('@/views/general/por-cobrar/cuentas-por-cobrar/cuentas-por-cobrar.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'CXC | I. Zafiro'
@@ -49,6 +52,7 @@ const routes = createRouter({
             name: 'Conceptos',
             component: () => import('@/views/empresa/movimientos/conceptos.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Conceptos | I. Zafiro'
@@ -59,6 +63,7 @@ const routes = createRouter({
             name: 'Movimientos E.',
             component: () => import('@/views/empresa/movimientos/movimientos.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Movimientos E. | I. Zafiro'
@@ -68,6 +73,7 @@ const routes = createRouter({
             name: 'Cierres',
             component: () => import('@/views/empresa/cierres/cierre.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Cierres | I. Zafiro'
@@ -77,6 +83,7 @@ const routes = createRouter({
             name: 'Productos',
             component: () => import('@/components/inventario/Productos/GestionProducto.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Productos | I. Zafiro'
@@ -86,6 +93,7 @@ const routes = createRouter({
             name: 'Facturación',
             component: () => import('@/components/movimientos/Ventas/FacturacionVentas.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Facturación | I. Zafiro'
@@ -93,9 +101,9 @@ const routes = createRouter({
         }, {
             path: '/ordenes',
             name: 'Órdenes de compra',
-            // component: () => import('@/components/dev-alert.vue'),
             component: () => import('@/components/movimientos/Compras/FacturacionCompras.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Compras | I. Zafiro'
@@ -105,6 +113,7 @@ const routes = createRouter({
             name: 'Proveedores',
             component: () => import('@/components/movimientos/Compras/ProveedoresComp.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Proveedores | I. Zafiro'
@@ -114,6 +123,7 @@ const routes = createRouter({
             name: 'Categorías Productos',
             component: () => import('@/components/inventario/Categorias/CategoriasProductos.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Categorías | I. Zafiro'
@@ -123,24 +133,17 @@ const routes = createRouter({
             name: 'Clientes',
             component: () => import('@/components/clientes/ClientesComp.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Clientes | I. Zafiro'
-            }
-        }, {
-            path: '/cpc',
-            name: 'CPC',
-            component: () => import('@/components/clientes/CPComp.vue'),
-            meta: {
-                keepAlive: true,
-                requiredAuth: true,
-                title: 'CxC | I. Zafiro'
             }
         }, {
             path: '/movimientos-facturacion',
             name: 'Movimientos',
             component: () => import('@/components/inventario/Movimientos/MovimientosComp.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Movimientos | I. Zafiro'
@@ -150,6 +153,7 @@ const routes = createRouter({
             name: 'Usuarios',
             component: () => import('@/components/config/UsuariosComp.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Usuario | I. Zafiro'
@@ -159,6 +163,7 @@ const routes = createRouter({
             name: 'Roles',
             component: () => import('@/components/config/RolesComp.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Roles | I. Zafiro'
@@ -168,6 +173,7 @@ const routes = createRouter({
             name: 'Rutas',
             component: () => import('@/components/rutas/RutasComp.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'Roles | I. Zafiro'
@@ -175,9 +181,9 @@ const routes = createRouter({
         }, {
             path: '/tipo-ventas',
             name: 'Tipos de Venta',
-            // component: () => import('@/components/dev-alert.vue'),
             component: () => import('@/components/movimientos/Ventas/dialogsVentas/TipoVentas.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'T. Ventas | I. Zafiro'
@@ -185,9 +191,9 @@ const routes = createRouter({
         }, {
             path: '/tipo-cliente',
             name: 'Tipos de Cliente',
-            // component: () => import('@/views/empresa/cierres/cierre.vue'),
             component: () => import('@/components/dev-alert.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'T. Cliente | I. Zafiro'
@@ -195,9 +201,9 @@ const routes = createRouter({
         }, {
             path: '/tipo-movimiento',
             name: 'Tipos Movimiento',
-            // component: () => import('@/components/dev-alert.vue'),
             component: () => import('@/components/inventario/Movimientos/TiposMov.vue'),
             meta: {
+                protected: true,
                 keepAlive: true,
                 requiredAuth: true,
                 title: 'T. Movimiento | I. Zafiro'

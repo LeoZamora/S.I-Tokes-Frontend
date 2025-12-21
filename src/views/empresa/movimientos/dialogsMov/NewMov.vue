@@ -77,24 +77,38 @@
                 <v-btn color="grey" variant="outlined" @click="closeDialog()">
                     Cancelar
                 </v-btn>
-                <v-btn class="bg-primary" @click="handleSave()">
+                <v-btn class="bg-indigo-darken-4" @click="handleSave()">
                     Guardar
                 </v-btn>
             </v-card-actions>
         </v-card>
+
+        <OverlayComp :show="data.overlay.show"/>
+        <SuccessAlert 
+            :success="data.alertSuccess.success" 
+            :msg="data.alertSuccess.msg" 
+            :show="data.alertSuccess.show" 
+        />
     </v-dialog>
 </template>
 
 <script>
+import OverlayComp from '@/components/reutilizable/OverlayComp.vue';
+import SuccessAlert from '@/components/widgets/SuccessAlert.vue';
 import { formatters } from '@/helpers/formatters';
-import { utilsFunctions } from '@/helpers/utilFunctions';
 import endPoints from '@/services/endPoints';
 import RequestHttp from '@/services/requestHttp';
+import { useStore } from '@/store';
 import { reactive, ref, watch } from 'vue';
 
 export default {
     mounted() {
         this.getData()
+    },
+
+    components: {
+        OverlayComp,
+        SuccessAlert
     },
 
     props: {
@@ -138,9 +152,6 @@ export default {
             })
         }
 
-        watch(() => props.show, (newValue) => {
-            localShow.value = newValue
-        })
         watch(() => props.editar, async (val) => {
             localEdit.value = val
             if (val === true) {
@@ -162,13 +173,19 @@ export default {
         })
         watch(() => props.ver, (val) => {
             localView.value = val
-            if (val === true) {
-                data.movimiento = localMov.value
-                const date = new Date(data.movimiento.fechaMovimiento)
-                const year = date.getFullYear()
-                const mm = String(date.getMonth() + 1).padStart(2, '0')
-                const day = String(date.getDate()).padStart(2, '0')
-                data.movimiento.fechaMovimiento = `${year}-${mm}-${day}`
+            if (val) {
+                data.overlay.show = true
+                setTimeout(async () => {
+                    data.overlay.show = false
+                    data.movimiento = localMov.value    
+                    await getConcepto()
+                    const date = new Date(data.movimiento.fechaMovimiento)
+                    const year = date.getFullYear()
+                    const mm = String(date.getMonth() + 1).padStart(2, '0')
+                    const day = String(date.getDate()).padStart(2, '0')
+                    data.movimiento.fechaMovimiento = `${year}-${mm}-${day}`
+                }, 1500)
+
             }
         })
 
@@ -176,6 +193,16 @@ export default {
             nowDate: new Date(),
             rules: {
                 rule: [v => !!v || 'El campo es obligatorio']
+            },
+            // Overlay
+            overlay: {
+                show: false
+            },
+            // ALERT SUCCESS
+            alertSuccess: {
+                show: false,
+                msg: '',
+                success: false,
             },
             tiposMov: [],
             conceptos: [],
@@ -195,6 +222,53 @@ export default {
             requestHttp: new RequestHttp()
         })
 
+        function showSuccesAlert(msg, success = true) {
+            data.alertSuccess.msg = msg
+            data.alertSuccess.show = true
+            data.alertSuccess.success = success
+            setTimeout(() => {
+                data.alertSuccess.show = false
+                data.alertSuccess.msg = ''
+            }, 1500);
+        }
+
+        async function getTipoMov() {
+            data.tiposMov = []
+            const result = await data.requestHttp.getCombobox(endPoints.getTipoMov)
+            if (result.code === 200) {
+                result.data.map(item => {
+                  data.tiposMov.push({title: item.nombre, value: item.id})  
+                })
+            }
+        }
+
+        async function getModalidad() {
+            data.modalidades = []
+
+            const result = await data.requestHttp.getCombobox(endPoints.getModalidades)
+            
+            if (result.code === 200) {
+                result.data.map(item => {
+                  data.modalidades.push({title: item.nombre, value: item.id})  
+                })
+            }
+        }
+
+        async function getData() {
+            await Promise.all([
+                getTipoMov(),
+                getModalidad()
+            ])
+        }
+
+        watch(() => props.show, (newValue) => {
+            localShow.value = newValue
+
+            if (newValue) {
+                getData()
+            }
+        })
+
         return {
             localShow,
             localEdit,
@@ -203,68 +277,56 @@ export default {
             localView,
             data,
             token,
-            getConcepto
+            getConcepto,
+            getTipoMov,
+            getModalidad,
+            getData,
+            showSuccesAlert
         }
     },
 
     methods: {
-        async getTipoMov() {
-            this.data.tiposMov = []
-            const result = await this.data.requestHttp.getCombobox(endPoints.getTipoMov)
-            if (result.code === 200) {
-                result.data.map(item => {
-                  this.data.tiposMov.push({title: item.nombre, value: item.id})  
-                })
-            }
-        },
-
-        async getModalidad() {
-            this.data.modalidades = []
-            const result = await this.data.requestHttp.getCombobox(endPoints.getModalidades)
-            if (result.code === 200) {
-                result.data.map(item => {
-                  this.data.tiposMov.push({title: item.nombre, value: item.id})  
-                })
-            }
-        },
-
-        async getData() {
-            await Promise.all([
-                this.getTipoMov(),
-                this.getModalidad()
-            ])
-        },
 
         async handleSave() {
-            this.$refs.form.validate()
-            this.data.movimiento.usuarioRegistro = this.token.usuario
-            const valid = utilsFunctions.objectValidate(this.data.movimiento)
+            const valid = await this.$refs.form.validate()
+            this.data.movimiento.usuarioRegistro = useStore().getNameUser()
             if (!this.localEdit) {
-                if (!valid) {
+                if (!valid.valid) {
+                    this.showSuccesAlert('Complete la información', false)
                     this.data.hide = false
                     setTimeout(() => {
                         this.data.hide = true
                     }, 3000)
-                    alert('Complete la informacion de la orden')
                     return
                 }
+
+                this.data.overlay.show = true
                 const result = await this.data.requestHttp.postMov(this.data.movimiento)
+                this.data.overlay.show = false
     
-                if (result !== null) {
-                    alert('Registro Guardado')
-                    this.$emit('closeDialog', false)
-                    this.localEdit = false
+                if (result.code === 200) {
+                    this.showSuccesAlert('¡Movimiento registrado!', true)
+                    setTimeout(() => {
+                        this.closeDialog()
+                    }, 1500)
                 } else {
-                    alert('No se pudo guardar el registro')
+                    this.showSuccesAlert(`¡Movimiento no registrado. Verifique los datos!`, false)
+                    return
                 }
             } else {
+
+                this.data.overlay.show = true
                 const result = await this.data.requestHttp.putMov(this.data.movimiento, this.data.idMovimiento)
-                if (result !== null) {
-                    alert('Registro Editado')
-                    this.$emit('closeDialog', false)
-                    this.localEdit = false
+                this.data.overlay.show = false
+                
+                if (result.code === 200) {
+                    this.showSuccesAlert('¡Movimiento editado!', true)
+                    setTimeout(() => {
+                        this.closeDialog()
+                    }, 1500)
                 } else {
-                    alert('No se pudo editar el registro')
+                    this.showSuccesAlert('¡No se pudo editar el movimiento!', false)
+                    return
                 }
             }
         },

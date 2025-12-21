@@ -48,7 +48,7 @@
                     {{ param.title }}:
                   </span>
                 </div>
-                <div style="font-size: 10px !important;" class="text-body-3 font-weight-bold">
+                <div style="font-size: 14px !important;" class="text-body-3 font-weight-bold">
                   <strong v-if="param.value === 1">
                     {{ cxc.cliente }}
                   </strong>
@@ -131,6 +131,9 @@
                 </v-btn>
               </template>
               <v-list nav rounded="lg">
+                <v-list-item-subtitle class="pa-1">
+                  Opciones
+                </v-list-item-subtitle>
                 <v-list-item @click="openVisualizarAbonosDisplay(item)" 
                   prepend-icon="mdi-eye">
                   <v-list-item-title>

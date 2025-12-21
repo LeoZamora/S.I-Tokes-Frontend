@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card class="border" elevation="0" rounded="0">
+    <v-card class="border-t border-b" elevation="0">
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <!-- Título -->
@@ -11,22 +11,24 @@
         </div>
       </template>
       <template v-slot:append>
-        <v-btn class="bg-primary rounded" @click="openDialog('create')">
-          <v-icon>mdi-plus</v-icon>
-          <v-tooltip activator="parent" location="left">Nuevo Movimiento</v-tooltip>
+        <v-btn @click="openDialog('create')" variant="tonal" color="indigo-darken-4"
+          prepend-icon="mdi-plus">
+          Nuevo Movimiento
         </v-btn>
       </template>
       <v-divider/>
+
       <v-card-text class="px-0">
+
         <v-row dense class="align-center px-2">
           <v-col cols="12" sm="4" md="4">
             <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details
-                          placeholder="Buscar textos" persistent-placeholder color="indigo"/>
+              placeholder="Buscar textos" persistent-placeholder color="indigo"/>
           </v-col>
           <v-col cols="12" sm="4" md="4">
             <v-autocomplete v-model="search.tipoMov" :items="data.movimientos" density="compact" variant="outlined"
-                            label="Tipos de Movimientos" hide-details
-                            placeholder="movimientos" persistent-placeholder color="indigo"/>
+              label="Tipos de Movimientos" hide-details
+              placeholder="movimientos" persistent-placeholder color="indigo"/>
           </v-col>
           <v-col cols="12" sm="4" md="4" class="d-flex justify-end align-center">
             <v-btn size="small" icon color="green" class="border mx-2" variant="text" @click="getMovs()">
@@ -37,16 +39,18 @@
             </v-btn>
           </v-col>
         </v-row>
+
         <v-divider class="my-2"/>
+
         <v-card-subtitle class="d-flex align-center text-center mb-2">
           <v-divider/>
           <span class="mx-6 text-grey font-weight-bold">Registros</span>
           <v-divider/>
         </v-card-subtitle>
-        <v-data-table :search="data.search" :headers="data.headers" :items="filteredMovimientos" class="border font"
-                      density="compact"
-                      :row-props="setStyle" hover :header-props="{ class: 'font-weight-bold text-uppercase' }"
-                      :loading="data.loading">
+
+        <v-data-table :search="data.search" :headers="data.headers" :items="filteredMovimientos" 
+          class="border-b border-t font" density="compact" :row-props="setStyle" hover 
+          :header-props="{ class: 'font-weight-bold text-uppercase' }" :loading="data.loading">
           <template v-slot:loader>
             <v-progress-linear color="indigo" indeterminate height="2"/>
           </template>
@@ -68,23 +72,42 @@
           <template v-slot:item.aprobada="{ item }">
             <div>{{ item.aprobada ? 'SI' : 'NO' }}</div>
           </template>
+          
           <template v-slot:item.opc="{ item }">
-            <v-tooltip text="Ver" location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" size="small" color="indigo-darken-4"
-                        @click="openDialog('view', item)">
-                  mdi-eye
-                </v-icon>
-              </template>
-            </v-tooltip>
-            <v-tooltip text="Editar" location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" size="small" color="green"
-                        @click="openDialog('edit', item)">
-                  mdi-pencil
-                </v-icon>
-              </template>
-            </v-tooltip>
+              <v-menu :close-on-content-click="false" location="right center"
+                origin="auto">
+                <template v-slot:activator="{ props }">
+                  <v-tooltip text="Opciones" location="top">
+                    <template v-slot:activator="{ props: tooltipProps }">
+                      <v-btn size="small" icon variant="text" color="grey-darken-1"
+                        v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                        <v-icon>mdi-dots-vertical</v-icon>
+                      </v-btn>
+                    </template>
+                  </v-tooltip>
+                </template>
+
+                <v-list nav rounded="lg" >
+                  <v-list-item-subtitle class="pa-1">
+                    Opciones
+                  </v-list-item-subtitle>
+                  <v-list-item rounded density="compact" prepend-icon="mdi-pencil"
+                    color="indigo" @click="openDialog('edit', item)">
+                    <template v-slot:title >
+                        <v-divider vertical />
+                        Editar Movimiento
+                    </template>
+                  </v-list-item>
+
+                  <v-list-item rounded density="compact" prepend-icon="mdi-eye"
+                    color="indigo" @click="openDialog('view', item)">
+                    <template v-slot:title>
+                        <v-divider vertical />
+                        Ver Movimiento
+                    </template>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
           </template>
           <template v-slot:item.estado="{ item }">
             <v-chip :color="item.estado ? 'green' : 'error'" small>
@@ -94,8 +117,9 @@
         </v-data-table>
       </v-card-text>
     </v-card>
+
     <NewMov :show="data.newMov.show" :editar="data.newMov.editar" :title="data.newMov.title"
-            :mov="data.newMov.item" :ver="data.newMov.ver" @closeDialog="closeDialog"/>
+      :mov="data.newMov.item" :ver="data.newMov.ver" @closeDialog="closeDialog"/>
   </div>
 </template>
 
@@ -111,9 +135,11 @@ export default {
     NewMov
   },
 
-  mounted() {
-    this.getMovs()
-    this.getTipoMov()
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.getMovs()
+      vm.getTipoMov()
+    })
   },
 
   setup() {
@@ -134,7 +160,14 @@ export default {
 
     const data = reactive({
       headers: [
-        {title: '', key: 'opc', align: 'center',},
+        {title: '', key: 'opc', align: 'center',
+          headerProps: {
+            class: 'pa-0'
+          },
+          cellProps: {
+            class: 'pa-0'
+          }
+        },
         {title: 'Tipo Mov', key: 'tipoMovimineto', align: 'center'},
         {title: 'Concepto', key: 'conceptoTipoMov', align: 'center'},
         {title: 'Modalidad', key: 'modalidad', align: 'center'},
@@ -193,20 +226,22 @@ export default {
       this.data.movimientos = []
       const result = await this.data.requestHttp.getCombobox(endPoints.getTipoMov)
       if (result.code === 200) {
-        result.map(item => {
+        result.data.map(item => {
           this.data.movimientos.push({title: item.nombre, value: item.id})
         })
       }
     },
 
     async getMovs() {
-      this.data.loading = true
       this.data.items = []
-
+      
+      this.data.loading = true
       const result = await this.data.requestHttp.getMovs()
-      this.data.items = result
-
       this.data.loading = false
+
+      if (result.code === 200) {
+        this.data.items = result.data
+      }
 
       this.data.items.reverse()
     },

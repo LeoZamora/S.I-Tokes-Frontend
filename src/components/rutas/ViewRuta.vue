@@ -1,82 +1,270 @@
 <template>
-    <v-dialog v-model="localShow" max-width="600" persistent>
-        <v-card id="diag-fact">
-            <v-card-title class="bg-indigo-darken-4 d-flex align-center">
-                <h5><v-icon>mdi-file-document-outline</v-icon>ruta</h5>
+    <v-dialog v-model="localShow" max-width="700" persistent>
+        <v-card id="diag-fact" class="rounded" elevation="8">
+            <!-- Header con gradiente y título -->
+            <v-card-title class="pa-5 d-flex align-center" style="background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);">
+                <v-avatar size="44" color="white" class="mr-3" variant="flat">
+                    <v-icon color="#1a237e" size="24">mdi-map-marker-path</v-icon>
+                </v-avatar>
+                <div class="text-white">
+                    <h5 class="text-h6 font-weight-bold mb-1">
+                        VISUALIZACIÓN DE RUTA
+                    </h5>
+                    <div class="text-caption text-grey-lighten-3">
+                        Detalles completos de la configuración
+                    </div>
+                </div>
                 <v-spacer />
-                <v-btn icon size="small" color="white" variant="tonal" @click="closeDialog()">
+                <v-btn icon color="white" variant="text" @click="closeDialog()" size="small">
                     <v-icon>mdi-close</v-icon>
-                    <v-tooltip activator="parent" location="top" text="Cerrar" />
                 </v-btn>
             </v-card-title>
-            <v-divider />
-            <v-card-text id="body-card" >
-                <v-card-subtitle class="d-flex align-center mb-2">
-                    <small class="font-weight-bold">GENERALES</small>
-                    <v-spacer />
-                    <v-chip size="small" :color="data.ruta.estado ? 'green' : 'errror'" :text="data.ruta.estado ? 'Activa' : 'Inactiva'" />
-                </v-card-subtitle>
-                <v-row>
-                    <v-col cols="12" md="12" sm="12">
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey"> Código Ruta:</small>
-                            <small><strong>{{ data.ruta.codigo }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Nombre:</small>
-                            <small><strong>{{ data.ruta.nombre }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Gestor:</small>
-                            <small><strong>{{ data.ruta.gestor }}</strong></small>
-                        </div>
-                        <v-divider class="my-2" />
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Fecha Registro:</small>
-                            <small><strong>{{ formateDate(data.ruta.fechaRegistro) }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Fecha Última Mod:</small>
-                            <small><strong>{{ formateDate(data.ruta.fechaRegistro) }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Usuario Registro:</small>
-                            <small><strong>{{ data.ruta.usuarioRegistro }}</strong></small>
-                        </div>
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <small class="text-grey">Usuario Última Mod:</small>
-                            <small><strong>{{ data.ruta.usuarioUltMod }}</strong></small>
-                        </div>
-                    </v-col>
-                </v-row>
-                <v-card-subtitle class="d-flex align-center text-center my-4">                    
-                    <small class="font-weight-bold">DETALLES</small>
-                    <v-divider/>
-                </v-card-subtitle>
-                <v-row dense>
-                    <v-col cols="12" sm="12" md="12">
-                        <v-data-table class="border rounded font" density="compact" :headers="data.headers" 
-                            :items="data.ruta.coberturasRuta" hide-default-footer :row-props="setStyle" 
-                            :header-props="{ class: 'font-weight-bold text-uppercase' }">
-                        </v-data-table>
-                    </v-col>
-                    <v-col cols="12" md="6" sm="6">
-                        <v-textarea v-model="data.ruta.descripcion" density="compact" variant="outlined" 
-                            hide-details label="Observaciones" placeholder="ingrese algunos detalles de la ruta" 
-                            persistent-placeholder rows="3"/>                        
-                    </v-col>
-                </v-row>
 
+            <v-card-text class="pa-5" style="background-color: #f8f9fa;">
+                <!-- Estado y código de ruta -->
+                <v-card variant="flat" color="white" class="mb-4 pa-4 rounded-lg border" elevation="1">
+                    <div class="d-flex justify-space-between align-center">
+                        <div>
+                            <div class="text-caption text-grey-darken-2 mb-1">
+                                CÓDIGO DE RUTA
+                            </div>
+                            <div class="text-h5 font-weight-bold text-indigo-darken-4">
+                                {{ data.ruta.codigo }}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-caption text-grey-darken-2 mb-1">
+                                ESTADO ACTUAL
+                            </div>
+                            <v-chip :color="data.ruta.estado ? 'green-darken-1' : 'red-darken-1'" 
+                                variant="flat" size="small" class="font-weight-bold">
+                                <v-icon size="small" class="mr-1">
+                                    {{ data.ruta.estado ? 'mdi-check-circle' : 'mdi-close-circle' }}
+                                </v-icon>
+                                {{ data.ruta.estado ? 'ACTIVA' : 'INACTIVA' }}
+                            </v-chip>
+                        </div>
+                    </div>
+                </v-card>
+
+                <!-- Sección GENERALES -->
+                <v-card variant="flat" color="white" class="mb-5 rounded-lg border" elevation="1">
+                    <v-card-title class="pa-4" style="background-color: #e8eaf6;">
+                    <div class="d-flex align-center">
+                        <v-icon color="indigo-darken-3" size="small" class="mr-2">
+                            mdi-information
+                        </v-icon>
+                        <span class="text-subtitle-2 font-weight-bold">
+                            INFORMACIÓN GENERAL
+                        </span>
+                    </div>
+                    </v-card-title>
+                    <v-card-text class="pa-4">
+                    <v-row dense>
+                        <v-col cols="12" md="6">
+                        <div class="mb-4">
+                            <div class="text-caption text-grey-darken-2 mb-1">
+                                NOMBRE DE LA RUTA
+                            </div>
+                            <div class="text-body-1 font-weight-bold">
+                                {{ data.ruta.nombre }}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-caption text-grey-darken-2 mb-1">
+                                GESTOR ASIGNADO
+                            </div>
+                            <div class="text-body-1 font-weight-bold">
+                                {{ data.ruta.gestor }}
+                            </div>
+                        </div>
+                        </v-col>
+                        
+                        <v-col cols="12" md="6">
+                        <v-card variant="outlined" color="indigo-lighten-5" class="pa-3 rounded-lg">
+                            <div class="text-caption text-grey-darken-2 mb-2">
+                                DESCRIPCIÓN
+                            </div>
+                            <div class="text-body-2 text-grey-darken-3">
+                                {{ data.ruta.descripcion || 'Sin descripción registrada' }}
+                            </div>
+                        </v-card>
+                        </v-col>
+                    </v-row>
+                    </v-card-text>
+                </v-card>
+
+                <!-- Sección de REGISTRO -->
+                <v-card variant="flat" color="white" class="mb-5 rounded-lg border" elevation="1">
+                    <v-card-title class="pa-4" style="background-color: #e8eaf6;">
+                    <div class="d-flex align-center">
+                        <v-icon color="indigo-darken-3" size="small" class="mr-2">
+                            mdi-history
+                        </v-icon>
+                        <span class="text-subtitle-2 font-weight-bold">
+                            HISTORIAL DE REGISTRO
+                        </span>
+                    </div>
+                    </v-card-title>
+                    <v-card-text class="pa-4">
+                    <v-row dense>
+                        <v-col cols="12" md="6">
+                        <div class="mb-3">
+                            <div class="d-flex align-center mb-2">
+                                <v-icon color="green" size="small" class="mr-2">
+                                    mdi-calendar-check
+                                </v-icon>
+                                <div class="text-caption text-grey-darken-2">
+                                    FECHA DE REGISTRO
+                                </div>
+                            </div>
+                            <div class="text-body-1 font-weight-medium pl-4">
+                                {{ formateDate(data.ruta.fechaRegistro) }}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex align-center mb-2">
+                            <v-icon color="green" size="small" class="mr-2">mdi-account-check</v-icon>
+                            <div class="text-caption text-grey-darken-2">
+                                USUARIO REGISTRO
+                            </div>
+                            </div>
+                            <div class="text-body-1 font-weight-medium pl-4">
+                                {{ data.ruta.usuarioRegistro }}
+                            </div>
+                        </div>
+                        </v-col>
+                        
+                        <v-col cols="12" md="6">
+                        <div class="mb-3">
+                            <div class="d-flex align-center mb-2">
+                            <v-icon color="blue" size="small" class="mr-2">
+                                mdi-calendar-sync
+                            </v-icon>
+                            <div class="text-caption text-grey-darken-2">
+                                ÚLTIMA MODIFICACIÓN
+                            </div>
+                            </div>
+                            <div class="text-body-1 font-weight-medium pl-4">
+                                {{ formateDate(data.ruta.fechaRegistro) }}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex align-center mb-2">
+                                <v-icon color="blue" size="small" class="mr-2">
+                                    mdi-account-sync
+                                </v-icon>
+                                <div class="text-caption text-grey-darken-2">
+                                    USUARIO ÚLTIMA MOD.
+                                </div>
+                            </div>
+                            <div class="text-body-1 font-weight-medium pl-4">
+                                {{ data.ruta.usuarioUltMod }}
+                            </div>
+                        </div>
+                        </v-col>
+                    </v-row>
+                    </v-card-text>
+                </v-card>
+
+                <!-- Sección de COBERTURAS -->
+                <v-card variant="flat" class="rounded-lg overflow-hidden border" elevation="2">
+                    <v-card-title class="pa-4" style="background-color: #e8eaf6;">
+                        <div class="d-flex align-center justify-space-between w-100">
+                            <div class="d-flex align-center">
+                                <v-icon color="indigo-darken-3" size="small" class="mr-2">mdi-map-legend</v-icon>
+                                <span class="text-subtitle-2 font-weight-bold">COBERTURAS ASIGNADAS</span>
+                            </div>
+                            <v-chip size="small" color="indigo" variant="flat">
+                                {{ data.ruta.coberturasRuta.length || 0 }} ubicaciones
+                            </v-chip>
+                        </div>
+                    </v-card-title>
+                    
+                    <v-data-table 
+                        class="elevation-0"
+                        density="comfortable" 
+                        :headers="data.headers" 
+                        :items="data.ruta.coberturasRuta"
+                        hide-default-footer
+                        :row-props="setStyle"
+                        :header-props="{
+                            class: 'text-uppercase font-weight-bold bg-indigo-lighten-5'
+                        }"
+                        >
+                        <template v-slot:no-data>
+                            <div class="pa-6 text-center">
+                                <v-icon size="large" color="grey-lighten-1" class="mb-3">mdi-map-outline</v-icon>
+                                <div class="text-body-1 text-grey mb-1">
+                                    No hay coberturas registradas
+                                </div>
+                                <div class="text-caption text-grey">
+                                    Esta ruta no tiene ubicaciones asignadas
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <template v-slot:item.actions="{ }">
+                            <v-icon size="small" color="indigo">mdi-map-marker</v-icon>
+                        </template>
+                    </v-data-table>
+                </v-card>
+
+                <!-- Observaciones -->
+                <v-card variant="flat" color="white" class="mt-4 rounded-lg border" elevation="1">
+                    <v-card-title class="pa-3" style="background-color: #f5f5f5;">
+                        <div class="d-flex align-center">
+                            <v-icon color="grey-darken-2" size="small" class="mr-2">mdi-text-box-outline</v-icon>
+                            <span class="text-subtitle-2 font-weight-bold">OBSERVACIONES</span>
+                        </div>
+                    </v-card-title>
+                    <v-card-text class="pa-4">
+                        <v-textarea 
+                            v-model="data.ruta.descripcion" 
+                            density="compact" 
+                            variant="plain" 
+                            hide-details 
+                            label="Detalles adicionales"
+                            placeholder="No hay observaciones registradas"
+                            persistent-placeholder 
+                            rows="3"
+                            auto-grow
+                            readonly
+                            bg-color="grey-lighten-5"
+                            class="rounded-lg"
+                        />
+                    </v-card-text>
+                </v-card>
             </v-card-text>
 
-            <v-divider/>
-            <v-card-actions>
-                <v-btn color="grey" variant="outlined" @click="closeDialog()">
-                    Cerrar
-                </v-btn>
+            <!-- Footer -->
+            <v-divider thickness="2" />
+            <v-card-actions class="pa-4 bg-white">
+            <v-btn 
+                color="grey-darken-2" 
+                variant="outlined" 
+                @click="closeDialog()"
+                class="px-5"
+                rounded="lg"
+                prepend-icon="mdi-close-circle"
+            >
+                Cerrar Vista
+            </v-btn>
+            
+            <v-spacer />
+            
+            <v-chip 
+                v-if="data.ruta.estado" 
+                color="green-lighten-5" 
+                variant="outlined" 
+                class="px-3"
+            >
+                <v-icon size="small" color="green" class="mr-1">mdi-check</v-icon>
+                Ruta operativa
+            </v-chip>
             </v-card-actions>
         </v-card>
-    </v-dialog>
+        </v-dialog>
 </template>
 
 <script>

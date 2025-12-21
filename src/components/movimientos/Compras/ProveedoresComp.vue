@@ -1,112 +1,266 @@
 <template>
     <div>
-        <v-card elevation="0" class="border" rounded="0">
+        <v-card elevation="0" class="border-t border-b" rounded="0">
             <template v-slot:prepend>
                 <div class="d-flex align-center">
                 <!-- Título -->
                     <div class="font-weight-bold d-flex align-center">
                         <v-icon class="me-2" color="primary">mdi-package-variant</v-icon>
-                        <small v-if="isMobile">Gestión de Proveedores</small>
-                        <span v-else class="text-h6 font-weight-bold">Gestión de Proveedores</span>
+                        <small v-if="isMobile">
+                            Gestión de Proveedores
+                        </small>
+                        <span v-else class="text-h6 font-weight-bold">
+                            Gestión de Proveedores
+                        </span>
                     </div>
                 </div>
             </template>
             <template v-slot:append>
-                <v-btn icon color="primary" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
-                    <v-icon>mdi-account-plus</v-icon>
-                    <v-tooltip activator="parent" location="left">Agregar Tipo Proveedores</v-tooltip> 
+                <v-btn v-if="data.wind === 1" class="rounded" @click="openDialog('prov', 'create', null)"
+                    prepend-icon="mdi-account-plus" color="indigo-darken-4" variant="tonal">
+                    NUEVO PROVEEDOR
                 </v-btn>
-                <v-btn class="bg-primary rounded" @click="openDialog('prov', 'create', null)">
-                    <v-icon>mdi-plus</v-icon>
-                    <v-tooltip activator="parent" location="left">Agregar Proveedores</v-tooltip> 
+                <v-btn v-if="data.wind === 2" class="rounded" @click="openDialog('tipo', 'create', null)"
+                    prepend-icon="mdi-account-plus" color="indigo-darken-4" variant="tonal">
+                    NUEVO T. DE PROVEEDOR
                 </v-btn>
             </template>
             <v-divider />
-            <v-card-text class="py-2 px-0">
-                <v-row dense class="px-0" style="margin: 0;">
-                    <v-col cols="6" sm="6" md="6">
-                        <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" hide-details placeholder="Buscar textos" persistent-placeholder/>
+            <v-card-text class="py-2">
+                <!-- SEGUNDA FILA: OPCIONES DE VISUALIZACIÓN -->
+                <v-row dense class="mt-3 pa-2 bg-grey-lighten-4 rounded" justify="space-between">
+                    <v-col cols="12" md="6" sm="6">
+                        <div class="d-flex align-center justify-space-between">
+                            <div class="d-flex align-center">
+                                <v-icon size="small" class="mr-2" color="primary">
+                                    mdi-view-dashboard
+                                </v-icon>
+                                <span class="text-subtitle-2">
+                                    Seleccionar: 
+                                </span>
+                            </div>
+                            
+                            <v-btn-toggle v-model="data.wind" color="primary"
+                                density="comfortable" mandatory rounded="lg">
+                                <v-btn :value="1" variant="flat">
+                                    <v-icon start>mdi-account</v-icon>
+                                    Proveedores
+                                </v-btn>
+                                
+                                <v-btn :value="2" variant="flat">
+                                    <v-icon start>mdi-account-tie</v-icon>
+                                    T. Proveedores
+                                </v-btn>
+                            </v-btn-toggle>
+                        </div>
                     </v-col>
-                    <v-col cols="6" md="6" sm="6" class="d-flex justify-end align-center">
-                        <v-btn icon color="green" size="small" variant="text" class="mr-2 border" @click="refreshData()">
-                            <v-icon>mdi-refresh</v-icon>
-                        </v-btn>
-                        <v-btn icon color="grey" size="small" variant="text" class="border">
-                            <v-icon>mdi-broom</v-icon>
+                    <v-col cols="12" md="3" sm="3" class="d-flex justify-space-between align-center">
+                        <v-text-field v-model="data.search" density="compact" variant="outlined" label="Buscar" 
+                            hide-details placeholder="Buscar textos" persistent-placeholder/>
+                        <v-btn icon size="small" class="mx-2 border" @click="refreshData()">
+                            <v-icon color="grey">mdi-refresh</v-icon>
+                            <v-tooltip activator="parent" location="top center">
+                                Actualizar
+                            </v-tooltip>
                         </v-btn>
                     </v-col>
                 </v-row>
-                <v-row dense class="w-100">
-                </v-row>
-                <v-card-subtitle class="d-flex align-center text-center mb-2">
-                    <v-divider /> 
-                    <span class="mx-6 text-grey font-weight-bold">Proveedores</span>
-                    <v-divider />
-                </v-card-subtitle>
-                <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border" :headers="data.headers" density="compact" :items="data.items">
-                    <template v-slot:item.fechaRegistro="{ item }">
-                        <div>{{ formateDate(item.fechaRegistro) }}</div>
-                    </template>
-                    <template v-slot:item.tipoProveedor="{ item }">
-                        <div>{{ item.idTipoProveedorNavigation.nombre }}</div>
-                    </template>
-                    <template v-slot:item.opc="{ item }">
-                        <v-tooltip text="Editar" location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="green" @click="openDialog('prov', 'edit', item)" class="mr-1" >mdi-pencil</v-icon>
-                            </template>
-                        </v-tooltip>
-                        
-                        <v-tooltip text="Eliminar" location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="error" @click="showAlert(item)" class="mr-1">mdi-delete</v-icon>
-                            </template>
-                        </v-tooltip>
 
-                        <v-tooltip text="Ver" location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialog('prov', 'view', item)">mdi-eye</v-icon>
+                <v-window v-model="data.wind">
+                    <v-window-item :value="1">
+                        <v-card-subtitle class="d-flex align-center text-center my-2">
+                            <v-divider /> 
+                            <span class="mx-6 text-grey font-weight-bold">Proveedores</span>
+                            <v-divider />
+                        </v-card-subtitle>
+                        <v-data-table :loading="data.loading" :search="data.search" class="border" 
+                            :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle" 
+                            :header-props="{ class: 'font-weight-bold' }" hover>
+                            <template v-slot:loader>
+                                <v-progress-linear
+                                    color="indigo"
+                                    indeterminate
+                                    height="2"
+                                />
                             </template>
-                        </v-tooltip>
-                    </template>
-                    <template v-slot:item.estado="{ item }">
-                        <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
-                    </template>
-                </v-data-table>
-                <v-card-subtitle class="d-flex align-center text-center my-2">
-                    <v-divider /> 
-                    <span class="mx-6 text-grey font-weight-bold">Tipo de Proveedores</span>
-                    <v-divider />
-                </v-card-subtitle>
-                <v-data-table :loading="data.loadingTipo" :search="data.search" :mobile="isMobile" class="border" :headers="data.headersTipoProv" density="compact" :items="data.itemsTipoProv">
-                    <template v-slot:item.fechaRegistro="{ item }">
-                        <div>{{ formateDate(item.fechaRegistro) }}</div>
-                    </template>
-                    <template v-slot:item.opc="{ item }">
-                        <v-tooltip text="Editar" location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="green" @click="openDialog('tipo', 'edit', item)" class="mr-1" >mdi-pencil</v-icon>
-                            </template>
-                        </v-tooltip>
-                        
-                        <v-tooltip text="Eliminar" location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" @click="showAlert(item)" color="error" class="mr-1">mdi-delete</v-icon>
-                            </template>
-                        </v-tooltip>
 
-                        <v-tooltip text="Ver" location="top">
-                            <template v-slot:activator="{ props }">
-                                <v-icon v-bind="props" size="small" color="indigo-darken-4" @click="openDialog('tipo', 'view', item)">mdi-eye</v-icon>
+                            <template v-slot:loading>
+                                <v-skeleton-loader
+                                    type="table-row@10"
+                                ></v-skeleton-loader>
                             </template>
-                        </v-tooltip>
-                    </template>
-                    <template v-slot:item.estado="{ item }">
-                        <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
-                    </template>
-                </v-data-table>
+
+                            <template v-slot:item.fechaRegistro="{ item }">
+                                <div>{{ formateDate(item.fechaRegistro) }}</div>
+                            </template>
+                            <template v-slot:item.tipoProveedor="{ item }">
+                                <div>{{ item.idTipoProveedorNavigation.nombre }}</div>
+                            </template>
+                            <template v-slot:item.opc="{ item }">
+
+                                <v-menu location="right center" :close-on-content-click="false" origin="auto">
+                                    <template v-slot:activator="{ props }">
+                                        <v-tooltip text="Opciones" location="top">
+                                            <template v-slot:activator="{ props: tooltipProps }">
+                                                <v-btn size="small" icon variant="text" color="grey-darken-1"
+                                                    v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                                                    <v-icon>mdi-dots-vertical</v-icon>
+                                                </v-btn>
+                                            </template>
+                                        </v-tooltip>
+                                    </template>
+                                    <v-list nav rounded="lg" density="compact">
+                                        <v-list-item-subtitle class="pa-1">
+                                            Opciones
+                                        </v-list-item-subtitle>
+                                        <v-list-item @click="openDialog('prov', 'edit', item)" 
+                                            prepend-icon="mdi-pencil">
+                                            <v-list-item-title>Editar</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item @click="showAlert(item)" prepend-icon="mdi-delete">
+                                            <v-list-item-title>Eliminar</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item @click="openDialog('prov', 'view', item)"
+                                            prepend-icon="mdi-eye">
+                                            <v-list-item-title>Ver</v-list-item-title>
+                                        </v-list-item>
+                                    </v-list>
+                                </v-menu>
+
+                                <!-- <v-tooltip text="Editar" location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon v-bind="props" size="small" color="green" 
+                                            @click="openDialog('prov', 'edit', item)" class="mr-1" >
+                                            mdi-pencil
+                                        </v-icon>
+                                    </template>
+                                </v-tooltip>
+                                
+                                <v-tooltip text="Eliminar" location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon v-bind="props" size="small" color="error" @click="showAlert(item)" 
+                                            class="mr-1">
+                                        mdi-delete
+                                        </v-icon>
+                                    </template>
+                                </v-tooltip>
+
+                                <v-tooltip text="Ver" location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon v-bind="props" size="small" color="indigo-darken-4" 
+                                            @click="openDialog('prov', 'view', item)">
+                                            mdi-eye
+                                        </v-icon>
+                                    </template>
+                                </v-tooltip> -->
+                            </template>
+                            <template v-slot:item.estado="{ item }">
+                                <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
+                            </template>
+                        </v-data-table>
+                    </v-window-item>
+
+                    <v-window-item :value="2">
+                        <v-card-subtitle class="d-flex align-center text-center my-2">
+                            <v-divider /> 
+                            <span class="mx-6 text-grey font-weight-bold">
+                                Tipo de Proveedores
+                            </span>
+                            <v-divider />
+                        </v-card-subtitle>
+                        <v-data-table :loading="data.loadingTipo" :search="data.search" class="border" 
+                            :headers="data.headersTipoProv" density="compact" :items="data.itemsTipoProv"
+                            :row-props="setStyle" :header-props="{ class: 'font-weight-bold' }" hover>
+
+                            <template v-slot:loader>
+                                <v-progress-linear
+                                    color="indigo"
+                                    indeterminate
+                                    height="2"
+                                />
+                            </template>
+
+                            <template v-slot:loading>
+                                <v-skeleton-loader
+                                    type="table-row@10"
+                                ></v-skeleton-loader>
+                            </template>
+
+                            <template v-slot:item.fechaRegistro="{ item }">
+                                <div>{{ formateDate(item.fechaRegistro) }}</div>
+                            </template>
+                            <template v-slot:item.opc="{ item }">
+                                <v-menu location="right center" :close-on-content-click="false" origin="auto">
+                                    <template v-slot:activator="{ props }">
+                                        <v-tooltip text="Opciones" location="top">
+                                            <template v-slot:activator="{ props: tooltipProps }">
+                                                <v-btn size="small" icon variant="text" color="grey-darken-1"
+                                                    v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                                                    <v-icon>mdi-dots-vertical</v-icon>
+                                                </v-btn>
+                                            </template>
+                                        </v-tooltip>
+                                    </template>
+                                    <v-list nav rounded="lg" density="compact">
+                                        <v-list-item-subtitle class="pa-1">
+                                            Opciones
+                                        </v-list-item-subtitle>
+                                        <v-list-item @click="openDialog('tipo', 'edit', item)"
+                                            prepend-icon="mdi-pencil">
+                                            <v-list-item-title>Editar</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item @click="showAlert(item)" prepend-icon="mdi-delete">
+                                            <v-list-item-title>Eliminar</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item @click="openDialog('tipo', 'view', item)"
+                                            prepend-icon="mdi-eye">
+                                            <v-list-item-title>Ver</v-list-item-title>
+                                        </v-list-item>
+                                    </v-list>
+                                </v-menu>
+
+                                <!-- <v-tooltip text="Editar" location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon v-bind="props" size="small" color="green" @click="openDialog('tipo', 'edit', item)" 
+                                            class="mr-1" >
+                                            mdi-pencil
+                                        </v-icon>
+                                    </template>
+                                </v-tooltip>
+                                
+                                <v-tooltip text="Eliminar" location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon v-bind="props" size="small" @click="showAlert(item)" color="error" 
+                                            class="mr-1">
+                                            mdi-delete
+                                        </v-icon>
+                                    </template>
+                                </v-tooltip>
+
+                                <v-tooltip text="Ver" location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon v-bind="props" size="small" color="indigo-darken-4" 
+                                            @click="openDialog('tipo', 'view', item)">
+                                            mdi-eye
+                                        </v-icon>
+                                    </template>
+                                </v-tooltip> -->
+                            </template>
+                            <template v-slot:item.estado="{ item }">
+                                <v-chip :color="item.estado ? 'green' : 'error'" :text="item.estado ? 'Activo' : 'Inactivo'"/>
+                            </template>
+                        </v-data-table>
+                    </v-window-item>
+                </v-window>
+
             </v-card-text>
         </v-card>
+
+        <SuccessAlert 
+            :success="data.alertSuccess.success" 
+            :msg="data.alertSuccess.msg" 
+            :show="data.alertSuccess.show" 
+        />
 
         <NewProveedor :show="data.newProv.show" :editar="data.newProv.editar" :title="data.newProv.title" 
             :prov="data.newProv.item" :ver="data.newProv.ver" @closeDialog="closeDialog"/>
@@ -123,17 +277,21 @@ import NewProveedor from './dialogsCompras/NewProveedor.vue';
 import NewTipoProv from './dialogsCompras/NewTipoProv.vue';
 import RequestHttp from '@/services/requestHttp';
 import AlertComp from '@/components/widgets/AlertaAction.vue';
+import SuccessAlert from '@/components/widgets/SuccessAlert.vue';
 
 export default {
-    mounted() {
-        this.getProveedores()
-        this.getTipoProveedores()
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            vm.getProveedores()
+            vm.getTipoProveedores()
+        })
     },
 
     components: {
         NewProveedor,
         NewTipoProv,
-        AlertComp
+        AlertComp,
+        SuccessAlert
     },
 
     setup() {
@@ -151,7 +309,10 @@ export default {
 
         const data = reactive({
             headers: [
-                {title: '', key: 'opc', align: 'center'},
+                {title: '', key: 'opc', align: 'center',
+                    headerProps: { class: 'pa-0' },
+                    cellProps: { class: 'pa-0' }
+                },
                 {title: 'Proveedor', key: 'nombre', align: 'center'},
                 {title: 'T. Proveedor', key: 'tipoProveedor', align: 'center'},
                 {title: 'Departamento', key: 'departamento', align: 'center'},
@@ -161,7 +322,10 @@ export default {
             ],
             items: [],
             headersTipoProv: [
-                {title: '', key: 'opc', align: 'center'},
+                {title: '', key: 'opc', align: 'center', 
+                    headerProps: { class: 'pa-0' },
+                    cellProps: { class: 'pa-0' }
+                },
                 {title: 'Tipo Proveedor', key: 'nombre', align: 'center'},
                 {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
                 {title: 'Observaciones', key: 'observaciones', align: 'center'},
@@ -182,6 +346,15 @@ export default {
                 title: '',
                 item: {}
             },
+
+            // ALERT SUCCESS
+            alertSuccess: {
+                show: false,
+                msg: '',
+                success: false,
+            },
+
+            wind: 1,
             selectedItem: null,
             search: null,
             menuDesde: false,
@@ -192,13 +365,31 @@ export default {
             requestHttp: new RequestHttp()
         })
 
+        function showSuccesAlert(msg, success = true) {
+            data.alertSuccess.msg = msg
+            data.alertSuccess.show = true
+            data.alertSuccess.success = success
+            setTimeout(() => {
+                data.alertSuccess.show = false
+                data.alertSuccess.msg = ''
+            }, 1500);
+        }
+
+
         return {
             isMobile,
-            data
+            data,
+            showSuccesAlert
         }
     },
 
     methods: {
+        setStyle({index}) {
+            return {
+                class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',
+            }
+        },
+
         async getProveedores() {
             this.data.items = []
             this.data.loading = true
@@ -279,24 +470,23 @@ export default {
         },
 
         async deleteItem() {
-            console.log(this.data.selectedItem);
-            
             if (this.data.selectedItem.idProveedor) {
                 const result = await this.data.requestHttp.deleteProveedor(this.data.selectedItem.idProveedor)
-                if (result !== null) {
-                    alert('Proveedor Eliminado')
+                if (result.code === 200) {
+                    this.showSuccesAlert('¡Registro Eliminado!', true)
                     this.getProveedores()
                 } else {
-                    alert('No se pudo eliminar el registro')
+                    this.showSuccesAlert('Hubo un problema al eliminar el registro', false)
+                    return
                 }
             } else {
-                
                 const result = await this.data.requestHttp.deleteTipoProveedor(this.data.selectedItem.idTipoProveedor)
-                if (result !== null) {
-                    alert('Registro Eliminado')
+                if (result.code === 200) {
+                    this.showSuccesAlert('¡Registro Eliminado!', true)
                     this.getTipoProveedores()
                 } else {
-                    alert('No se pudo eliminar el registro')
+                    this.showSuccesAlert('Hubo un problema al eliminar el registro', false)
+                    return
                 }
             }
         },
