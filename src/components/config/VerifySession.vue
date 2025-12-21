@@ -3,12 +3,20 @@
         <LoaderComp v-show="loader.show" :data="loader.msg"/>
         <v-dialog v-model="internalShow" max-width="420" persistent>
             <v-card class="type-font" rounded="lg" elevation="6">
-                <v-card-title class="text-h6 font-weight-bold">
-                    Sesión expirada
+                <v-card-title class="d-flex text-h6 font-weight-bold">
+                    <span>
+                        Sesión expirada
+                    </span>
+                    <v-spacer />
+                    <img src="/32px.png" style="width: 80px"/>
                 </v-card-title>
-                <v-card-text class="text-body-2 text-medium-emphasis">
-                    Su sesión ha caducado.  
-                    ¿Desea restablecerla para continuar trabajando?
+                <v-card-text class="d-flex flex-column text-center text-body-2 text-medium-emphasis">
+                    <span>
+                        Su sesión ha caducado.  
+                    </span>
+                    <span>
+                        ¿Desea restablecerla para continuar trabajando?
+                    </span>
                 </v-card-text>
                 <v-card-actions class="d-flex justify-end">
                     <v-btn variant="text" color="grey-darken-1" @click="logout">
@@ -239,8 +247,6 @@ export default {
 
         async authLogin(){
             const valid = await this.$refs.form.validate();
-            console.log(valid);
-            
 
             if(!valid.valid){
                 this.data.errorMsg = 'Todos los campos son obligatorios';

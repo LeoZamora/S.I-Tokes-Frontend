@@ -305,9 +305,8 @@ export default {
                     alert('No se pudo eliminar el registro')
                 }
             } else if(this.data.selectedItem.tipo === 'Sub Categoría') {
-                console.log(this.data.selectedItem.idSubCatProd);
+                
                 const result = await this.data.requestHttp.deleteSubCategorias(this.data.selectedItem.idSubCatProd)
-                console.log(result);
                 
                 if (result !== null) {
                     alert('Sub Categoría Eliminado')

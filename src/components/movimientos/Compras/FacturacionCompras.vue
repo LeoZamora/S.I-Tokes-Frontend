@@ -129,7 +129,7 @@
                                 <v-list-item @click="viewOrden(item)" prepend-icon="mdi-eye">
                                     <v-list-item-title>Ver Compra</v-list-item-title>
                                 </v-list-item>
-                                <v-list-item v-if="data.crud.edit" @click="editOrden(item)"
+                                <v-list-item v-if="hasAccessToFunct('33')" @click="editOrden(item)"
                                     prepend-icon="mdi-pencil">
                                     <v-list-item-title>Editar Compra</v-list-item-title>
                                 </v-list-item>
@@ -179,6 +179,7 @@
         </v-card>
         <NuevaFacturaCompras :show="data.compra.show" :editar="data.compra.editar" :title="data.compra.title" 
             :orden="data.compra.item" @closeDialog="closeDialog" @refreshTable="getOrdenes()"/>
+            
         <ViewOrdenes :show="data.viewOrden.show" :orden="data.viewOrden.item" @closeDialog="closeDialog"/>
         <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
     </div>
@@ -192,6 +193,7 @@ import NuevaFacturaCompras from './dialogsCompras/NuevaFacturaCompras.vue';
 import ViewOrdenes from './dialogsCompras/ViewOrdenes.vue';
 import RequestHttp from '@/services/requestHttp';
 import { useStore } from '@/store';
+import { hasAccessToFunct } from '@/scripts/Seguridad';
 
 export default {
     // mounted() {
@@ -275,6 +277,8 @@ export default {
     },
 
     methods: {
+        hasAccessToFunct,
+
         setStyle({index}) {
             return {
                 class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5',
@@ -326,7 +330,6 @@ export default {
 
         createOrden() {
             this.data.compra.show = true
-            this.data.compra.editar = false
             this.data.compra.title = 'NUEVA ORDEN DE COMPRA'
         },
 

@@ -69,7 +69,7 @@
                         </span>
 
                         <v-tooltip activator="parent" location="top center">
-                            Cambiar a {{ data.orden.aprobada ? 'Aprobada' : 'Pendiente' }}
+                            {{ data.orden.aprobada ? 'No aprobar compra' : 'Aprobar compra' }}
                         </v-tooltip>
                     </template>
                 </v-chip>
@@ -251,7 +251,9 @@
                               @click="deleteProduct(item)"
                           >
                               <v-icon size="20">mdi-trash-can-outline</v-icon>
-                              <v-tooltip activator="parent" location="top">Eliminar</v-tooltip>
+                              <v-tooltip activator="parent" location="top">
+                                Eliminar
+                              </v-tooltip>
                           </v-btn>
                         </template>
                         
@@ -461,13 +463,25 @@ export default {
     }
 
     watch(
+      () => props.orden,
+      (val) => {
+        localOrden.value = val
+      }, { deep: true }
+    )
+    watch(
+      () => props.title,
+      (val) => {
+        localTitle.value = val
+      }
+    )
+
+    watch(
       () => props.show,
       (newValue) => {
         localShow.value = newValue
         if (newValue) {
-          data.orden.usuarioRegistro = JSON.parse(
-            localStorage.getItem('token')
-          ).usuario
+          data.orden.usuarioRegistro = store.getNameUser()
+          
           getCodigoRecomendado()
           getProveedores()
         }
@@ -477,10 +491,10 @@ export default {
       () => props.editar,
       async (val) => {
         localEdit.value = val
-        if (val === true) {
+        if (val) {
           try {
             data.overlay.show = true
-            const result = await data.requestHttp.getByIdCompra(localOrden.value.idCompra)
+            const result = await data.requestHttp.getByIdCompra(props.orden.idCompra)
             
             data.idOrden = result.idCompra
             data.orden.idProveedor = result.idProveedor
@@ -519,18 +533,6 @@ export default {
             showAlert(2, 'No se pudo cargar la factura', 'error')
           }
         }
-      }
-    )
-    watch(
-      () => props.orden,
-      (val) => {
-        localOrden.value = val
-      }
-    )
-    watch(
-      () => props.title,
-      (val) => {
-        localTitle.value = val
       }
     )
 
@@ -775,8 +777,6 @@ export default {
 
     async guardarFactura() {
       this.$refs.form.validate()
-      const token = this.store.getInfoUser()
-      this.data.orden.usuarioRegistro = token.usuario
 
       if (this.data.items.length === 0) {
         this.showAlert(3, 'Agregue productos a la factura', 'warning')
@@ -786,8 +786,7 @@ export default {
       if (!this.localEdit) {
         if (
           !this.data.orden.noOrden ||
-          !this.data.orden.idProveedor ||
-          !this.data.orden.usuarioRegistro
+          !this.data.orden.idProveedor
         ) {
           this.showAlert(2, 'Complete la información de venta', 'warning')
           return
@@ -822,8 +821,7 @@ export default {
       } else {
         if (
           !this.data.orden.noOrden ||
-          !this.data.orden.idProveedor ||
-          !this.data.orden.usuarioRegistro
+          !this.data.orden.idProveedor
         ) {
           this.showAlert(2, 'Complete la información de venta', 'warning')
           return
@@ -874,6 +872,8 @@ export default {
 
     closeDialog() {
       this.$emit('closeDialog', false)
+      this.localShow = false
+      this.localEdit = false
       this.data.factura.subTotal = 0
       this.data.factura.total = 0
       this.data.factura.usdTotal = 0

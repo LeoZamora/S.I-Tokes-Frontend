@@ -294,7 +294,23 @@
                   <div class="text-body-1 text-grey mb-1">No hay ajustes registrados</div>
                   <div class="text-caption text-grey">Este producto no tiene historial de ajustes</div>
                 </div>
-              </template>
+      
+          <v-tooltip text="Ajustes Stock" location="top">
+            <template
+              v-slot:activator="{ props }"
+            >
+              <v-icon
+                v-bind="props"
+                size="small"
+                color="grey"
+                class="mr-1"
+                @click="loadVerAjustesStockDisplay(item)"
+              >
+                mdi-history
+              </v-icon>
+            </template>
+          </v-tooltip>
+        </template>
             </v-data-table>
           </v-card>
 
@@ -386,6 +402,41 @@
         <v-card-actions class="justify-end">
           <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">Cancelar</v-btn>
           <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">Ajustar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="display.verAjusteStock" width="550">
+      <v-card>
+        <v-card-item>
+          <v-row>
+            <v-col>
+              <v-card-title>Ajustes de stock realizados</v-card-title>
+              <v-card-subtitle>{{ verAjusteStock.producto }}</v-card-subtitle>
+            </v-col>
+            <v-col>
+
+            </v-col>
+            <v-col class="d-flex justify-end">
+              <v-chip color="primary">Stock Actual: {{ verAjusteStock.cantidadTotal }}</v-chip>
+            </v-col>
+          </v-row>
+        </v-card-item>
+        <v-divider></v-divider>
+        <v-card-text>
+          <v-data-table
+            :headers="verAjusteStock.tbl.headers"
+            :items="verAjusteStock.tbl.items"
+            class="border"
+          >
+            <template v-slot:item.fechaRegistro="{ item }">
+              {{ this.formatDate(item.fechaRegistro) }}
+            </template>
+          </v-data-table>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="justify-end">
+          <v-btn color="primary" variant="elevated" @click="display.verAjusteStock = false">Ok</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -718,7 +769,7 @@
                             prepend-inner-icon="mdi-numeric"
                             readonly
                         >
-                        <template v-slot:prepend>
+                          <template v-slot:prepend>
                             <v-btn
                               @click="loadAjusteStockDisplay"
                               color="secondary"
@@ -728,6 +779,60 @@
                             </v-btn>
                           </template>
                         </v-text-field>
+                        <v-dialog v-model="display.ajusteStock" width="300">
+                          <v-card>
+                            <v-card-item>
+                              <v-card-title>Ajustar stock</v-card-title>
+                              <v-card-subtitle>
+                                {{ ajusteStock.producto }}
+                              </v-card-subtitle>
+                            </v-card-item>
+                            <v-divider></v-divider>
+                            <v-card-text>
+                              <v-form ref="formAjusteStock">
+                                <v-row dense>
+                                  <v-col cols="12">
+                                    <v-text-field
+                                      v-model="ajusteStock.data.cantidadTotal"
+                                      label="Nuevo stock:"
+                                      color="indigo"
+                                      variant="outlined"
+                                      density="compact"
+                                      type="number"
+                                      prepend-inner-icon="mdi-numeric"
+                                      :rules="[
+                                      v => !!v || 'Requerido.'
+                                    ]"
+                                    >
+
+                                    </v-text-field>
+                                  </v-col>
+                                  <v-col cols="12">
+                                    <v-textarea
+                                      v-model="ajusteStock.data.observaciones"
+                                      label="Motivo del ajuste:"
+                                      color="indigo"
+                                      variant="outlined"
+                                      density="compact"
+                                      rows="2"
+                                      auto-grow
+                                      :rules="[
+                                        v => !!v || 'Requerido.'
+                                      ]"
+                                    >
+
+                                    </v-textarea>
+                                  </v-col>
+                                </v-row>
+                              </v-form>
+                            </v-card-text>
+                            <v-divider></v-divider>
+                            <v-card-actions class="justify-end">
+                              <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">Cancelar</v-btn>
+                              <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">Ajustar</v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
                       </v-col>
                     </v-row>
 
@@ -1332,8 +1437,7 @@ export default {
         numeric: (key) =>
             !isNaN(parseFloat(key)) ||
             'Debe ser un número válido'
-      },
-      snackbar: useSnackbar(),
+      }
     }
   },
 
@@ -1393,7 +1497,6 @@ export default {
       }
       catch(err) {
         this.snackbar.notify('error', 'Ocurrió un error al realizar el ajuste de stock, contacte al administrador.')
-        console.log(err)
         this.ajusteStock.loading = false
       }
     },
@@ -1403,6 +1506,62 @@ export default {
         this.verAjusteStock.producto = item.nombre
         this.verAjusteStock.cantidadTotal = item.cantidadTotal
         this.verAjusteStock.tbl.items = []
+        const items = await httpGet(`api/producto/${item.idProducto}/ajustes-stock`)
+        this.verAjusteStock.tbl.items = items
+        this.display.verAjusteStock = true
+      } catch (e) {
+
+      }
+    },
+
+
+    loadAjusteStockDisplay(){
+      this.display.ajusteStock = true
+      this.ajusteStock.data.idProducto = this.data.form.idProducto
+      this.ajusteStock.producto = this.data.form.nombre
+    },
+
+    closeAjusteStockDisplay(){
+      this.display.ajusteStock = false
+      this.ajusteStock.data.cantidadTotal = 0
+      this.ajusteStock.data.observaciones = ''
+      this.ajusteStock.data.idproducto = 0
+    },
+
+    async saveAjusteStockDisplay(){
+      const validation = await this.$refs.formAjusteStock.validate()
+
+      if(!validation.valid){
+        this.snackbar.notify('error', 'Rellene los campos requeridos.')
+        return
+      }
+
+      this.ajusteStock.loading = true
+      try {
+        this.ajusteStock.data.usuarioRegistro = this.token.usuario
+        await httpPut(
+          `api/producto/${this.ajusteStock.data.idProducto}/cantidad-total`,
+          this.ajusteStock.data
+        )
+
+        this.snackbar.notify('success', 'Ajuste de stock realizado.')
+
+        this.ajusteStock.loading = false
+
+        this.data.form.cantidadTotal = this.ajusteStock.data.cantidadTotal
+        this.closeAjusteStockDisplay()
+      }
+      catch(err) {
+        this.snackbar.notify('error', 'Ocurrió un error al realizar el ajuste de stock, contacte al administrador.')
+        console.log(err)
+        this.ajusteStock.loading = false
+      }
+    },
+
+    async loadVerAjustesStockDisplay(item){
+      try {
+        this.verAjusteStock.producto = item.nombre
+        this.verAjusteStock.cantidadTotal = item.cantidadTotal
         const items = await httpGet(`api/producto/${item.idProducto}/ajustes-stock`)
         this.verAjusteStock.tbl.items = items
         this.display.verAjusteStock = true
