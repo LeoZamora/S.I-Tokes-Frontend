@@ -262,7 +262,10 @@
               :headers="verAjusteStock.tbl.headers"
               :items="verAjusteStock.tbl.items"
               class="elevation-1"
-              density="comfortable"
+              height="250"
+              items-per-page="50"
+              density="compact"
+              fixed-header
               :header-props="{
                 class: 'text-uppercase font-weight-bold bg-blue-lighten-5'
               }"
@@ -400,43 +403,12 @@
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions class="justify-end">
-          <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">Cancelar</v-btn>
-          <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">Ajustar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="display.verAjusteStock" width="550">
-      <v-card>
-        <v-card-item>
-          <v-row>
-            <v-col>
-              <v-card-title>Ajustes de stock realizados</v-card-title>
-              <v-card-subtitle>{{ verAjusteStock.producto }}</v-card-subtitle>
-            </v-col>
-            <v-col>
-
-            </v-col>
-            <v-col class="d-flex justify-end">
-              <v-chip color="primary">Stock Actual: {{ verAjusteStock.cantidadTotal }}</v-chip>
-            </v-col>
-          </v-row>
-        </v-card-item>
-        <v-divider></v-divider>
-        <v-card-text>
-          <v-data-table
-            :headers="verAjusteStock.tbl.headers"
-            :items="verAjusteStock.tbl.items"
-            class="border"
-          >
-            <template v-slot:item.fechaRegistro="{ item }">
-              {{ this.formatDate(item.fechaRegistro) }}
-            </template>
-          </v-data-table>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions class="justify-end">
-          <v-btn color="primary" variant="elevated" @click="display.verAjusteStock = false">Ok</v-btn>
+          <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">
+            Cancelar
+          </v-btn>
+          <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">
+            Ajustar
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
