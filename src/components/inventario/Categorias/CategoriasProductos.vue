@@ -40,7 +40,7 @@
                     </v-row>
 
                     <v-card-subtitle class="d-flex align-center text-center mb-2">
-                        <v-divider /> 
+                        <v-divider />
                         <span class="mx-6 text-grey">Registros</span>
                         <v-divider />
                     </v-card-subtitle>
@@ -233,7 +233,7 @@ export default {
                         productos: item.productos
                     })
                 })
-            } 
+            }
         },
 
         openDialog(comp, type, item = null) {

@@ -171,6 +171,14 @@ export default {
         {title: 'Tipo Mov', key: 'tipoMovimineto', align: 'center'},
         {title: 'Concepto', key: 'conceptoTipoMov', align: 'center'},
         {title: 'Modalidad', key: 'modalidad', align: 'center'},
+        { title: 'No. Venta', key: 'noVenta', align: 'center',
+          headerProps: {
+            class: 'pa-0'
+          },
+          cellProps: {
+            class: 'pa-0'
+          }
+        },
         {title: 'Monto', key: 'monto', align: 'center'},
         {title: 'Fecha Mov.', key: 'fechaMovimiento', align: 'center'},
         {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},

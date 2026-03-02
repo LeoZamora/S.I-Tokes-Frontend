@@ -82,9 +82,15 @@
                         </div>
 
                         <v-card-actions class="d-flex justify-center mt-10">
-                            <v-btn :disabled="data.disableBtn" size="large" elevation="4"
+                            <v-btn :disabled="data.loading" size="large" elevation="4"
                                 @click="authLogin()" class="bg-indigo-darken-4" block>
-                                Acceder
+                                <template v-if="data.loading">
+                                    <v-progress-circular color="blue-lighten-3" indeterminate
+                                        :size="24" />
+                                </template>
+                                <template v-else>
+                                    Acceder
+                                </template>
                             </v-btn>
                         </v-card-actions>
                     </v-form>

@@ -6,7 +6,7 @@
         <v-col cols="12" md="6" sm="12" class="d-flex flex-column align-center 
           position-relative">
           <div>
-            <v-img src="/gorro.png" id="gorro"/>
+            <!-- <v-img src="/gorro.png" id="gorro"/> -->
             <v-img width="500" src="/128px.svg"/>
           </div>
           <v-card-text class="d-flex flex-column align-center">
@@ -28,8 +28,9 @@
               INICIO DE SESION
             </v-card-title>
             <v-card-text class="pa-4">
-              <v-form id="form-login" v-model="data.valid" ref="form" lazy-validation>
-                <v-row>
+              <v-form id="form-login" v-model="data.valid" ref="form" lazy-validation
+                @submit.prevent="authLoging()">
+                <v-row class="mb-5">
                   <v-col cols="12" md="12" sm="12">
                     <v-text-field color="primary" v-model="data.data.usuario" placeholder="Ingrese su usuario"
                       :rules="data.rules.userRules" @input="clearError" variant="outlined"
@@ -40,8 +41,7 @@
                   <v-col cols="12" md="12" sm="12">
                     <v-text-field
                       color="primary" v-model="data.data.password" placeholder="Ingrese su contraseña"
-                      @keydown.enter="authLoging" label="Contraseña" 
-                      autocomplete="current-password" @click:append-inner="passVisible"
+                      label="Contraseña" autocomplete="current-password" @click:append-inner="passVisible"
                       :append-inner-icon="data.showPass ? 'mdi-eye-outline' : 'mdi-eye-off-outline'" prepend-inner-icon="mdi-lock-outline"
                       @input="clearError" hide-details density="comfortable"
                       variant="outlined" :type="data.showPass ? 'text': 'password'"
@@ -54,15 +54,17 @@
                   </v-alert>
                 </v-fade-transition>
 
-                <span v-show="data.count">Intentos restantes: {{ 5 - data.count }}</span>
+                <span v-if="data.count">
+                  Intentos restantes: {{ 5 - data.count }}
+                </span>
                 <div v-if="data.count === 5" class="w-100 d-flex justify-space-between align-center">
                   <span>Volver a intentar en: </span>
                   <strong class="ml-1">{{ cronometro }}</strong>
                 </div>
 
-                <v-card-actions class="d-flex justify-center mt-10">
+                <v-card-actions class="d-flex justify-center mt-5">
                   <v-btn :disabled="data.disableBtn" size="large" elevation="4"
-                    @click="authLoging()" class="bg-indigo-darken-4" block>
+                    type="submit" class="bg-indigo-darken-4" block>
                     Acceder
                   </v-btn>
                 </v-card-actions>
@@ -167,9 +169,14 @@ export default {
     },
 
     async authLoging() {
-      this.$refs.form.validate();
+      const valid = await this.$refs.form.validate();
 
-      if (!this.data.data.usuario || !this.data.data.password) {
+      if (!valid.valid) {
+        this.data.error = true
+        this.data.errorMsg = 'Ingrese sus credenciales'
+        setTimeout(() => {
+          this.data.error = false
+        }, 1500)
         return;
       }
 

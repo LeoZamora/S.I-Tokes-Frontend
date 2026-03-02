@@ -236,7 +236,7 @@
                   <div>
                     <div class="text-caption text-grey-darken-2">AJUSTES NEGATIVOS</div>
                     <div class="text-h6 font-weight-bold text-red-darken-2">
-                      {{ verAjusteStock.tbl.items.filter((item) => (item.cantidad < 0)).length || 0 }}
+                      {{ verAjusteStock.tbl.items.filter((item) => (item.cantidad <= 0)).length || 0 }}
                     </div>
                   </div>
                 </div>
@@ -273,7 +273,9 @@
               <template v-slot:item.fechaRegistro="{ item }">
                 <div class="d-flex align-center">
                   <v-icon size="small" color="grey" class="mr-2">mdi-calendar</v-icon>
-                  <span class="font-weight-medium">{{ this.formatDate(item.fechaRegistro) }}</span>
+                  <span class="font-weight-medium">
+                    {{ this.formatDate(item.fechaRegistro) }}
+                  </span>
                 </div>
               </template>
               
@@ -1125,7 +1127,7 @@ export default {
         },
         {
           title: 'Sub categoría',
-          key: 'categoria',
+          key: 'subCategoria',
           align: 'center'
         },
         {
@@ -1208,7 +1210,7 @@ export default {
         idUnidadMedida: 1,
         cantidadTotal: 0,
         cantidadMinima: 0,
-        usuarioRegistro: 'admin',
+        usuarioRegistro: null,
         observaciones: '',
       },
       showDiagUM: false,

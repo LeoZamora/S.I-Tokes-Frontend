@@ -76,7 +76,7 @@
                         <v-icon color="indigo-darken-3" class="mr-2">mdi-cart</v-icon>
                         <span class="text-subtitle-1 font-weight-bold">DETALLE DE PRODUCTOS</span>
                     </v-card-title>
-                    
+
                     <v-data-table hide-default-footer 
                         density="compact" 
                         :headers="data.headers" 
@@ -99,33 +99,33 @@
                     <v-col cols="7">
                         <v-card variant="flat" color="white" class="px-4 rounded-lg border h-100">
                             <div class="text-overline text-grey mb-2">OBSERVACIONES</div>
-                            
+
                             <v-textarea v-model="data.orden.observaciones" density="compact" variant="plain" 
                                 hide-details label="Observaciones" placeholder="ingrese algunos detalles de la orden" 
                                 persistent-placeholder rows="4" readonly/>
                         </v-card>
                     </v-col>
-                    
+
                     <v-col cols="5">
                         <v-card variant="flat" color="whiet" class="px-4 rounded-lg border h-100">
                             <div class="text-overline text-grey mb-3">RESUMEN DE PAGO</div>
-                            
+
                             <div class="d-flex justify-space-between align-center mb-3">
                                 <span class="text-body-2">Sub Total</span>
                                 <span class="text-body-1 font-weight-medium">
                                     {{ formatedCurrency(data.factura.subTotal, data.fomates.nio) }}
                                 </span>
                             </div>
-                            
+
                             <div class="d-flex justify-space-between align-center mb-4">
                                 <span class="text-body-1 font-weight-bold">TOTAL GENERAL</span>
                                 <span class="text-h6 font-weight-bold text-indigo-darken-4">
                                     {{ formatedCurrency(data.factura.total, data.fomates.nio) }}
                                 </span>
                             </div>
-                            
-                            <v-divider class="my-3" />
-                            
+
+                            <!-- <v-divider class="my-3" />
+
                             <div class="d-flex justify-space-between align-center mt-4">
                                 <div>
                                     <span class="text-body-2">Equivalente en USD</span>
@@ -134,7 +134,7 @@
                                 <span class="text-body-1 font-weight-bold text-blue-darken-3">
                                     {{ formatedCurrency(data.factura.usdTotal, data.fomates.usd) }}
                                 </span>
-                            </div>
+                            </div> -->
                         </v-card>
                     </v-col>
                 </v-row>
@@ -149,7 +149,7 @@
                     <template v-slot:prepend>
                         <v-icon>mdi-printer</v-icon>
                     </template>
-                    Imprimir
+                    Descargar
                 </v-btn>
             </v-card-actions>
 
@@ -218,7 +218,7 @@ export default {
                 data.overlay.show = false
             }
         })
-        
+
         watch(() => props.show, async (newValue) => {
             localShow.value = newValue
         })
@@ -303,119 +303,282 @@ export default {
 
         exportDialogToPDF() {
             if (!this.data.items || this.data.items.length === 0) {
-                alert('No hay datos para exportar.');
+                alert("No hay datos para exportar.");
                 return;
             }
 
-            const doc = new jsPDF();
-
+            const doc = new jsPDF("p", "mm", "a4");
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
 
-            // Encabezado principal
-            doc.setFontSize(18);
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(200, 0, 0); // Rojo oscuro
-            doc.text("ORDEN DE COMPRA", pageWidth / 2, 15, { align: "center" });
+            // ===== Helpers UI =====
+            const COLORS = {
+                blue: [18, 42, 120],        // barra superior
+                blueSoft: [235, 240, 255],  // fondos suaves
+                border: [220, 225, 235],
+                text: [25, 35, 55],
+                muted: [120, 130, 150],
+                grayHeader: [236, 239, 245],
+                green: [40, 140, 70],
+                greenSoft: [224, 245, 232],
+            };
 
-            // Información general
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(0);
+            const M = 12;                 // margen general
+            const R = 4;                  // "radio" visual (simulado)
+            const lineH = 5;
+            const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
-            const lineSpacing = 6;
-            let currentY = 25;
+            const setText = (size = 10, style = "normal", rgb = COLORS.text) => {
+                doc.setFont("helvetica", style);
+                doc.setFontSize(size);
+                doc.setTextColor(...rgb);
+            };
 
-            const generales = [
-                `Número de Orden: ${this.data.orden.noOrden || ''}`,
-                `Estado: ${this.data.orden.estado ? 'Activa' : 'Inactiva'}`,
-                `Aprobada: ${this.data.orden.aprobada ? 'SI' : 'NO'}`,
-                `Fecha Registro: ${this.formateDate(this.data.orden.fechaRegistro)}`,
-                `Proveedor: ${this.data.orden.proveedor || ''}`,
-                `Emp. Registro: ${this.data.orden.usuarioRegistro || ''}`
-            ];
+            const rect = (x, y, w, h, fillRgb = null, borderRgb = COLORS.border, lw = 0.3) => {
+                doc.setLineWidth(lw);
+                doc.setDrawColor(...borderRgb);
+                if (fillRgb) doc.setFillColor(...fillRgb);
+                doc.roundedRect(x, y, w, h, R, R, fillRgb ? "FD" : "S");
+            };
 
-            generales.forEach(dato => {
-                doc.text(dato, 14, currentY);
-                currentY += lineSpacing;
-            });
+            const labelValue = (label, value, x, y, w, opts = {}) => {
+                const {
+                    labelSize = 8,
+                    valueSize = 10,
+                    labelColor = COLORS.muted,
+                    valueColor = COLORS.text,
+                    valueStyle = "bold",
+                    maxLines = 1,
+                } = opts;
 
-            // Línea divisoria
-            doc.setDrawColor(200, 0, 0);
-            doc.setLineWidth(0.5);
-            doc.line(14, currentY, pageWidth - 14, currentY);
-            currentY += 5;
+                setText(labelSize, "normal", labelColor);
+                doc.text(label, x, y);
 
-            // Tabla de detalles
-            doc.setFontSize(12);
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(200, 0, 0);
-            doc.text("DETALLES", 14, currentY);
-            currentY += 5;
-            doc.setTextColor(0);
+                setText(valueSize, valueStyle, valueColor);
+                const v = value ?? "";
+                const lines = doc.splitTextToSize(String(v), w);
+                const sliced = lines.slice(0, maxLines);
+                doc.text(sliced, x, y + 4);
 
-            const headers = this.data.headers.map(header => header.title || header.key || '');
-            const filas = this.data.items.map(item => {
-                return this.data.headers.map(header => {
-                    const key = header.key;
-                    if (key === 'costoUnitario' || key === 'subTotal') {
-                        return this.formatedCurrency(item[key], this.data.fomates.nio);
-                    }
-                    return item[key] !== undefined ? item[key] : 'N/A';
-                });
-            });
+                return y + 4 + (sliced.length - 1) * lineH;
+            };
 
-            doc.autoTable({
-                startY: currentY,
-                head: [headers],
-                body: filas,
-                theme: 'striped',
-                headStyles: { fillColor: [200, 0, 0], textColor: 255, halign: 'center' },
-                styles: { fontSize: 9, cellPadding: 2 },
-                margin: { left: 14, right: 14 },
-                didDrawPage: (data) => {
-                    currentY = data.cursor.y + 10;
-                }
-            });
+            const chip = (text, x, y, opts = {}) => {
+                const { fill = COLORS.greenSoft, color = COLORS.green } = opts;
+                setText(9, "bold", color);
+                const paddingX = 3;
+                const paddingY = 2.5;
+                const textW = doc.getTextWidth(text);
+                const w = textW + paddingX * 2;
+                const h = 7;
+                doc.setFillColor(...fill);
+                doc.setDrawColor(...fill);
+                doc.roundedRect(x, y, w, h, 3, 3, "F");
+                doc.text(text, x + paddingX, y + paddingY + 1.5);
+                return { w, h };
+            };
 
-            // Sección Observaciones
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(0);
-            doc.text("Observaciones:", 14, currentY);
-
-            doc.setFont("helvetica", "normal");
-            const observaciones = this.data.orden.observaciones || 'Ninguna';
-            const obsLines = doc.splitTextToSize(observaciones, pageWidth - 28);
-            doc.text(obsLines, 14, currentY + 5);
+            // ===== Datos =====
+            const noOrden = this.data.orden?.noOrden ?? "";
+            const proveedor = this.data.orden?.proveedor ?? "";
+            const usuarioRegistro = this.data.orden?.usuarioRegistro ?? "";
+            const aprobada = this.data.orden?.aprobada ? "SI" : "NO";
+            const estado = this.data.orden?.estado ? "Activa" : "Inactiva";
+            const fechaRegistro = this.formateDate?.(this.data.orden?.fechaRegistro) ?? "";
+            const observaciones = this.data.orden?.observaciones || "Ninguna";
 
             // Totales
-            const totalesY = currentY + obsLines.length * 5 + 15;
-            doc.setFont("helvetica", "bold");
-            const totalX = pageWidth - 80;
-            const totalLines = [
-                `Sub Total: ${this.formatedCurrency(this.data.factura.subTotal, this.data.fomates.nio)}`,
-                `Total: ${this.formatedCurrency(this.data.factura.total, this.data.fomates.nio)}`,
-            ];
-            if (this.data.factura.usdTotal) {
-                totalLines.push(`Total $: ${this.formatedCurrency(this.data.factura.usdTotal, this.data.fomates.usd)}`);
-            }
+            const subTotal = this.data.factura?.subTotal ?? 0;
+            const total = this.data.factura?.total ?? 0;
 
-            totalLines.forEach((line, i) => {
-                doc.text(line, totalX, totalesY + i * 7);
+            // ===== Layout =====
+            let y = 0;
+
+            // ===== Header azul =====
+            const headerH = 18;
+            doc.setFillColor(...COLORS.blue);
+            doc.rect(0, 0, pageWidth, headerH, "F");
+
+            setText(11, "bold", [255, 255, 255]);
+            doc.text("ORDEN", M, 7);
+
+            setText(10, "normal", [255, 255, 255]);
+            doc.text(`Documento No. ${noOrden}`, M, 13);
+
+            // “X” visual (opcional)
+            setText(14, "bold", [255, 255, 255]);
+            doc.text("Inversiones Zafiro", pageWidth - M, 11, { align: "right" });
+
+            y = headerH + 6;
+
+            // ===== Card Información del cliente =====
+            const card1H = 26;
+            rect(M, y, pageWidth - M * 2, card1H, [255, 255, 255]);
+
+            setText(8.5, "normal", COLORS.muted);
+            doc.text("INFORMACIÓN DEL CLIENTE", M + 4, y + 6);
+
+            // Línea suave
+            doc.setDrawColor(...COLORS.border);
+            doc.setLineWidth(0.3);
+            doc.line(M + 4, y + 8.5, pageWidth - M - 4, y + 8.5);
+
+            // Columnas
+            const innerX = M + 4;
+            const innerY = y + 12;
+            const innerW = pageWidth - M * 2 - 8;
+
+            const colGap = 6;
+            const colW = (innerW - colGap * 3) / 4;
+
+            // 4 columnas arriba
+            labelValue("PROVEEDOR:", proveedor, innerX + (colW + colGap) * 0, innerY, colW);
+            labelValue("REGISTRADO POR:", usuarioRegistro, innerX + (colW + colGap) * 1, innerY, colW);
+            labelValue("APROBADA:", aprobada, innerX + (colW + colGap) * 2, innerY, colW);
+
+            // Fecha registro alineada a la derecha (con chip estado)
+            labelValue("FECHA REGISTRO", fechaRegistro, innerX + (colW + colGap) * 3, innerY, colW, {
+                valueStyle: "bold",
+                maxLines: 1,
             });
 
-            // Pie de página con fecha-hora
+            // Chip estado (abajo de fecha)
+            const chipX = innerX + (colW + colGap) * 3;
+            const chipY = innerY + 9;
+            chip(estado, chipX, chipY);
+
+            y += card1H + 8;
+
+            // ===== Sección Detalle de productos =====
+            const sectionH = 10;
+            rect(M, y, pageWidth - M * 2, sectionH, COLORS.grayHeader);
+
+            setText(11, "bold", COLORS.text);
+            doc.text("DETALLE DE PRODUCTOS", M + 10, y + 6.8);
+
+            // “iconito” carrito simple (no SVG, solo texto)
+            setText(12, "bold", COLORS.blue);
+            doc.text("🛒", M + 4, y + 6.8);
+
+            y += sectionH;
+
+            // Tabla (dentro del “card”)
+            const tableCardY = y;
+            const tableCardH = 70; // puedes ajustar según cantidad de filas (autotable paginará)
+            rect(M, tableCardY, pageWidth - M * 2, tableCardH, [255, 255, 255]);
+
+            const headers = this.data.headers.map(h => h.title || h.key || "");
+            const filas = this.data.items.map(item =>
+                this.data.headers.map(h => {
+                const key = h.key;
+                if (key === "costoUnitario" || key === "subTotal") {
+                    return this.formatedCurrency(item[key], this.data.fomates.nio);
+                }
+                return item[key] !== undefined ? String(item[key]) : "";
+                })
+            );
+
+            doc.autoTable({
+                startY: tableCardY + 6,
+                head: [headers],
+                body: filas,
+                theme: "plain",
+                margin: { left: M + 4, right: M + 4 },
+                tableWidth: pageWidth - (M + 4) * 2,
+                headStyles: {
+                    fillColor: COLORS.grayHeader,
+                    textColor: COLORS.text,
+                    fontStyle: "bold",
+                    halign: "left",
+                    cellPadding: 2.5,
+                },
+                bodyStyles: {
+                    textColor: COLORS.text,
+                    cellPadding: 2.5,
+                    fontSize: 9.5,
+                },
+                styles: {
+                    lineWidth: 0.2,
+                    lineColor: COLORS.border,
+                },
+                didDrawPage: (data) => {
+                // nada extra aquí
+                },
+            });
+
+            // y después de tabla (cursor real)
+            const afterTableY = doc.lastAutoTable.finalY ?? (tableCardY + 25);
+            y = afterTableY + 8;
+
+            // ===== Cards inferiores: Observaciones + Resumen de pago =====
+            const bottomGap = 8;
+            const leftW = (pageWidth - M * 2 - bottomGap) * 0.62;
+            const rightW = (pageWidth - M * 2 - bottomGap) * 0.38;
+            const bottomH = 45;
+
+            // Observaciones (izq)
+            rect(M, y, leftW, bottomH, [255, 255, 255]);
+            setText(9, "normal", COLORS.muted);
+            doc.text("OBSERVACIONES", M + 4, y + 7);
+
+            // body obs
+            setText(10, "normal", COLORS.text);
+            const obsMaxW = leftW - 8;
+            const obsLines = doc.splitTextToSize(observaciones, obsMaxW);
+            const obsY = y + 14;
+            doc.text(obsLines.slice(0, 8), M + 4, obsY); // corta por seguridad visual
+
+            // Resumen (der)
+            const rx = M + leftW + bottomGap;
+            rect(rx, y, rightW, bottomH, [255, 255, 255]);
+
+            setText(9, "normal", COLORS.muted);
+            doc.text("RESUMEN DE PAGO", rx + 4, y + 7);
+
+            // Subtotal
+            setText(10, "normal", COLORS.text);
+            doc.text("Sub Total", rx + 4, y + 18);
+
+            setText(10, "bold", COLORS.text);
+            doc.text(
+                this.formatedCurrency(subTotal, this.data.fomates.nio),
+                rx + rightW - 4,
+                y + 18,
+                { align: "right" }
+            );
+
+            // Línea
+            doc.setDrawColor(...COLORS.border);
+            doc.setLineWidth(0.3);
+            doc.line(rx + 4, y + 23, rx + rightW - 4, y + 23);
+
+            // Total general destacado
+            setText(11, "bold", COLORS.text);
+            doc.text("TOTAL GENERAL", rx + 4, y + 33);
+
+            setText(12, "bold", COLORS.blue);
+            doc.text(
+                this.formatedCurrency(total, this.data.fomates.nio),
+                rx + rightW - 4,
+                y + 33,
+                { align: "right" }
+            );
+
+            y += bottomH + 8;
+
+            // ===== Footer =====
             const now = new Date();
             const dateStr = `${("0" + now.getDate()).slice(-2)}/${("0" + (now.getMonth() + 1)).slice(-2)}/${now.getFullYear()}`;
             const timeStr = `${("0" + now.getHours()).slice(-2)}:${("0" + now.getMinutes()).slice(-2)}:${("0" + now.getSeconds()).slice(-2)}`;
-            doc.setFontSize(8);
-            doc.setFont("helvetica", "italic");
-            doc.setTextColor(100);
-            doc.text(`Fecha-Hora de impresión: ${dateStr} ${timeStr}`, pageWidth - 80, pageHeight - 10);
 
-            doc.save(`Orden_${this.data.orden.noOrden}.pdf`);
+            setText(8, "italic", COLORS.muted);
+            doc.text(`Fecha-Hora de impresión: ${dateStr} ${timeStr}`, pageWidth - M, pageHeight - 8, {
+                align: "right",
+            });
+
+            doc.save(`Orden_${noOrden}.pdf`);
         }
+
 
     },
 }
