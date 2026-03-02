@@ -209,7 +209,7 @@
           v-if="isLoggeInd" @nameTab="nameTab"/>
         <router-view v-slot="{ Component }">
           <v-progress-linear indeterminate :active="loading.show" height="5" color="indigo-darken-4" />
-          <transition name="slide-x-transition">
+          <transition name="fade-transition">
             <keep-alive>
               <component :is="Component"/>
             </keep-alive>

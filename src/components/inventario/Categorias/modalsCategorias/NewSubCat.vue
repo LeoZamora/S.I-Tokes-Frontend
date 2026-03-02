@@ -128,46 +128,6 @@ export default {
     const localTitle = ref(props.title)
     const localView = ref(props.ver)
 
-    watch(() => props.show, (newValue) => {
-      localShow.value = newValue
-      if (newValue) {
-        data.dataSubCat.usuarioRegistro = useStore().getNameUser()
-      }
-    })
-    watch(() => props.editar, async (val) => {
-      localEdit.value = val
-      if (val === true) {
-
-        data.overlay.show = true
-        const result = await data.requestHttp.getByIdSubCategorias(localSubCat.value.idSubCatProd)
-        data.overlay.show = false
-        
-        if (result.code === 200) {
-          data.dataSubCat = result.data
-          data.idCat = localSubCat.value.idSubCatProd
-        }
-      }
-    })
-    watch(() => props.subCat, (val) => {
-      localSubCat.value = val
-    })
-    watch(() => props.title, (val) => {
-      localTitle.value = val
-    })
-    watch(() => props.ver, async (val) => {
-      localView.value = val
-      if (val === true) {
-        data.overlay.show = true
-        const result = await data.requestHttp.getByIdSubCategorias(localSubCat.value.idSubCatProd)
-        data.overlay.show = false
-        
-        if (result.code === 200) {
-          data.dataSubCat = result.data
-          data.idCat = localSubCat.value.idSubCatProd
-        }
-      }
-    })
-
     const data = reactive({
       rules: {
         rule: [v => !!v || 'El campo es obligatorio']
@@ -208,6 +168,52 @@ export default {
         data.alertSuccess.msg = ''
       }, 1500);
     }
+
+    watch(() => props.show, (newValue) => {
+      localShow.value = newValue
+      if (newValue) {
+        data.dataSubCat.usuarioRegistro = useStore().getNameUser()
+      }
+    })
+
+    watch(() => props.subCat, (val) => {
+      localSubCat.value = val
+    })
+
+    watch(() => props.editar, async (val) => {
+      localEdit.value = val
+      if (val === true) {
+        try {
+          data.overlay.show = true
+          const result = await data.requestHttp.getByIdSubCategorias(props.subCat.idSubCatProd)
+          data.overlay.show = false
+
+          if (result.code === 200) {
+            data.dataSubCat = result.data
+            data.idCat = localSubCat.value.idSubCatProd
+          }
+        } catch (error) {
+          data.overlay.show = false
+          showSuccesAlert('¡No se pudo cargar la informacion!', false)
+        }
+      }
+    })
+    watch(() => props.title, (val) => {
+      localTitle.value = val
+    })
+    watch(() => props.ver, async (val) => {
+      localView.value = val
+      if (val === true) {
+        data.overlay.show = true
+        const result = await data.requestHttp.getByIdSubCategorias(props.subCat.idSubCatProd)
+        data.overlay.show = false
+
+        if (result.code === 200) {
+          data.dataSubCat = result.data
+          data.idCat = localSubCat.value.idSubCatProd
+        }
+      }
+    })
 
     return {
       localShow,

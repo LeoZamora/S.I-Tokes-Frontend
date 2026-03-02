@@ -34,7 +34,7 @@
             Filtros de búsqueda
           </span>
         </div>
-        
+
         <v-row dense align="center" class="headInfo">
           <v-col cols="12" md="6" sm="6">
             <v-row dense>
@@ -119,7 +119,6 @@
           </v-col>
         </v-row>
       </v-card>
-        
 
       <v-card-text class="pt-0 px-0">
         <!-- :mobile="isMobile" -->

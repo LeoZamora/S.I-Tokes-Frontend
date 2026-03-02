@@ -502,7 +502,6 @@ class RequestHttp {
             return result.data
         } catch (error) {
             return null
-            
         }
     }
     async getByIdCliente(id) {
@@ -570,7 +569,6 @@ class RequestHttp {
             return result.data
         } catch (error) {
             return null
-            
         }
     }
     async getByIdCategoriaCliente(id) {
@@ -677,7 +675,6 @@ class RequestHttp {
             return result.data
         } catch (error) {
             return null
-            
         }
     }
     async getByIdRol(id) {
@@ -712,7 +709,6 @@ class RequestHttp {
             return result.data
         } catch (error) {
             return null
-            
         }
     }
     async getByIdRuta(id) {
@@ -843,7 +839,7 @@ class RequestHttp {
             return {
                 data: result.data,
                 code: 200
-            } 
+            }
         } catch (error) {
             return {
                 code: error.response.status,
@@ -868,7 +864,6 @@ class RequestHttp {
             return result.data
         } catch (error) {
             return null
-            
         }
     }
     async postUnidadMedida(data) {
@@ -964,7 +959,84 @@ class RequestHttp {
             return {
                 code: result.data
             }
-        } catch (error) {            
+        } catch (error) {
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
+        }
+    }
+
+
+    // CONCEPTOS
+    async getConceptos(id) {
+        try {
+            const result  = await axios.get(`api/conceptos-tipo-mov?idTipoMov=${id}`)
+            return {
+                code: result.status,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
+        }
+    }
+
+    async getConceptosById(id) {
+        try {
+            const result  = await axios.get(`api/conceptos-tipo-mov/${id}`)
+            return {
+                code: result.status,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
+        }
+    }
+
+    async postConceptos(data) {
+        try {
+            const result  = await axios.post(`api/conceptos-tipo-mov`, data)
+            return {
+                code: result.status,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
+        }
+    }
+
+    async putConceptos(data, id) {
+        try {
+            const result  = await axios.put(`api/conceptos-tipo-mov/${id}`, data)
+            return {
+                code: result.status,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
+        }
+    }
+
+    async putEstadoConcepto(estado, id) {
+        try {
+            const result  = await axios.put(`api/conceptos-tipo-mov/${id}/estado?estado=${estado}`)
+            return {
+                code: result.status,
+                data: result.data
+            }
+        } catch (error) {
             return {
                 code: error.response.status,
                 data: error.response.data

@@ -5,7 +5,7 @@
                 <!-- Header mejorado con gradiente y sombra -->
                 <v-card-title class="bg-indigo-darken-4 d-flex align-center py-2 px-3">
                     <v-avatar size="40" color="white" class="mr-4" variant="flat">
-                        <v-icon color="primary" size="24">mdi-file-document-outline</v-icon>
+                        <v-icon color="indigo" size="24">mdi-file-document-outline</v-icon>
                     </v-avatar>
                     <h5 class="text-white font-weight-bold text-h6">
                         {{ localTitle }}
@@ -19,7 +19,7 @@
 
                 <!-- Indicador de estado -->
                 <div class="status-bar d-flex align-center px-3 py-2 bg-grey-lighten-4">
-                    <v-chip size="small" class="mr-2" color="primary" variant="flat">
+                    <v-chip size="small" class="mr-2" color="indigo" variant="flat">
                         <v-icon size="16" class="mr-1">mdi-information</v-icon>
                         <span class="font-weight-bold">Nº Factura: {{ data.venta.noVenta }}</span>
                     </v-chip>
@@ -32,7 +32,7 @@
                     </v-chip>
                     <v-spacer />
                     <div class="d-flex align-center">
-                        <v-chip size="small" :color="data.usd ? 'deep-purple' : 'grey'" variant="tonal"
+                        <!-- <v-chip size="small" :color="data.usd ? 'deep-purple' : 'grey'" variant="tonal"
                             @click="data.usd = !data.usd" class="mr-1">
                             <template v-slot:default>
                                 <v-icon v-if="data.usd" size="16" class="mr-1">
@@ -50,7 +50,7 @@
                                     {{ data.usd ? 'Ocultar' : 'Ver en Dólares' }}
                                 </v-tooltip>
                             </template>
-                        </v-chip>
+                        </v-chip> -->
 
                         <!-- <v-chip size="small" :color="data.nio ? 'green' : 'grey'" variant="tonal"
                             @click="data.nio = !data.nio">
@@ -78,16 +78,16 @@
                 </div>
 
                 <v-card-text class="px-4">
-                    <v-form validate-on="invalid-input" ref="form">
-                        <v-row dense>
-                            <v-col cols="12" md="6" sm="6">
+                    <v-row dense>
+                        <v-col cols="12" md="6" sm="6">
+                            <v-form validate-on="invalid-input" ref="form">
                                 <v-card class="pa-4 border" rounded="lg" elevation="0">
                                     <v-row dense>
                                         <!-- Sección Generales -->
                                         <div class="section-header mb-4">
                                             <div class="d-flex align-center">
                                                 <div class="section-icon mr-3">
-                                                    <v-icon color="primary" size="28">mdi-cog-outline</v-icon>
+                                                    <v-icon color="indigo" size="28">mdi-cog-outline</v-icon>
                                                 </div>
                                                 <h6 class="text-h6 font-weight-bold text-primary">
                                                     Generales
@@ -107,11 +107,11 @@
                                                 placeholder="nº factura"
                                                 persistent-placeholder
                                                 readonly
-                                                color="primary"
+                                                color="indigo"
                                                 bg-color="grey-lighten-4"
                                             />
                                         </v-col>
-                                        <v-col cols="12" md="12" sm="12">
+                                        <v-col cols="12" md="6" sm="6">
                                             <v-autocomplete 
                                                 :rules="data.rules.rule" 
                                                 v-model="data.venta.idTipoVenta"
@@ -124,7 +124,23 @@
                                                 placeholder="Seleccione tipo"
                                                 persistent-placeholder
                                                 clearable
-                                                color="primary"
+                                                color="indigo"
+                                            />
+                                        </v-col>
+                                        <v-col cols="12" md="6" sm="6">
+                                            <v-select
+                                                :rules="data.rules.rule" 
+                                                v-model="data.isCredito"
+                                                :items="data.condicionFactura"
+                                                prepend-inner-icon="mdi-file-document-check"
+                                                density="compact"
+                                                variant="outlined"
+                                                hide-details
+                                                label="Condición de Factura"
+                                                placeholder="Seleccione una opción"
+                                                persistent-placeholder
+                                                clearable
+                                                color="indigo"
                                             />
                                         </v-col>
                                         <v-col cols="12" md="12" sm="12">
@@ -140,11 +156,11 @@
                                                 persistent-placeholder
                                                 :items="data.clientes"
                                                 clearable
-                                                color="primary"
+                                                color="indigo"
                                             >
                                                 <template v-slot:append-inner>
                                                     <v-btn icon variant="text" size="small" @click="getClientes" class="refresh-btn">
-                                                        <v-icon color="primary" size="20">
+                                                        <v-icon color="indigo" size="20">
                                                             mdi-refresh
                                                         </v-icon>
                                                         <v-tooltip activator="parent" location="top">
@@ -165,95 +181,95 @@
                                                 hide-details
                                                 persistent-placeholder
                                                 rows="2"
-                                                color="primary"
+                                                color="indigo"
                                                 auto-grow
                                             />
                                         </v-col>
                                     </v-row>
                                 </v-card>
-                            </v-col>
+                            </v-form>
+                        </v-col>
 
-                            <v-col cols="12" md="6" sm="6">
-                                <v-card class="pa-6 border" rounded="lg" elevation="0">
-                                    <!-- Sección Productos -->
-                                    <div class="section-header mb-6">
-                                        <div class="d-flex align-center">
-                                            <div class="section-icon mr-3">
-                                                <v-icon color="secondary" size="28">mdi-package-variant</v-icon>
-                                            </div>
-                                            <h6 class="text-h6 font-weight-bold text-secondary">
-                                                Productos
-                                            </h6>
+                        <v-col cols="12" md="6" sm="6">
+                            <v-card class="pa-6 border" rounded="lg" elevation="0">
+                                <!-- Sección Productos -->
+                                <div class="section-header mb-6">
+                                    <div class="d-flex align-center">
+                                        <div class="section-icon mr-3">
+                                            <v-icon color="secondary" size="28">mdi-package-variant</v-icon>
                                         </div>
+                                        <h6 class="text-h6 font-weight-bold text-secondary">
+                                            Productos
+                                        </h6>
                                     </div>
+                                </div>
 
-                                    <!-- Buscador de productos -->
-                                    <v-row align="center" class="product-search mb-6">
-                                        <v-col cols="12" md="12" sm="12">
-                                            <v-autocomplete 
-                                                v-model="data.producto.idProducto"
-                                                prepend-inner-icon="mdi-magnify"
-                                                density="compact"
-                                                variant="outlined"
-                                                hide-details
-                                                clearable
-                                                label="Buscar producto"
-                                                placeholder="Escriba para buscar..."
-                                                persistent-placeholder
-                                                :items="data.productos"
-                                                color="secondary"
-                                            />
-                                        </v-col>
-                                        <v-col cols="12" md="12" sm="12">
-                                            <v-text-field 
-                                                v-model="data.producto.cantidad"
-                                                prepend-inner-icon="mdi-numeric"
-                                                density="compact"
-                                                variant="outlined"
-                                                hide-details
-                                                clearable
-                                                label="Cantidad"
-                                                placeholder="Cantidad"
-                                                persistent-placeholder
-                                                type="number"
-                                                min="1"
-                                                color="secondary"
-                                            />
-                                        </v-col>
+                                <!-- Buscador de productos -->
+                                <v-row align="center" class="product-search mb-6">
+                                    <v-col cols="12" md="12" sm="12">
+                                        <v-autocomplete 
+                                            v-model="data.producto.idProducto"
+                                            prepend-inner-icon="mdi-magnify"
+                                            density="compact"
+                                            variant="outlined"
+                                            hide-details
+                                            clearable
+                                            label="Buscar producto"
+                                            placeholder="Escriba para buscar..."
+                                            persistent-placeholder
+                                            :items="data.productos"
+                                            color="secondary"
+                                        />
+                                    </v-col>
+                                    <v-col cols="12" md="12" sm="12">
+                                        <v-text-field 
+                                            v-model="data.producto.cantidad"
+                                            prepend-inner-icon="mdi-numeric"
+                                            density="compact"
+                                            variant="outlined"
+                                            hide-details
+                                            clearable
+                                            label="Cantidad"
+                                            placeholder="Cantidad"
+                                            persistent-placeholder
+                                            type="number"
+                                            min="1"
+                                            color="secondary"
+                                        />
+                                    </v-col>
 
-                                        <transition name="slide-y-transition">
-                                            <AlertComp
-                                                :show="data.alert.show" 
-                                                :type="data.alert.type" 
-                                                :message="data.alert.message"/>
-                                        </transition>
+                                    <transition name="slide-y-transition">
+                                        <AlertComp
+                                            :show="data.alert.show" 
+                                            :type="data.alert.type" 
+                                            :message="data.alert.message"/>
+                                    </transition>
 
-                                        <v-col cols="12" md="12" sm="12" class="d-flex justify-end align-center">
-                                            <v-btn 
-                                                class="mr-2" 
-                                                color="grey-darken-1" 
-                                                size="small" 
-                                                variant="outlined"
-                                                @click="clearProductos()"
-                                                prepend-icon="mdi-broom"
-                                            >
-                                                Limpiar
-                                            </v-btn>
-                                            <v-btn 
-                                                color="secondary" 
-                                                size="small" 
-                                                variant="flat"
-                                                @click="addProducts()"
-                                                prepend-icon="mdi-plus"
-                                            >
-                                                Agregar
-                                            </v-btn>
-                                        </v-col>
-                                    </v-row>
-                                </v-card>
-                            </v-col>
-                        </v-row>
-                    </v-form>
+                                    <v-col cols="12" md="12" sm="12" class="d-flex justify-end align-center">
+                                        <v-btn 
+                                            class="mr-2" 
+                                            color="grey-darken-1" 
+                                            size="small" 
+                                            variant="outlined"
+                                            @click="clearProductos()"
+                                            prepend-icon="mdi-broom"
+                                        >
+                                            Limpiar
+                                        </v-btn>
+                                        <v-btn 
+                                            color="secondary" 
+                                            size="small" 
+                                            variant="flat"
+                                            @click="addProducts()"
+                                            prepend-icon="mdi-plus"
+                                        >
+                                            Agregar
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+                            </v-card>
+                        </v-col>
+                    </v-row>
 
                     <v-card-subtitle class="d-flex align-center text-center mb-2">
                         <v-divider /> 
@@ -262,7 +278,7 @@
                         </small>
                         <v-divider />
                     </v-card-subtitle>
-                    
+
                     <!-- Tabla de productos -->
                     <v-card class="mb-6 border" rounded="lg" elevation="0">
                         <v-data-table class="rounded" density="compact" :headers="data.headers"
@@ -503,9 +519,9 @@ export default {
                 costoUnitario: null,
                 observaciones: null,
             },
-            tipoProductos: [
-                {title: 'Camisas', key: 'Camisas'},
-                {title: 'Pantalones', key: 'pantalones'},
+            condicionFactura: [
+                {title: 'Crédito', value: 'credito'},
+                {title: 'Contado', value: 'contado'},
             ],
             factura: {
                 subTotal: 0.00,
@@ -516,7 +532,7 @@ export default {
                 noVenta: null,
                 idTipoVenta: null,
                 idCliente: null,
-                credito: false,
+                credito: null,
                 observaciones: null,
                 enviarA: null,
                 usuarioRegistro: null,
@@ -554,6 +570,7 @@ export default {
 
             contDisableBtn: false,
             hide: true,
+            isCredito: null,
             idVenta: null,
             emision: new Date(),
             nio: true,
@@ -639,11 +656,9 @@ export default {
                         data.editVenta.estado = result.data.estado
                         data.editVenta.fechaRegistro = result.data.fechaRegistro
                         data.editVenta.idVenta = result.data.idVenta
-    
+
                         data.editVenta.idClienteNavigation = result.data.idClienteNavigation
-                        result.data.detalleCxcs.map(item => {
-                            data.editVenta.detalleCxcs.push(item)
-                        })
+
                         const promises = result.data.detalleVenta.map(async (item) => {
                             const product = await data.requestHttp.getByIdProducto(item.idProducto)
                             data.items.push({
@@ -665,13 +680,21 @@ export default {
                     }
 
                 } catch (error) {
-                    showAlert(2, 'No se pudo cargar la factura', 'error')
+                    data.overlay.show = false
+                    showAlert(1, 'No se pudo cargar la factura', 'error')
                 }
-            
             }
-        })        
+        })
         watch(() => props.title, (val) => {
             localTitle.value = val
+        })
+
+        watch(() => data.isCredito, (val) => {
+            if (val === 'credito') {
+                data.venta.credito = true
+            } else {
+                data.venta.credito = false
+            }
         })
 
         return {
@@ -755,7 +778,7 @@ export default {
 
             if (result.code === 200) {
                 result.data.map(item => {
-                  this.data.productos.push({title: item.nombre, value: item.idProducto})
+                    this.data.productos.push({title: item.nombre, value: item.idProducto})
                 })
             }
         },
@@ -767,7 +790,6 @@ export default {
             }
 
             this.data.producto.cantidad = Number(this.data.producto.cantidad)
-
             const product = await this.data.requestHttp.getByIdProducto(this.data.producto.idProducto)
 
             this.data.items.push({
@@ -776,33 +798,32 @@ export default {
                 costoUnitario: product.precio,
                 subTotal:  this.data.producto.cantidad * product.costoUnitario
             })
+
             this.calcularFactura()
             this.data.producto.idProducto = null
             this.data.producto.cantidad = 0
             this.data.producto.observaciones = null
         },
-        
+
         deleteProduct(itemSelected) {
             let i = this.data.items.indexOf(itemSelected)
             if (i !== -1) {
-              this.data.items.splice(i, 1);
+                this.data.items.splice(i, 1);
             }
             this.calcularFactura()
         },
 
         async guardarFactura() {
-            this.$refs.form.validate()
+            const valid = await this.$refs.form.validate()
             this.data.venta.detalleVenta = []
 
-            if (this.data.items.length === 0) {
-                this.showAlert(3, 'Agregue productos a la factura', 'warning')
-                return
-            }
+            // if (this.data.items.length === 0) {
+            //     this.showAlert(3, 'Agregue productos a la factura', 'warning')
+            //     return
+            // }
 
             if (!this.localEdit) {
-                if (!this.data.venta.noVenta ||
-                    !this.data.venta.idCliente
-                ) {
+                if (!valid.valid) {
                     this.data.hide = false
                     setTimeout(() => {
                         this.data.hide = true
@@ -838,7 +859,6 @@ export default {
                         this.showSuccesAlert(`¡Venta no registrada. Verifique los datos!`, false)
                         return
                     }
-                    
                 }
             } else {
                 if (!this.data.venta.noVenta ||

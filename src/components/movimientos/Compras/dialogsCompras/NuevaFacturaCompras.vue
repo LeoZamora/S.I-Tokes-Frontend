@@ -33,10 +33,10 @@
                         {{ localEdit ? '' : formatedDate(data.nowDate) }}
                     </span>
                 </v-chip>
-                
+
                 <v-spacer />
-                
-                <v-chip size="small" :color="data.usd ? 'deep-purple' : 'grey'" variant="tonal"
+
+                <!-- <v-chip size="small" :color="data.usd ? 'deep-purple' : 'grey'" variant="tonal"
                     @click="data.usd = !data.usd" class="mr-1">
                     <template v-slot:default>
                         <v-icon v-if="data.usd" size="16" class="mr-1">
@@ -54,7 +54,7 @@
                             {{ data.usd ? 'Ocultar' : 'Ver en Dólares' }}
                         </v-tooltip>
                     </template>
-                </v-chip>
+                </v-chip> -->
                 <v-chip size="small" :color="data.orden.aprobada ? 'green' : 'grey'" variant="tonal" 
                     @click="data.orden.aprobada = !data.orden.aprobada">
                     <template v-slot:default >
@@ -156,7 +156,7 @@
                                       Productos a Ordenar
                                     </h6>
                                 </div>
-                            </div>            
+                            </div>
                             <!-- Tarjeta de búsqueda de productos -->
                             <v-card class="product-selector" variant="outlined" >
                                 <v-card-text>
@@ -241,7 +241,7 @@
                               :message="data.alert.message"/>
                         </transition>
                       </template>
-                        
+
                         <template v-slot:item.opc="{ item }">
                           <v-btn 
                               icon 
@@ -256,13 +256,13 @@
                               </v-tooltip>
                           </v-btn>
                         </template>
-                        
+
                         <template v-slot:item.costoUnitario="{ item }">
                             <div class="font-weight-medium text-body-2">
                                 {{ formatedCurrency(item.costoUnitario) }}
                             </div>
                         </template>
-                        
+
                         <template v-slot:item.subTotal="{ item }">
                             <div class="font-weight-bold text-body-2 text-primary">
                                 {{ formatedCurrency(item.subTotal) }}
