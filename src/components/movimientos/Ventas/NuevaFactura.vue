@@ -288,10 +288,10 @@
                             fixed-header
                         >
                             <template v-slot:item.opc="{ item }">
-                                <v-btn 
-                                    icon 
-                                    size="small" 
-                                    color="error" 
+                                <v-btn
+                                    icon
+                                    size="small"
+                                    color="error"
                                     variant="text"
                                     @click="deleteProduct(item)"
                                 >
@@ -304,8 +304,8 @@
                             <template v-slot:bottom>
                                 <transition name="slide-y-transition">
                                     <AlertComp
-                                        :show="data.alert.show3" 
-                                        :type="data.alert.type" 
+                                        :show="data.alert.show3"
+                                        :type="data.alert.type"
                                         :message="data.alert.message"/>
                                 </transition>
                             </template>
@@ -402,18 +402,18 @@
                     >
                         Cancelar
                     </v-btn>
-                    <v-btn 
-                        class="bg-indigo-darken-4 px-8" 
+                    <v-btn
+                        class="bg-indigo-darken-4 px-8"
                         @click="guardarFactura()"
                         :disabled="data.contDisableBtn"
                         prepend-icon="mdi-content-save-outline"
                         elevation="2"
                     >
                         <template v-if="data.contDisableBtn">
-                            <v-progress-circular 
-                                color="white" 
+                            <v-progress-circular
+                                color="white"
                                 indeterminate
-                                :size="24" 
+                                :size="24"
                                 :width="3"
                                 class="mr-2"
                             />
@@ -432,10 +432,10 @@
 
             <OverlayComp :show="data.overlay.show"/>
 
-            <SuccessAlert 
-                :success="data.alertSuccess.success" 
-                :msg="data.alertSuccess.msg" 
-                :show="data.alertSuccess.show" 
+            <SuccessAlert
+                :success="data.alertSuccess.success"
+                :msg="data.alertSuccess.msg"
+                :show="data.alertSuccess.show"
             />
         </v-dialog>
     </div>
@@ -822,81 +822,87 @@ export default {
             //     return
             // }
 
-            if (!this.localEdit) {
-                if (!valid.valid) {
-                    this.data.hide = false
-                    setTimeout(() => {
-                        this.data.hide = true
-                    }, 1500)
-                    this.showAlert(2, 'Complete la información de venta', 'warning')
-                    return
-                } else {
-                    this.data.venta.detalleVenta = []
-                    this.data.items.forEach(item => {
-                        this.data.venta.detalleVenta.push({
-                            "idVenta": item.idVenta,
-                            "idProducto": item.idProducto,
-                            "cantidad": item.cantidad,
-                            "precioUnitario": item.costoUnitario,
-                            "observaciones": item.observaciones
-                        })
-                    })
-
-                    this.data.contDisableBtn = true
-                    this.data.overlay.show = true
-                    const result = await this.data.requestHttp.postVenta(this.data.venta)
-                    this.data.overlay.show = false
-                    this.data.contDisableBtn = false
-                    if (result.code === 200) {
-                        this.showSuccesAlert('¡Venta registrada!', true)
+            try {
+                if (!this.localEdit) {
+                    if (!valid.valid) {
+                        this.data.hide = false
                         setTimeout(() => {
-                            this.closeDialog()
+                            this.data.hide = true
                         }, 1500)
-                    } else if(result.data.code === 400.1) {
-                        this.showSuccesAlert(`¡${result.data.msg}!`, false)
+                        this.showAlert(2, 'Complete la información de venta', 'warning')
                         return
                     } else {
-                        this.showSuccesAlert(`¡Venta no registrada. Verifique los datos!`, false)
-                        return
-                    }
-                }
-            } else {
-                if (!this.data.venta.noVenta ||
-                    !this.data.venta.idCliente ||
-                    !this.data.venta.usuarioRegistro
-                ) {
-                    this.showAlert(2, 'Complete la información de venta', 'warning')
-                    return
-                } else {
-                    this.data.venta.detalleVenta = []
-                    this.data.items.forEach(item => {
-                        this.data.venta.detalleVenta.push({
-                            "idVenta": item.idVenta,
-                            "idProducto": item.idProducto,
-                            "cantidad": item.cantidad,
-                            "precioUnitario": item.costoUnitario,
-                            "observaciones": item.observaciones
+                        this.data.venta.detalleVenta = []
+                        this.data.items.forEach(item => {
+                            this.data.venta.detalleVenta.push({
+                                "idVenta": item.idVenta,
+                                "idProducto": item.idProducto,
+                                "cantidad": item.cantidad,
+                                "precioUnitario": item.costoUnitario,
+                                "observaciones": item.observaciones
+                            })
                         })
-                    })
-
-                    this.data.contDisableBtn = true
-                    const result = await this.data.requestHttp.putVenta(
-                        this.data.venta, 
-                        this.data.editVenta.idVenta
-                    )
-                    this.data.contDisableBtn = false
-
-                    if (result.code === 200) {
-                        this.showSuccesAlert('¡Factura editada!', true)
-                        setTimeout(() => {
-                            this.closeDialog()
-                        }, 1500)
-                    } else {
-                        this.showSuccesAlert('¡No se pudo editar la factura!', false)
+                        this.data.contDisableBtn = true
+                        this.data.overlay.show = true
+                        const result = await this.data.requestHttp.postVenta(this.data.venta)
+                        this.data.overlay.show = false
+                        if (result.code === 200) {
+                            this.showSuccesAlert('¡Venta registrada!', true)
+                            setTimeout(() => {
+                                this.data.contDisableBtn = false
+                                this.closeDialog()
+                            }, 1500)
+                        } else if(result.data.code === 400.1) {
+                            this.data.contDisableBtn = false
+                            this.showSuccesAlert(`¡${result.data.msg}!`, false)
+                            return
+                        } else {
+                            this.data.contDisableBtn = false
+                            this.showSuccesAlert(`¡Venta no registrada. Verifique los datos!`, false)
+                            return
+                        }
+                    }
+                } else {
+                    if (!this.data.venta.noVenta ||
+                        !this.data.venta.idCliente ||
+                        !this.data.venta.usuarioRegistro
+                    ) {
+                        this.showAlert(2, 'Complete la información de venta', 'warning')
                         return
+                    } else {
+                        this.data.venta.detalleVenta = []
+                        this.data.items.forEach(item => {
+                            this.data.venta.detalleVenta.push({
+                                "idVenta": item.idVenta,
+                                "idProducto": item.idProducto,
+                                "cantidad": item.cantidad,
+                                "precioUnitario": item.costoUnitario,
+                                "observaciones": item.observaciones
+                            })
+                        })
+    
+                        this.data.contDisableBtn = true
+                        const result = await this.data.requestHttp.putVenta(
+                            this.data.venta,
+                            this.data.editVenta.idVenta
+                        )
+                        this.data.contDisableBtn = false
+    
+                        if (result.code === 200) {
+                            this.showSuccesAlert('¡Factura editada!', true)
+                            setTimeout(() => {
+                                this.closeDialog()
+                            }, 1500)
+                        } else {
+                            this.showSuccesAlert('¡No se pudo editar la factura!', false)
+                            return
+                        }
                     }
                 }
+            } catch (error) {
+                this.showSuccesAlert(`Ha ocurrido un problema al guardar`, false)
             }
+
             this.$emit('refreshTable')
         },
 

@@ -66,7 +66,7 @@
 
                         <v-col cols="12" md="12" sm="12">
                             <v-textarea v-model="data.movimiento.observaciones" prepend-inner-icon="mdi-text-box-outline" density="compact" rows="2"
-                                variant="outlined" :hide-details="data.hide ? true : false" label="Observaciones" placeholder="ingrese el una categoría"
+                                variant="outlined" :hide-details="data.hide ? true : false" label="Observaciones" placeholder="ingrese algunas observaciones"
                                 persistent-placeholder :rules="data.rules.rule" :readonly="readonlyOption()" />
                         </v-col>
                     </v-row>
@@ -148,13 +148,13 @@ export default {
 
             const result = await data.requestHttp.getConceptoMov(data.movimiento.idTipoMovimiento)
             result.map(item => {
-              data.conceptos.push({title: item.nombre, value: item.id})
+                data.conceptos.push({title: item.nombre, value: item.id})
             })
         }
 
         watch(() => props.editar, async (val) => {
             localEdit.value = val
-            if (val === true) {
+            if (val) {
                 data.movimiento = localMov.value
                 await getConcepto()
                 const date = new Date(data.movimiento.fechaMovimiento)
@@ -177,7 +177,7 @@ export default {
                 data.overlay.show = true
                 setTimeout(async () => {
                     data.overlay.show = false
-                    data.movimiento = localMov.value    
+                    data.movimiento = localMov.value
                     await getConcepto()
                     const date = new Date(data.movimiento.fechaMovimiento)
                     const year = date.getFullYear()
@@ -237,7 +237,7 @@ export default {
             const result = await data.requestHttp.getCombobox(endPoints.getTipoMov)
             if (result.code === 200) {
                 result.data.map(item => {
-                  data.tiposMov.push({title: item.nombre, value: item.id})  
+                    data.tiposMov.push({title: item.nombre, value: item.id})  
                 })
             }
         }
@@ -246,10 +246,10 @@ export default {
             data.modalidades = []
 
             const result = await data.requestHttp.getCombobox(endPoints.getModalidades)
-            
+
             if (result.code === 200) {
                 result.data.map(item => {
-                  data.modalidades.push({title: item.nombre, value: item.id})  
+                    data.modalidades.push({title: item.nombre, value: item.id})  
                 })
             }
         }
@@ -303,7 +303,7 @@ export default {
                 this.data.overlay.show = true
                 const result = await this.data.requestHttp.postMov(this.data.movimiento)
                 this.data.overlay.show = false
-    
+
                 if (result.code === 200) {
                     this.showSuccesAlert('¡Movimiento registrado!', true)
                     setTimeout(() => {
@@ -318,7 +318,7 @@ export default {
                 this.data.overlay.show = true
                 const result = await this.data.requestHttp.putMov(this.data.movimiento, this.data.idMovimiento)
                 this.data.overlay.show = false
-                
+
                 if (result.code === 200) {
                     this.showSuccesAlert('¡Movimiento editado!', true)
                     setTimeout(() => {

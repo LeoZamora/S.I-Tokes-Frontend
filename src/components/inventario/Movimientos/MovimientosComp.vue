@@ -15,35 +15,125 @@
                 </div>
             </template>
 
-            <v-divider /> 
+            <v-divider />
+
+            <v-card class="pa-2" elevation="0">
+                <div class="d-flex align-center">
+                    <v-icon color="primary" class="mr-2">
+                        mdi-filter
+                    </v-icon>
+                    <span class="text-subtitle- font-weight-medium">
+                        Filtros de búsqueda
+                    </span>
+                </div>
+
+                <v-row dense align="center">
+                    <v-col cols="12" md="4" sm="4">
+                        <v-row dense class="align-center px-2">
+                            <v-col cols="12" sm="12" md="12">
+                                <v-autocomplete v-model="data.movimiento" :items="data.movimientos"
+                                    density="compact" label="Tipos de Movimientos" hide-details variant="outlined"
+                                    placeholder="movimientos" persistent-placeholder @update:model-value="filterTipoMov()"
+                                    color="indigo" clearable @click:clear="getData"/>
+                            </v-col>
+                        </v-row>
+                    </v-col>
+                    <v-col cols="12" md="8" sm="8">
+                        <v-card variant="flat" class="px-4 py-2" color="grey-lighten-4">
+                            <v-row>
+                                <v-col class="d-flex flex-column align-center">
+                                    <div class="d-flex justify-space-around flex-wrap align-center ga-4">
+                                        <!-- Resumen de ventas -->
+                                        <div class="d-flex align-center">
+                                            <v-avatar size="40" color="blue-lighten-5" class="mr-3">
+                                                <v-icon color="blue">mdi-chart-box</v-icon>
+                                            </v-avatar>
+                                            <div>
+                                                <div class="text-caption text-grey">
+                                                    Total Compras
+                                                </div>
+                                                <div class="text-h6 font-weight-bold">
+                                                    {{ data.details.cantidadCompra }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-center">
+                                            <v-avatar size="40" color="blue-lighten-5" class="mr-3">
+                                                <v-icon color="blue">mdi-chart-box</v-icon>
+                                            </v-avatar>
+                                            <div>
+                                                <div class="text-caption text-grey">
+                                                    Total Ventas
+                                                </div>
+                                                <div class="text-h6 font-weight-bold">
+                                                    {{ data.details.cantidadVenta }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <v-divider vertical />
+
+                                            <!-- Total facturado -->
+                                        <div class="d-flex align-center">
+                                            <v-avatar size="40" color="green-lighten-5" class="mr-3">
+                                                <v-icon color="indigo">
+                                                    mdi-cash-multiple
+                                                </v-icon>
+                                            </v-avatar>
+                                            <div>
+                                                <div class="text-caption text-indigo">
+                                                    Total Compras
+                                                </div>
+                                                <div class="font-weight-bold text-indigo">
+                                                    {{ formatedCurrency(data.details.totalCompra) }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-center">
+                                            <v-avatar size="40" color="green-lighten-5" class="mr-3">
+                                                <v-icon color="green">
+                                                    mdi-cash-multiple
+                                                </v-icon>
+                                            </v-avatar>
+                                            <div>
+                                                <div class="text-caption text-green">
+                                                    Total Ventas
+                                                </div>
+                                                <div class="font-weight-bold text-green">
+                                                    {{ formatedCurrency(data.details.totalVenta) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-center">
+                                        <v-avatar size="40" color="green-lighten-5" class="mr-3">
+                                            <v-icon>
+                                                mdi-cash-multiple
+                                            </v-icon>
+                                        </v-avatar>
+                                        <div>
+                                            <div class="text-caption">
+                                                Balance
+                                            </div>
+                                            <div class="font-weight-bold">
+                                                {{ formatedCurrency(data.details.balanceGeneral) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </v-col>
+                            </v-row>
+                        </v-card>
+                    </v-col>
+                </v-row>
+
+            </v-card>
 
             <v-card-text class="px-0">
                 <v-container>
-                    <v-row dense class="align-center px-2">
-                        <v-col cols="12" sm="4" md="4">
-                            <v-text-field v-model="data.search" density="compact" label="Buscar" hide-details 
-                                placeholder="Buscar textos" persistent-placeholder color="indigo"
-                                variant="outlined"/>
-                        </v-col>
-                        <v-col cols="12" sm="4" md="4">
-                            <v-autocomplete v-model="data.movimiento" :items="data.movimientos" 
-                                density="compact" label="Tipos de Movimientos" hide-details variant="outlined"
-                                placeholder="movimientos" persistent-placeholder @update:model-value="filterTipoMov()" color="indigo"/>
-                        </v-col>
-                        <v-col cols="12" sm="4" md="4" class="d-flex justify-end align-center">
-                            <v-btn size="small" icon color="green" class="border mx-2" variant="text" @click="getData()">
-                                <v-icon>mdi-refresh</v-icon>
-                            </v-btn>
-                            <v-btn size="small" icon color="grey" variant="text" class="border" @click="clearData()">
-                                <v-icon>mdi-broom</v-icon>
-                            </v-btn>
-                        </v-col>
-                    </v-row>
-
-                    <v-divider class="my-2"/> 
-
                     <v-card-subtitle class="d-flex align-center text-center mb-2">
-                        <v-divider /> 
+                        <v-divider />
                         <span class="mx-6 text-grey font-weight-bold">Registros</span>
                         <v-divider />
                     </v-card-subtitle>
@@ -52,11 +142,67 @@
                         :items="data.items" class="border font" density="compact"
                         :row-props="setStyle" hover :header-props="{ class: 'font-weight-bold' }" 
                         :loading="data.loading">
+                        <template v-slot:top>
+                            <v-row dense class="px-4 py-2">
+                                <v-col cols="12" md="8" sm="8">
+                                    <div class="d-flex align-center">
+                                        <div class="text-h6 font-weight-bold d-flex align-center
+                                            text-grey">
+                                            <v-icon class="me-2" color="grey">
+                                            mdi-file-document-multiple
+                                            </v-icon>
+                                            Movimientos Registrados {{ data.movimiento ? `- ${data.movimiento}` : '' }}
+                                        </div>
+                                    </div>
+                                </v-col>
+                                <v-col cols="12" md="4" sm="4">
+                                    <v-text-field
+                                        v-model="data.search"
+                                        color="primary"
+                                        density="compact"
+                                        variant="outlined"
+                                        prepend-inner-icon="mdi-magnify"
+                                        label="Buscar"
+                                        hide-details
+                                        placeholder="Cliente, número, producto..."
+                                        clearable
+                                        persistent-placeholder
+                                        @click:clear="data.search = ''"
+                                    >
+                                        <template v-slot:append>
+                                            <v-menu :close-on-content-click="false" location="right center"
+                                                origin="auto">
+                                                <template v-slot:activator="{ props }">
+                                                    <v-tooltip text="Opciones" location="top">
+                                                        <template v-slot:activator="{ props: tooltipProps }">
+                                                            <v-btn size="small" icon variant="tonal" color="indigo-darken-4"
+                                                                v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                                                                <v-icon>mdi-dots-vertical</v-icon>
+                                                            </v-btn>
+                                                        </template>
+                                                    </v-tooltip>
+                                                </template>
+
+                                                <v-list nav rounded="lg" color="indigo">
+                                                    <v-list-item rounded density="compact" append-icon="mdi-file-excel"
+                                                        color="indigo" @click="exportToExcel">
+                                                        <template v-slot:title>
+                                                            Descargar excel
+                                                        </template>
+                                                    </v-list-item>
+                                                </v-list>
+                                            </v-menu>
+                                        </template>
+                                    </v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-divider />
+                        </template>
                         <template v-slot:loader>
                             <v-progress-linear color="indigo" indeterminate height="2"/>
                         </template>
                         <template v-slot:loading>
-                            <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+                            <v-skeleton-loader type="table-row@10" />
                         </template>
                         <template v-slot:item.total="{ item }">
                             <div>{{ formatedCurrency(item.total) }}</div>
@@ -81,7 +227,7 @@
                                     </v-tooltip>
                                 </template>
 
-                                <v-list nav rounded="lg" >
+                                <v-list nav rounded="lg">
                                     <v-list-item-subtitle class="pa-1">
                                         Opciones
                                     </v-list-item-subtitle>
@@ -89,7 +235,6 @@
                                     <v-list-item rounded density="compact" prepend-icon="mdi-eye"
                                         color="indigo" @click="viewDialog(item)">
                                         <template v-slot:title>
-                                            <v-divider vertical />
                                             Ver Detalles
                                         </template>
                                     </v-list-item>
@@ -107,6 +252,7 @@
         </v-card>
 
 
+        <!-- DETALLES DE LA VENTA -->
         <v-dialog v-model="data.dialog" max-width="800" persistent>
             <v-card class="rounded bg-grey-lighten-4">
                 <!-- Encabezado mejorado -->
@@ -128,7 +274,7 @@
                         <v-icon size="24">mdi-close</v-icon>
                     </v-btn>
                 </v-card-title>
-                
+
                 <!-- Contenido principal -->
                 <v-card-text class="pa-4">
                     <!-- Tarjeta de información principal -->
@@ -247,9 +393,9 @@
                             </span>
                         </v-card-title>
                         <v-divider />
-                        <v-data-table 
-                            :headers="data.headersView" 
-                            :items="data.itemsView" 
+                        <v-data-table
+                            :headers="data.headersView"
+                            :items="data.itemsView"
                             hide-default-footer
                             density="compact"
                             height="200"
@@ -338,7 +484,7 @@
                                             </v-list-item-title>
                                         </v-list-item>
 
-                                        <v-divider class="my-2" />
+                                        <!-- <v-divider class="my-2" />
 
                                         <v-list-item class="px-0">
                                             <template v-slot:prepend>
@@ -349,14 +495,14 @@
                                             <v-list-item-title class="text-end text-h6 font-weight-bold text-green-darken-2">
                                                 {{ formatedCurrency(data.factura.usdTotal, data.fomates.usd) }}
                                             </v-list-item-title>
-                                        </v-list-item>
+                                        </v-list-item> -->
                                     </v-list>
                                 </v-card-text>
                             </v-card>
                         </v-col>
                     </v-row>
                 </v-card-text>
-                
+
                 <!-- Acciones -->
                 <v-divider />
                 <v-card-actions class="pa-2 bg-grey-lighten-4">
@@ -381,6 +527,8 @@
 import OverlayComp from '@/components/reutilizable/OverlayComp.vue';
 import RequestHttp from '@/services/requestHttp';
 import { formatters } from '@/helpers/formatters';
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
 import { reactive, ref } from 'vue';
 
 export default {
@@ -422,24 +570,16 @@ export default {
             const result = await data.requestHttp.getByIdCliente(id)
             return result.codigo
         }
+
         const getVenta = async (id) => {
             data.itemsView = []
             data.overlay.show = true
             const result = await data.requestHttp.getByIdVenta(id)
 
             if (result.code === 200) {
-                data.venta.credito = result.data.credito
-                data.venta.enviarA = result.data.enviarA
-                data.venta.idCliente = result.data.idCliente
-                data.venta.noVenta = result.data.noVenta
+                data.venta = result.data
                 data.venta.cliente = await getCliente(result.data.idCliente)
-                data.venta.observaciones = result.data.observaciones
-                data.venta.usuarioRegistro = result.data.usuarioRegistro
-                data.venta.estado = result.data.estado
-                data.venta.fechaRegistro = result.data.fechaRegistro
-                data.venta.idVenta = result.data.idVenta
-                data.venta.idClienteNavigation = result.data.idClienteNavigation
-    
+
                 if (result.data.detalleCxcs?.length > 0) {
                     result.data.detalleCxcs.map(item => {
                         data.venta.detalleCxcs.push(item)
@@ -448,7 +588,7 @@ export default {
 
                 const promises = result.data.detalleVenta.map(async (item) => {
                     const product = await data.requestHttp.getByIdProducto(item.idProducto)
-    
+
                     data.itemsView.push({
                         idDetalleVenta: item.idDetalleVenta,
                         idVenta: item.idVenta,
@@ -463,7 +603,7 @@ export default {
                     })
                 })
                 await Promise.all(promises)
-                calcularTotals()   
+                calcularTotals()
             }
 
             data.overlay.show = false
@@ -477,26 +617,21 @@ export default {
             data.overlay.show = false
 
             data.itemsView = []
-            data.orden.idOrden = result.idCompra
-            data.orden.idProveedor = result.idProveedor
-            data.orden.noOrden = result.noOrden
-            data.orden.aprobada = result.aprobada
-            data.orden.observaciones = result.observaciones
-            data.orden.usuarioRegistro = result.usuarioRegistro
-            data.orden.fechaRegistro = result.fechaRegistro
-            data.orden.estado = result.estado
+            data.orden = { idOrden: result.idCompra, ...result.data }
+
             data.orden.proveedor = proveedor.nombre
             await Promise.all(result.detalleCompras.map(async (item) => {
                 const product = await data.requestHttp.getByIdProducto(item.idProducto)
                 data.itemsView.push({
                     idCompra: item.idCompra,
-                    idProducto: item.idProducto, 
+                    idProducto: item.idProducto,
                     cantidad: item.cantidad,
                     costoUnitario: item.costoUnitario,
                     observaciones: item.observaciones,
                     subTotal: item.cantidad * item.costoUnitario,
                     producto: product.nombre
                 })
+
             }))
             calcularTotals()
         }
@@ -516,10 +651,14 @@ export default {
                     }
                 },
                 {title: 'Nº Mov', key: 'noMov', align: 'center'},
-                {title: 'Tipo Mov', key: 'tipoMov', align: 'center'},
+                {title: 'Tipo Movimiento', key: 'tipoMov', align: 'center'},
                 {title: 'Cliente-Proveedor', key: 'clienteProveedor', align: 'center'},
                 {title: 'Vendedor', key: 'usuarioRegistro', align: 'center'},
-                {title: 'Monto', key: 'total', align: 'center'},
+                {title: 'Monto', key: 'total', align: 'center',
+                    cellProps: {
+                        class: 'font-weight-bold'
+                    }
+                },
                 {title: 'FechaRegistro', key: 'fechaRegistro', align: 'center'},
                 {title: 'Observaciones', key: 'observaciones', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
@@ -530,6 +669,15 @@ export default {
                 {title: 'costoUnitario Unit.', key: 'costoUnitario', align: 'center'},
                 {title: 'SubTotal', key: 'subTotal', align: 'center'},
             ],
+
+            details: {
+                cantidadVenta: 0,
+                cantidadCompra: 0,
+                totalVenta: 0.00,
+                totalCompra: 0.00,
+                balanceGeneral: 0.00,
+            },
+
             itemsBack: [],
             items: [],
             venta: {
@@ -587,6 +735,7 @@ export default {
             search: null,
             requestHttp: new RequestHttp()
         })
+
         const selectedItem = ref({});
 
         return {
@@ -606,7 +755,39 @@ export default {
             }
         },
 
-        async getOrdenes() {            
+        exportToExcel() {
+            if (!this.data.items) return
+
+            const filteredHeaders = this.data.headers
+            const headers = [...filteredHeaders.map(item => item.title)]
+            const datos = this.data.items.map(item => {
+                return {
+                    ...item,
+                    estado: item?.estado ? 'Activo' : 'Inactivo' ?? "No especificado",
+                    fechaRegistro: formatters.formatDate(item.fechaRegistro),
+                }
+            })
+
+            const rows = datos.map(item => [...filteredHeaders.map(h => item[h.key])])
+
+            const exportData = []
+            exportData.push([])
+            exportData.push(headers)
+            exportData.push(...rows)
+
+            const workBook = new ExcelJS.Workbook()
+            const workSheet = workBook.addWorksheet(`Reporte de movimientos`)
+            workSheet.addRows(exportData)
+
+            workBook.xlsx.writeBuffer().then((buffer) => {
+                const data = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" })
+                saveAs(data, `Reporte de movimientos`)
+            })
+        },
+
+        async getOrdenes() {
+            this.data.details.totalCompra = 0.00
+            this.data.details.cantidadCompra = 0
             this.data.loading = true
             this.data.overlay.show = true
             const result = await this.data.requestHttp.getCompras()
@@ -619,48 +800,115 @@ export default {
                         tipoMov: 'Compra',
                         noMov: item.noOrden
                     })
+                    this.data.details.cantidadCompra ++;
+                    this.data.details.totalCompra += item.total
                 })
             }
             this.data.overlay.show = false
         },
 
-        async getVentas() {    
-            this.data.overlay.show = true
-            const result = await this.data.requestHttp.getVentas()
-            
-            if (result !== null) {
-                result.map(item => {
-                    this.data.items.push({
-                        ...item,
-                        clienteProveedor: item.cliente,
-                        tipoMov: 'Venta',
-                        noMov: item.noVenta
-                    })
-                })
+        // async getVentas() {
+        //     this.data.overlay.show = true
+        //     this.data.details.totalVenta = 0.00
+        //     this.data.details.cantidadVenta = 0
+        //     const result = await this.data.requestHttp.getVentas()
+
+        //     if (result !== null) {
+        //         result.map(item => {
+        //             this.data.items.push({
+        //                 ...item,
+        //                 clienteProveedor: item.cliente,
+        //                 tipoMov: 'Venta',
+        //                 noMov: item.noVenta
+        //             })
+        //             this.data.details.cantidadVenta ++;
+        //             this.data.details.totalVenta += item.total
+        //         })
+        //     }
+
+        //     this.data.overlay.show = false
+        // },
+
+        // async getData () {
+        //     this.data.items = []
+        //     this.data.loading = true
+        //     await Promise.all([
+        //         this.getVentas(),
+        //         this.getOrdenes()
+        //     ])
+        //     this.data.itemsBack = this.data.items
+        //     this.data.loading = false
+        // },
+
+        async getData() {
+            this.data.loading = true;
+            this.data.overlay.show = true;
+            this.data.items = [];
+
+            // Reiniciamos totales
+            this.data.details = {
+                totalCompra: 0, cantidadCompra: 0,
+                totalVenta: 0, cantidadVenta: 0,
+                balance: 0
+            };
+
+            try {
+                const [ventas, compras] = await Promise.all([
+                    this.data.requestHttp.getVentas(),
+                    this.data.requestHttp.getCompras()
+                ]);
+
+                const procesados = [];
+
+                if (ventas) {
+                    ventas.forEach(item => {
+                        procesados.push({
+                            ...item,
+                            clienteProveedor: item.cliente,
+                            tipoMov: 'Venta',
+                            noMov: item.noVenta,
+                            color: 'success' // Útil para chips en la UI
+                        });
+                        this.data.details.cantidadVenta++;
+                        this.data.details.totalVenta += item.total;
+                    });
+                }
+
+                if (compras) {
+                    compras.forEach(item => {
+                        procesados.push({
+                            ...item,
+                            clienteProveedor: item.proveedor,
+                            tipoMov: 'Compra',
+                            noMov: item.noOrden,
+                            color: 'error'
+                        });
+                        this.data.details.cantidadCompra++;
+                        this.data.details.totalCompra += item.total;
+                    });
+                }
+
+                // Ordenar por fecha de forma descendente
+                this.data.items = procesados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+                this.data.itemsBack = [...this.data.items];
+
+                // Cálculo del balance neto del periodo
+                this.data.details.balanceGeneral = this.data.details.totalVenta - this.data.details.totalCompra;
+
+            } catch (error) {
+                console.error("Error cargando el reporte:", error);
+            } finally {
+                this.data.loading = false;
+                this.data.overlay.show = false;
             }
-
-            this.data.overlay.show = false
-        },
-
-        async getData () {
-            this.data.items = []
-            this.data.loading = true
-            await Promise.all([
-                this.getVentas(),
-                this.getOrdenes()
-            ])
-            this.data.itemsBack = this.data.items
-            this.data.loading = false
         },
 
         formatedCurrency(key, currency) {
-            const value = formatters.formatCurrency(key, currency)
-            return value
+            return formatters.formatCurrency(key, currency)
         },
-        
+
         formatedDate(dataString) {
-            const value = formatters.formatDate(dataString)
-            return value
+            return formatters.formatDate(dataString)
         },
 
         viewDialog(item) {
