@@ -14,8 +14,8 @@ const formatDate = (dataString) => {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric',
-            // hour: '2-digit',
-            // minute: '2-digit'
+            hour: '2-digit',
+            minute: '2-digit'
         })
     }
 }

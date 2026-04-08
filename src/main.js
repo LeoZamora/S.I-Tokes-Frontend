@@ -14,6 +14,7 @@ import Axios from 'axios'
 import 'intro.js/minified/introjs.min.css';
 
 //Axios.defaults.baseURL = 'http://localhost:5091/'
+Axios.defaults.baseURL = 'https://inversiones-zafiro.com/'
 
 const pinia = createPinia();
 const app = createApp(App);

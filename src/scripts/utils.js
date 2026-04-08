@@ -21,7 +21,7 @@ export function getDate() {
 export function getIntervaloMesActual() {
     const fechaActual = new Date()
     const año = fechaActual.getFullYear()
-    const mes = fechaActual.getMonth() + 1 // getMonth() devuelve 0 para enero
+    const mes = fechaActual.getMonth() + 1
 
     // Último día del mes actual
     const ultimoDiaDelMes = new Date(año, mes, 0).getDate()

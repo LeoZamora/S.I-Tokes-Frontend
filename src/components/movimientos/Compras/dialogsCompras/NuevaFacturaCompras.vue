@@ -258,9 +258,9 @@
                         </template>
 
                         <template v-slot:item.costoUnitario="{ item }">
-                            <div class="font-weight-medium text-body-2">
-                                {{ formatedCurrency(item.costoUnitario) }}
-                            </div>
+                          <v-text-field v-model="item.costoUnitario" variant="outlined" hide-details
+                            density="compact" class="my-1" color="indigo" prefix="C$" 
+                            @update:model-value="item.subTotal = 0; item.subTotal =  item.cantidad * item.costoUnitario" />
                         </template>
 
                         <template v-slot:item.subTotal="{ item }">
@@ -294,7 +294,7 @@
                             </v-card-text>
                         </v-card>
                     </v-col>
-                    
+
                     <v-col cols="12" md="6" sm="6">
                         <v-card variant="flat" color="white" class="h-100">
                             <v-card-title class="d-flex align-center">
@@ -319,9 +319,9 @@
                                         {{ formatedCurrency(data.factura.total, data.fomates.nio) }}
                                     </span>
                                 </div>
-                                
+
                                 <v-divider v-if="data.usd" class="my-3" />
-                                
+
                                 <div v-if="data.usd" class="summary-item d-flex justify-space-between align-center mt-3 pt-3">
                                     <span class="text-body-2 text-grey-darken-1">
                                         <v-icon size="16" class="mr-1">mdi-currency-usd</v-icon>
@@ -687,6 +687,10 @@ export default {
       }
     )
 
+    watch(() => data.items, () => {
+      calcularTotals()
+    }, { deep: true })
+
     return {
       localShow,
       localEdit,
@@ -715,7 +719,7 @@ export default {
       this.data.loading = true
       const result = await this.data.requestHttp.getUsuarios()
       this.data.loading = false
-      
+
       if (result.code === 200) {
         result.data.map((item) => {
           this.data.empleados.push({
@@ -797,7 +801,7 @@ export default {
               idCompra: item.idCompra,
               idProducto: item.idProducto,
               cantidad: item.cantidad,
-              costoUnitario: item.costoUnitario,
+              costoUnitario: Number(item.costoUnitario),
               observaciones: ''
             })
           })

@@ -81,9 +81,9 @@
                         <div class="text-h6 font-weight-bold">{{ data.facturas.length }}</div>
                       </div>
                     </div>
-                    
+
                     <v-divider vertical />
-                    
+
                     <!-- Total facturado -->
                     <div class="d-flex align-center">
                       <v-avatar size="40" color="green-lighten-5" class="mr-3">
@@ -100,7 +100,7 @@
                     </div>
                   </div>
                 </v-col>
-                
+
                 <!-- ACCIONES -->
                 <v-col cols="2" md="2" sm="2">
                   <div class="d-flex justify-end">
