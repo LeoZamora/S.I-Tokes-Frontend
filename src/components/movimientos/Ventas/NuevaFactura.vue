@@ -761,7 +761,7 @@ export default {
             this.data.loading = true
             const result = await this.data.requestHttp.getUsuarios()
             this.data.loading = false
-            
+
             if (result.code === 200) {
                 result.data.map(item => {
                     this.data.empleados.push({title: item.username, value: item.username})
@@ -817,11 +817,6 @@ export default {
             const valid = await this.$refs.form.validate()
             this.data.venta.detalleVenta = []
 
-            // if (this.data.items.length === 0) {
-            //     this.showAlert(3, 'Agregue productos a la factura', 'warning')
-            //     return
-            // }
-
             try {
                 if (!this.localEdit) {
                     if (!valid.valid) {
@@ -846,6 +841,7 @@ export default {
                         this.data.overlay.show = true
                         const result = await this.data.requestHttp.postVenta(this.data.venta)
                         this.data.overlay.show = false
+
                         if (result.code === 200) {
                             this.showSuccesAlert('¡Venta registrada!', true)
                             setTimeout(() => {
@@ -855,7 +851,13 @@ export default {
                         } else if(result.data.code === 400.1) {
                             this.data.contDisableBtn = false
                             this.showSuccesAlert(`¡${result.data.msg}!`, false)
-                            return
+                        } else if(result.code === 400 && !result.data) {
+                            this.data.contDisableBtn = false
+                            this.showSuccesAlert(`¡Venta registrada!`, true)
+                            setTimeout(() => {
+                                this.data.contDisableBtn = false
+                                this.closeDialog()
+                            }, 1500)
                         } else {
                             this.data.contDisableBtn = false
                             this.showSuccesAlert(`¡Venta no registrada. Verifique los datos!`, false)
@@ -880,14 +882,14 @@ export default {
                                 "observaciones": item.observaciones
                             })
                         })
-    
+
                         this.data.contDisableBtn = true
                         const result = await this.data.requestHttp.putVenta(
                             this.data.venta,
                             this.data.editVenta.idVenta
                         )
                         this.data.contDisableBtn = false
-    
+
                         if (result.code === 200) {
                             this.showSuccesAlert('¡Factura editada!', true)
                             setTimeout(() => {

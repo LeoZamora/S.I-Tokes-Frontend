@@ -382,8 +382,8 @@ class RequestHttp {
         try {
             const result  = await axios.post(endPoints.postCompra, data)
             return {
-              code: result.status,
-              data: result.data
+                code: result.status,
+                data: result.data
             }
         } catch (error) {
           return {
@@ -419,7 +419,6 @@ class RequestHttp {
                 code: error.response.status,
                 data: error.response.data
             }
-            
         }
     }
 
@@ -456,7 +455,7 @@ class RequestHttp {
         try {
             const result  = await axios.post(endPoints.postVenta, data)
             return {
-                code: 200,
+                code: result?.data?.code ?? result.status,
                 data: result.data
             }
         } catch (error) {
