@@ -533,6 +533,18 @@ export default {
             class: 'pa-0'
           }
         },
+        // {
+        //   title: 'ID',
+        //   key: 'idVenta',
+        //   sortable: false,
+        //   align: 'center',
+        //   headerProps: {
+        //     class: 'pa-1'
+        //   },
+        //   cellProps: {
+        //     class: 'pa-1'
+        //   }
+        // },
         {
           title: 'Nº Factura',
           key: 'noVenta',

@@ -34,52 +34,63 @@
         </v-btn>
       </template>-->
 
-      <v-form ref="form1">
-        <v-row dense>
-          <v-col>
-            <v-text-field
-              v-model="fechaDesde"
-              variant="outlined"
-              label="Fecha desde:"
-              density="compact"
-              type="date"
-              :rules="[
-                (v) => !!v || 'Requerido.'
-              ]"
-            ></v-text-field>
-          </v-col>
-          <v-col>
-            <v-text-field
-              v-model="fechaHasta"
-              variant="outlined"
-              label="Fecha hasta:"
-              density="compact"
-              type="date"
-              :rules="[
-                (v) => !!v || 'Requerido.'
-              ]"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-      </v-form>
+      <v-container>
+        <v-form ref="form1">
+          <v-row dense>
+            <v-col>
+              <v-text-field
+                v-model="fechaDesde"
+                variant="outlined"
+                label="Fecha desde:"
+                density="compact"
+                type="date"
+                :rules="[
+                  (v) => !!v || 'Requerido.'
+                ]"
+              ></v-text-field>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="fechaHasta"
+                variant="outlined"
+                label="Fecha hasta:"
+                density="compact"
+                type="date"
+                :rules="[
+                  (v) => !!v || 'Requerido.'
+                ]"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-form>
 
-      <div>
         <div>
-          Cantidad Ventas: {{ cantidadVentas }}
+          <div>
+            Cantidad Ventas:
+            <strong>
+              {{ cantidadVentas }}
+            </strong>
+          </div>
+          <div>
+            Total Vendido:
+            <strong>
+              {{ formatedCurrency(totalVendido) }}
+            </strong>
+          </div>
+          <div>
+            Total Costo Ventas:
+            <strong>
+              {{ formatedCurrency(totalCosto) }}
+            </strong>
+          </div>
+          <div>
+            Utilidad Bruta:
+            <strong>
+              {{ formatedCurrency(utilidadBruta) }}
+            </strong>
+          </div>
         </div>
-        <div>
-          Total Vendido:
-          {{ formatedCurrency(totalVendido) }}
-        </div>
-        <div>
-          Total Costo Ventas:
-          {{ formatedCurrency(totalCosto) }}
-        </div>
-        <div>
-          Utilidad Bruta:
-          {{ formatedCurrency(utilidadBruta) }}
-        </div>
-      </div>
+      </v-container>
 
       <v-divider />
 
@@ -115,6 +126,15 @@
               </td>
             </tr>
           </template> -->
+
+          <template v-slot:top>
+            <div class="d-flex justify-end align-center py-2 px-4">
+              <v-btn color="green" variant="outlined"
+                append-icon="mdi-download-multiple" @click="exportToExcel(tbl.headers, tbl.items)">
+                Excel's
+              </v-btn>
+            </div>
+          </template>
 
           <template v-slot:header.producto>
             <div>Producto</div>
@@ -166,6 +186,10 @@ import { httpGet } from '@/scripts/api.js'
 import { formatters } from '@/helpers/formatters.js'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 import { getIntervaloMesActual } from '@/scripts/utils.js'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
+import RequestHttp from '@/services/requestHttp'
+
 export default {
   components: {
     nuevoCierre
@@ -221,7 +245,7 @@ export default {
             title: 'Cliente',
             key: 'cliente',
             align: 'center',
-            width: 200, // Más ancho para nombres largos
+            width: 200,
             headerProps: {
               class: 'pa-1'
             },
@@ -258,7 +282,7 @@ export default {
             title: 'Producto',
             key: 'producto',
             align: 'center',
-            width: 200, // Más ancho porque incluye el código concatenado
+            width: 200,
             headerProps: {
               class: 'pa-1'
             },
@@ -351,12 +375,14 @@ export default {
         getIntervaloMesActual().fechaDesde,
       fechaHasta:
         getIntervaloMesActual().fechaHasta,
-      idProducto: 0,
+      idProducto: null,
 
       totalVendido: 0,
       totalCosto: 0,
       utilidadBruta: 0,
       cantidadVentas: 0,
+
+      requestHttp: new RequestHttp(),
 
       cmb: {
         productos: []
@@ -397,6 +423,34 @@ export default {
       return value
     },
 
+    exportToExcel(headers, items) {
+      if (!items || items.length === 0) return
+
+      const headersMapeed = [...headers.map(item => item.title)]
+      const datos = items.map(item => {
+        return {
+          ...item,
+          fechaVenta: this.formatedDate(item.fechaVenta) || '- - -',
+        }
+      })
+
+      const rows = datos.map(item => [...headers.map(h => item[h.key])])
+
+      const exportData = []
+      exportData.push([])
+      exportData.push(headersMapeed)
+      exportData.push(...rows)
+
+      const workBook = new ExcelJS.Workbook()
+      const workSheet = workBook.addWorksheet(`Detalles de venta`)
+      workSheet.addRows(exportData)
+
+      workBook.xlsx.writeBuffer().then((buffer) => {
+          const data = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" })
+          saveAs(data, `Detalles de venta.xlsx`)
+      })
+    },
+
     setStyle(index) {
       return {
         class:
@@ -409,9 +463,10 @@ export default {
     async loadTblCierres() {
       this.loading.load(true)
       try {
-        const cierres = await httpGet(
+        const url = this.idProducto === null ? 
           `api/cierres/detalle-ventas?desde=${this.fechaDesde}&hasta=${this.fechaHasta}`
-        )
+          : `api/cierres/detalle-ventas?desde=${this.fechaDesde}&hasta=${this.fechaHasta}&idProducto=${this.idProducto}`
+        const cierres = await httpGet(url)
         this.tbl.items = cierres.items
         this.cantidadVentas =
           cierres.cantidadVentas
@@ -435,6 +490,19 @@ export default {
     formatedCurrency(key) {
       const value = formatters.formatCurrency(key)
       return value
+    },
+
+    async getProductos() {
+      this.cmb.productos = []
+      this.loading.load(true)
+      const result = await this.requestHttp.getProductos(null)
+      this.loading.load(false)
+
+      if (result.code === 200) {
+          result.data.map(item => {
+              this.cmb.productos.push({title: item.nombre, value: item.idProducto})
+          })
+      }
     },
 
     //HANDLERS
@@ -472,7 +540,8 @@ export default {
     rangosResumen() {
       return {
         desde: this.fechaDesde,
-        hasta: this.fechaHasta
+        hasta: this.fechaHasta,
+        idProducto: this.idProducto
       }
     }
   },
@@ -488,6 +557,7 @@ export default {
 
   mounted() {
     this.loadTblCierres()
+    this.getProductos()
   },
 
   activated() {
