@@ -11,7 +11,7 @@
 
             <span class="mt-4">
                 <strong class="text-white">
-                    Cargando... 
+                    Cargando...
                 </strong>
             </span>
         </div>
@@ -27,7 +27,7 @@ export default {
     props: {
         show: {
             type: Boolean,
-            required: true 
+            required: true
         }
     },
 

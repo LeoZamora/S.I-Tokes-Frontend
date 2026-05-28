@@ -108,7 +108,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Cierres | I. Zafiro'
+        title: 'D. Venta | I. Zafiro'
       }
     },
     {
@@ -248,7 +248,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Roles | I. Zafiro'
+        title: 'Rutas | I. Zafiro'
       }
     },
     {

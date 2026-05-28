@@ -48,7 +48,8 @@
 
                         <v-col cols="12" md="6" sm="6">
                             <v-text-field v-model="data.movimiento.numReferencia" prepend-inner-icon="mdi-pound-box-outline" density="compact"
-                                variant="outlined" :hide-details="data.hide ? true : false" label="No. Referencia" placeholder="ingrese el número de referencía"
+                                variant="outlined" :hide-details="data.hide ? true : false" label="No. Referencia"
+                                placeholder="ingrese el número de referencía"
                                 persistent-placeholder :rules="data.rules.rule" :readonly="readonlyOption()" />
                         </v-col>
 
@@ -66,7 +67,8 @@
 
                         <v-col cols="12" md="12" sm="12">
                             <v-textarea v-model="data.movimiento.observaciones" prepend-inner-icon="mdi-text-box-outline" density="compact" rows="2"
-                                variant="outlined" :hide-details="data.hide ? true : false" label="Observaciones" placeholder="ingrese algunas observaciones"
+                                variant="outlined" :hide-details="data.hide ? true : false" label="Observaciones" 
+                                placeholder="ingrese algunas observaciones"
                                 persistent-placeholder :rules="data.rules.rule" :readonly="readonlyOption()" />
                         </v-col>
                     </v-row>

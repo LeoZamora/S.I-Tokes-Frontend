@@ -503,11 +503,11 @@ export default {
 
       const introKey = 'tutorialTipoVenta'
       if (localStorage.getItem(introKey)) return
-      
+
       const el = document.querySelector('.options')
 
       if (!el) return
-      
+
       var steps = [{
           title: '',
           element: el,
@@ -606,8 +606,8 @@ export default {
     },
 
     async closeAbonarDisplay() {
-      await this.loadTblCuentas()
       this.display.abonarCuenta = false
+      await this.loadTblCuentas()
     },
 
     close() {
