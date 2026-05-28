@@ -386,10 +386,10 @@ class RequestHttp {
                 data: result.data
             }
         } catch (error) {
-          return {
-            code: error.response.status,
-            data: error.response.data
-          }
+            return {
+                code: error.response.status,
+                data: error.response.data
+            }
         }
     }
     async putCompra(data, id) {

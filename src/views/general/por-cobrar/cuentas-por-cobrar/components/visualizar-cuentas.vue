@@ -132,7 +132,7 @@
               </template>
               <v-list nav rounded="lg">
                 <v-list-item-subtitle class="pa-1">
-                  Opciones
+                  Opcionessss
                 </v-list-item-subtitle>
                 <v-list-item @click="openVisualizarAbonosDisplay(item)" 
                   prepend-icon="mdi-eye">
@@ -145,7 +145,7 @@
                   @click="openAbonarDisplay(item)"
                   prepend-icon="mdi-cash-plus">
                   <v-list-item-title>
-                    Nuevo Abonar
+                    Abonar
                   </v-list-item-title>
                 </v-list-item>
               </v-list>

@@ -2,17 +2,17 @@
   <v-card>
     <v-card-title>{{ `Abonar a cuenta (Factura N° ${credito.noVenta})` }}</v-card-title>
     <v-card-subtitle>
-      Saldo actual: 
-      <strong>
+      Saldo actual:
+      <strong class="text-error">
         {{ formatedCurrency(credito.saldo) }}
       </strong>
     </v-card-subtitle>
     <v-divider></v-divider>
     <v-card-text>
-      <v-form ref="form" :disabled="disabledForm">
+      <v-form ref="form">
         <v-row dense>
           <v-col cols="12">
-            <v-autocomplete                
+            <v-autocomplete
               variant="outlined"
               v-model="abono.idModalidad"
               label="Modalidad:"
@@ -66,12 +66,22 @@
             ></v-textarea>
           </v-col>
         </v-row>
+
+        <OverlayComp :show="showOverlay" />
       </v-form>
     </v-card-text>
+
     <v-divider></v-divider>
+
     <v-card-actions>
-      <v-btn @click="close" color="secondary" variant="outlined" :disabled="disabledForm">Cancelar</v-btn>
-      <v-btn @click="guardar" color="primary" variant="flat" :disabled="disabledForm">Guardar</v-btn>
+      <v-btn @click="close" color="secondary" variant="text"
+        :disabled="disabledForm">
+        Cancelar
+      </v-btn>
+      <v-btn @click="guardar" color="indigo-darken-4" variant="elevated"
+        :disabled="disabledForm">
+        Guardar
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -80,8 +90,10 @@
 import {getDate} from "@/scripts/utils.js";
 import {useLoading} from "@/composables/use-loading.js";
 import {useSnackbar} from "@/composables/use-snackbar.js";
-import {getItemsCombobox, httpPost} from "@/scripts/api.js";
+import {getItemsCombobox} from "@/scripts/api.js";
 import {formatters} from "@/helpers/formatters.js";
+import axios from "axios";
+import OverlayComp from '@/components/reutilizable/OverlayComp.vue';
 
 export default {
   name: 'abonar-cuenta',
@@ -91,6 +103,11 @@ export default {
       type: Object,
       required: true
     }
+  },
+
+
+  components: {
+    OverlayComp
   },
 
   data(){
@@ -109,6 +126,8 @@ export default {
         usuarioRegistro: JSON.parse(localStorage.getItem('token')).usuario
       },
 
+      showOverlay: false,
+
       cmb: {
         modalidades: []
       }
@@ -122,8 +141,6 @@ export default {
     },
 
     async guardar(){
-      this.disabledForm = true
-
       const valid = await this.$refs.form.validate()
 
       if(!valid.valid){
@@ -131,24 +148,44 @@ export default {
         return
       }
 
-      this.loading.load(true)
+      // this.loading.load(true)
 
       try {
-        const response = await httpPost(`api/creditos/${this.credito.idDetalleCxc}/abonos`, this.abono)
+        this.disabledForm = true
+        this.showOverlay = true
+        const response = await axios.post(`api/creditos/${this.credito.idDetalleCxc}/abonos`, this.abono)
+        this.disabledForm = false
+        this.showOverlay = false
+        // this.loading.load(false)
 
-        this.close()
-        this.loading.load(false)
-        this.snackbar.notify('info', 'Abono registrado correctamente.')
+        if(response.status === 200 || response.status === 201) {
+          this.close()
+          this.snackbar.notify('info', 'Abono registrado correctamente.')
+          this.$refs.form.reset()
+        } else if(response.status === 403) {
+          return this.notify.notify(
+            'error',
+            'No tiene los permisos necesarios.',
+          )
+        } else {
+          return this.snackbar.notify(
+            'error',
+            response.data?.msg
+            ?? 'Ha surgido un inconveniente al guardar el registro'
+          )
+        }
+
       }
       catch (e) {
+        this.disabledForm = false
+        this.showOverlay = false
         this.handleException(e)
       }
     },
 
     //FORMATERS
     formatedCurrency(key) {
-      const value = formatters.formatCurrency(key)
-      return value
+      return formatters.formatCurrency(key)
     },
 
     //HANDLERS
@@ -163,11 +200,11 @@ export default {
         )
       } else {
         ex.data ?
-            this.snackbar.notify(
-                'error',
-                ex.data.msg,
-            ) :
-            console.log(ex)
+          this.snackbar.notify(
+            'error',
+            ex.data.msg,
+          ) :
+          console.log(ex)
       }
     },
 

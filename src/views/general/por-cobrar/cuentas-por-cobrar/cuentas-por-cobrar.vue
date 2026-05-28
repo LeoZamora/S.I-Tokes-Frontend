@@ -20,6 +20,7 @@
           </span>
         <v-divider thickness="2" />
       </v-card-subtitle>
+
       <v-row class="px-2" dense>
         <v-col cols="12">
           <v-card elevation="0" class="pa-4">
@@ -56,7 +57,7 @@
                   </v-card>
                 </div>
               </v-col>
-              
+
               <!-- BUSCADOR -->
               <v-col cols="12" md="4">
                 <v-text-field
@@ -73,7 +74,7 @@
                 />
               </v-col>
             </v-row>
-            
+
             <!-- SEGUNDA FILA: OPCIONES DE VISUALIZACIÓN -->
             <v-row dense class="alternador mt-3" align="center">
               <v-col cols="12">
@@ -82,7 +83,7 @@
                     <v-icon size="small" class="mr-2" color="primary">mdi-view-dashboard</v-icon>
                     <span class="text-subtitle-2">Agrupar por:</span>
                   </div>
-                  
+
                   <v-btn-toggle
                     v-model="tbl.agruparXCliente"
                     color="primary"
@@ -94,7 +95,7 @@
                       <v-icon start>mdi-account</v-icon>
                       Cliente
                     </v-btn>
-                    
+
                     <v-btn :value="false" variant="flat">
                       <v-icon start>mdi-receipt</v-icon>
                       Venta
@@ -140,7 +141,7 @@
                   <v-list-item-subtitle class="pa-1">
                     Opciones
                   </v-list-item-subtitle>
-                  <v-list-item @click="openVisualizarCuentasDisplay(item)" 
+                  <v-list-item @click="openVisualizarCuentasDisplay(item)"
                     prepend-icon="mdi-eye">
                     <v-list-item-title>Visualizar Cuentas</v-list-item-title>
                   </v-list-item>
@@ -153,7 +154,7 @@
             <template v-slot:item.fechaRegistro="{ item }">
               <div>{{ formatedDate(item.fechaRegistro) }}</div>
             </template>
-            
+
             <template v-slot:header.opc="{ }">
               <v-icon class="options">
                 mdi-dots-vertical
@@ -198,14 +199,14 @@ export default {
 
       const introKey = 'tutorialPorCobrar'
       if (localStorage.getItem(introKey)) return
-      
+
       const el = document.querySelector('.totalesInfo')
       const el2 = document.querySelector('.alternador')
       const el3 = document.querySelector('.detalleRegistros')
       const el4 = document.querySelector('.options')
 
       if (!el || !el2 || !el3 || !el4) return
-      
+
       var steps = [{
           title: 'Bienvenido',
           intro: 'Tenemos nuevas cosas para ti!!'

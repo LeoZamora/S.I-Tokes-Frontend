@@ -321,7 +321,6 @@ export default {
                     this.data.errorMsg = 'No se pude acceder al sistema.';
                     this.data.loading = false;
                 }
-            
             } catch (error) {
                 this.$emit('login', this.data.isVisible);
                 this.data.errorMsg = 'Credenciales incorrectas';

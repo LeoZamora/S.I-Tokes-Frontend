@@ -28,7 +28,7 @@ export const useStore = defineStore('auth', {
                 return console.log('Sesión expirada');
             } else {
                 return console.log('Sesión activa');
-            }   
+            }
         },
         getExp() {
             return localStorage.getItem('exp')
