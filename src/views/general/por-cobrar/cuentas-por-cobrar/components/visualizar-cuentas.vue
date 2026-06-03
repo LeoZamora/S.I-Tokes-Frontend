@@ -195,7 +195,7 @@
           </template>
           <template v-slot:item.cancelado="{ item }">
             <div>
-              <v-chip :color="item.cancelado ? 'green-darken-4' : 'orange-darken-4'">
+              <v-chip :color="item.cancelado ? 'green-darken-4' : 'indigo-darken-4'">
                 {{ item.cancelado ? 'Saldada' : 'Pendiente' }}
               </v-chip>
             </div>
@@ -248,7 +248,7 @@
               <td class="text-center" style="border: 1px solid #e0e0e0">
                 <div class="d-flex justify-center">
                   <v-chip
-                      :color="item.cancelado ? 'green-darken-4' : 'orange-darken-4'"
+                      :color="item.cancelado ? 'green-darken-4' : 'indigo-darken-4'"
                   >
                     {{ item.cancelado ? 'Saldada' : 'Pendiente' }}
                   </v-chip>

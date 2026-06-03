@@ -26,9 +26,12 @@ export function getIntervaloMesActual() {
     // Último día del mes actual
     const ultimoDiaDelMes = new Date(año, mes, 0).getDate()
 
+    
+    
     const fechaDesde = `${año}-${String(mes).padStart(2, '0')}-01`
     const fechaHasta = `${año}-${String(mes).padStart(2, '0')}-${ultimoDiaDelMes}`
-
+    
+    console.log(fechaDesde, fechaHasta);
     return {
         fechaDesde,
         fechaHasta

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <LoaderComp v-show="loader.show" :data="loader.msg"/>
+        <LoaderComp :show="loader.show" :data="loader.msg"/>
         <v-dialog v-model="internalShow" max-width="420" persistent>
             <v-card class="type-font" rounded="lg" elevation="6">
                 <v-card-title class="d-flex text-h6 font-weight-bold">

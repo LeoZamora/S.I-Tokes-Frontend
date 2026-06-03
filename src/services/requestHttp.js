@@ -367,7 +367,6 @@ class RequestHttp {
             return result.data
         } catch (error) {
             return null
-            
         }
     }
     async getByIdCompra(id) {

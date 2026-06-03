@@ -49,7 +49,7 @@
             </v-col>
           </v-row>
         </v-form>
-        
+
       </v-card-text>
       <v-divider/>
       <v-card-actions v-if="!localView">
@@ -129,7 +129,7 @@ export default {
         data.overlay.show = true
         const result = await data.requestHttp.getByIdCategorias(localCat.value.idCategoriaProducto)
         data.overlay.show = false
-        
+
         if (result.code === 200) {
           data.dataCat = result.data
           data.idCat = result.data.idCategoriaProducto
@@ -148,7 +148,7 @@ export default {
         data.overlay.show = true
         const result = await data.requestHttp.getByIdCategorias(localCat.value.idCategoriaProducto)
         data.overlay.show = false
-        
+
         if (result.code === 200) {
           data.dataCat = result.data
           data.idCat = result.data.idCategoriaProducto
@@ -221,7 +221,7 @@ export default {
         const result = await this.data.requestHttp.postCategorias(this.data.dataCat)
         this.data.overlay.show = false
 
-        if (result.code === 200) {
+        if (result.code === 200 || result.code === 201) {
           this.showSuccesAlert('¡Registro Guardado!', true)
           setTimeout(() => {
             this.closeDialog()
@@ -235,7 +235,7 @@ export default {
         this.data.overlay.show = true
         const result = await this.data.requestHttp.putCategorias(this.data.dataCat, this.data.idCat)
         this.data.overlay.show = false
-        
+
         if (result.code === 200) {
           this.showSuccesAlert('¡Registro Editado!', true)
           setTimeout(() => {

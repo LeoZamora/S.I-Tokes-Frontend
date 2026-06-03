@@ -37,7 +37,7 @@
                   multiple
                   border
                 >
-                  <v-btn :value="1" color="orange-darken-4">
+                  <v-btn :value="1" color="indigo-darken-4">
                     Pendientes
                   </v-btn>
                   <v-btn :value="2" color="green-darken-4">
@@ -177,7 +177,7 @@
             :color="
               item.cancelado
                 ? 'green-darken-4'
-                : (item.vencida ? 'red-darken-4' : 'orange-darken-4')
+                : (item.vencida ? 'red-darken-4' : 'indigo-darken-4')
             "
           >
             {{
@@ -236,7 +236,7 @@
           <td class="text-center" style="border: 1px solid #e0e0e0">
             <div class="d-flex justify-center">
               <v-chip
-                  :color="item.cancelado ? 'green-darken-4' : 'orange-darken-4'"
+                  :color="item.cancelado ? 'green-darken-4' : 'indigo-darken-4'"
               >
                 {{ item.cancelado ? 'Saldada' : 'Pendiente' }}
               </v-chip>

@@ -200,7 +200,6 @@
                 </div>
               </div>
             </div>
-            
             <div class="text-right">
               <div class="text-caption text-white mb-1 ">
                 STOCK ACTUAL
@@ -257,7 +256,6 @@
                 </v-chip>
               </div>
             </v-card-title>
-            
             <v-data-table
               :headers="verAjusteStock.tbl.headers"
               :items="verAjusteStock.tbl.items"
@@ -278,7 +276,6 @@
                   </span>
                 </div>
               </template>
-              
               <template v-slot:item.cantidad="{ item }">
                 <v-chip 
                   :color="item.cantidad > 0 ? 'green-lighten-5' : 'red-lighten-5'" 
@@ -292,14 +289,12 @@
                   {{ item.cantidad > 0 ? '+' : '' }}{{ item.cantidad }}
                 </v-chip>
               </template>
-              
               <template v-slot:no-data>
                 <div class="pa-6 text-center">
                   <v-icon size="large" color="grey-lighten-2" class="mb-3">mdi-information-outline</v-icon>
                   <div class="text-body-1 text-grey mb-1">No hay ajustes registrados</div>
                   <div class="text-caption text-grey">Este producto no tiene historial de ajustes</div>
                 </div>
-      
           <v-tooltip text="Ajustes Stock" location="top">
             <template
               v-slot:activator="{ props }"
@@ -356,7 +351,7 @@
       </v-card>
     </v-dialog>
 
-     <v-dialog v-model="display.ajusteStock" width="300">
+    <v-dialog v-model="display.ajusteStock" width="300">
       <v-card>
         <v-card-item>
           <v-card-title>Ajustar stock</v-card-title>
@@ -511,6 +506,7 @@
                               density="compact"
                               prepend-inner-icon="mdi-shape-outline"
                               hide-details
+                              clearable
                               @update:model-value="loadCmbSubCategoria(data.form.idCategoria)"
                           >
                             <template v-slot:prepend>
@@ -536,6 +532,7 @@
                               variant="outlined"
                               hide-details
                               density="compact"
+                              clearable
                               prepend-inner-icon="mdi-shape-outline"
                               @update:model-value="loadCodigoRecomendado(data.form.idSubCatProd)"
                           >
@@ -802,8 +799,12 @@
                             </v-card-text>
                             <v-divider></v-divider>
                             <v-card-actions class="justify-end">
-                              <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">Cancelar</v-btn>
-                              <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">Ajustar</v-btn>
+                              <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">
+                                Cancelar
+                              </v-btn>
+                              <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">
+                                Ajustar
+                              </v-btn>
                             </v-card-actions>
                           </v-card>
                         </v-dialog>

@@ -1,147 +1,299 @@
 <template>
-  <div class="pa-2">
-    <v-dialog v-model="displayCtrl.config" width="300">
-      <v-card>
-        <v-card-title>
-          Configuración de Dashboard
-        </v-card-title>
-        <v-card-subtitle>
-          Editar intervalo de fechas
-        </v-card-subtitle>
-        <v-divider></v-divider>
-        <v-card-text>
+  <div class="">
+    <!-- DIÁLOGO DE CONFIGURACIÓN -->
+    <v-dialog v-model="displayCtrl.config" max-width="420">
+      <v-card class="dialog-card" rounded="xl" elevation="0">
+
+        <v-card-item class="px-6 pt-6 pb-2">
+          <div class="d-flex align-center justify-space-between">
+            <div>
+              <div class="text-h6 font-weight-bold">
+                Configuración
+              </div>
+
+              <div class="text-body-2 text-medium-emphasis">
+                Selecciona el rango de fechas
+              </div>
+            </div>
+
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              density="comfortable"
+              @click="displayCtrl.config = false"
+            />
+          </div>
+        </v-card-item>
+
+        <v-card-text class="px-6 py-4">
           <v-row>
             <v-col cols="12">
               <v-text-field
-                  v-model="desde"
-                  label="Fecha desde:"
-                  type="date"
-                  hide-details
-              ></v-text-field>
+                v-model="desde"
+                label="Desde"
+                type="date"
+                variant="solo-filled"
+                flat
+                density="comfortable"
+                rounded="lg"
+              />
             </v-col>
+
             <v-col cols="12">
               <v-text-field
-                  v-model="hasta"
-                  label="Fecha hasta:"
-                  type="date"
-                  hide-details
-              ></v-text-field>
+                v-model="hasta"
+                label="Hasta"
+                type="date"
+                variant="solo-filled"
+                flat
+                density="comfortable"
+                rounded="lg"
+              />
             </v-col>
           </v-row>
         </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-btn color="primary" variant="flat" @click="displayCtrl.config = false">Ok</v-btn>
+
+        <v-card-actions class="px-6 pb-6">
+          <v-spacer />
+
+          <v-btn
+            variant="text"
+            class="text-none"
+            @click="displayCtrl.config = false"
+          >
+            Cancelar
+          </v-btn>
+
+          <v-btn
+            color="primary"
+            rounded="lg"
+            elevation="0"
+            class="text-none px-5"
+          >
+            Aplicar
+          </v-btn>
         </v-card-actions>
+
       </v-card>
     </v-dialog>
-    <v-row class="no-gutters" dense>
-      <v-col cols="12">
-        <v-card elevation="0" class="pa-2">
-          <v-row dense>
-            <v-col class="text-center" >
-              <h1>Bienvenido</h1>
-              <h4 class="text-grey">
-                Sistema de Información
-              </h4>
-              <h5>{{ `${formatedDate(desde)} al ${formatedDate(hasta)}` }}</h5>
-            </v-col>
-            <v-col class="d-flex">
-              <img
-                src="/128px.svg"
-                width="250"
-              />
-              <div class="d-flex flex-column align-end ml-auto">
-                <v-btn @click="displayCtrl.config = true" color="primary" class="mx-4" icon size="small"
-                  variant="tonal">
-                  <v-icon>mdi-cog</v-icon>
-                </v-btn>
+
+    <!-- HEADER DEL DASHBOARD -->
+    <v-row class="mb-6 align-center" dense>
+      <v-col cols="12" md="6">
+        <div class="d-flex align-center">
+          <v-avatar color="warning-lighten-4" size="48" class="mr-4">
+            <v-icon icon="mdi-hand-wave" color="warning" size="24"></v-icon>
+          </v-avatar>
+          <div>
+            <h1 class="text-h4 font-weight-bold gradient-text mb-1">
+              Bienvenido
+            </h1>
+            <p class="text-subtitle-1 text-grey-darken-1 mb-0 font-weight-medium">
+              Sistema de Información General
+            </p>
+          </div>
+        </div>
+      </v-col>
+      <v-col cols="12" md="6" class="d-flex justify-md-end align-center gap-3 mt-3 mt-md-0">
+        <div
+          prepend-icon="mdi-calendar-blank-outline"
+          color="primary"
+          variant="tonal"
+          class="px-5 py-6 font-weight-medium custom-chip" 
+          rounded="lg"
+        >
+          {{ `${formatedDate(desde)} — ${formatedDate(hasta)}` }}
+        </div>
+        <v-btn 
+          @click="displayCtrl.config = true" 
+          color="primary" 
+          icon="mdi-cog-outline" 
+          variant="tonal"
+          size="large"
+          rounded="lg"
+        ></v-btn>
+      </v-col>
+    </v-row>
+
+    <!-- TARJETAS DE MÉTRICAS (KPIs) -->
+    <v-row class="mb-6 px-2">
+      <!-- Ventas POS -->
+      <v-col cols="12" sm="6" lg="3">
+        <v-card class="mx-auto border-0 metric-card" elevation="2" rounded="xl">
+          <v-card-item class="pa-5">
+            <div class="d-flex align-center mb-4">
+              <v-avatar color="indigo-lighten-5" size="48" class="mr-3" rounded="lg">
+                <v-icon color="indigo-darken-1" icon="mdi-monitor-dashboard" size="24"></v-icon>
+              </v-avatar>
+              <div>
+                <span class="text-caption text-grey font-weight-bold text-uppercase">Ventas POS</span>
+                <div class="d-flex align-center mt-1">
+                  <v-icon icon="mdi-trending-up" color="success" size="16" class="mr-1"></v-icon>
+                  <span class="text-caption text-success font-weight-bold">+12.5%</span>
+                </div>
               </div>
-            </v-col>
-          </v-row>
+            </div>
+            <h2 class="text-h5 font-weight-bold text-grey-darken-4 mb-3">
+              {{ formatedCurrency(valorVentasPOS) }}
+            </h2>
+            <v-chip 
+              size="small" 
+              color="indigo-lighten-1" 
+              variant="flat" 
+              class="font-weight-bold text-white"
+              rounded="lg"
+            >
+              {{ cantidadVentasPOS }} Transacciones
+            </v-chip>
+          </v-card-item>
         </v-card>
       </v-col>
-      <v-col cols="6" md="3" sm="3">
-        <v-card elevation="0" class="border" height="100" >
-          <div class="d-flex flex-column align-center">
-            <div style="font-size: 14px; color: grey">
-              Ventas desde POS
+
+      <!-- Ventas Local -->
+      <v-col cols="12" sm="6" lg="3">
+        <v-card class="mx-auto border-0 metric-card" elevation="2" rounded="xl">
+          <v-card-item class="pa-5">
+            <div class="d-flex align-center mb-4">
+              <v-avatar color="pink-lighten-5" size="48" class="mr-3" rounded="lg">
+                <v-icon color="pink-darken-1" icon="mdi-storefront" size="24"></v-icon>
+              </v-avatar>
+              <div>
+                <span class="text-caption text-grey font-weight-bold text-uppercase">Ventas Local</span>
+                <div class="d-flex align-center mt-1">
+                  <v-icon icon="mdi-trending-down" color="error" size="16" class="mr-1"></v-icon>
+                  <span class="text-caption text-error font-weight-bold">-3.2%</span>
+                </div>
+              </div>
             </div>
-            <img
-              src="/dashboard/punto-de-venta.png"
-              width="50"
-            />
-            <div style="font-size: 14px;">
-              {{ `(${cantidadVentasPOS}) ${formatedCurrency(valorVentasPOS)}` }}
-            </div>
-          </div>
+            <h2 class="text-h5 font-weight-bold text-grey-darken-4 mb-3">
+              {{ formatedCurrency(valorVentasLocal) }}
+            </h2>
+            <v-chip 
+              size="small" 
+              color="pink-lighten-1" 
+              variant="flat" 
+              class="font-weight-bold text-white"
+              rounded="lg"
+            >
+              {{ cantidadVentasLocal }} Transacciones
+            </v-chip>
+          </v-card-item>
         </v-card>
       </v-col>
-      <v-col cols="6" md="3" sm="3">
-        <v-card elevation="0" class="border" height="100" >
-          <div class="d-flex flex-column align-center">
-            <div style="font-size: 14px; color: grey">
-              Ventas en Local
+
+      <!-- Total Ventas -->
+      <v-col cols="12" sm="6" lg="3">
+        <v-card class="mx-auto border-0 metric-card" elevation="2" rounded="xl">
+          <v-card-item class="pa-5">
+            <div class="d-flex align-center mb-4">
+              <v-avatar color="teal-lighten-5" size="48" class="mr-3" rounded="lg">
+                <v-icon color="teal-darken-1" icon="mdi-chart-line" size="24"></v-icon>
+              </v-avatar>
+              <div>
+                <span class="text-caption text-grey font-weight-bold text-uppercase">Total Ventas</span>
+                <div class="d-flex align-center mt-1">
+                  <v-icon icon="mdi-trending-up" color="success" size="16" class="mr-1"></v-icon>
+                  <span class="text-caption text-success font-weight-bold">+8.7%</span>
+                </div>
+              </div>
             </div>
-            <img
-              src="/dashboard/compra-local.png"
-              width="50"
-            />
-            <div style="font-size: 14px;">
-              {{ `(${cantidadVentasLocal}) ${formatedCurrency(valorVentasLocal)}` }}
-            </div>
-          </div>
+            <h2 class="text-h5 font-weight-bold text-grey-darken-4 mb-3">
+              {{ formatedCurrency(valorVentas) }}
+            </h2>
+            <v-chip 
+              size="small" 
+              color="teal-lighten-1" 
+              variant="flat" 
+              class="font-weight-bold text-white"
+              rounded="lg"
+            >
+              {{ cantidadVentas }} Totales
+            </v-chip>
+          </v-card-item>
         </v-card>
       </v-col>
-      <v-col cols="6" md="3" sm="3">
-        <v-card elevation="0" class="d-flex align-center justify-center border" height="100">
-          <div class="d-flex flex-column align-center">
-            <div style="font-size: 14px; color: grey">
-              Total de Ventas
+
+      <!-- Utilidades -->
+      <v-col cols="12" sm="6" lg="3">
+        <v-card class="mx-auto border-0 metric-card" elevation="2" rounded="xl">
+          <v-card-item class="pa-5">
+            <div class="d-flex align-center mb-4">
+              <v-avatar color="amber-lighten-5" size="48" class="mr-3" rounded="lg">
+                <v-icon color="amber-darken-2" icon="mdi-currency-usd" size="24"></v-icon>
+              </v-avatar>
+              <div>
+                <span class="text-caption text-grey font-weight-bold text-uppercase">Utilidades</span>
+                <div class="d-flex align-center mt-1">
+                  <v-icon icon="mdi-trending-up" color="success" size="16" class="mr-1"></v-icon>
+                  <span class="text-caption text-success font-weight-bold">+15.3%</span>
+                </div>
+              </div>
             </div>
-            <img
-              src="/dashboard/analitica.png"
-              width="50"
-            />
-            <div style="font-size: 14px;">
-              {{ `(${cantidadVentas}) ${formatedCurrency(valorVentas) }` }}
-            </div>
-          </div>
+            <h2 class="text-h5 font-weight-bold text-grey-darken-4 mb-3">
+              {{ formatedCurrency(utilidades) }}
+            </h2>
+            <v-chip 
+              size="small" 
+              color="amber-darken-2" 
+              variant="flat" 
+              class="font-weight-bold text-white"
+              rounded="lg"
+            >
+              Margen Activo
+            </v-chip>
+          </v-card-item>
         </v-card>
       </v-col>
-      <v-col cols="6" md="3" sm="3">
-        <v-card elevation="0" class="d-flex align-center justify-center border" height="100">
-          <div class="d-flex flex-column align-center">
-            <div style="font-size: 14px; color: grey">
-              Total de Utilidades
+    </v-row>
+
+    <!-- SECCIÓN DE GRÁFICOS -->
+    <v-row class="px-2">
+      <!-- Gráfico de Ventas Principal -->
+      <v-col cols="12" lg="6">
+        <v-card class="border-0 pa-6 chart-card" elevation="2" rounded="xl">
+          <v-card-item class="pa-0 mb-6">
+            <div class="d-flex justify-space-between align-center flex-wrap ga-4">
+              <div>
+                <div class="text-h6 font-weight-bold text-grey-darken-4 mb-1">
+                  Analítica de Ventas
+                </div>
+                <span class="text-caption text-grey font-weight-medium">Tendencia del período seleccionado</span>
+              </div>
+              <v-btn-toggle mandatory density="comfortable" divided rounded="lg" color="primary">
+                <v-btn value="day" size="small" class="text-none px-4">Día</v-btn>
+                <v-btn value="week" size="small" class="text-none px-4">Semana</v-btn>
+                <v-btn value="month" size="small" class="text-none px-4">Mes</v-btn>
+              </v-btn-toggle>
             </div>
-            <img
-              src="/dashboard/beneficios.png"
-              width="50"
-            />
-            <div style="font-size: 14px;">
-              {{ `(${cantidadVentas}) ${formatedCurrency(utilidades) }` }}
-            </div>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="6" sm="6">
-        <v-card elevation="0" height="300">
+          </v-card-item>
           <v-chart
             :option="ventas"
             autoresize
-            style="height: 300px"
+            style="height: 380px; width: 100%;"
           />
         </v-card>
       </v-col>
-      <v-col cols="12" md="6" sm="3" class="border-s">
-        <v-row dense>
-          <v-col cols="12" sm="12" md="12">
-            <v-card elevation="0" height="300">
-              <v-chart :option="pieChart" autoresize style="height: 300px;" />
-            </v-card>
-          </v-col>
-        </v-row>
+
+      <!-- Gráfico de Pastel / Distribución -->
+      <v-col cols="12" lg="6">
+        <v-card class="border-0 pa-6 chart-card" elevation="2" rounded="xl">
+          <v-card-item class="pa-0 mb-6">
+            <div class="d-flex justify-space-between align-center">
+              <div>
+                <div class="text-h6 font-weight-bold text-grey-darken-4 mb-1">
+                  Distribución por Canales
+                </div>
+                <span class="text-caption text-grey font-weight-medium">Proporción de ventas por tipo</span>
+              </div>
+              <v-icon icon="mdi-dots-horizontal" color="grey-lighten-1"></v-icon>
+            </div>
+          </v-card-item>
+          <v-chart 
+            :option="pieChart" 
+            autoresize 
+            style="height: 380px; width: 100%;" 
+          />
+        </v-card>
       </v-col>
     </v-row>
   </div>
@@ -149,7 +301,7 @@
 
 <script>
 import { use } from 'echarts'
-import { BarChart, PieChart } from 'echarts/charts'
+import { BarChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
 import {
   GridComponent,
@@ -326,13 +478,11 @@ export default {
     },
 
     formatedDate(dataString) {
-      const value = formatters.formatDate(dataString)
-      return value
+      return formatters.formateDate(dataString, false)
     },
 
     formatedCurrency(value) {
-      const valueFormatted = formatters.formatCurrency(value, 'NIO')
-      return valueFormatted
+      return formatters.formatCurrency(value, 'NIO')
     },
   },
 
@@ -363,5 +513,11 @@ export default {
 
 #logo {
   animation: slideInFromRight 2s;
+}
+
+.dashboard-container {
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 24px;
 }
 </style>

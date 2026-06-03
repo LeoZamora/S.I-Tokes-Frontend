@@ -229,6 +229,15 @@
               }}
             </div>
           </template>
+
+          <template
+            v-slot:item.observaciones="{ item }"
+          >
+            <div style="min-width: 400px;">
+              {{ item.observaciones }}
+            </div>
+          </template>
+
           <template
             v-slot:item.credito="{ item }"
           >
@@ -458,14 +467,12 @@ export default {
 
       const introKey = 'tutorialVenta'
       if (localStorage.getItem(introKey)) return
-      
       const el = document.querySelector('.headInfo')
       const el2 = document.querySelector('.detalleVentas')
       const el3 = document.querySelector('.options')
       const el4 = document.querySelector('.nuevaVenta')
 
       if (!el || !el2 || !el3 || !el4) return
-      
       var steps = [{
           title: 'Bienvenido',
           intro: 'Tenemos nuevas cosas para ti!!'

@@ -26,20 +26,21 @@
         v-model="data.drawer"
         class="font"
       >
-        <!-- bg-indigo-darken-4 -->
+        <!-- bg-orange-darken-4 -->
         <template v-slot:prepend>
           <div
-            class="d-flex bg-white rounded-pill justify-center align-center elevation-4 pa-2 ma-2"
+            class="d-flex bg-white justify-center align-center"
           >
             <img
-              src="/128px.svg"
+              src="/48px.svg"
               alt="Emprovisa"
-              height="80px"
+              height="120px"
             />
           </div>
           <!-- <v-container >
             </v-container> -->
         </template>
+
         <v-list
           density="compact"
           v-model:selected="data.selectedItems"
@@ -47,15 +48,18 @@
           select-strategy="leaf"
           class="mx-2"
         >
+          <v-list-subheader class="font-weight-bold">
+            Gestión General
+          </v-list-subheader>
+
           <v-list-item
             prepend-icon="mdi-home"
-            color="indigo-darken-4"
+            color="orange-darken-4"
             title="Inicio"
             :lines="true"
             rounded
             value="Inicio"
             @click="goToHome()"
-            variant="elevated"
           />
 
           <v-list-item
@@ -67,12 +71,6 @@
             rounded
             value="Resumen Inventario"
           ></v-list-item>
-
-          <v-list-subheader>
-            <small class="font-weight-bold"
-              >Gestión General
-            </small>
-          </v-list-subheader>
 
           <!-- VENTAS -->
           <v-list-group
@@ -91,7 +89,7 @@
                 rounded
                 value="Venta"
                 :lines="true"
-                color="indigo-darken-4"
+                color="orange-darken-4"
                 title="Ventas"
               />
             </template>
@@ -99,7 +97,7 @@
               class="mx-2"
               rounded
               :lines="true"
-              color="indigo-darken-4"
+              color="orange-darken-4"
               v-for="(
                 i, index
               ) in data.ventas.filter((c) =>
@@ -133,7 +131,7 @@
                 rounded
                 value="Por Cobrar"
                 :lines="true"
-                color="indigo-darken-4"
+                color="orange-darken-4"
                 title="Por Cobrar"
               />
             </template>
@@ -141,7 +139,7 @@
               class="mx-2"
               rounded
               :lines="true"
-              color="indigo-darken-4"
+              color="orange-darken-4"
               v-for="(
                 i, index
               ) in data.porCobrar.filter((c) =>
@@ -174,7 +172,7 @@
                 rounded
                 value="Compras"
                 :lines="true"
-                color="indigo-darken-4"
+                color="orange-darken-4"
                 title="Compras"
               />
             </template>
@@ -182,7 +180,7 @@
               class="mx-2"
               rounded
               :lines="true"
-              color="indigo-darken-4"
+              color="orange-darken-4"
               v-for="(
                 i, index
               ) in data.compras.filter((c) =>
@@ -215,7 +213,7 @@
                 rounded
                 value="Clientes"
                 :lines="true"
-                color="indigo-darken-4"
+                color="orange-darken-4"
                 title="Clientes"
               />
             </template>
@@ -223,7 +221,7 @@
               class="mx-2"
               rounded
               :lines="true"
-              color="indigo-darken-4"
+              color="orange-darken-4"
               v-for="(
                 i, index
               ) in data.clientes.filter((c) =>
@@ -240,10 +238,8 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-subheader>
-            <small class="font-weight-bold"
-              >Gestión Logística
-            </small>
+          <v-list-subheader class="font-weight-bold">
+            Gestión Logística
           </v-list-subheader>
 
           <!--RUTAS-->
@@ -263,7 +259,7 @@
                 rounded
                 value="Rutas"
                 :lines="true"
-                color="indigo-darken-4"
+                color="orange-darken-4"
                 title="Rutas"
               />
             </template>
@@ -271,7 +267,7 @@
               class="mx-2"
               rounded
               :lines="true"
-              color="indigo-darken-4"
+              color="orange-darken-4"
               v-for="(
                 i, index
               ) in data.rutas.filter((c) =>
@@ -305,7 +301,7 @@
                 rounded
                 value="Inventario"
                 :lines="true"
-                color="indigo-darken-4"
+                color="orange-darken-4"
                 title="Inventario"
               />
             </template>
@@ -313,7 +309,7 @@
               class="mx-2"
               rounded
               :lines="true"
-              color="indigo-darken-4"
+              color="orange-darken-4"
               v-for="(
                 i, index
               ) in data.inventario.filter((c) =>
@@ -330,10 +326,8 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-subheader>
-            <small class="font-weight-bold"
-              >Gestión Empresarial
-            </small>
+          <v-list-subheader class="font-weight-bold">
+            Gestión Empresarial
           </v-list-subheader>
 
           <v-list-group
@@ -352,7 +346,7 @@
                 rounded
                 value="Movimientos"
                 :lines="true"
-                color="indigo-darken-4"
+                color="orange-darken-4"
                 title="Movimientos"
               />
             </template>
@@ -360,7 +354,7 @@
               class="mx-2"
               rounded
               :lines="true"
-              color="indigo-darken-4"
+              color="orange-darken-4"
               v-for="(
                 i, index
               ) in data.movimientos.filter((c) =>
@@ -393,7 +387,7 @@
                 rounded
                 value="Cierres"
                 :lines="true"
-                color="indigo-darken-4"
+                color="orange-darken-4"
                 title="Cierres"
               />
             </template>
@@ -401,7 +395,7 @@
               class="mx-2"
               rounded
               :lines="true"
-              color="indigo-darken-4"
+              color="orange-darken-4"
               v-for="(
                 i, index
               ) in data.cierres.filter((c) =>
@@ -440,7 +434,7 @@
               class="d-flex flex-column align-center"
             >
               <h6 style="font-size: 10px">
-                Inversiones Zafiro
+                DevoDigital
               </h6>
               <h6 style="font-size: 10px">
                 v2.0.0
@@ -470,7 +464,7 @@
             indeterminate
             :active="loading.show"
             height="5"
-            color="indigo-darken-4"
+            color="orange-darken-4"
           />
           <transition name="fade-transition">
             <keep-alive>

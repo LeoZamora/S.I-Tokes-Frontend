@@ -440,7 +440,7 @@ export default {
             doc.setFont("helvetica", "normal");
             doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
             const empresaInfo = [
-                "Inversiones Zafiro",
+                "DevoDigital",
                 "RUC: - - - - - - -",
                 "Dirección: Juigalpa, Chontales CSE 2c este",
                 "Teléfono: +505 8276-7230",

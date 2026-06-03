@@ -15,7 +15,7 @@ const routes = createRouter({
       meta: {
         protected: true,
         requiredAuth: true,
-        title: 'Inicio | I. Zafiro'
+        title: 'Inicio | DevoDigital'
       }
     },
     {
@@ -27,7 +27,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'R. Inventario | I. Zafiro'
+        title: 'R. Inventario | DevoDigital'
       }
     },
     {
@@ -38,7 +38,7 @@ const routes = createRouter({
           '@/components/login/LoginAuth.vue'
         ),
       meta: {
-        title: 'Login | I. Zafiro'
+        title: 'Login | DevoDigital'
       }
     },
     {
@@ -52,7 +52,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'CXC | I. Zafiro'
+        title: 'CXC | DevoDigital'
       }
     },
     {
@@ -66,7 +66,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Conceptos | I. Zafiro'
+        title: 'Conceptos | DevoDigital'
       }
     },
     {
@@ -80,7 +80,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Movimientos E. | I. Zafiro'
+        title: 'Movimientos E. | DevoDigital'
       }
     },
     {
@@ -94,7 +94,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Cierres | I. Zafiro'
+        title: 'Cierres | DevoDigital'
       }
     },
     {
@@ -108,7 +108,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'D. Venta | I. Zafiro'
+        title: 'D. Venta | DevoDigital'
       }
     },
     {
@@ -122,7 +122,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Productos | I. Zafiro'
+        title: 'Productos | DevoDigital'
       }
     },
     {
@@ -136,7 +136,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Facturación | I. Zafiro'
+        title: 'Facturación | DevoDigital'
       }
     },
     {
@@ -150,7 +150,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Compras | I. Zafiro'
+        title: 'Compras | DevoDigital'
       }
     },
     {
@@ -164,7 +164,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Proveedores | I. Zafiro'
+        title: 'Proveedores | DevoDigital'
       }
     },
     {
@@ -178,7 +178,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Categorías | I. Zafiro'
+        title: 'Categorías | DevoDigital'
       }
     },
     {
@@ -192,7 +192,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Clientes | I. Zafiro'
+        title: 'Clientes | DevoDigital'
       }
     },
     {
@@ -206,7 +206,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Movimientos | I. Zafiro'
+        title: 'Movimientos | DevoDigital'
       }
     },
     {
@@ -220,7 +220,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Usuario | I. Zafiro'
+        title: 'Usuario | DevoDigital'
       }
     },
     {
@@ -234,7 +234,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Roles | I. Zafiro'
+        title: 'Roles | DevoDigital'
       }
     },
     {
@@ -248,7 +248,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Rutas | I. Zafiro'
+        title: 'Rutas | DevoDigital'
       }
     },
     {
@@ -262,7 +262,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'T. Ventas | I. Zafiro'
+        title: 'T. Ventas | DevoDigital'
       }
     },
     {
@@ -274,7 +274,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'T. Cliente | I. Zafiro'
+        title: 'T. Cliente | DevoDigital'
       }
     },
     {
@@ -288,7 +288,7 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'T. Movimiento | I. Zafiro'
+        title: 'T. Movimiento | DevoDigital'
       }
     }
   ]
@@ -296,12 +296,12 @@ const routes = createRouter({
 
 routes.beforeEach((to, from, next) => {
 
-    const defaultTitle = 'Inversiones Zafiro'
+    const defaultTitle = 'DevoDigital'
     document.title = to.meta.title || defaultTitle
 
     const authStore = useStore()
     const isAuthenticated = authStore.isLoggedIn
-    
+
     if (to.meta.requiredAuth && !isAuthenticated) {
         return next({ path: '/login' })
     } 

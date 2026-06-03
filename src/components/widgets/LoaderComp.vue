@@ -1,35 +1,46 @@
 <template>
-    <div class="loader-overlay">
-      <div class="loader-card">
-        <v-card class="text-center pa-2">
-          <v-card-text>
-            <img width="100"  src="/logoIZ.jpg" alt="loading" class="loading-image" />
-            <h4>{{ data }}</h4>
-            <v-progress-linear color="indigo" indeterminate rounded height="1"/>
-          </v-card-text>
-        </v-card>
-      </div>
-    </div>
+    <v-overlay v-model="show" max-width="100%" max-height="100%"
+      class="overlay d-flex justify-center align-center" contained persistent
+    >
+      <v-card class="text-center pa-2 bg-transparent" elevation="0"
+        style="min-width: 200px;"
+      >
+        <v-card-text>
+          <img width="100"  src="/devo-white.svg" alt="loading" />
+          <h4 class="text-white py-1" style="margin-top: 1px;">
+            {{ data }}
+          </h4>
+          <v-progress-linear color="white" indeterminate rounded height="4"/>
+        </v-card-text>
+      </v-card>
+    </v-overlay>
 </template>
-  
+
 <script>
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 
   export default {
     props: {
       data: {
         type: String,
+      },
+      show: {
+        type: Boolean,
+        required: true
       }
     },
 
     name: "LoaderCard",
 
-    setup() {
+    setup(props) {
+      const show = computed(() => props.show)
       const state = reactive({
+        show: true
       })
 
       return {
-        state
+        state,
+        show
       }
     }
   };
@@ -44,15 +55,13 @@ import { reactive } from 'vue';
     opacity: 1;
   }
 }
-  .loader-overlay {
-    animation: opacityOn 1s;
+  .overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro translúcido */
-    z-index: 1000; /* Asegura que esté encima de otros elementos */
+    z-index: 2000;
   }
 
   #card-logo{

@@ -159,6 +159,21 @@ export default {
       requestHttp: new RequestHttp()
     })
 
+    async function getCategorias() {
+      data.categorias = []
+      const result = await data.requestHttp.getCategorias()
+
+      if (result.code === 200) {
+        result.data.map(item => {
+          data.categorias.push({
+            title: item.nombre,
+            value: item.idCategoriaProducto
+          })
+        })
+      }
+
+    }
+
     function showSuccesAlert(msg, success = true) {
       data.alertSuccess.msg = msg
       data.alertSuccess.show = true
@@ -169,9 +184,10 @@ export default {
       }, 1500);
     }
 
-    watch(() => props.show, (newValue) => {
+    watch(() => props.show, async (newValue) => {
       localShow.value = newValue
       if (newValue) {
+        await getCategorias()
         data.dataSubCat.usuarioRegistro = useStore().getNameUser()
       }
     })
@@ -222,7 +238,8 @@ export default {
       localSubCat,
       localView,
       data,
-      showSuccesAlert
+      showSuccesAlert,
+      getCategorias
     }
   },
 
@@ -269,17 +286,6 @@ export default {
       }
     },
 
-    async getCategorias() {
-      this.data.categorias = []
-      const result = await this.data.requestHttp.getCategorias()
-
-      if (result.code === 200) {
-        result.data.map(item => {
-          this.data.categorias.push({title: item.nombre, value: item.idCategoriaProducto})
-        })
-      }
-
-    },
     formatedDate(dataString) {
       const value = formatters.formatDate(dataString)
       return value

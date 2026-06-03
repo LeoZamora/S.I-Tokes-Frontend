@@ -1,32 +1,35 @@
 <template>
   <div class="cont">
-    <LoaderComp :data="data.msgLoader" v-if="data.loading"/>
+    <LoaderComp :show="data.loading" :data="data.msgLoader"/>
     <v-container class="w-100 h-100 d-flex align-center">
       <v-row>
         <v-col cols="12" md="6" sm="12" class="d-flex flex-column align-center 
           position-relative">
           <div>
             <!-- <v-img src="/gorro.png" id="gorro"/> -->
-            <v-img width="500" src="/128px.svg"/>
+            <v-img width="250" src="/48px.svg"/>
           </div>
           <v-card-text class="d-flex flex-column align-center">
             <div style="width: 100%;" class="d-flex justify-center align-center text-center">
                 <h1 id="name">
-                  Inversiones Zafiro
+                  Desarrollo de Soluciones Digitales
                 </h1>
             </div>
             <div class="text-center">
                 <span id="slogan" class="text-grey">
-                  "Herramientas, Insumos y Platería"
+                  "Nuestro desarrollo y tecnologías, alineados con tu creatividad."
                 </span>
             </div>
           </v-card-text>
         </v-col>
         <v-col cols="12" md="6" sm="12" class="d-flex flex-column justify-center align-center">
-          <v-card id="card-form" elevation="4" class="border" rounded="lg">
+          <v-card elevation="4" class="border pa-4" style="border-radius: 48px;">
             <v-card-title class="text-center my-2">
               INICIO DE SESION
             </v-card-title>
+            <v-card-subtitle>
+              Ingresa tus credenciales para continuar
+            </v-card-subtitle>
             <v-card-text class="pa-4">
               <v-form id="form-login" v-model="data.valid" ref="form" lazy-validation
                 @submit.prevent="authLoging()">
@@ -36,7 +39,7 @@
                       :rules="data.rules.userRules" @input="clearError" variant="outlined"
                       prepend-inner-icon="mdi-account-outline" aria-describedby="input-username-messages" 
                       autocomplete="username" persistent-placeholder label="Usuario"
-                      hide-details density="comfortable" clearable/>
+                      hide-details density="comfortable" clearable rounded="pill"/>
                   </v-col>
                   <v-col cols="12" md="12" sm="12">
                     <v-text-field
@@ -45,7 +48,7 @@
                       :append-inner-icon="data.showPass ? 'mdi-eye-outline' : 'mdi-eye-off-outline'" prepend-inner-icon="mdi-lock-outline"
                       @input="clearError" hide-details density="comfortable"
                       variant="outlined" :type="data.showPass ? 'text': 'password'"
-                      :rules="data.rules.passRules" persistent-placeholder/>
+                      :rules="data.rules.passRules" persistent-placeholder rounded="pill"/>
                   </v-col>
                 </v-row>
                 <v-fade-transition>
@@ -64,7 +67,7 @@
 
                 <v-card-actions class="d-flex justify-center mt-5">
                   <v-btn :disabled="data.disableBtn" size="large" elevation="4"
-                    type="submit" class="bg-indigo-darken-4" block>
+                    type="submit" class="bg-indigo-darken-4" block rounded="pill">
                     Acceder
                   </v-btn>
                 </v-card-actions>
@@ -246,6 +249,7 @@ export default {
   width: 100%;
   height: 100vh;
   font-family: Poppins;
+  background: linear-gradient(1550deg, #f5f7fa 0%, #e2d9c3 100%);
   /* position: relative; */
 }
 

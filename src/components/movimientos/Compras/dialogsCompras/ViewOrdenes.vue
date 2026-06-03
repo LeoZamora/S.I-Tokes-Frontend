@@ -407,7 +407,7 @@ export default {
 
             // “X” visual (opcional)
             setText(14, "bold", [255, 255, 255]);
-            doc.text("Inversiones Zafiro", pageWidth - M, 11, { align: "right" });
+            doc.text("DevoDigital", pageWidth - M, 11, { align: "right" });
 
             y = headerH + 6;
 
