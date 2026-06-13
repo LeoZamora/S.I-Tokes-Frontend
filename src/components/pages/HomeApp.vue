@@ -89,7 +89,7 @@
               Bienvenido
             </h1>
             <p class="text-subtitle-1 text-grey-darken-1 mb-0 font-weight-medium">
-              Sistema de Información General
+              Routes By DevoDigital
             </p>
           </div>
         </div>
@@ -99,15 +99,15 @@
           prepend-icon="mdi-calendar-blank-outline"
           color="primary"
           variant="tonal"
-          class="px-5 py-6 font-weight-medium custom-chip" 
+          class="px-5 py-6 font-weight-medium custom-chip"
           rounded="lg"
         >
           {{ `${formatedDate(desde)} — ${formatedDate(hasta)}` }}
         </div>
-        <v-btn 
-          @click="displayCtrl.config = true" 
-          color="primary" 
-          icon="mdi-cog-outline" 
+        <v-btn
+          @click="displayCtrl.config = true"
+          color="primary"
+          icon="mdi-cog-outline"
           variant="tonal"
           size="large"
           rounded="lg"
@@ -136,10 +136,10 @@
             <h2 class="text-h5 font-weight-bold text-grey-darken-4 mb-3">
               {{ formatedCurrency(valorVentasPOS) }}
             </h2>
-            <v-chip 
-              size="small" 
-              color="indigo-lighten-1" 
-              variant="flat" 
+            <v-chip
+              size="small"
+              color="indigo-lighten-1"
+              variant="flat"
               class="font-weight-bold text-white"
               rounded="lg"
             >
@@ -168,10 +168,10 @@
             <h2 class="text-h5 font-weight-bold text-grey-darken-4 mb-3">
               {{ formatedCurrency(valorVentasLocal) }}
             </h2>
-            <v-chip 
-              size="small" 
-              color="pink-lighten-1" 
-              variant="flat" 
+            <v-chip
+              size="small"
+              color="pink-lighten-1"
+              variant="flat"
               class="font-weight-bold text-white"
               rounded="lg"
             >
@@ -200,10 +200,10 @@
             <h2 class="text-h5 font-weight-bold text-grey-darken-4 mb-3">
               {{ formatedCurrency(valorVentas) }}
             </h2>
-            <v-chip 
-              size="small" 
-              color="teal-lighten-1" 
-              variant="flat" 
+            <v-chip
+              size="small"
+              color="teal-lighten-1"
+              variant="flat"
               class="font-weight-bold text-white"
               rounded="lg"
             >
@@ -232,10 +232,10 @@
             <h2 class="text-h5 font-weight-bold text-grey-darken-4 mb-3">
               {{ formatedCurrency(utilidades) }}
             </h2>
-            <v-chip 
-              size="small" 
-              color="amber-darken-2" 
-              variant="flat" 
+            <v-chip
+              size="small"
+              color="amber-darken-2"
+              variant="flat"
               class="font-weight-bold text-white"
               rounded="lg"
             >
@@ -288,10 +288,10 @@
               <v-icon icon="mdi-dots-horizontal" color="grey-lighten-1"></v-icon>
             </div>
           </v-card-item>
-          <v-chart 
-            :option="pieChart" 
-            autoresize 
-            style="height: 380px; width: 100%;" 
+          <v-chart
+            :option="pieChart"
+            autoresize
+            style="height: 380px; width: 100%;"
           />
         </v-card>
       </v-col>
@@ -409,7 +409,7 @@ export default {
         xAxis: {
           data: [],
           axisLine: {
-            lineStyle: { 
+            lineStyle: {
               color: '#000000',
             }
           },

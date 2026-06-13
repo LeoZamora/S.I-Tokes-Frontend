@@ -5,7 +5,7 @@
         <div class="ml-4 pa-1 d-flex justify-center align-center">
           <!-- <v-img src="/logo.png" width="100"/> -->
           <div id="text-logo" class="d-flex justify-center align-center">
-              <h2>DevoDigital</h2>
+              <h2>Migdalia's Market</h2>
           </div>
         </div>
         <v-spacer id="spacer-logo"></v-spacer>

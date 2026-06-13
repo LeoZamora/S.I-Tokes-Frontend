@@ -33,7 +33,7 @@
           >
             <img
               src="/48px.svg"
-              alt="Emprovisa"
+              alt="Routes By DevoDigital"
               height="120px"
             />
           </div>
@@ -48,8 +48,10 @@
           select-strategy="leaf"
           class="mx-2"
         >
-          <v-list-subheader class="font-weight-bold">
-            Gestión General
+          <v-list-subheader
+            class="font-weight-bold"
+          >
+            Resúmenes
           </v-list-subheader>
 
           <v-list-item
@@ -71,6 +73,12 @@
             rounded
             value="Resumen Inventario"
           ></v-list-item>
+
+          <v-list-subheader
+            class="font-weight-bold"
+          >
+            Gestión General
+          </v-list-subheader>
 
           <!-- VENTAS -->
           <v-list-group
@@ -238,7 +246,9 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-subheader class="font-weight-bold">
+          <v-list-subheader
+            class="font-weight-bold"
+          >
             Gestión Logística
           </v-list-subheader>
 
@@ -326,7 +336,9 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-subheader class="font-weight-bold">
+          <v-list-subheader
+            class="font-weight-bold"
+          >
             Gestión Empresarial
           </v-list-subheader>
 
