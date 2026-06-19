@@ -98,6 +98,7 @@
         <v-data-table
           :headers="tbl.headers"
           :items="tbl.items"
+          :search="search"
           class="font"
         >
           <!-- <template v-slot:item="{ item }">
@@ -129,6 +130,7 @@
 
           <template v-slot:top>
             <div class="d-flex justify-end align-center py-2 px-4">
+              <v-text-field v-model="search" label="Buscar por número de factura:" variant="outlined" density="compact" class="mr-2" hide-details prepend-inner-icon="mdi-magnify"></v-text-field>
               <v-btn color="green" variant="outlined"
                 append-icon="mdi-download-multiple" @click="exportToExcel(tbl.headers, tbl.items)">
                 Excel's
@@ -200,6 +202,8 @@ export default {
       display: {
         nuevoCierre: false
       },
+
+      search: null,
 
       tbl: {
         headers: [
@@ -283,6 +287,7 @@ export default {
             key: 'producto',
             align: 'center',
             width: 200,
+            sortable: false,
             headerProps: {
               class: 'pa-1'
             },
