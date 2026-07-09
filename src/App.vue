@@ -664,6 +664,11 @@ export default {
           title: 'Movimientos',
           route: 'Movimientos',
           idVentana: '12'
+        },
+        {
+          title: 'Bodegas',
+          route: 'Bodegas',
+          idVentana: '12'
         }
       ],
 
