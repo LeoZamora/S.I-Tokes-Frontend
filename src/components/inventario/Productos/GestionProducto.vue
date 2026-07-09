@@ -1267,7 +1267,8 @@ export default {
       isMobile,
       getSubCategorias,
       getUnidadMedida,
-      token
+      token,
+      snackbar: useSnackbar()
     }
   },
 
@@ -1444,7 +1445,7 @@ export default {
       this.display.ajusteStock = false
       this.ajusteStock.data.cantidadTotal = 0
       this.ajusteStock.data.observaciones = ''
-      this.ajusteStock.data.idproducto = 0
+      this.ajusteStock.data.idProducto = 0
     },
 
     async saveAjusteStockDisplay(){
@@ -1458,20 +1459,32 @@ export default {
       this.ajusteStock.loading = true
       try {
         this.ajusteStock.data.usuarioRegistro = this.token.usuario
+        const targetId = this.ajusteStock.data.idProducto
+        const nuevoStock = Number(this.ajusteStock.data.cantidadTotal)
+
         await httpPut(
-          `api/producto/${this.ajusteStock.data.idProducto}/cantidad-total`,
+          `api/producto/${targetId}/cantidad-total`,
           this.ajusteStock.data
         )
 
-        this.snackbar.notify('success', 'Ajuste de stock realizado.')
+        this.snackbar.notify('success', 'Ajuste de stock realizado correctamente.')
 
-        this.ajusteStock.loading = false
+        this.data.form.cantidadTotal = nuevoStock
 
-        this.data.form.cantidadTotal = this.ajusteStock.data.cantidadTotal
+        const productInTable = this.data.products.find(p => p.idProducto === targetId)
+        if (productInTable) {
+          productInTable.cantidadTotal = nuevoStock
+          productInTable.stockMin = productInTable.cantidadMinima > nuevoStock ? 'SI' : 'NO'
+        }
+
         this.closeAjusteStockDisplay()
+        await this.getProductos()
       }
       catch(err) {
+        console.error(err)
         this.snackbar.notify('error', 'Ocurrió un error al realizar el ajuste de stock, contacte al administrador.')
+      }
+      finally {
         this.ajusteStock.loading = false
       }
     },
@@ -1485,63 +1498,7 @@ export default {
         this.verAjusteStock.tbl.items = items
         this.display.verAjusteStock = true
       } catch (e) {
-
-      }
-    },
-
-
-    loadAjusteStockDisplay(){
-      this.display.ajusteStock = true
-      this.ajusteStock.data.idProducto = this.data.form.idProducto
-      this.ajusteStock.producto = this.data.form.nombre
-    },
-
-    closeAjusteStockDisplay(){
-      this.display.ajusteStock = false
-      this.ajusteStock.data.cantidadTotal = 0
-      this.ajusteStock.data.observaciones = ''
-      this.ajusteStock.data.idproducto = 0
-    },
-
-    async saveAjusteStockDisplay(){
-      const validation = await this.$refs.formAjusteStock.validate()
-
-      if(!validation.valid){
-        this.snackbar.notify('error', 'Rellene los campos requeridos.')
-        return
-      }
-
-      this.ajusteStock.loading = true
-      try {
-        this.ajusteStock.data.usuarioRegistro = this.token.usuario
-        await httpPut(
-          `api/producto/${this.ajusteStock.data.idProducto}/cantidad-total`,
-          this.ajusteStock.data
-        )
-
-        this.snackbar.notify('success', 'Ajuste de stock realizado.')
-
-        this.ajusteStock.loading = false
-
-        this.data.form.cantidadTotal = this.ajusteStock.data.cantidadTotal
-        this.closeAjusteStockDisplay()
-      }
-      catch(err) {
-        this.snackbar.notify('error', 'Ocurrió un error al realizar el ajuste de stock, contacte al administrador.')
-        console.log(err)
-        this.ajusteStock.loading = false
-      }
-    },
-
-    async loadVerAjustesStockDisplay(item){
-      try {
-        this.verAjusteStock.producto = item.nombre
-        this.verAjusteStock.cantidadTotal = item.cantidadTotal
-        const items = await httpGet(`api/producto/${item.idProducto}/ajustes-stock`)
-        this.verAjusteStock.tbl.items = items
-        this.display.verAjusteStock = true
-      } catch (e) {
-
+        console.error(e)
       }
     },
 
