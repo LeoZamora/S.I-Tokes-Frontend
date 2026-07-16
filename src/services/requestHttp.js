@@ -1076,6 +1076,14 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async getCodigoRecomendadoSucursal() {
+        try {
+            const result = await axios.get('api/sucursales/codigo-recomendado')
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
 
     // CAMIONES
     async getCamiones() {
