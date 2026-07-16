@@ -252,6 +252,20 @@ const routes = createRouter({
       }
     },
     {
+      path: '/bodegas',
+      name: 'Bodegas',
+      component: () =>
+        import(
+          '@/views/inventario/bodegas.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Bodegas | I. Zafiro'
+      }
+    },
+    {
       path: '/tipo-ventas',
       name: 'Tipos de Venta',
       component: () =>

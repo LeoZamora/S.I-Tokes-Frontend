@@ -670,6 +670,11 @@ export default {
           title: 'Movimientos',
           route: 'Movimientos',
           idVentana: '12'
+        },
+        {
+          title: 'Bodegas',
+          route: 'Bodegas',
+          idVentana: '12'
         }
       ],
 
@@ -737,6 +742,36 @@ export default {
         }
       },
       { deep: true }
+    )
+
+    watch(
+      () => router.currentRoute.value.name,
+      (newName) => {
+        if (newName && newName !== 'Login' && newName !== 'Home') {
+          const existElement = data.nameTabs.indexOf(newName)
+          sessionStorage.setItem('lastRoute', newName)
+          data.nameCurrentTab = newName
+          data.visible = true
+
+          if (existElement === -1) {
+            data.nameTabs.push(newName)
+            data.activeTab = data.nameTabs.indexOf(newName)
+            if (!data.selectedItems.includes(newName)) {
+              data.selectedItems.push(newName)
+            }
+          } else {
+            data.activeTab = existElement
+            if (!data.selectedItems.includes(newName)) {
+              data.selectedItems.push(newName)
+            }
+          }
+        } else if (newName === 'Home') {
+          data.selectedItems = ['Inicio']
+          data.visible = false
+          data.nameTabs = []
+          data.activeTab = null
+        }
+      }
     )
 
     function goToHome() {

@@ -1041,6 +1041,124 @@ class RequestHttp {
             }
         }
     }
+
+    // SUCURSALES
+    async getSucursales() {
+        try {
+            const result = await axios.get('api/sucursales')
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postSucursal(data) {
+        try {
+            const result = await axios.post('api/sucursales', data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async putSucursal(data, id) {
+        try {
+            const result = await axios.put(`api/sucursales/${id}`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async deleteSucursal(id, usuario) {
+        try {
+            const result = await axios.delete(`api/sucursales/${id}?usuario=${usuario}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getCodigoRecomendadoSucursal() {
+        try {
+            const result = await axios.get('api/sucursales/codigo-recomendado')
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    // CAMIONES
+    async getCamiones() {
+        try {
+            const result = await axios.get('api/camiones')
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postCamion(data) {
+        try {
+            const result = await axios.post('api/camiones', data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async putCamion(data, id) {
+        try {
+            const result = await axios.put(`api/camiones/${id}`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async deleteCamion(id, usuario) {
+        try {
+            const result = await axios.delete(`api/camiones/${id}?usuario=${usuario}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    // BODEGAS
+    async getBodegas() {
+        try {
+            const result = await axios.get('api/bodegas')
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getBodegasPorTipo(tipoBodegaId) {
+        try {
+            const result = await axios.get(`api/bodegas/Tipo/${tipoBodegaId}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postBodega(data) {
+        try {
+            const result = await axios.post('api/bodegas', data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async putBodega(data, id) {
+        try {
+            const result = await axios.put(`api/bodegas/${id}`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async deleteBodega(id, usuario) {
+        try {
+            const result = await axios.delete(`api/bodegas/${id}?usuario=${usuario}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
 }
 
 export default RequestHttp
