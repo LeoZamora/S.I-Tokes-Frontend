@@ -99,7 +99,7 @@
                     {{ stats.sucursales }}
                     <span
                       class="text-caption text-grey"
-                      >/ 12</span
+                      >/ 1</span
                     >
                   </div>
                 </div>
@@ -135,7 +135,7 @@
                     {{ stats.camiones }}
                     <span
                       class="text-caption text-grey"
-                      >/ 12</span
+                      >/ 1</span
                     >
                   </div>
                 </div>
@@ -171,7 +171,7 @@
                     {{ stats.bodegas }}
                     <span
                       class="text-caption text-grey"
-                      >/ 24</span
+                      >/ 2</span
                     >
                   </div>
                 </div>
