@@ -1760,6 +1760,10 @@ export default {
 
   mounted() {
     this.loadAllData()
+  },
+
+  activated() {
+    this.loadAllData()
   }
 }
 </script>
