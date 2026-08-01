@@ -90,6 +90,16 @@ const endPoints = {
     getTipoVentaById: 'api/tipos-ventas/',
     putTipoVenta: 'api/tipos-ventas/',
     postTipoVenta: 'api/tipos-ventas',
+
+    // PEDIDOS
+    getPedidosListado: 'api/pedidos/listado',
+    postPedido: 'api/pedidos',
+    getPedido: 'api/pedidos',
+    getPedidosEstados: 'api/pedidos/estados',
+
+    // CAJA
+    getCajas: 'api/cajas',
+    postCierreCaja: 'api/cierres-caja'
 }
 
 export default endPoints
