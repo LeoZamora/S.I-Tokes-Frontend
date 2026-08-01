@@ -47,6 +47,12 @@
           select-strategy="leaf"
           class="mx-2"
         >
+          <v-list-subheader
+            class="font-weight-bold"
+          >
+            Resúmenes
+          </v-list-subheader>
+
           <v-list-item
             prepend-icon="mdi-home"
             color="indigo-darken-4"
@@ -68,10 +74,10 @@
             value="Resumen Inventario"
           ></v-list-item>
 
-          <v-list-subheader>
-            <small class="font-weight-bold"
-              >Gestión General
-            </small>
+          <v-list-subheader
+            class="font-weight-bold"
+          >
+            Gestión General
           </v-list-subheader>
 
           <!-- VENTAS -->
@@ -240,10 +246,52 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-subheader>
-            <small class="font-weight-bold"
-              >Gestión Logística
-            </small>
+          <!-- CAJA -->
+          <v-list-group
+            prepend-icon="mdi-safe-square-outline"
+            v-if="
+              data.cajas.filter((c) =>
+                hasAccessToMenu(c.idVentana)
+              ).length
+            "
+          >
+            <template
+              v-slot:activator="{ props }"
+            >
+              <v-list-item
+                v-bind="props"
+                rounded
+                value="Caja"
+                :lines="true"
+                color="orange-darken-4"
+                title="Caja"
+              />
+            </template>
+            <v-list-item
+              class="mx-2"
+              rounded
+              :lines="true"
+              color="orange-darken-4"
+              v-for="(
+                i, index
+              ) in data.cajas.filter((c) =>
+                hasAccessToMenu(c.idVentana)
+              )"
+              :key="index"
+              :value="i.title"
+              @click="nameTab(i.route)"
+            >
+              <template v-slot:prepend>
+                <v-icon>mdi-menu-right</v-icon>
+              </template>
+              <small>{{ i.title }}</small>
+            </v-list-item>
+          </v-list-group>
+
+          <v-list-subheader
+            class="font-weight-bold"
+          >
+            Gestión Logística
           </v-list-subheader>
 
           <!--RUTAS-->
@@ -330,10 +378,10 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-subheader>
-            <small class="font-weight-bold"
-              >Gestión Empresarial
-            </small>
+          <v-list-subheader
+            class="font-weight-bold"
+          >
+            Gestión Empresarial
           </v-list-subheader>
 
           <v-list-group
@@ -601,7 +649,8 @@ export default {
       ],
       ventasActions: [
         ['Tipos de Venta', 'Tipos de Venta'],
-        ['Facturación', 'Facturacion']
+        ['Facturación', 'Facturacion'],
+        ['Pedidos', 'Pedidos']
         //['Cuentas por Cobrar', 'CPC'],
       ],
       porCobrar: [
@@ -618,6 +667,13 @@ export default {
           idVentana: '9'
         }
       ],
+      cajas: [
+        {
+          title: 'Cierre',
+          route: 'Cierre',
+          idVentana: '3'
+        }
+      ],
       ventas: [
         {
           title: 'Tipos de Venta',
@@ -627,6 +683,11 @@ export default {
         {
           title: 'Facturación',
           route: 'Facturación',
+          idVentana: '3'
+        },
+        {
+          title: 'Pedidos',
+          route: 'Pedidos',
           idVentana: '3'
         }
       ],

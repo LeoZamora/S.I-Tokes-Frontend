@@ -1160,6 +1160,74 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+
+    // PEDIDOS
+    async getPedidos(req) {
+        try {
+            const result = await axios.post(endPoints.getPedidosListado, req)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getPedidoById(id) {
+        try {
+            const result = await axios.get(`${endPoints.getPedido}/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postPedido(data) {
+        try {
+            const result = await axios.post(endPoints.postPedido, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getPedidosEstados() {
+        try {
+            const result = await axios.get(endPoints.getPedidosEstados)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    // CAJAS
+    async getCajas() {
+        try {
+            const result = await axios.get(endPoints.getCajas)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getCajaAperturaVigente(idCaja) {
+        try {
+            const result = await axios.get(`${endPoints.getCajas}/${idCaja}/apertura-vigente`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getCajaAperturaVigenteResumen(idCaja) {
+        try {
+            const result = await axios.get(`${endPoints.getCajas}/${idCaja}/apertura-vigente/resumen`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postCierreCaja(data) {
+        try {
+            const result = await axios.post(endPoints.postCierreCaja, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
 }
 
 export default RequestHttp

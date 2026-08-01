@@ -140,6 +140,20 @@ const routes = createRouter({
       }
     },
     {
+      path: '/pedidos',
+      name: 'Pedidos',
+      component: () =>
+        import(
+          '@/components/movimientos/Ventas/PedidosComp.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Pedidos | DevoDigital'
+      }
+    },
+    {
       path: '/ordenes',
       name: 'Órdenes de compra',
       component: () =>
@@ -303,6 +317,20 @@ const routes = createRouter({
         keepAlive: true,
         requiredAuth: true,
         title: 'T. Movimiento | I. Zafiro'
+      }
+    },
+    {
+      path: '/caja/cierre',
+      name: 'Cierre',
+      component: () =>
+        import(
+          '@/views/caja/cierre.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Cierre de Caja | DevoDigital'
       }
     }
   ]

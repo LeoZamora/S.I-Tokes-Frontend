@@ -52,7 +52,7 @@
                             <v-icon size="18" color="blue-grey" class="me-3">mdi-barcode</v-icon>
                           </template>
                           <v-list-item-title class="text-body-2">Código</v-list-item-title>
-                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.codigo || 'N/A' }}</v-list-item-subtitle>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ fullProductData.codigo || 'N/A' }}</v-list-item-subtitle>
                         </v-list-item>
 
                         <v-divider class="my-1" />
@@ -62,7 +62,7 @@
                             <v-icon size="18" color="blue-grey" class="me-3">mdi-tag</v-icon>
                           </template>
                           <v-list-item-title class="text-body-2">Nombre</v-list-item-title>
-                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.nombre || 'N/A' }}</v-list-item-subtitle>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ fullProductData.nombre || 'N/A' }}</v-list-item-subtitle>
                         </v-list-item>
 
                         <v-divider class="my-1" />
@@ -72,7 +72,7 @@
                             <v-icon size="18" color="blue-grey" class="me-3">mdi-folder-outline</v-icon>
                           </template>
                           <v-list-item-title class="text-body-2">Sub Categoría</v-list-item-title>
-                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.categoria || 'N/A' }}</v-list-item-subtitle>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ fullProductData.categoria || 'N/A' }}</v-list-item-subtitle>
                         </v-list-item>
 
                         <v-divider class="my-1" />
@@ -82,7 +82,17 @@
                             <v-icon size="18" color="blue-grey" class="me-3">mdi-shape-outline</v-icon>
                           </template>
                           <v-list-item-title class="text-body-2">Tipo</v-list-item-title>
-                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.tipoProducto || 'N/A' }}</v-list-item-subtitle>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ fullProductData.tipoProducto || 'N/A' }}</v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-divider class="my-1" />
+
+                        <v-list-item class="px-0">
+                          <template v-slot:prepend>
+                            <v-icon size="18" color="blue-grey" class="me-3">mdi-account-group-outline</v-icon>
+                          </template>
+                          <v-list-item-title class="text-body-2">¿Es Mayorista?</v-list-item-title>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ fullProductData.esMayorista ? 'Sí' : 'No' }}</v-list-item-subtitle>
                         </v-list-item>
                       </v-list>
                     </v-card>
@@ -95,16 +105,16 @@
                       </div>
                       
                       <v-row dense>
-                        <v-col cols="6">
+                        <v-col cols="6" v-if="!fullProductData.esMayorista">
                           <div class="mb-2">
-                            <div class="text-caption text-grey">Precio</div>
-                            <div class="text-body-1 font-weight-bold text-success">{{ formateCurrency(producto.precio) }}</div>
+                            <div class="text-caption text-grey">Precio Unitario</div>
+                            <div class="text-body-1 font-weight-bold text-success">{{ formateCurrency(fullProductData.precio) }}</div>
                           </div>
                         </v-col>
-                        <v-col cols="6">
+                        <v-col :cols="fullProductData.esMayorista ? 12 : 6">
                           <div class="mb-2">
-                            <div class="text-caption text-grey">Costo</div>
-                            <div class="text-body-1 font-weight-bold text-error">{{ formateCurrency(producto.costo) }}</div>
+                            <div class="text-caption text-grey">Costo Unitario</div>
+                            <div class="text-body-1 font-weight-bold text-error">{{ formateCurrency(fullProductData.costo) }}</div>
                           </div>
                         </v-col>
                       </v-row>
@@ -123,14 +133,14 @@
                         <v-col cols="6">
                           <div class="text-center pa-3 bg-blue-lighten-5 rounded">
                             <v-icon size="24" color="blue" class="mb-1">mdi-package</v-icon>
-                            <div class="text-h6 font-weight-bold">{{ producto.cantidadTotal || 0 }}</div>
+                            <div class="text-h6 font-weight-bold">{{ fullProductData.cantidadTotal || 0 }}</div>
                             <div class="text-caption text-grey">Stock Actual</div>
                           </div>
                         </v-col>
                         <v-col cols="6">
                           <div class="text-center pa-3 bg-orange-lighten-5 rounded">
                             <v-icon size="24" color="orange" class="mb-1">mdi-alert</v-icon>
-                            <div class="text-h6 font-weight-bold">{{ producto.cantidadMinima || 0 }}</div>
+                            <div class="text-h6 font-weight-bold">{{ fullProductData.cantidadMinima || 0 }}</div>
                             <div class="text-caption text-grey">Stock Mínimo</div>
                           </div>
                         </v-col>
@@ -152,7 +162,7 @@
                             </v-avatar>
                           </template>
                           <v-list-item-title class="text-body-2">Registrado por</v-list-item-title>
-                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.usuarioRegistro || 'N/A' }}</v-list-item-subtitle>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ fullProductData.usuarioRegistro || 'N/A' }}</v-list-item-subtitle>
                         </v-list-item>
 
                         <v-divider class="my-2" />
@@ -162,21 +172,59 @@
                             <v-icon size="18" color="blue-grey" class="me-3">mdi-calendar</v-icon>
                           </template>
                           <v-list-item-title class="text-body-2">Fecha Registro</v-list-item-title>
-                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ formateDate(producto.fechaRegistro) || 'N/A' }}</v-list-item-subtitle>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ formateDate(fullProductData.fechaRegistro) || 'N/A' }}</v-list-item-subtitle>
                         </v-list-item>
 
                         <v-divider class="my-2" />
 
                         <v-list-item class="px-0">
                           <template v-slot:prepend>
-                            <v-chip :color="producto.estado ? 'green' : 'red'" size="small" class="me-3">
-                              <v-icon size="14">{{ producto.estado ? 'mdi-check' : 'mdi-close' }}</v-icon>
+                            <v-chip :color="fullProductData.estado ? 'green' : 'red'" size="small" class="me-3">
+                              <v-icon size="14">{{ fullProductData.estado ? 'mdi-check' : 'mdi-close' }}</v-icon>
                             </v-chip>
                           </template>
                           <v-list-item-title class="text-body-2">Estado</v-list-item-title>
-                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ producto.estado ? 'Activo' : 'Inactivo' }}</v-list-item-subtitle>
+                          <v-list-item-subtitle class="text-caption font-weight-medium">{{ fullProductData.estado ? 'Activo' : 'Inactivo' }}</v-list-item-subtitle>
                         </v-list-item>
                       </v-list>
+                    </v-card>
+                  </v-col>
+                </v-row>
+
+                <!-- Tabla de Precios Mayoristas (Solo si es mayorista) -->
+                <v-row dense class="mt-4" v-if="fullProductData.esMayorista">
+                  <v-col cols="12">
+                    <v-card variant="outlined" class="dashed pa-4 rounded-lg">
+                      <div class="d-flex align-center mb-3">
+                        <v-icon color="indigo" size="20" class="me-2">mdi-format-list-bulleted-type</v-icon>
+                        <h4 class="font-weight-bold text-indigo">Precios Mayoristas Registrados</h4>
+                      </div>
+                      
+                      <v-table density="compact" class="border rounded">
+                        <thead>
+                          <tr class="bg-indigo-lighten-5">
+                            <th class="text-center font-weight-bold text-caption">Cantidad Mínima</th>
+                            <th class="text-center font-weight-bold text-caption">Cantidad Máxima</th>
+                            <th class="text-center font-weight-bold text-caption">Precio Mayorista</th>
+                            <th class="text-center font-weight-bold text-caption">Utilidad (%)</th>
+                            <th class="text-center font-weight-bold text-caption">Observaciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(pm, index) in fullProductData.precioMayorista" :key="index">
+                            <td class="text-center text-body-2">{{ pm.minimo }}</td>
+                            <td class="text-center text-body-2">{{ pm.maximo }}</td>
+                            <td class="text-center text-body-2 font-weight-bold text-success">{{ formateCurrency(pm.precio) }}</td>
+                            <td class="text-center text-body-2 font-weight-bold text-indigo">{{ calcularUtilidad(pm.precio, fullProductData.costo) }}</td>
+                            <td class="text-center text-caption text-grey-darken-2">{{ pm.observaciones || '—' }}</td>
+                          </tr>
+                          <tr v-if="!fullProductData.precioMayorista || fullProductData.precioMayorista.length === 0">
+                            <td colspan="5" class="text-center text-grey text-caption py-4">
+                              No hay precios mayoristas registrados para este producto.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
                     </v-card>
                   </v-col>
                 </v-row>
@@ -366,6 +414,7 @@ import RequestHttp from '@/services/requestHttp'
 import SuccessAlert from '@/components/widgets/SuccessAlert.vue';
 import OverlayComp from '@/components/reutilizable/OverlayComp.vue';
 import { useStore } from '@/store';
+import { httpGet } from '@/scripts/api.js'
 
 export default {
   name: 'ProductDetailsDialog',
@@ -411,11 +460,22 @@ export default {
       )
     }
 
+    const fullProductData = ref({ ...props.producto })
     const localShow = ref(props.show)
-    watch(() => props.show, (val) => {
+
+    watch(() => props.show, async (val) => {
       localShow.value = val
 
       if (val) {        
+        fullProductData.value = { ...props.producto }
+        try {
+          const res = await httpGet(`api/producto/${props.producto.idProducto}`)
+          if (res) {
+            fullProductData.value = { ...props.producto, ...res }
+          }
+        } catch (e) {
+          console.error("Error loading product details:", e)
+        }
         getProvProduct()
         tab.value = 1
       }
@@ -462,7 +522,8 @@ export default {
       modalProveedor,
       data,
       token,
-      showSuccesAlert
+      showSuccesAlert,
+      fullProductData
     }
   },
 
@@ -542,6 +603,14 @@ export default {
     formateCurrency(key) {
       const value = formatters.formatCurrency(key)
       return value
+    },
+
+    calcularUtilidad(precio, costo) {
+      if (!precio || !costo) return '0.00%'
+      const p = Number(precio)
+      const c = Number(costo)
+      if (c === 0) return '0.00%'
+      return (((p - c) / c) * 100).toFixed(2) + '%'
     }
   },
 }

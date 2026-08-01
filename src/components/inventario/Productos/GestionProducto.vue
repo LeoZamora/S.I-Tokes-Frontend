@@ -2,15 +2,17 @@
   <div class="w-100">
     <!-- Encabezado y botón de agregar -->
     <v-card
-        class="border-t border-b"
-        elevation="0"
-        rounded="0"
+      class="border-t border-b"
+      elevation="0"
+      rounded="0"
     >
       <!-- Encabezado -->
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <!-- Título -->
-          <div class="text-h6 font-weight-bold d-flex align-center">
+          <div
+            class="text-h6 font-weight-bold d-flex align-center"
+          >
             <v-icon class="me-2" color="indigo">
               mdi-package-variant
             </v-icon>
@@ -19,42 +21,56 @@
         </div>
       </template>
       <template v-slot:append>
-        <v-btn v-if="hasAccessToFunct('122')" color="indigo-darken-4"
-          @click="openDialog('create')" variant="tonal" prepend-icon="mdi-plus"
+        <v-btn
+          v-if="hasAccessToFunct('122')"
+          color="indigo-darken-4"
+          @click="openDialog('create')"
+          variant="tonal"
+          prepend-icon="mdi-plus"
         >
           Nuevo Producto
         </v-btn>
       </template>
-      <v-divider/>
+      <v-divider />
 
       <v-row class="pa-2" dense>
         <v-col cols="6" md="6" sm="6">
           <v-text-field
-              color="indigo"
-              density="compact"
-              variant="outlined"
-              append-inner-icon="mdi-magnify"
-              label="Buscar productos"
-              v-model="search"
-              hide-details
-              placeholder="Ingrese un texto a buscar..."
-              persistent-placeholder
+            color="indigo"
+            density="compact"
+            variant="outlined"
+            append-inner-icon="mdi-magnify"
+            label="Buscar productos"
+            v-model="search"
+            hide-details
+            placeholder="Ingrese un texto a buscar..."
+            persistent-placeholder
           />
         </v-col>
         <v-col
-            cols="6"
-            md="6"
-            sm="6"
-            class="d-flex justify-end align-center"
+          cols="6"
+          md="6"
+          sm="6"
+          class="d-flex justify-end align-center"
         >
-          <v-btn v-if="hasAccessToFunct('126')" class="mr-4" variant="text" color="error" @click="exportToExcel"
-              icon size="small">
-              <v-icon>
-                mdi-download-multiple
-              </v-icon>
-              <v-tooltip location="top center" activator="parent">
-                Descargar Inventario
-              </v-tooltip>
+          <v-btn
+            v-if="hasAccessToFunct('126')"
+            class="mr-4"
+            variant="text"
+            color="error"
+            @click="exportToExcel"
+            icon
+            size="small"
+          >
+            <v-icon>
+              mdi-download-multiple
+            </v-icon>
+            <v-tooltip
+              location="top center"
+              activator="parent"
+            >
+              Descargar Inventario
+            </v-tooltip>
           </v-btn>
         </v-col>
       </v-row>
@@ -62,29 +78,29 @@
 
     <!-- Tabla de productos -->
     <v-data-table
-        class="font"
-        density="compact"
-        :headers="data.headers"
-        :items="data.products"
-        :items-per-page="10"
-        :search="search"
-        :loading="data.loading"
-        :row-props="setStyle"
-        :header-props="{
+      class="font"
+      density="compact"
+      :headers="data.headers"
+      :items="data.products"
+      :items-per-page="10"
+      :search="search"
+      :loading="data.loading"
+      :row-props="setStyle"
+      :header-props="{
         class: 'font-weight-bold'
       }"
-        hover
+      hover
     >
       <template v-slot:loader>
         <v-progress-linear
-            color="indigo"
-            indeterminate
-            height="2"
+          color="indigo"
+          indeterminate
+          height="2"
         />
       </template>
       <template v-slot:loading>
         <v-skeleton-loader
-            type="table-row@10"
+          type="table-row@10"
         ></v-skeleton-loader>
       </template>
       <template v-slot:item.costo="{ item }">
@@ -93,19 +109,104 @@
       <template v-slot:item.precio="{ item }">
         {{ formatCurrency(item.precio) }}
       </template>
+      <template
+        v-slot:item.esMayorista="{ item }"
+      >
+        <v-chip
+          :color="
+            item.esMayorista ? 'indigo' : 'grey'
+          "
+          size="small"
+          variant="flat"
+        >
+          {{ item.esMayorista ? 'Sí' : 'No' }}
+        </v-chip>
+      </template>
+      <template
+        v-slot:item.preciosMayoristasCount="{
+          item
+        }"
+      >
+        <v-menu
+          v-if="item.esMayorista"
+          location="bottom end"
+          transition="scale-transition"
+          :close-on-content-click="false"
+          @update:model-value="(val) => handlePopoverOpen(val, item)"
+        >
+          <template v-slot:activator="{ props }">
+            <v-chip
+              color="indigo-darken-3"
+              size="small"
+              variant="outlined"
+              class="font-weight-bold"
+              v-bind="props"
+              style="cursor: pointer;"
+            >
+              {{ item.preciosMayoristasCount || 0 }} rangos
+              <v-icon size="x-small" class="ml-1">mdi-eye</v-icon>
+            </v-chip>
+          </template>
+
+          <v-card width="380" class="elevation-4 border rounded-lg">
+            <v-card-item class="bg-indigo-lighten-5 py-2">
+              <v-card-title class="text-subtitle-2 font-weight-bold text-indigo d-flex align-center justify-space-between">
+                <span>
+                  <v-icon size="small" class="mr-1">mdi-format-list-bulleted-type</v-icon>
+                  Precios Mayoristas
+                </span>
+                <v-chip size="x-small" color="indigo" variant="flat" max-width="150" class="text-truncate">{{ item.nombre }}</v-chip>
+              </v-card-title>
+            </v-card-item>
+            <v-divider></v-divider>
+            
+            <div v-if="data.popoverLoading" class="d-flex justify-center align-center py-4">
+              <v-progress-circular indeterminate size="24" color="indigo" />
+              <span class="text-caption text-grey ml-2">Cargando rangos...</span>
+            </div>
+            
+            <v-table v-else density="compact" class="elevation-0">
+              <thead>
+                <tr class="bg-grey-lighten-4">
+                  <th class="text-center font-weight-bold text-caption py-1">Cantidades</th>
+                  <th class="text-center font-weight-bold text-caption py-1">Precio Unit.</th>
+                  <th class="text-center font-weight-bold text-caption py-1">Utilidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(pm, idx) in data.popoverPrices" :key="idx">
+                  <td class="text-center text-caption py-1 font-weight-medium">
+                    {{ pm.minimo }} a {{ pm.maximo }}
+                  </td>
+                  <td class="text-center text-caption py-1 text-success font-weight-bold">
+                    {{ formatCurrency(pm.precio) }}
+                  </td>
+                  <td class="text-center text-caption py-1 text-indigo font-weight-medium">
+                    {{ calculatePopoverUtilidad(pm.precio, data.popoverProductCosto) }}
+                  </td>
+                </tr>
+                <tr v-if="!data.popoverPrices || data.popoverPrices.length === 0">
+                  <td colspan="3" class="text-center text-grey text-caption py-2">
+                    Sin rangos registrados
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-card>
+        </v-menu>
+        <span v-else class="text-grey">—</span>
+      </template>
 
       <template
-          v-slot:item.fechaRegistro="{ item }"
+        v-slot:item.fechaRegistro="{ item }"
       >
         {{ formatDate(item.fechaRegistro) }}
       </template>
 
       <template v-slot:item.estado="{ item }">
         <v-chip
-            :color="
-            item.estado ? 'green' : 'error'
-          "
-            small
+          :color="item.estado ? 'green' : 'error'"
+          small
         >
           {{
             item.estado ? 'Activo' : 'Inactivo'
@@ -114,129 +215,248 @@
       </template>
 
       <template v-slot:item.stockMin="{ item }">
-        <v-chip :color="setStockMinimo(item.cantidadMinima, item.cantidadTotal) ? 'green' : 'error'">
+        <v-chip
+          :color="
+            setStockMinimo(
+              item.cantidadMinima,
+              item.cantidadTotal
+            )
+              ? 'green'
+              : 'error'
+          "
+        >
           {{
-            setStockMinimo(item.cantidadMinima, item.cantidadTotal) ? 'NO' : 'SI'
+            setStockMinimo(
+              item.cantidadMinima,
+              item.cantidadTotal
+            )
+              ? 'NO'
+              : 'SI'
           }}
         </v-chip>
       </template>
 
       <template v-slot:item.actions="{ item }">
-        <v-menu :close-on-content-click="false" location="right center"
-          origin="auto">
+        <v-menu
+          :close-on-content-click="false"
+          location="right center"
+          origin="auto"
+        >
           <template v-slot:activator="{ props }">
-            <v-tooltip text="Opciones" location="top">
-              <template v-slot:activator="{ props: tooltipProps }">
-                <v-btn size="small" icon variant="text" color="grey-darken-1"
-                  v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
-                  <v-icon>mdi-dots-vertical</v-icon>
+            <v-tooltip
+              text="Opciones"
+              location="top"
+            >
+              <template
+                v-slot:activator="{
+                  props: tooltipProps
+                }"
+              >
+                <v-btn
+                  size="small"
+                  icon
+                  variant="text"
+                  color="grey-darken-1"
+                  v-bind="{
+                    ...props,
+                    ...tooltipProps
+                  }"
+                  class="hover-scale"
+                >
+                  <v-icon
+                    >mdi-dots-vertical</v-icon
+                  >
                 </v-btn>
               </template>
             </v-tooltip>
           </template>
 
-          <v-list nav rounded="lg" >
+          <v-list nav rounded="lg">
             <v-list-item-subtitle class="pa-1">
               Opciones
             </v-list-item-subtitle>
-            <v-list-item v-if="hasAccessToFunct('123')" rounded density="compact" prepend-icon="mdi-pencil"
-              color="indigo" @click="openDialog('edit', item)">
+            <v-list-item
+              v-if="hasAccessToFunct('123')"
+              rounded
+              density="compact"
+              prepend-icon="mdi-pencil"
+              color="indigo"
+              @click="openDialog('edit', item)"
+            >
               <template v-slot:title>
-                  <v-divider vertical />
-                  Editar Producto
+                <v-divider vertical />
+                Editar Producto
               </template>
             </v-list-item>
 
-            <v-list-item rounded density="compact" prepend-icon="mdi-eye"
-              color="indigo" @click="openDialogDet(item)">
+            <v-list-item
+              rounded
+              density="compact"
+              prepend-icon="mdi-eye"
+              color="indigo"
+              @click="openDialogDet(item)"
+            >
               <template v-slot:title>
-                  <v-divider vertical />
-                  Ver Producto
+                <v-divider vertical />
+                Ver Producto
               </template>
             </v-list-item>
 
-            <v-list-item v-if="hasAccessToFunct('124')" rounded density="compact" prepend-icon="mdi-delete"
-              color="indigo" @click="showAlert(item)">
+            <v-list-item
+              v-if="hasAccessToFunct('124')"
+              rounded
+              density="compact"
+              prepend-icon="mdi-delete"
+              color="indigo"
+              @click="showAlert(item)"
+            >
               <template v-slot:title>
-                  <v-divider vertical />
-                  Eliminar Producto
+                <v-divider vertical />
+                Eliminar Producto
               </template>
             </v-list-item>
 
             <v-divider />
 
-            <v-list-item rounded density="compact" prepend-icon="mdi-history"
-              color="indigo" @click="loadVerAjustesStockDisplay(item)">
+            <v-list-item
+              rounded
+              density="compact"
+              prepend-icon="mdi-history"
+              color="indigo"
+              @click="
+                loadVerAjustesStockDisplay(item)
+              "
+            >
               <template v-slot:title>
-                  <v-divider vertical />
-                  Ajustes de Stock
+                <v-divider vertical />
+                Ajustes de Stock
               </template>
             </v-list-item>
           </v-list>
-
         </v-menu>
       </template>
     </v-data-table>
 
-
     <!-- VER AJUSTES DE STOCK -->
-    <v-dialog v-model="display.verAjusteStock" width="650">
+    <v-dialog
+      v-model="display.verAjusteStock"
+      width="650"
+    >
       <v-card class="rounded" elevation="8">
         <!-- Header con información del producto -->
         <v-card-item class="bg-indigo-darken-4">
-          <div class="d-flex align-start justify-space-between w-100">
+          <div
+            class="d-flex align-start justify-space-between w-100"
+          >
             <div>
-              <div class="d-flex align-center mb-2">
-                <v-avatar color="white" class="mr-3" variant="flat">
-                  <v-icon color="#1976d2" size="22">mdi-package-variant</v-icon>
+              <div
+                class="d-flex align-center mb-2"
+              >
+                <v-avatar
+                  color="white"
+                  class="mr-3"
+                  variant="flat"
+                >
+                  <v-icon
+                    color="#1976d2"
+                    size="22"
+                    >mdi-package-variant</v-icon
+                  >
                 </v-avatar>
                 <div>
-                  <v-card-title class="text-h6 font-weight-bold pa-0 text-white">
+                  <v-card-title
+                    class="text-h6 font-weight-bold pa-0 text-white"
+                  >
                     HISTORIAL DE AJUSTES DE STOCK
                   </v-card-title>
-                  <v-card-subtitle class="text-caption text-white pa-0 mt-1 opacity-85">
+                  <v-card-subtitle
+                    class="text-caption text-white pa-0 mt-1 opacity-85"
+                  >
                     {{ verAjusteStock.producto }}
                   </v-card-subtitle>
                 </div>
               </div>
             </div>
-            
             <div class="text-right">
-              <div class="text-caption text-white mb-1 ">
+              <div
+                class="text-caption text-white mb-1"
+              >
                 STOCK ACTUAL
               </div>
-              <v-chip color="white" variant="flat" size="small"
-                class="font-weight-bold text-primary">
-                {{ verAjusteStock.cantidadTotal }} unidades
+              <v-chip
+                color="white"
+                variant="flat"
+                size="small"
+                class="font-weight-bold text-primary"
+              >
+                {{ verAjusteStock.cantidadTotal }}
+                unidades
               </v-chip>
             </div>
           </div>
         </v-card-item>
 
         <!-- Resumen de ajustes -->
-        <v-card-text class="pa-4 bg-grey-lighten-4">
-          <v-card variant="flat" color="white" class="mb-4 pa-3 rounded border" elevation="0">
+        <v-card-text
+          class="pa-4 bg-grey-lighten-4"
+        >
+          <v-card
+            variant="flat"
+            color="white"
+            class="mb-4 pa-3 rounded border"
+            elevation="0"
+          >
             <v-row dense>
               <v-col cols="6">
                 <div class="d-flex align-center">
-                  <v-icon color="green" size="small" class="mr-2">mdi-arrow-up</v-icon>
+                  <v-icon
+                    color="green"
+                    size="small"
+                    class="mr-2"
+                    >mdi-arrow-up</v-icon
+                  >
                   <div>
-                    <div class="text-caption text-grey-darken-2">
+                    <div
+                      class="text-caption text-grey-darken-2"
+                    >
                       AJUSTES POSITIVOS
                     </div>
-                    <div class="text-h6 font-weight-bold text-green-darken-2">
-                      +{{ verAjusteStock.tbl.items.filter(item => item.cantidad > 0).length || 0 }}
+                    <div
+                      class="text-h6 font-weight-bold text-green-darken-2"
+                    >
+                      +{{
+                        verAjusteStock.tbl.items.filter(
+                          (item) =>
+                            item.cantidad > 0
+                        ).length || 0
+                      }}
                     </div>
                   </div>
                 </div>
               </v-col>
               <v-col cols="6">
                 <div class="d-flex align-center">
-                  <v-icon color="red" size="small" class="mr-2">mdi-arrow-down</v-icon>
+                  <v-icon
+                    color="red"
+                    size="small"
+                    class="mr-2"
+                    >mdi-arrow-down</v-icon
+                  >
                   <div>
-                    <div class="text-caption text-grey-darken-2">AJUSTES NEGATIVOS</div>
-                    <div class="text-h6 font-weight-bold text-red-darken-2">
-                      {{ verAjusteStock.tbl.items.filter((item) => (item.cantidad <= 0)).length || 0 }}
+                    <div
+                      class="text-caption text-grey-darken-2"
+                    >
+                      AJUSTES NEGATIVOS
+                    </div>
+                    <div
+                      class="text-h6 font-weight-bold text-red-darken-2"
+                    >
+                      {{
+                        verAjusteStock.tbl.items.filter(
+                          (item) =>
+                            item.cantidad <= 0
+                        ).length || 0
+                      }}
                     </div>
                   </div>
                 </div>
@@ -245,21 +465,47 @@
           </v-card>
 
           <!-- Tabla de ajustes -->
-          <v-card variant="flat" class="rounded-lg  border" elevation="0">
-            <v-card-title class="pa-3" style="background-color: #e3f2fd;">
-              <div class="d-flex align-center justify-space-between w-100">
+          <v-card
+            variant="flat"
+            class="rounded-lg border"
+            elevation="0"
+          >
+            <v-card-title
+              class="pa-3"
+              style="background-color: #e3f2fd"
+            >
+              <div
+                class="d-flex align-center justify-space-between w-100"
+              >
                 <div class="d-flex align-center">
-                  <v-icon color="primary" size="small" class="mr-2">mdi-history</v-icon>
-                  <span class="text-subtitle-2 font-weight-bold">REGISTRO DE AJUSTES</span>
+                  <v-icon
+                    color="primary"
+                    size="small"
+                    class="mr-2"
+                    >mdi-history</v-icon
+                  >
+                  <span
+                    class="text-subtitle-2 font-weight-bold"
+                    >REGISTRO DE AJUSTES</span
+                  >
                 </div>
-                <v-chip size="small" color="primary" variant="flat">
-                  {{ verAjusteStock.tbl.items.length || 0 }} registros
+                <v-chip
+                  size="small"
+                  color="primary"
+                  variant="flat"
+                >
+                  {{
+                    verAjusteStock.tbl.items
+                      .length || 0
+                  }}
+                  registros
                 </v-chip>
               </div>
             </v-card-title>
-            
             <v-data-table
-              :headers="verAjusteStock.tbl.headers"
+              :headers="
+                verAjusteStock.tbl.headers
+              "
               :items="verAjusteStock.tbl.items"
               class="elevation-1"
               height="250"
@@ -267,74 +513,160 @@
               density="compact"
               fixed-header
               :header-props="{
-                class: 'text-uppercase font-weight-bold bg-blue-lighten-5'
+                class:
+                  'text-uppercase font-weight-bold bg-blue-lighten-5'
               }"
             >
-              <template v-slot:item.fechaRegistro="{ item }">
+              <template
+                v-slot:item.fechaRegistro="{
+                  item
+                }"
+              >
                 <div class="d-flex align-center">
-                  <v-icon size="small" color="grey" class="mr-2">mdi-calendar</v-icon>
-                  <span class="font-weight-medium">
-                    {{ this.formatDate(item.fechaRegistro) }}
+                  <v-icon
+                    size="small"
+                    color="grey"
+                    class="mr-2"
+                    >mdi-calendar</v-icon
+                  >
+                  <span
+                    class="font-weight-medium"
+                  >
+                    {{
+                      this.formatDate(
+                        item.fechaRegistro
+                      )
+                    }}
                   </span>
                 </div>
               </template>
-              
-              <template v-slot:item.cantidad="{ item }">
-                <v-chip 
-                  :color="item.cantidad > 0 ? 'green-lighten-5' : 'red-lighten-5'" 
-                  :variant="item.cantidad > 0 ? 'outlined' : 'outlined'"
+              <template
+                v-slot:item.cantidad="{ item }"
+              >
+                <v-chip
+                  :color="
+                    item.cantidad > 0
+                      ? 'green-lighten-5'
+                      : 'red-lighten-5'
+                  "
+                  :variant="
+                    item.cantidad > 0
+                      ? 'outlined'
+                      : 'outlined'
+                  "
                   size="small"
                   class="font-weight-bold"
                 >
-                  <v-icon size="small" :color="item.cantidad > 0 ? 'green' : 'red'" class="mr-1">
-                    {{ item.cantidad > 0 ? 'mdi-plus' : 'mdi-minus' }}
+                  <v-icon
+                    size="small"
+                    :color="
+                      item.cantidad > 0
+                        ? 'green'
+                        : 'red'
+                    "
+                    class="mr-1"
+                  >
+                    {{
+                      item.cantidad > 0
+                        ? 'mdi-plus'
+                        : 'mdi-minus'
+                    }}
                   </v-icon>
-                  {{ item.cantidad > 0 ? '+' : '' }}{{ item.cantidad }}
+                  {{ item.cantidad > 0 ? '+' : ''
+                  }}{{ item.cantidad }}
                 </v-chip>
               </template>
-              
               <template v-slot:no-data>
                 <div class="pa-6 text-center">
-                  <v-icon size="large" color="grey-lighten-2" class="mb-3">mdi-information-outline</v-icon>
-                  <div class="text-body-1 text-grey mb-1">No hay ajustes registrados</div>
-                  <div class="text-caption text-grey">Este producto no tiene historial de ajustes</div>
+                  <v-icon
+                    size="large"
+                    color="grey-lighten-2"
+                    class="mb-3"
+                    >mdi-information-outline</v-icon
+                  >
+                  <div
+                    class="text-body-1 text-grey mb-1"
+                  >
+                    No hay ajustes registrados
+                  </div>
+                  <div
+                    class="text-caption text-grey"
+                  >
+                    Este producto no tiene
+                    historial de ajustes
+                  </div>
                 </div>
-      
-          <v-tooltip text="Ajustes Stock" location="top">
-            <template
-              v-slot:activator="{ props }"
-            >
-              <v-icon
-                v-bind="props"
-                size="small"
-                color="grey"
-                class="mr-1"
-                @click="loadVerAjustesStockDisplay(item)"
-              >
-                mdi-history
-              </v-icon>
-            </template>
-          </v-tooltip>
-        </template>
+                <v-tooltip
+                  text="Ajustes Stock"
+                  location="top"
+                >
+                  <template
+                    v-slot:activator="{ props }"
+                  >
+                    <v-icon
+                      v-bind="props"
+                      size="small"
+                      color="grey"
+                      class="mr-1"
+                      @click="
+                        loadVerAjustesStockDisplay(
+                          item
+                        )
+                      "
+                    >
+                      mdi-history
+                    </v-icon>
+                  </template>
+                </v-tooltip>
+              </template>
             </v-data-table>
           </v-card>
 
           <!-- Resumen final -->
-          <v-card variant="flat" color="blue-lighten-5" class="mt-4 pa-4 rounded-lg border">
-            <div class="d-flex align-center justify-space-between">
+          <v-card
+            variant="flat"
+            color="blue-lighten-5"
+            class="mt-4 pa-4 rounded-lg border"
+          >
+            <div
+              class="d-flex align-center justify-space-between"
+            >
               <div class="d-flex align-center">
-                <v-icon color="primary" class="mr-2">mdi-chart-timeline</v-icon>
+                <v-icon
+                  color="primary"
+                  class="mr-2"
+                  >mdi-chart-timeline</v-icon
+                >
                 <div>
-                  <div class="text-caption text-grey-darken-2">TOTAL DE MOVIMIENTOS</div>
-                  <div class="text-body-1 font-weight-bold">
-                    {{ verAjusteStock.tbl.items.length }} ajustes registrados
+                  <div
+                    class="text-caption text-grey-darken-2"
+                  >
+                    TOTAL DE MOVIMIENTOS
+                  </div>
+                  <div
+                    class="text-body-1 font-weight-bold"
+                  >
+                    {{
+                      verAjusteStock.tbl.items
+                        .length
+                    }}
+                    ajustes registrados
                   </div>
                 </div>
               </div>
               <div class="text-right">
-                <div class="text-caption text-grey-darken-2">SALDO FINAL</div>
-                <div class="text-h6 font-weight-bold text-primary">
-                  {{ verAjusteStock.cantidadTotal }} unidades
+                <div
+                  class="text-caption text-grey-darken-2"
+                >
+                  SALDO FINAL
+                </div>
+                <div
+                  class="text-h6 font-weight-bold text-primary"
+                >
+                  {{
+                    verAjusteStock.cantidadTotal
+                  }}
+                  unidades
                 </div>
               </div>
             </div>
@@ -344,10 +676,12 @@
         <!-- Footer -->
         <v-divider thickness="2" />
         <v-card-actions class="pa-4 bg-white">
-          <v-btn 
-            color="grey-darken-2" 
-            variant="tonal" 
-            @click="display.verAjusteStock = false"
+          <v-btn
+            color="grey-darken-2"
+            variant="tonal"
+            @click="
+              display.verAjusteStock = false
+            "
             prepend-icon="mdi-close"
           >
             Cerrar
@@ -356,10 +690,15 @@
       </v-card>
     </v-dialog>
 
-     <v-dialog v-model="display.ajusteStock" width="300">
+    <v-dialog
+      v-model="display.ajusteStock"
+      width="300"
+    >
       <v-card>
         <v-card-item>
-          <v-card-title>Ajustar stock</v-card-title>
+          <v-card-title
+            >Ajustar stock</v-card-title
+          >
           <v-card-subtitle>
             {{ ajusteStock.producto }}
           </v-card-subtitle>
@@ -370,7 +709,9 @@
             <v-row dense>
               <v-col cols="12">
                 <v-text-field
-                  v-model="ajusteStock.data.cantidadTotal"
+                  v-model="
+                    ajusteStock.data.cantidadTotal
+                  "
                   label="Nuevo stock:"
                   color="indigo"
                   variant="outlined"
@@ -378,15 +719,16 @@
                   type="number"
                   prepend-inner-icon="mdi-numeric"
                   :rules="[
-                  v => !!v || 'Requerido.'
-                ]"
+                    (v) => !!v || 'Requerido.'
+                  ]"
                 >
-
                 </v-text-field>
               </v-col>
               <v-col cols="12">
                 <v-textarea
-                  v-model="ajusteStock.data.observaciones"
+                  v-model="
+                    ajusteStock.data.observaciones
+                  "
                   label="Motivo del ajuste:"
                   color="indigo"
                   variant="outlined"
@@ -394,10 +736,9 @@
                   rows="2"
                   auto-grow
                   :rules="[
-                    v => !!v || 'Requerido.'
+                    (v) => !!v || 'Requerido.'
                   ]"
                 >
-
                 </v-textarea>
               </v-col>
             </v-row>
@@ -405,10 +746,18 @@
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions class="justify-end">
-          <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">
+          <v-btn
+            color="secondary"
+            variant="outlined"
+            @click="closeAjusteStockDisplay"
+          >
             Cancelar
           </v-btn>
-          <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">
+          <v-btn
+            color="primary"
+            variant="elevated"
+            @click="saveAjusteStockDisplay"
+          >
             Ajustar
           </v-btn>
         </v-card-actions>
@@ -435,117 +784,144 @@
 
     <!-- Diálogo para agregar/editar -->
     <v-dialog
-        v-model="data.dialog"
-        width="750"
-        min-height="500"
-        persistent
+      v-model="data.dialog"
+      width="750"
+      persistent
     >
       <v-card class="w-100 mb-6" elevation="0">
         <v-card-title
-            class="text-h5 text-center pa-1 font-weight-bold bg-indigo"
+          class="text-h5 text-center pa-1 font-weight-bold bg-indigo"
         >
           <v-icon>mdi-package-variant</v-icon>
           Inventario - Registro de Productos
         </v-card-title>
 
         <v-tabs
-            v-model="registroDisplay.tab"
-            color="primary"
-            density="compact"
-            class="mt-2"
+          v-model="registroDisplay.tab"
+          color="primary"
+          density="compact"
+          class="mt-2"
         >
           <v-tab
-              height="25"
-              density="compact"
-              class="border custom-border"
-          ><small
-          >Información del Producto</small
-          >
+            height="25"
+            density="compact"
+            class="border custom-border"
+            ><small
+              >Información del Producto</small
+            >
           </v-tab>
           <v-tab
-              height="25"
-              density="compact"
-              class="border custom-border"
-          ><small
-          >Detalles Adicionales</small
-          ></v-tab
+            height="25"
+            density="compact"
+            class="border custom-border"
+            ><small
+              >Detalles Adicionales</small
+            ></v-tab
           >
         </v-tabs>
 
         <v-divider></v-divider>
 
-        <v-card-text class="pa-2">
+        <v-card-text class="pa-2" style="overflow-y: auto;">
           <v-window
-              v-model="registroDisplay.tab"
-              class="pa-2"
+            v-model="registroDisplay.tab"
+            class="pa-2"
           >
             <v-window-item>
               <v-form class="w-100" ref="form">
                 <v-row>
                   <v-col cols="12">
                     <div
-                        class="border-custom pa-2"
+                      class="border-custom pa-2"
                     >
                       <v-card-subtitle
-                      >Clasificación del
+                        >Clasificación del
                         Producto
                       </v-card-subtitle>
                       <v-divider
-                          class="mb-2"
+                        class="mb-2"
                       ></v-divider>
                       <v-row dense>
                         <v-col cols="12">
                           <v-select
-                              v-model="
+                            v-model="
                               data.form
                                 .idCategoria
                             "
-                              label="Categoría:"
-                              :items="
+                            label="Categoría:"
+                            :items="
                               cmb.categorias
                             "
-                              :rules="[
+                            :rules="[
                               rules.required
                             ]"
-                              variant="outlined"
-                              density="compact"
-                              prepend-inner-icon="mdi-shape-outline"
-                              hide-details
-                              @update:model-value="loadCmbSubCategoria(data.form.idCategoria)"
+                            variant="outlined"
+                            density="compact"
+                            prepend-inner-icon="mdi-shape-outline"
+                            hide-details
+                            clearable
+                            @update:model-value="
+                              loadCmbSubCategoria(
+                                data.form
+                                  .idCategoria
+                              )
+                            "
                           >
-                            <template v-slot:prepend>
+                            <template
+                              v-slot:prepend
+                            >
                               <v-btn
-                                  @click="openNuevaCategoriaDisplay"
-                                  color="secondary"
-                                  size="32"
+                                @click="
+                                  openNuevaCategoriaDisplay
+                                "
+                                color="secondary"
+                                size="32"
                               >
-                                <v-icon>mdi-plus</v-icon>
+                                <v-icon
+                                  >mdi-plus</v-icon
+                                >
                               </v-btn>
                             </template>
                           </v-select>
                         </v-col>
                         <v-col cols="12">
                           <v-select
-                              v-model="
-                              data.form.idSubCatProd"
-                              label="Sub categoría"
-                              :items="cmb.subCategorias"
-                              :rules="[
-                                rules.required
-                              ]"
-                              variant="outlined"
-                              hide-details
-                              density="compact"
-                              prepend-inner-icon="mdi-shape-outline"
-                              @update:model-value="loadCodigoRecomendado(data.form.idSubCatProd)"
+                            v-model="
+                              data.form
+                                .idSubCatProd
+                            "
+                            label="Sub categoría"
+                            :items="
+                              cmb.subCategorias
+                            "
+                            :rules="[
+                              rules.required
+                            ]"
+                            variant="outlined"
+                            hide-details
+                            density="compact"
+                            clearable
+                            prepend-inner-icon="mdi-shape-outline"
+                            @update:model-value="
+                              loadCodigoRecomendado(
+                                data.form
+                                  .idSubCatProd
+                              )
+                            "
                           >
-                            <template v-slot:prepend>
+                            <template
+                              v-slot:prepend
+                            >
                               <v-btn
-                                  @click="openNuevaSubCatDisplay"
-                                  color="secondary"
-                                  size="32"
+                                @click="
+                                  openNuevaSubCatDisplay
+                                "
+                                color="secondary"
+                                size="32"
                               >
-                                <v-icon>mdi-plus</v-icon>
+                                <v-icon
+                                  >mdi-plus</v-icon
+                                >
                               </v-btn>
                             </template>
                           </v-select>
@@ -555,127 +931,138 @@
                   </v-col>
                   <v-col cols="12" md="6" sm="6">
                     <v-text-field
-                        color="indigo"
-                        v-model="data.form.codigo"
-                        label="Código"
-                        :rules="[rules.required]"
-                        variant="outlined"
-                        hide-details
-                        clearable
-                        density="compact"
-                        prepend-inner-icon="mdi-barcode"
+                      color="indigo"
+                      v-model="data.form.codigo"
+                      label="Código"
+                      :rules="[rules.required]"
+                      variant="outlined"
+                      hide-details
+                      clearable
+                      density="compact"
+                      prepend-inner-icon="mdi-barcode"
                     />
                   </v-col>
                   <v-col cols="12" md="6" sm="6">
                     <v-text-field
-                        color="indigo"
-                        v-model="data.form.nombre"
-                        label="Nombre"
-                        :rules="[
+                      color="indigo"
+                      v-model="data.form.nombre"
+                      label="Nombre"
+                      :rules="[
                         rules.required,
                         rules.minLength(3)
                       ]"
+                      variant="outlined"
+                      hide-details
+                      density="compact"
+                      clearable
+                      prepend-inner-icon="mdi-text-box"
+                    />
+                  </v-col>
+
+                  <v-col
+                    :cols="
+                      data.form.esMayorista
+                        ? 6
+                        : 3
+                    "
+                  >
+                    <div
+                      class="border-custom pa-2"
+                    >
+                      <v-card-subtitle
+                        >Costo del Producto
+                      </v-card-subtitle>
+                      <v-divider
+                        class="mb-2"
+                      ></v-divider>
+                      <v-text-field
+                        v-model="data.form.costo"
+                        :rules="[
+                          rules.required,
+                          rules.numeric
+                        ]"
+                        class="mb-2"
+                        prefix="C$"
+                        label="Por unidad:"
                         variant="outlined"
                         hide-details
                         density="compact"
-                        clearable
-                        prepend-inner-icon="mdi-text-box"
-                    />
-                  </v-col>
-                  <v-col cols="3">
-                    <div
-                        class="border-custom pa-2"
-                    >
-                      <v-card-subtitle
-                      >Costo del Producto
-                      </v-card-subtitle>
-                      <v-divider
-                          class="mb-2"
-                      ></v-divider>
-                      <v-text-field
-                          v-model="data.form.costo"
-                          :rules="[
-                          rules.required,
-                          rules.numeric
-                        ]"
-                          class="mb-2"
-                          prefix="C$"
-                          label="Por unidad:"
-                          variant="outlined"
-                          hide-details
-                          density="compact"
-                          type="number"
-                          step="0.01"
-                          @input="handleChangeCosto"
+                        type="number"
+                        step="0.01"
+                        @input="handleChangeCosto"
                       >
                       </v-text-field>
                       <v-text-field
-                          v-model="
+                        v-model="
                           data.form.costoDolar
                         "
-                          :rules="[
+                        :rules="[
                           rules.required,
                           rules.numeric
                         ]"
-                          prefix="$"
-                          label="En US$:"
-                          variant="outlined"
-                          hide-details
-                          density="compact"
-                          type="number"
-                          step="0.01"
-                          @input="
+                        prefix="$"
+                        label="En US$:"
+                        variant="outlined"
+                        hide-details
+                        density="compact"
+                        type="number"
+                        step="0.01"
+                        @input="
                           handleChangeCostoDolar
                         "
                       >
                       </v-text-field>
                     </div>
                   </v-col>
-                  <v-col cols="3">
+
+                  <v-col
+                    cols="3"
+                    v-if="!data.form.esMayorista"
+                  >
                     <div
-                        class="border-custom pa-2"
+                      class="border-custom pa-2"
                     >
                       <v-card-subtitle
-                      >Precio de Venta
+                        >Precio de Venta
                       </v-card-subtitle>
                       <v-divider
-                          class="mb-2"
+                        class="mb-2"
                       ></v-divider>
                       <v-text-field
-                          v-model="data.form.precio"
-                          :rules="[
+                        v-model="data.form.precio"
+                        :rules="[
                           rules.required,
                           rules.numeric
                         ]"
-                          class="mb-2"
-                          prefix="C$"
-                          label="Precio:"
-                          variant="outlined"
-                          hide-details
-                          density="compact"
-                          type="number"
-                          step="0.01"
-                          @input="
+                        class="mb-2"
+                        prefix="C$"
+                        label="Precio:"
+                        variant="outlined"
+                        hide-details
+                        density="compact"
+                        type="number"
+                        step="0.01"
+                        @input="
                           handleChangePrecio
                         "
                       >
                       </v-text-field>
                       <v-text-field
-                          v-model="
+                        v-model="
                           data.form.utilidad
                         "
-                          :rules="[
+                        :rules="[
                           rules.required,
                           rules.numeric
                         ]"
-                          prefix="%"
-                          label="% Utilidad:"
-                          variant="outlined"
-                          hide-details
-                          density="compact"
-                          type="number"
-                          step="0.01"
-                          @input="
+                        prefix="%"
+                        label="% Utilidad:"
+                        variant="outlined"
+                        hide-details
+                        density="compact"
+                        type="number"
+                        step="0.01"
+                        @input="
                           handleChangeUtilidad
                         "
                       >
@@ -687,87 +1074,122 @@
                     <v-row dense>
                       <v-col cols="12">
                         <v-autocomplete
-                            v-model="
-                        data.form.idUnidadMedida
-                      "
-                            :items="data.unidadesMedidas"
-                            label="Unidad Medida:"
-                            variant="outlined"
-                            density="compact"
-                            hide-details
+                          v-model="
+                            data.form
+                              .idUnidadMedida
+                          "
+                          :items="
+                            data.unidadesMedidas
+                          "
+                          label="Unidad Medida:"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
                         >
-                          <template v-slot:prepend>
+                          <template
+                            v-slot:prepend
+                          >
                             <v-btn
-                                @click="data.showDiagUM = true"
-                                color="secondary"
-                                size="32"
+                              @click="
+                                data.showDiagUM = true
+                              "
+                              color="secondary"
+                              size="32"
                             >
-                              <v-icon>mdi-plus</v-icon>
+                              <v-icon
+                                >mdi-plus</v-icon
+                              >
                             </v-btn>
                           </template>
                         </v-autocomplete>
                       </v-col>
                       <v-col cols="12">
                         <v-text-field
-                            color="indigo"
-                            v-model="
-                              data.form.cantidadMinima
-                            "
-                            label="Stock Mínimo"
-                            :rules="[
-                              rules.required,
-                              rules.numeric
-                            ]"
-                            variant="outlined"
-                            hide-details
-                            density="compact"
-                            type="number"
-                            prepend-inner-icon="mdi-numeric"
+                          color="indigo"
+                          v-model="
+                            data.form
+                              .cantidadMinima
+                          "
+                          label="Stock Mínimo"
+                          :rules="[
+                            rules.required,
+                            rules.numeric
+                          ]"
+                          variant="outlined"
+                          hide-details
+                          density="compact"
+                          type="number"
+                          prepend-inner-icon="mdi-numeric"
                         />
                       </v-col>
                       <v-col cols="12">
                         <v-text-field
-                            color="indigo"
-                            v-model="
-                              data.form.cantidadTotal
-                            "
-                            label="Stock"
-                            :rules="[
-                              rules.required,
-                              rules.numeric
-                            ]"
-                            variant="outlined"
-                            hide-details
-                            density="compact"
-                            type="number"
-                            prepend-inner-icon="mdi-numeric"
-                            readonly
+                          color="indigo"
+                          v-model="
+                            data.form
+                              .cantidadTotal
+                          "
+                          label="Stock"
+                          :rules="[
+                            rules.required,
+                            rules.numeric
+                          ]"
+                          variant="outlined"
+                          hide-details
+                          density="compact"
+                          type="number"
+                          prepend-inner-icon="mdi-numeric"
+                          readonly
                         >
-                          <template v-slot:prepend>
+                          <template
+                            v-slot:prepend
+                          >
                             <v-btn
-                              @click="loadAjusteStockDisplay"
+                              @click="
+                                loadAjusteStockDisplay
+                              "
                               color="secondary"
                               size="32"
                             >
-                              <v-icon>mdi-pencil</v-icon>
+                              <v-icon
+                                >mdi-pencil</v-icon
+                              >
                             </v-btn>
                           </template>
                         </v-text-field>
-                        <v-dialog v-model="display.ajusteStock" width="300">
+                        <v-dialog
+                          v-model="
+                            display.ajusteStock
+                          "
+                          width="300"
+                        >
                           <v-card>
                             <v-card-item>
-                              <v-card-title>Ajustar stock</v-card-title>
+                              <v-card-title
+                                >Ajustar
+                                stock</v-card-title
+                              >
                               <v-card-subtitle>
-                                {{ ajusteStock.producto }}
+                                {{
+                                  ajusteStock.producto
+                                }}
                               </v-card-subtitle>
                             </v-card-item>
                             <v-divider></v-divider>
                             <v-card-text>
-                              <v-form ref="formAjusteStock">
+                              <v-form
+                                ref="formAjusteStock"
+                              >
                                 <v-row dense>
-                                  <v-col cols="12">
+                                  <v-col
+                                    cols="12"
+                                  >
                                     <v-text-field
-                                      v-model="ajusteStock.data.cantidadTotal"
+                                      v-model="
+                                        ajusteStock
+                                          .data
+                                          .cantidadTotal
+                                      "
                                       label="Nuevo stock:"
                                       color="indigo"
                                       variant="outlined"
@@ -775,15 +1197,22 @@
                                       type="number"
                                       prepend-inner-icon="mdi-numeric"
                                       :rules="[
-                                      v => !!v || 'Requerido.'
-                                    ]"
+                                        (v) =>
+                                          !!v ||
+                                          'Requerido.'
+                                      ]"
                                     >
-
                                     </v-text-field>
                                   </v-col>
-                                  <v-col cols="12">
+                                  <v-col
+                                    cols="12"
+                                  >
                                     <v-textarea
-                                      v-model="ajusteStock.data.observaciones"
+                                      v-model="
+                                        ajusteStock
+                                          .data
+                                          .observaciones
+                                      "
                                       label="Motivo del ajuste:"
                                       color="indigo"
                                       variant="outlined"
@@ -791,39 +1220,321 @@
                                       rows="2"
                                       auto-grow
                                       :rules="[
-                                        v => !!v || 'Requerido.'
+                                        (v) =>
+                                          !!v ||
+                                          'Requerido.'
                                       ]"
                                     >
-
                                     </v-textarea>
                                   </v-col>
                                 </v-row>
                               </v-form>
                             </v-card-text>
                             <v-divider></v-divider>
-                            <v-card-actions class="justify-end">
-                              <v-btn color="secondary" variant="outlined" @click="closeAjusteStockDisplay">Cancelar</v-btn>
-                              <v-btn color="primary" variant="elevated" @click="saveAjusteStockDisplay">Ajustar</v-btn>
+                            <v-card-actions
+                              class="justify-end"
+                            >
+                              <v-btn
+                                color="secondary"
+                                variant="outlined"
+                                @click="
+                                  closeAjusteStockDisplay
+                                "
+                              >
+                                Cancelar
+                              </v-btn>
+                              <v-btn
+                                color="primary"
+                                variant="elevated"
+                                @click="
+                                  saveAjusteStockDisplay
+                                "
+                              >
+                                Ajustar
+                              </v-btn>
                             </v-card-actions>
                           </v-card>
                         </v-dialog>
                       </v-col>
                     </v-row>
-
                   </v-col>
+
+                  <v-col cols="12" class="pb-0 pt-0">
+                    <v-checkbox
+                      v-model="
+                        data.form.esMayorista
+                      "
+                      label="¿Es Producto Mayorista?"
+                      color="indigo"
+                      hide-details
+                      density="compact"
+                    />
+                  </v-col>
+
+                  <!-- SECCIÓN DE PRECIOS MAYORISTAS -->
                   <v-col
-                      cols="12"
-                      md="12"
-                      sm="12"
+                    cols="12"
+                    v-if="data.form.esMayorista"
+                  >
+                    <div
+                      class="border-custom pa-3"
+                    >
+                      <div
+                        class="d-flex align-center justify-center mb-2"
+                      >
+                        <span
+                          class="text-subtitle-2 font-weight-bold text-indigo"
+                        >
+                          <v-icon class="mr-1"
+                            >mdi-table-plus</v-icon
+                          >
+                          Precios Mayoristas por Cantidad
+                        </span>
+                        <!--<v-btn
+                          color="indigo"
+                          size="small"
+                          prepend-icon="mdi-plus"
+                          variant="elevated"
+                          @click="
+                            addPrecioMayoristaRow
+                          "
+                        >
+                          Añadir Rango
+                        </v-btn>-->
+                      </div>
+                      <v-divider
+                        class="mb-3"
+                      ></v-divider>
+
+                      <!-- Tabla interactiva -->
+                      <v-table
+                        density="compact"
+                        class="elevation-0 border rounded"
+                      >
+                        <thead>
+                          <tr
+                            class="bg-indigo-lighten-5"
+                          >
+                            <th
+                              class="text-center font-weight-bold text-caption"
+                              style="width: 15%"
+                            >
+                              Cant. Mínima
+                            </th>
+                            <th
+                              class="text-center font-weight-bold text-caption"
+                              style="width: 15%"
+                            >
+                              Cant. Máxima
+                            </th>
+                            <th
+                              class="text-center font-weight-bold text-caption"
+                              style="width: 18%"
+                            >
+                              Precio Venta (C$)
+                            </th>
+                            <th
+                              class="text-center font-weight-bold text-caption"
+                              style="width: 18%"
+                            >
+                              Utilidad (%)
+                            </th>
+                            <th
+                              class="text-center font-weight-bold text-caption"
+                              style="width: 0%"
+                            >
+                              Observaciones
+                            </th>
+                            <th
+                              class="text-center font-weight-bold text-caption"
+                              style="width: 5%"
+                            ></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            v-for="(
+                              row, index
+                            ) in data.form
+                              .preciosMayoristas"
+                            :key="index"
+                          >
+                            <td class="pa-1">
+                              <v-text-field
+                                v-model="
+                                  row.minimo
+                                "
+                                type="number"
+                                density="compact"
+                                variant="outlined"
+                                hide-details
+                                class="text-center"
+                                :rules="[
+                                  rules.required,
+                                  rules.numeric
+                                ]"
+                              />
+                            </td>
+                            <td class="pa-1">
+                              <v-text-field
+                                v-model="
+                                  row.maximo
+                                "
+                                type="number"
+                                density="compact"
+                                variant="outlined"
+                                hide-details
+                                class="text-center"
+                                :rules="[
+                                  rules.required,
+                                  rules.numeric
+                                ]"
+                              />
+                            </td>
+                            <td class="pa-1">
+                              <v-text-field
+                                v-model="
+                                  row.precio
+                                "
+                                type="number"
+                                step="0.01"
+                                density="compact"
+                                variant="outlined"
+                                hide-details
+                                prefix="C$"
+                                class="text-center"
+                                :rules="[
+                                  rules.required,
+                                  rules.numeric
+                                ]"
+                                @input="
+                                  handleWholesalePrecioChange(
+                                    row
+                                  )
+                                "
+                              />
+                            </td>
+                            <td class="pa-1">
+                              <v-text-field
+                                v-model="
+                                  row.utilidad
+                                "
+                                type="number"
+                                step="0.01"
+                                density="compact"
+                                variant="outlined"
+                                hide-details
+                                prefix="%"
+                                class="text-center"
+                                :rules="[
+                                  rules.required,
+                                  rules.numeric
+                                ]"
+                                @input="
+                                  handleWholesaleUtilidadChange(
+                                    row
+                                  )
+                                "
+                              />
+                            </td>
+                            <td class="pa-1">
+                              <v-textarea
+                                v-model="
+                                  row.observaciones
+                                "
+                                density="compact"
+                                variant="outlined"
+                                hide-details
+                                placeholder="Opcional..."
+                                rows="1"
+                                auto-grow
+                              />
+                            </td>
+                            <td
+                              class="text-center pa-1"
+                            >
+                              <v-btn
+                                icon
+                                variant="text"
+                                color="error"
+                                size="small"
+                                @click="
+                                  removePrecioMayoristaRow(
+                                    index
+                                  )
+                                "
+                              >
+                                <v-icon
+                                  size="small"
+                                  >mdi-delete</v-icon
+                                >
+                              </v-btn>
+                            </td>
+                          </tr>
+                          <!-- Fila esqueleto clicable para añadir -->
+                          <tr
+                            class="text-center hover-add-row"
+                            style="
+                              cursor: pointer;
+                            "
+                            @click="
+                              addPrecioMayoristaRow
+                            "
+                          >
+                            <td
+                              colspan="6"
+                              class="py-2 text-indigo-darken-4 font-weight-bold text-caption bg-indigo-lighten-5"
+                            >
+                              <v-icon
+                                size="small"
+                                class="mr-1"
+                                >mdi-plus-circle-outline</v-icon
+                              >
+                              Agregar nuevo precio
+                              mayorista
+                            </td>
+                          </tr>
+                          <tr
+                            v-if="
+                              !data.form
+                                .preciosMayoristas ||
+                              data.form
+                                .preciosMayoristas
+                                .length === 0
+                            "
+                          >
+                            <td
+                              colspan="6"
+                              class="text-center text-grey text-caption py-4"
+                            >
+                              <v-icon class="mr-1"
+                                >mdi-alert-circle-outline</v-icon
+                              >
+                              Debe registrar al
+                              menos un rango de
+                              precio mayorista.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+                    </div>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    md="12"
+                    sm="12"
                   >
                     <v-textarea
-                        v-model="data.form.observaciones"
-                        density="compact"
-                        variant="outlined"
-                        label="Observaciones"
-                        prepend-inner-icon="mdi-text"
-                        rows="2"
-                        auto-grow
+                      v-model="
+                        data.form.observaciones
+                      "
+                      density="compact"
+                      variant="outlined"
+                      label="Observaciones"
+                      prepend-inner-icon="mdi-text"
+                      rows="2"
+                      auto-grow
                     />
                   </v-col>
                 </v-row>
@@ -831,63 +1542,63 @@
             </v-window-item>
             <v-window-item>
               <v-col
-                  style="
+                style="
                   border: 1px solid #e0e0e0;
                   border-left: none;
                 "
               >
                 <div>
                   <div
-                      class="d-flex justify-center mt-2 mb-2"
+                    class="d-flex justify-center mt-2 mb-2"
                   >
                     <v-chip color="secondary">
                       Imagen del Producto
                     </v-chip>
                   </div>
                   <v-file-input
-                      v-model="
+                    v-model="
                       registroDisplay.imagen
                         .archivo
                     "
-                      :accept="
+                    :accept="
                       registroDisplay.formatosImagen
                     "
-                      label="Selecciona una imagen"
-                      show-size
-                      @change="handleInputImagen"
+                    label="Selecciona una imagen"
+                    show-size
+                    @change="handleInputImagen"
                   ></v-file-input>
                   <v-img
-                      v-if="
+                    v-if="
                       registroDisplay.imagen.url
                     "
-                      style="
+                    style="
                       border-top: 1px solid
                         #e0e0e0;
                     "
-                      :src="
+                    :src="
                       registroDisplay.imagen.url
                     "
-                      aspect-ratio="1"
-                      contain
-                      height="250px"
+                    aspect-ratio="1"
+                    contain
+                    height="250px"
                   >
                     <v-btn
-                        icon
-                        @click="
+                      icon
+                      @click="
                         handleEliminarImagen
                       "
                     >
                       <v-icon
-                          style="color: #f44336"
+                        style="color: #f44336"
                       >
                         mdi-delete
                       </v-icon>
                     </v-btn>
                   </v-img>
                   <div
-                      class="d-flex flex-column justify-center align-center"
-                      v-else
-                      style="
+                    class="d-flex flex-column justify-center align-center"
+                    v-else
+                    style="
                       border-top: 1px solid
                         #e0e0e0;
                       height: 250px;
@@ -903,15 +1614,15 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn
-              color="grey"
-              variant="outlined"
-              @click="closeDialog()"
+            color="grey"
+            variant="outlined"
+            @click="closeDialog()"
           >
             Cerrar
           </v-btn>
           <v-btn
-              class="bg-indigo"
-              @click="guardarRegistro"
+            class="bg-indigo"
+            @click="guardarRegistro"
           >
             Guardar
           </v-btn>
@@ -920,55 +1631,97 @@
     </v-dialog>
 
     <DetallesProducto
-        :show="data.showDialog"
-        :producto="data.productDialog"
-        @cerrarDialog="closeDialogDet"
+      :show="data.showDialog"
+      :producto="data.productDialog"
+      @cerrarDialog="closeDialogDet"
     />
     <AlertComp
-        :show="data.viewAlert"
-        @deleteItem="deleteAction"
+      :show="data.viewAlert"
+      @deleteItem="deleteAction"
     />
 
-    <v-dialog v-model="data.showDiagUM" max-width="400" persistent>
+    <v-dialog
+      v-model="data.showDiagUM"
+      max-width="400"
+      persistent
+    >
       <v-card id="diag-fact">
-        <v-card-title class="bg-indigo d-flex align-center">
+        <v-card-title
+          class="bg-indigo d-flex align-center"
+        >
           <h5>
             <v-icon>mdi-scale-balance</v-icon>
             Nueva Unidad de Medida
           </h5>
-          <v-spacer/>
-          <v-btn icon size="small" color="white" variant="tonal" @click="closeDialogUM()">
+          <v-spacer />
+          <v-btn
+            icon
+            size="small"
+            color="white"
+            variant="tonal"
+            @click="closeDialogUM()"
+          >
             <v-icon>mdi-close</v-icon>
-            <v-tooltip activator="parent" location="top" text="Cerrar"/>
+            <v-tooltip
+              activator="parent"
+              location="top"
+              text="Cerrar"
+            />
           </v-btn>
         </v-card-title>
         <v-card-text>
           <v-form ref="umForm">
             <v-row dense>
-              <v-col cols="12" md="12" sm="12" class="py-2">
-                <v-text-field v-model="data.unidadMedida.abreviatura" prepend-inner-icon="mdi-barcode" 
-                  density="compact" variant="outlined" hide-details label="Abreviatura"
-                  :rules="[ rules.required]"/>
+              <v-col
+                cols="12"
+                md="12"
+                sm="12"
+                class="py-2"
+              >
+                <v-text-field
+                  v-model="
+                    data.unidadMedida.abreviatura
+                  "
+                  prepend-inner-icon="mdi-barcode"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  label="Abreviatura"
+                  :rules="[rules.required]"
+                />
               </v-col>
-              <v-col cols="12" md="12" sm="12" class="py-2">
-                <v-text-field v-model="data.unidadMedida.nombre" prepend-inner-icon="mdi-ruler" 
-                  density="compact" variant="outlined" hide-details label="Nombre"
-                  :rules="[ rules.required]"/>
+              <v-col
+                cols="12"
+                md="12"
+                sm="12"
+                class="py-2"
+              >
+                <v-text-field
+                  v-model="
+                    data.unidadMedida.nombre
+                  "
+                  prepend-inner-icon="mdi-ruler"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  label="Nombre"
+                  :rules="[rules.required]"
+                />
               </v-col>
             </v-row>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-btn
-              color="grey"
-              variant="outlined"
-              @click="closeDialogUM()"
+            color="grey"
+            variant="outlined"
+            @click="closeDialogUM()"
           >
             Cerrar
           </v-btn>
           <v-btn
-              class="bg-indigo"
-              @click="guardarUnidadMedida"
+            class="bg-indigo"
+            @click="guardarUnidadMedida"
           >
             Guardar
           </v-btn>
@@ -976,15 +1729,21 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="data.descarga.show" width="400">
+    <v-dialog
+      v-model="data.descarga.show"
+      width="400"
+    >
       <v-card>
         <template v-slot:prepend>
-          <h3>
-            Descargar inventario
-          </h3>
+          <h3>Descargar inventario</h3>
         </template>
         <template v-slot:append>
-          <v-btn icon variant="tonal" size="small" @click="data.descarga.show = false">
+          <v-btn
+            icon
+            variant="tonal"
+            size="small"
+            @click="data.descarga.show = false"
+          >
             <v-icon size="small">
               mdi-close
             </v-icon>
@@ -994,41 +1753,73 @@
           <v-row dense>
             <v-col cols="12">
               <v-select
-                  v-model="data.form.idCategoria" label="Categoría:"
-                  :items="cmb.categorias" variant="outlined" density="compact" 
-                  prepend-inner-icon="mdi-shape-outline" hide-details 
-                  @update:model-value="loadCmbSubCategoria(data.form.idCategoria)"
+                v-model="data.form.idCategoria"
+                label="Categoría:"
+                :items="cmb.categorias"
+                variant="outlined"
+                density="compact"
+                prepend-inner-icon="mdi-shape-outline"
+                hide-details
+                @update:model-value="
+                  loadCmbSubCategoria(
+                    data.form.idCategoria
+                  )
+                "
               >
               </v-select>
             </v-col>
             <v-col cols="12">
-              <v-select v-model=" data.form.idSubCatProd" label="Sub categoría"
-                  :items="cmb.subCategorias" variant="outlined" hide-details 
-                  density="compact" prepend-inner-icon="mdi-shape-outline"
-                  @update:model-value="loadCodigoRecomendado(data.form.idSubCatProd)"
+              <v-select
+                v-model="data.form.idSubCatProd"
+                label="Sub categoría"
+                :items="cmb.subCategorias"
+                variant="outlined"
+                hide-details
+                density="compact"
+                prepend-inner-icon="mdi-shape-outline"
+                @update:model-value="
+                  loadCodigoRecomendado(
+                    data.form.idSubCatProd
+                  )
+                "
               >
               </v-select>
             </v-col>
             <v-col cols="12">
-              <v-select v-model=" data.form.idSubCatProd" label="Producto"
-                  :items="cmb.subCategorias" variant="outlined" hide-details 
-                  density="compact" prepend-inner-icon="mdi-shape-outline"
-                  @update:model-value="loadCodigoRecomendado(data.form.idSubCatProd)"
+              <v-select
+                v-model="data.form.idSubCatProd"
+                label="Producto"
+                :items="cmb.subCategorias"
+                variant="outlined"
+                hide-details
+                density="compact"
+                prepend-inner-icon="mdi-shape-outline"
+                @update:model-value="
+                  loadCodigoRecomendado(
+                    data.form.idSubCatProd
+                  )
+                "
               >
               </v-select>
             </v-col>
             <v-col cols="12">
-              <v-checkbox label="Descargar todo el inventario" color="indigo"
-                hide-details density="compact"/>
+              <v-checkbox
+                label="Descargar todo el inventario"
+                color="indigo"
+                hide-details
+                density="compact"
+              />
             </v-col>
           </v-row>
         </v-card-text>
         <v-card-actions>
-          <v-btn variant="elevated" class="bg-indigo-darken-4" @click="exportToExcel">
+          <v-btn
+            variant="elevated"
+            class="bg-indigo-darken-4"
+            @click="exportToExcel"
+          >
             <template v-slot:prepend>
-              <v-icon>
-                mdi-download
-              </v-icon>
+              <v-icon> mdi-download </v-icon>
             </template>
             Descargar
           </v-btn>
@@ -1047,22 +1838,24 @@ import {
   onUnmounted,
   watch
 } from 'vue'
-import {utilsFunctions} from '@/helpers/utilFunctions'
+import { utilsFunctions } from '@/helpers/utilFunctions'
 import DetallesProducto from './modalsProductos/DetallesProducto.vue'
 import RequestHttp from '@/services/requestHttp'
 import AlertComp from '@/components/widgets/AlertaAction.vue'
 import {
   getItemsCombobox,
-  httpGet, httpPost, httpPut
+  httpGet,
+  httpPost,
+  httpPut
 } from '@/scripts/api.js'
-import { saveAs } from "file-saver";
+import { saveAs } from 'file-saver'
 import ExcelJS from 'exceljs'
-import axios from "axios";
-import NewCategoria from "@/components/inventario/Categorias/modalsCategorias/NewCategoria.vue";
-import NewSubCategoria from "@/components/inventario/Categorias/modalsCategorias/NewSubCat.vue";
+import axios from 'axios'
+import NewCategoria from '@/components/inventario/Categorias/modalsCategorias/NewCategoria.vue'
+import NewSubCategoria from '@/components/inventario/Categorias/modalsCategorias/NewSubCat.vue'
 import { time } from 'echarts'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
-import {useSnackbar} from "@/composables/use-snackbar.js";
+import { useSnackbar } from '@/composables/use-snackbar.js'
 
 export default {
   // mounted() {
@@ -1078,28 +1871,33 @@ export default {
   },
 
   setup() {
-    const token = ref(JSON.parse(localStorage.getItem('token')))
+    const token = ref(
+      JSON.parse(localStorage.getItem('token'))
+    )
     const screenWidth = ref(window.innerWidth)
     const isMobile = computed(
-        () => screenWidth.key < 600
+      () => screenWidth.key < 600
     )
     const updateScreen = () => {
       screenWidth.key = window.innerWidth
     }
     onMounted(() => {
       window.addEventListener(
-          'resize',
-          updateScreen
+        'resize',
+        updateScreen
       )
     })
     onUnmounted(() => {
       window.addEventListener(
-          'resize',
-          updateScreen
+        'resize',
+        updateScreen
       )
     })
 
     const data = reactive({
+      popoverLoading: false,
+      popoverPrices: [],
+      popoverProductCosto: 0,
       products: [],
       tipos: [
         {
@@ -1153,6 +1951,16 @@ export default {
         {
           title: 'Precio Venta',
           key: 'precio',
+          align: 'center'
+        },
+        {
+          title: '¿Es Mayorista?',
+          key: 'esMayorista',
+          align: 'center'
+        },
+        {
+          title: 'Rangos Mayoristas',
+          key: 'preciosMayoristasCount',
           align: 'center'
         },
         {
@@ -1212,6 +2020,8 @@ export default {
         cantidadMinima: 0,
         usuarioRegistro: null,
         observaciones: '',
+        esMayorista: false,
+        preciosMayoristas: []
       },
       showDiagUM: false,
       imagen: null,
@@ -1226,7 +2036,8 @@ export default {
 
     async function getSubCategorias() {
       data.subCategorias = []
-      const result = await data.requestHttp.getSubCategorias()
+      const result =
+        await data.requestHttp.getSubCategorias()
       if (result.code === 200) {
         result.data.map((item) => {
           data.subCategorias.push({
@@ -1241,7 +2052,8 @@ export default {
 
     async function getUnidadMedida() {
       data.unidadesMedidas = []
-      const result = await data.requestHttp.getUnidadMedida()
+      const result =
+        await data.requestHttp.getUnidadMedida()
       if (result !== null) {
         result.map((item) => {
           data.unidadesMedidas.push({
@@ -1254,12 +2066,15 @@ export default {
       }
     }
 
-    watch(() => data.dialog, (val) => {
-      if (val) {
-        getSubCategorias()
-        getUnidadMedida()
+    watch(
+      () => data.dialog,
+      (val) => {
+        if (val) {
+          getSubCategorias()
+          getUnidadMedida()
+        }
       }
-    })
+    )
 
     return {
       data,
@@ -1275,7 +2090,7 @@ export default {
     return {
       display: {
         ajusteStock: false,
-        verAjusteStock: false,
+        verAjusteStock: false
       },
 
       verAjusteStock: {
@@ -1290,10 +2105,10 @@ export default {
               align: 'center',
               width: 1,
               headerProps: {
-                class: 'pa-1',
+                class: 'pa-1'
               },
               cellProps: {
-                class: 'pa-1 border-e',
+                class: 'pa-1 border-e'
               }
             },
             {
@@ -1302,10 +2117,10 @@ export default {
               align: 'center',
               width: 1,
               headerProps: {
-                class: 'pa-1',
+                class: 'pa-1'
               },
               cellProps: {
-                class: 'pa-1 border-e',
+                class: 'pa-1 border-e'
               }
             },
             {
@@ -1314,10 +2129,10 @@ export default {
               align: 'center',
               //width: 1,
               headerProps: {
-                class: 'pa-1',
+                class: 'pa-1'
               },
               cellProps: {
-                class: 'pa-1 border-e',
+                class: 'pa-1 border-e'
               }
             },
             {
@@ -1326,10 +2141,10 @@ export default {
               align: 'center',
               width: 1,
               headerProps: {
-                class: 'pa-1',
+                class: 'pa-1'
               },
               cellProps: {
-                class: 'pa-1 border-e',
+                class: 'pa-1 border-e'
               }
             },
             {
@@ -1338,12 +2153,12 @@ export default {
               align: 'center',
               width: 1,
               headerProps: {
-                class: 'pa-1',
+                class: 'pa-1'
               },
               cellProps: {
-                class: 'pa-1',
+                class: 'pa-1'
               }
-            },
+            }
           ]
         }
       },
@@ -1353,10 +2168,10 @@ export default {
           idProducto: 0,
           cantidadTotal: 0,
           observaciones: '',
-          usuarioRegistro: '',
+          usuarioRegistro: ''
         },
         producto: '',
-        loading: false,
+        loading: false
       },
 
       cmb: {
@@ -1405,13 +2220,16 @@ export default {
       productToDelete: null,
       rules: {
         required: (key) =>
-            !!key || 'Campo requerido',
+          (key !== null &&
+            key !== undefined &&
+            key !== '') ||
+          'Campo requerido',
         minLength: (min) => (key) =>
-            (key && key.length >= min) ||
-            `Mínimo ${min} caracteres`,
+          (key && key.length >= min) ||
+          `Mínimo ${min} caracteres`,
         numeric: (key) =>
-            !isNaN(parseFloat(key)) ||
-            'Debe ser un número válido'
+          !isNaN(parseFloat(key)) ||
+          'Debe ser un número válido'
       }
     }
   },
@@ -1425,7 +2243,7 @@ export default {
   },
 
   beforeRouteEnter(to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.getProductos()
       vm.loadCmbCategoria()
     })
@@ -1434,66 +2252,91 @@ export default {
   methods: {
     hasAccessToFunct,
 
-    loadAjusteStockDisplay(){
+    loadAjusteStockDisplay() {
       this.display.ajusteStock = true
-      this.ajusteStock.data.idProducto = this.data.form.idProducto
-      this.ajusteStock.producto = this.data.form.nombre
+      this.ajusteStock.data.idProducto =
+        this.data.form.idProducto
+      this.ajusteStock.producto =
+        this.data.form.nombre
     },
 
-    closeAjusteStockDisplay(){
+    closeAjusteStockDisplay() {
       this.display.ajusteStock = false
       this.ajusteStock.data.cantidadTotal = 0
       this.ajusteStock.data.observaciones = ''
       this.ajusteStock.data.idProducto = 0
     },
 
-    async saveAjusteStockDisplay(){
-      const validation = await this.$refs.formAjusteStock.validate()
+    async saveAjusteStockDisplay() {
+      const validation =
+        await this.$refs.formAjusteStock.validate()
 
-      if(!validation.valid){
-        this.snackbar.notify('error', 'Rellene los campos requeridos.')
+      if (!validation.valid) {
+        this.snackbar.notify(
+          'error',
+          'Rellene los campos requeridos.'
+        )
         return
       }
 
       this.ajusteStock.loading = true
       try {
-        this.ajusteStock.data.usuarioRegistro = this.token.usuario
-        const targetId = this.ajusteStock.data.idProducto
-        const nuevoStock = Number(this.ajusteStock.data.cantidadTotal)
+        this.ajusteStock.data.usuarioRegistro =
+          this.token.usuario
+        const targetId =
+          this.ajusteStock.data.idProducto
+        const nuevoStock = Number(
+          this.ajusteStock.data.cantidadTotal
+        )
 
         await httpPut(
           `api/producto/${targetId}/cantidad-total`,
           this.ajusteStock.data
         )
 
-        this.snackbar.notify('success', 'Ajuste de stock realizado correctamente.')
+        this.snackbar.notify(
+          'success',
+          'Ajuste de stock realizado correctamente.'
+        )
 
         this.data.form.cantidadTotal = nuevoStock
 
-        const productInTable = this.data.products.find(p => p.idProducto === targetId)
+        const productInTable =
+          this.data.products.find(
+            (p) => p.idProducto === targetId
+          )
         if (productInTable) {
-          productInTable.cantidadTotal = nuevoStock
-          productInTable.stockMin = productInTable.cantidadMinima > nuevoStock ? 'SI' : 'NO'
+          productInTable.cantidadTotal =
+            nuevoStock
+          productInTable.stockMin =
+            productInTable.cantidadMinima >
+            nuevoStock
+              ? 'SI'
+              : 'NO'
         }
 
         this.closeAjusteStockDisplay()
         await this.getProductos()
-      }
-      catch(err) {
+      } catch (err) {
         console.error(err)
-        this.snackbar.notify('error', 'Ocurrió un error al realizar el ajuste de stock, contacte al administrador.')
-      }
-      finally {
+        this.snackbar.notify(
+          'error',
+          'Ocurrió un error al realizar el ajuste de stock, contacte al administrador.'
+        )
+      } finally {
         this.ajusteStock.loading = false
       }
     },
 
-    async loadVerAjustesStockDisplay(item){
+    async loadVerAjustesStockDisplay(item) {
       try {
         this.verAjusteStock.producto = item.nombre
-        this.verAjusteStock.cantidadTotal = item.cantidadTotal
+        this.verAjusteStock.cantidadTotal =
+          item.cantidadTotal
         this.verAjusteStock.tbl.items = []
-        const items = await httpGet(`api/producto/${item.idProducto}/ajustes-stock`)
+        const items = await httpGet(
+          `api/producto/${item.idProducto}/ajustes-stock`
+        )
         this.verAjusteStock.tbl.items = items
         this.display.verAjusteStock = true
       } catch (e) {
@@ -1506,7 +2349,7 @@ export default {
     },
 
     setStockMinimo(cantMin, cant) {
-      if(cantMin < cant) {
+      if (cantMin < cant) {
         return true
       } else {
         return false
@@ -1520,21 +2363,26 @@ export default {
 
     openNuevaSubCatDisplay() {
       this.nuevaSubCatDisplay.show = true
-      this.nuevaSubCatDisplay.title = 'Nueva SubCategoria'
+      this.nuevaSubCatDisplay.title =
+        'Nueva SubCategoria'
     },
 
     async closeNuevaSubCatDisplay() {
       this.nuevaSubCatDisplay.show = false
       this.nuevaSubCatDisplay.item = {}
-      this.loadCmbSubCategoria(this.data.form.idCategoria)
+      this.loadCmbSubCategoria(
+        this.data.form.idCategoria
+      )
       this.getSubCategorias()
     },
 
     async loadCodigoRecomendado(idSubCat) {
       var codigoRecomendado = await httpGet(
-          `api/producto/codigo-recomendado?idSubCat=${idSubCat}`
+        `api/producto/codigo-recomendado?idSubCat=${idSubCat}`
       )
-      this.data.form.codigo = String(codigoRecomendado)
+      this.data.form.codigo = String(
+        codigoRecomendado
+      )
     },
 
     handleChangeCosto() {
@@ -1543,9 +2391,21 @@ export default {
         return
       }
       this.data.form.costoDolar = (
-          this.data.form.costo / 36.6243
+        this.data.form.costo / 36.6243
       ).toFixed(4)
-      this.handleChangePrecio()
+
+      if (
+        this.data.form.esMayorista &&
+        this.data.form.preciosMayoristas
+      ) {
+        this.data.form.preciosMayoristas.forEach(
+          (row) => {
+            this.handleWholesalePrecioChange(row)
+          }
+        )
+      } else {
+        this.handleChangePrecio()
+      }
     },
 
     handleChangeCostoDolar() {
@@ -1554,9 +2414,54 @@ export default {
         return
       }
       this.data.form.costo = (
-          this.data.form.costoDolar * 36.6243
+        this.data.form.costoDolar * 36.6243
       ).toFixed(4)
-      this.handleChangePrecio()
+
+      if (
+        this.data.form.esMayorista &&
+        this.data.form.preciosMayoristas
+      ) {
+        this.data.form.preciosMayoristas.forEach(
+          (row) => {
+            this.handleWholesalePrecioChange(row)
+          }
+        )
+      } else {
+        this.handleChangePrecio()
+      }
+    },
+
+    handleWholesalePrecioChange(row) {
+      if (!row.precio || !this.data.form.costo) {
+        row.utilidad = null
+        return
+      }
+      const precio = Number(row.precio)
+      const costo = Number(this.data.form.costo)
+      if (costo === 0) {
+        row.utilidad = 0
+        return
+      }
+      row.utilidad = (
+        ((precio - costo) / costo) *
+        100
+      ).toFixed(4)
+    },
+
+    handleWholesaleUtilidadChange(row) {
+      if (
+        !row.utilidad ||
+        !this.data.form.costo
+      ) {
+        row.precio = this.data.form.costo
+        return
+      }
+      const utilidad = Number(row.utilidad)
+      const costo = Number(this.data.form.costo)
+      row.precio = (
+        (utilidad / 100) * costo +
+        costo
+      ).toFixed(4)
     },
 
     handleChangePrecio() {
@@ -1567,41 +2472,41 @@ export default {
       var precio = Number(this.data.form.precio)
       var costo = Number(this.data.form.costo)
       this.data.form.utilidad = (
-          ((precio - costo) / costo) *
-          100
+        ((precio - costo) / costo) *
+        100
       ).toFixed(4)
     },
 
     handleChangeUtilidad() {
       if (!this.data.form.utilidad) {
         this.data.form.precio =
-            this.data.form.costo
+          this.data.form.costo
         return
       }
       var utilidad = Number(
-          this.data.form.utilidad
+        this.data.form.utilidad
       )
       var costo = Number(this.data.form.costo)
       this.data.form.precio =
-          (utilidad / 100) * costo + costo
+        (utilidad / 100) * costo + costo
     },
 
     handleInputImagen() {
       let me = this
       const file =
-          me.registroDisplay.imagen.archivo
+        me.registroDisplay.imagen.archivo
       if (
-          file &&
-          file.size > me.registroDisplay.maxFileSize
+        file &&
+        file.size > me.registroDisplay.maxFileSize
       ) {
         me.registroDisplay.imagen.archivo = ''
         alert(
-            'El archivo excede el tamaño máximo de 1MB.'
+          'El archivo excede el tamaño máximo de 1MB.'
         )
       } else {
         if (file) {
           me.registroDisplay.imagen.url =
-              URL.createObjectURL(file)
+            URL.createObjectURL(file)
         } else {
           me.registroDisplay.imagen.url = null
         }
@@ -1614,41 +2519,48 @@ export default {
       this.registroDisplay.eliminarImagen = true
     },
 
-    setStyle({index}) {
+    setStyle({ index }) {
       return {
         class:
-            index % 2 === 0
-                ? 'bg-white'
-                : 'bg-indigo-lighten-5'
+          index % 2 === 0
+            ? 'bg-white'
+            : 'bg-indigo-lighten-5'
       }
     },
 
     async getProductos() {
       this.data.products = []
       this.data.loading = true
-      const result = await this.data.requestHttp.getProductos()
+      const result =
+        await this.data.requestHttp.getProductos()
 
       if (result.code === 200) {
-        this.data.products = result.data.map(item => ({
-          ...item, 
-          stockMin: item.cantidadMinima > item.cantidadTotal ? 'SI' : 'NO'
-        }))
+        this.data.products = result.data.map(
+          (item) => ({
+            ...item,
+            stockMin:
+              item.cantidadMinima >
+              item.cantidadTotal
+                ? 'SI'
+                : 'NO'
+          })
+        )
       }
       this.data.loading = false
     },
 
     async loadCmbUnidadMedida() {
       var unidades = await getItemsCombobox(
-          'api/unidades-medida/combobox',
-          false
+        'api/unidades-medida/combobox',
+        false
       )
       this.cmb.unidadesMedida = unidades
     },
 
     async loadCmbCategoria() {
       var categorias = await getItemsCombobox(
-          'api/categoriaproducto/combobox',
-          true
+        'api/categoriaproducto/combobox',
+        true
       )
       this.cmb.categorias = categorias
     },
@@ -1661,14 +2573,172 @@ export default {
     },
 
     async guardarRegistro() {
-      this.data.form.usuarioRegistro = this.token.usuario
+      const validation =
+        await this.$refs.form.validate()
+      if (!validation.valid) {
+        this.snackbar.notify(
+          'error',
+          'Por favor, rellene los campos requeridos y corrija los errores.'
+        )
+        return
+      }
+
+      if (this.data.form.esMayorista) {
+        if (
+          !this.data.form.preciosMayoristas ||
+          this.data.form.preciosMayoristas
+            .length === 0
+        ) {
+          this.snackbar.notify(
+            'error',
+            'Debe agregar al menos un rango de precio mayorista.'
+          )
+          return
+        }
+
+        // Validate each row
+        for (
+          let i = 0;
+          i <
+          this.data.form.preciosMayoristas.length;
+          i++
+        ) {
+          const row =
+            this.data.form.preciosMayoristas[i]
+          const label = `rango ${i + 1}`
+
+          if (
+            row.minimo === null ||
+            row.minimo === undefined ||
+            row.minimo === ''
+          ) {
+            this.snackbar.notify(
+              'error',
+              `Cantidad mínima requerida en el ${label}.`
+            )
+            return
+          }
+          if (
+            row.maximo === null ||
+            row.maximo === undefined ||
+            row.maximo === ''
+          ) {
+            this.snackbar.notify(
+              'error',
+              `Cantidad máxima requerida en el ${label}.`
+            )
+            return
+          }
+          if (
+            row.precio === null ||
+            row.precio === undefined ||
+            row.precio === ''
+          ) {
+            this.snackbar.notify(
+              'error',
+              `Precio requerido en el ${label}.`
+            )
+            return
+          }
+
+          const minimo = Number(row.minimo)
+          const maximo = Number(row.maximo)
+          const precio = Number(row.precio)
+
+          if (minimo <= 0) {
+            this.snackbar.notify(
+              'error',
+              `La cantidad mínima del ${label} debe ser mayor a 0.`
+            )
+            return
+          }
+          if (maximo <= 0) {
+            this.snackbar.notify(
+              'error',
+              `La cantidad máxima del ${label} debe ser mayor a 0.`
+            )
+            return
+          }
+          if (maximo < minimo) {
+            this.snackbar.notify(
+              'error',
+              `La cantidad máxima del ${label} no puede ser menor que la cantidad mínima (${minimo}).`
+            )
+            return
+          }
+          if (precio <= 0) {
+            this.snackbar.notify(
+              'error',
+              `El precio del ${label} debe ser mayor a 0.`
+            )
+            return
+          }
+
+          // Validate relation to previous row
+          if (i > 0) {
+            const prevRow =
+              this.data.form.preciosMayoristas[
+                i - 1
+              ]
+            const prevMaximo = Number(
+              prevRow.maximo
+            )
+            if (minimo <= prevMaximo) {
+              this.snackbar.notify(
+                'error',
+                `La cantidad mínima del ${label} (${minimo}) debe ser mayor que la cantidad máxima del rango anterior (${prevMaximo}).`
+              )
+              return
+            }
+          }
+        }
+
+        // Convert to numbers
+        this.data.form.preciosMayoristas =
+          this.data.form.preciosMayoristas.map(
+            (item) => ({
+              precio: Number(item.precio),
+              minimo: Number(item.minimo),
+              maximo: Number(item.maximo),
+              observaciones: item.observaciones
+            })
+          )
+        this.data.form.precio = Number(
+          this.data.form.preciosMayoristas[0]
+            ?.precio || 0
+        )
+      } else {
+        this.data.form.preciosMayoristas = []
+      }
+
+      this.data.form.costo = Number(
+        this.data.form.costo
+      )
+      this.data.form.precio = Number(
+        this.data.form.precio
+      )
+      this.data.form.cantidadMinima = Number(
+        this.data.form.cantidadMinima
+      )
+      this.data.form.cantidadTotal = Number(
+        this.data.form.cantidadTotal
+      )
+
+      this.data.form.usuarioRegistro =
+        this.token.usuario
       if (this.dialogMode === 'edit') {
-        await httpPut(`api/producto/${this.data.form.idProducto}`, this.data.form)
+        await httpPut(
+          `api/producto/${this.data.form.idProducto}`,
+          this.data.form
+        )
         await this.actActualizarImagen()
         await this.getProductos()
         this.closeDialog()
       } else {
-        var response = await httpPost('api/producto', this.data.form)
+        var response = await httpPost(
+          'api/producto',
+          this.data.form
+        )
         this.data.form.idProducto = response.data
         await this.actActualizarImagen()
         await this.getProductos()
@@ -1676,13 +2746,59 @@ export default {
       }
     },
 
+    addPrecioMayoristaRow() {
+      if (!this.data.form.preciosMayoristas) {
+        this.data.form.preciosMayoristas = []
+      }
+
+      const count =
+        this.data.form.preciosMayoristas.length
+      if (count === 0) {
+        this.data.form.preciosMayoristas.push({
+          minimo: 1,
+          maximo: 2,
+          precio: this.data.form.precio || 0,
+          utilidad: this.data.form.utilidad || 0,
+          observaciones: ''
+        })
+      } else {
+        const prevRow =
+          this.data.form.preciosMayoristas[
+            count - 1
+          ]
+        const nextMinimo = prevRow.maximo
+          ? Number(prevRow.maximo) + 1
+          : 1
+        this.data.form.preciosMayoristas.push({
+          minimo: nextMinimo,
+          maximo: '',
+          precio: '',
+          utilidad: '',
+          observaciones: ''
+        })
+      }
+    },
+
+    removePrecioMayoristaRow(index) {
+      this.data.form.preciosMayoristas.splice(
+        index,
+        1
+      )
+    },
+
     async guardarUnidadMedida() {
       this.$refs.umForm.validate()
-      this.data.unidadMedida.usuarioRegistro = this.token.usuario
-      const valid = utilsFunctions.objectValidate(this.data.unidadMedida)
+      this.data.unidadMedida.usuarioRegistro =
+        this.token.usuario
+      const valid = utilsFunctions.objectValidate(
+        this.data.unidadMedida
+      )
 
       if (valid) {
-        const result = await this.data.requestHttp.postUnidadMedida(this.data.unidadMedida)
+        const result =
+          await this.data.requestHttp.postUnidadMedida(
+            this.data.unidadMedida
+          )
         alert(result)
       } else {
         alert('Complete la información.')
@@ -1692,13 +2808,20 @@ export default {
     },
 
     async actActualizarImagen() {
-      const file = this.registroDisplay.imagen.archivo
+      const file =
+        this.registroDisplay.imagen.archivo
       var id = this.data.form.idProducto
-      if (file || this.registroDisplay.eliminarImagen) {
+      if (
+        file ||
+        this.registroDisplay.eliminarImagen
+      ) {
         const formData = new FormData()
         formData.append('imagen', file)
         try {
-          await httpPut(`api/producto/${id}/imagen`, formData)
+          await httpPut(
+            `api/producto/${id}/imagen`,
+            formData
+          )
         } catch (err) {
           console.log(err)
         }
@@ -1709,40 +2832,108 @@ export default {
     },
 
     async openDialog(mode, product = null) {
+      this.registroDisplay.tab = 0
       this.registroDisplay.imagen.url = null
       this.registroDisplay.imagen.archivo = null
       await this.loadCmbUnidadMedida()
       await this.loadCmbCategoria()
       if (mode !== 'edit') {
+        this.data.form = {
+          idProducto: 0,
+          codigo: null,
+          nombre: null,
+          precio: null,
+          utilidad: null,
+          costo: null,
+          costoDolar: null,
+          idCategoria: null,
+          idSubCatProd: null,
+          idUnidadMedida: 1,
+          cantidadTotal: 0,
+          cantidadMinima: 0,
+          usuarioRegistro: null,
+          observaciones: '',
+          esMayorista: false,
+          preciosMayoristas: []
+        }
       } else {
-        await this.loadCmbSubCategoria(product.idCategoriaProducto)
+        await this.loadCmbSubCategoria(
+          product.idCategoriaProducto
+        )
       }
       this.dialogMode = mode
       if (product) {
-        this.selectedProduct = product.idProducto
-        this.data.form.idProducto = product.idProducto
-        this.data.form.observaciones = product.observaciones
-        this.data.form.idUnidadMedida = product.idUnidadMedida
-        this.data.form.codigo = product.codigo
-        this.data.form.idCategoria = product.idCategoriaProducto
-        this.data.form.costo = product.costo
+        let fullProduct = product
+        try {
+          fullProduct = await httpGet(
+            `api/producto/${product.idProducto}`
+          )
+        } catch (e) {
+          console.error(
+            'No se pudo cargar el detalle completo del producto.',
+            e
+          )
+        }
+
+        this.selectedProduct =
+          fullProduct.idProducto
+        this.data.form.idProducto =
+          fullProduct.idProducto
+        this.data.form.observaciones =
+          fullProduct.observaciones
+        this.data.form.idUnidadMedida =
+          fullProduct.idUnidadMedida
+        this.data.form.codigo = fullProduct.codigo
+        this.data.form.idCategoria =
+          product.idCategoriaProducto
+        this.data.form.costo = fullProduct.costo
         this.data.form.categoria =
-            product.categoria
-        this.data.form.nombre = product.nombre
-        this.data.form.precio = product.precio
-        this.data.form.categoria =
-            product.categoria
+          fullProduct.categoria ||
+          product.categoria
+        this.data.form.nombre = fullProduct.nombre
+        this.data.form.precio = fullProduct.precio
         this.data.form.idSubCatProd =
-            product.idSubCatProd
+          fullProduct.idSubCatProd
         this.data.form.tipoProducto =
-            product.tipoProducto
+          fullProduct.tipoProducto
         this.data.form.cantidadTotal =
-            product.cantidadTotal
+          fullProduct.cantidadTotal
         this.data.form.cantidadMinima =
-            product.cantidadMinima
+          fullProduct.cantidadMinima
         this.data.form.usuarioRegistro =
-            product.usuarioRegistro
-        this.loadImagenProducto(product.idProducto)
+          fullProduct.usuarioRegistro
+        this.data.form.esMayorista =
+          fullProduct.esMayorista || false
+        this.data.form.preciosMayoristas =
+          fullProduct.precioMayorista
+            ? fullProduct.precioMayorista.map(
+                (pm) => {
+                  const row = {
+                    precio: pm.precio,
+                    minimo: pm.minimo,
+                    maximo: pm.maximo,
+                    observaciones:
+                      pm.observaciones,
+                    utilidad: 0
+                  }
+                  const precio = Number(pm.precio)
+                  const costo = Number(
+                    fullProduct.costo
+                  )
+                  if (costo > 0) {
+                    row.utilidad = (
+                      ((precio - costo) / costo) *
+                      100
+                    ).toFixed(4)
+                  }
+                  return row
+                }
+              )
+            : []
+
+        this.loadImagenProducto(
+          fullProduct.idProducto
+        )
       }
       this.dialog = true
       this.data.dialog = true
@@ -1751,25 +2942,29 @@ export default {
 
     async loadImagenProducto(id) {
       try {
-        const response = await axios.get(`api/producto/${id}/imagen`, {
-          responseType: 'arraybuffer',
-        })
+        const response = await axios.get(
+          `api/producto/${id}/imagen`,
+          {
+            responseType: 'arraybuffer'
+          }
+        )
 
         const base64Image = btoa(
-            new Uint8Array(response.data).reduce(
-                (data, byte) => data + String.fromCharCode(byte),
-                '',
-            ),
+          new Uint8Array(response.data).reduce(
+            (data, byte) =>
+              data + String.fromCharCode(byte),
+            ''
+          )
         )
-        this.registroDisplay.imagen.url = 'data:image/jpeg;base64,' + base64Image
-      } catch (err) {
-      }
+        this.registroDisplay.imagen.url =
+          'data:image/jpeg;base64,' + base64Image
+      } catch (err) {}
     },
 
     openDialogDet(obj) {
-      (this.data.showDialog =
-          !this.data.showDialog),
-          (this.data.productDialog = obj)
+      ;(this.data.showDialog =
+        !this.data.showDialog),
+        (this.data.productDialog = obj)
     },
 
     closeDialogDet(key) {
@@ -1788,25 +2983,40 @@ export default {
       this.selectedProduct = null
       this.data.form.idSubCatProd = null
       this.data.form = {
+        idProducto: 0,
+        codigo: null,
+        nombre: null,
+        precio: null,
+        utilidad: null,
+        costo: null,
+        costoDolar: null,
+        idCategoria: null,
+        idSubCatProd: null,
+        idUnidadMedida: 1,
         cantidadTotal: 0,
+        cantidadMinima: 0,
+        usuarioRegistro: null,
+        observaciones: '',
+        esMayorista: false,
+        preciosMayoristas: []
       }
     },
 
     async handleSave(productData) {
       this.data.form.costo = Number(
-          this.data.form.costo
+        this.data.form.costo
       )
       this.data.form.precio = Number(
-          this.data.form.precio
+        this.data.form.precio
       )
       this.data.form.cantidadMinima = Number(
-          this.data.form.cantidadMinima
+        this.data.form.cantidadMinima
       )
       this.data.form.cantidadTotal = Number(
-          this.data.form.cantidadTotal
+        this.data.form.cantidadTotal
       )
       const valid =
-          utilsFunctions.objectValidate(productData)
+        utilsFunctions.objectValidate(productData)
 
       if (this.dialogMode === 'create') {
         if (!valid) {
@@ -1817,9 +3027,9 @@ export default {
         try {
           productData.idUnidadMedida = 1
           const result =
-              await this.data.requestHttp.postProducto(
-                  productData
-              )
+            await this.data.requestHttp.postProducto(
+              productData
+            )
           if (result !== null) {
             alert('Registro Guardado')
             this.getProductos()
@@ -1828,8 +3038,8 @@ export default {
           }
         } catch (error) {
           throw new Error(
-              'Error en la solicitud',
-              error
+            'Error en la solicitud',
+            error
           )
         }
       } else {
@@ -1843,10 +3053,10 @@ export default {
           }
           productData.idUnidadMedida = 1
           const result =
-              await this.data.requestHttp.putProductos(
-                  productData,
-                  this.selectedProduct
-              )
+            await this.data.requestHttp.putProductos(
+              productData,
+              this.selectedProduct
+            )
           if (result !== null) {
             alert('Registro Editado')
             this.getProductos()
@@ -1855,163 +3065,244 @@ export default {
           }
         } catch (error) {
           throw new Error(
-              'Error en la solicitud',
-              error
+            'Error en la solicitud',
+            error
           )
         }
       }
       this.closeDialog()
     },
 
-
     // DESCARGA DE INVENTARIO
     exportToExcel() {
       const go = this
-      if(go.data.headers.length === 0 || go.data.products.length === 0) {
+      if (
+        go.data.headers.length === 0 ||
+        go.data.products.length === 0
+      ) {
         alert('No hay datos a exportar')
         return
       }
 
-      const filteredHeaders = this.data.headers.filter(header => header.key !== 'actions')
-      const header = ["", ...filteredHeaders.map(header => header.title)];
+      const filteredHeaders =
+        this.data.headers.filter(
+          (header) => header.key !== 'actions'
+        )
+      const header = [
+        '',
+        ...filteredHeaders.map(
+          (header) => header.title
+        )
+      ]
 
       const productos = []
-      this.data.products.map(item => {
+      this.data.products.map((item) => {
         productos.push(item)
       })
 
-      let totalInv = 0;
-      let totalVentaInv = 0;
-      let totalUtilidad = 0;
+      let totalInv = 0
+      let totalVentaInv = 0
+      let totalUtilidad = 0
 
-      productos.map(item => {
-        totalInv += item.cantidadTotal * item.costo;
-        totalVentaInv += item.cantidadTotal * item.precio
-        
-        item.utilidad = item.cantidadTotal * (item.precio - item.costo)
+      productos.map((item) => {
+        totalInv +=
+          item.cantidadTotal * item.costo
+        totalVentaInv +=
+          item.cantidadTotal * item.precio
+
+        item.utilidad =
+          item.cantidadTotal *
+          (item.precio - item.costo)
         // item.precio = this.formatCurrency(item.precio)
         // item.costo = this.formatCurrency(item.costo)
       })
 
-      productos.map(item => {
+      productos.map((item) => {
         totalUtilidad += item.utilidad
       })
 
-      const rows = this.data.products.map(item =>
-        ["", ...filteredHeaders.map(header => item[header.key] || 0)]
-      );
+      const rows = this.data.products.map(
+        (item) => [
+          '',
+          ...filteredHeaders.map(
+            (header) => item[header.key] || 0
+          )
+        ]
+      )
 
       const today = new Date()
-      const dateNow = `${("0" + today.getDate()).slice(-2)}/${("0" + (today.getMonth() + 1)).slice(-2)}/${today.getFullYear().toString().slice(-2)}`
-      const timeNow = `${("0" + today.getHours()).slice(-2)}:${("0" + today.getMinutes()).slice(-2)}:${("0" + today.getSeconds()).slice(-2)}`;
+      const dateNow = `${('0' + today.getDate()).slice(-2)}/${('0' + (today.getMonth() + 1)).slice(-2)}/${today.getFullYear().toString().slice(-2)}`
+      const timeNow = `${('0' + today.getHours()).slice(-2)}:${('0' + today.getMinutes()).slice(-2)}:${('0' + today.getSeconds()).slice(-2)}`
 
       // const clienteR = go.data.clientes.find(item => item.value === go.data.clienteObj.cliente)
       // const objetivoR = go.data.objetivos.find(item => item.value === go.data.clienteObj.objetivo)
 
       const exporData = [
-          // [],
-          ["", "", "", "", "", "FECHA-HORA", `${dateNow} - ${timeNow}`],
-          ["", "", "", "TOTAL INVENTARIO", this.formatCurrency(totalInv)
-            || "", "TOTAL INV VENTA", this.formatCurrency(totalVentaInv)
-            || "", "TOTAL UTILIDAD", this.formatCurrency(totalUtilidad)]]
+        // [],
+        [
+          '',
+          '',
+          '',
+          '',
+          '',
+          'FECHA-HORA',
+          `${dateNow} - ${timeNow}`
+        ],
+        [
+          '',
+          '',
+          '',
+          'TOTAL INVENTARIO',
+          this.formatCurrency(totalInv) || '',
+          'TOTAL INV VENTA',
+          this.formatCurrency(totalVentaInv) ||
+            '',
+          'TOTAL UTILIDAD',
+          this.formatCurrency(totalUtilidad)
+        ]
+      ]
 
       exporData.push([])
       exporData.push(header)
       exporData.push(...rows)
-      
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet(`Inventario - IZ`)
 
-      worksheet.mergeCells('E1:H1');
-      worksheet.getCell('E1').value = "REPORTE DE INVENTARIO INVERSIONES Z."
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet(
+        `Inventario - IZ`
+      )
+
+      worksheet.mergeCells('E1:H1')
+      worksheet.getCell('E1').value =
+        'REPORTE DE INVENTARIO INVERSIONES Z.'
       const titleCell = worksheet.getCell('E1')
       titleCell.font = {
-          bold: true,
-          size: 16
+        bold: true,
+        size: 16
       }
 
       // Insertar los datos
-      worksheet.addRows(exporData);
+      worksheet.addRows(exporData)
 
       const titlesRowIndices = [2, 3]
       const columns = [5, 7, 9]
-      titlesRowIndices.forEach(rowIndex => {
-          const row = worksheet.getRow(rowIndex)
-          row.eachCell((cell, colNumber) => {
-              if(columns.includes(colNumber)) {
-                  cell.font = { bold: true}
-              }
-          })
+      titlesRowIndices.forEach((rowIndex) => {
+        const row = worksheet.getRow(rowIndex)
+        row.eachCell((cell, colNumber) => {
+          if (columns.includes(colNumber)) {
+            cell.font = { bold: true }
+          }
+        })
       })
 
-      const headerRowIndex = exporData.length - rows.length; // Índice de la fila de encabezados
+      const headerRowIndex =
+        exporData.length - rows.length // Índice de la fila de encabezados
       const tableSize = exporData.length + 1
       const fechasFormatted = [12]
-      for (let i = headerRowIndex + 2; i <= tableSize; i++) {  // Desde la fila de datos hasta el final
-          const row = worksheet.getRow(i);
-          if (i % 2 === 0) {
-              row.eachCell((cell, col) => {
-                  if (col !== 1) {
-                      cell.fill = {
-                          type: 'pattern',
-                          pattern: 'solid',
-                          fgColor: { argb: 'e8eaf6' }
-                      }
-                  }
-              })
+      for (
+        let i = headerRowIndex + 2;
+        i <= tableSize;
+        i++
+      ) {
+        // Desde la fila de datos hasta el final
+        const row = worksheet.getRow(i)
+        if (i % 2 === 0) {
+          row.eachCell((cell, col) => {
+            if (col !== 1) {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'e8eaf6' }
+              }
+            }
+          })
+        }
+
+        row.eachCell((cell, col) => {
+          if (fechasFormatted.includes(col)) {
+            const fechaISO = cell.value
+            const fechaObj = new Date(fechaISO)
+
+            cell.value = fechaObj
+            cell.numFmt = 'dd/mm/yyyy'
           }
 
-          row.eachCell((cell, col) => {
-            if (fechasFormatted.includes(col)) {
-              const fechaISO = cell.value
-              const fechaObj = new Date(fechaISO)
+          if (col === 7) {
+            // Tota   l
+            cell.numFmt = '"C$"#,##0.00'
+          }
 
-              cell.value = fechaObj
-              cell.numFmt = 'dd/mm/yyyy'
-            }
+          if (col === 8) {
+            // Total
+            cell.numFmt = '"C$"#,##0.00'
+          }
 
-            if (col === 7 ) { // Tota   l
-              cell.numFmt = '"C$"#,##0.00';
+          if (1 !== col) {
+            cell.border = {
+              top: {
+                style: 'thin',
+                color: { argb: '000000' }
+              },
+              left: {
+                style: 'thin',
+                color: { argb: '000000' }
+              },
+              bottom: {
+                style: 'thin',
+                color: { argb: '000000' }
+              },
+              right: {
+                style: 'thin',
+                color: { argb: '000000' }
+              }
             }
-
-            if (col === 8 ) { // Total
-              cell.numFmt = '"C$"#,##0.00';
-            }
-
-            if (1 !== col) {
-              cell.border = {
-                top: { style: 'thin', color: { argb: '000000' } },
-                left: { style: 'thin', color: { argb: '000000' } },
-                bottom: { style: 'thin', color: { argb: '000000' } },
-                right: { style: 'thin', color: { argb: '000000' } }
-              };
-            }
-          });
+          }
+        })
       }
 
-      const headerRow = worksheet.getRow(headerRowIndex + 1);
+      const headerRow = worksheet.getRow(
+        headerRowIndex + 1
+      )
       headerRow.eachCell((cell, col) => {
-          if (1 !== col) {
-              cell.font = { bold: true, color: {argb: 'ffffff'} };
-              cell.style.fill = {
-                  type: 'pattern',
-                  pattern: 'solid',
-                  fgColor: {argb: '0a008c'}
-              },
-              cell.border = {
-                  top: {style: 'thin', color: {argb: '000000'}},
-                  left: {style: 'thin', color: {argb: '000000'}},
-                  bottom: {style: 'thin', color: {argb: '000000'}},
-                  right: {style: 'thin', color: {argb: '000000'}},
-              }
+        if (1 !== col) {
+          cell.font = {
+            bold: true,
+            color: { argb: 'ffffff' }
           }
+          ;(cell.style.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '0a008c' }
+          }),
+            (cell.border = {
+              top: {
+                style: 'thin',
+                color: { argb: '000000' }
+              },
+              left: {
+                style: 'thin',
+                color: { argb: '000000' }
+              },
+              bottom: {
+                style: 'thin',
+                color: { argb: '000000' }
+              },
+              right: {
+                style: 'thin',
+                color: { argb: '000000' }
+              }
+            })
+        }
       })
       headerRow.commit()
 
       worksheet.eachRow((row) => {
-          row.eachCell((cell) => {
-              cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-          })
+        row.eachCell((cell) => {
+          cell.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true
+          }
+        })
       })
 
       // // Agregar una imagen (ejemplo con imagen en Base64)
@@ -2031,36 +3322,43 @@ export default {
 
       // Configurar el ancho de las columnas
       worksheet.columns = [
-          { width: 10 },
-          { width: 30 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-          { width: 18 },
-      ];
+        { width: 10 },
+        { width: 30 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 },
+        { width: 18 }
+      ]
 
       // Crear y descargar el archivo
-      workbook.xlsx.writeBuffer().then((buffer) => {
-          const data = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
-          saveAs(data, `Reporte - Inventario ${dateNow}.xlsx`);
-      });
+      workbook.xlsx
+        .writeBuffer()
+        .then((buffer) => {
+          const data = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+          })
+          saveAs(
+            data,
+            `Reporte - Inventario ${dateNow}.xlsx`
+          )
+        })
     },
 
     deleteAction(val) {
@@ -2077,9 +3375,9 @@ export default {
 
     async deleteItem() {
       const result =
-          await this.data.requestHttp.deleteProducto(
-              this.data.selectedProduct
-          )
+        await this.data.requestHttp.deleteProducto(
+          this.data.selectedProduct
+        )
       if (result !== null) {
         alert('Producto Eliminado')
         this.getProductos()
@@ -2093,6 +3391,32 @@ export default {
         style: 'currency',
         currency: 'NIO'
       }).format(key)
+    },
+
+    async handlePopoverOpen(isOpen, item) {
+      if (isOpen) {
+        this.data.popoverLoading = true
+        this.data.popoverPrices = []
+        this.data.popoverProductCosto = item.costo || 0
+        try {
+          const res = await httpGet(`api/producto/${item.idProducto}`)
+          if (res && res.precioMayorista) {
+            this.data.popoverPrices = res.precioMayorista
+          }
+        } catch (e) {
+          console.error("Error al cargar precios mayoristas en popover:", e)
+        } finally {
+          this.data.popoverLoading = false
+        }
+      }
+    },
+
+    calculatePopoverUtilidad(precio, costo) {
+      if (!precio || !costo) return '0.0%'
+      const p = Number(precio)
+      const c = Number(costo)
+      if (c === 0) return '0.0%'
+      return (((p - c) / c) * 100).toFixed(1) + '%'
     },
 
     formatDate(dateString) {
@@ -2118,8 +3442,8 @@ export default {
       if (!archivo) return
       // Si es múltiple, toma el primero
       const file = Array.isArray(archivo)
-          ? archivo[0]
-          : archivo
+        ? archivo[0]
+        : archivo
 
       const lector = new FileReader()
       lector.onload = () => {
@@ -2144,5 +3468,12 @@ export default {
 
 .font {
   font-size: 12px !important;
+}
+
+.hover-add-row:hover {
+  background-color: #e8eaf6 !important;
+}
+.hover-add-row:hover td {
+  color: #1a237e !important;
 }
 </style>

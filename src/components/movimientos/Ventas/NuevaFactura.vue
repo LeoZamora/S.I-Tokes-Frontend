@@ -792,12 +792,42 @@ export default {
             this.data.producto.cantidad = Number(this.data.producto.cantidad)
             const product = await this.data.requestHttp.getByIdProducto(this.data.producto.idProducto)
 
-            this.data.items.push({
-                ...this.data.producto,
-                producto: product.nombre,
-                costoUnitario: product.precio,
-                subTotal:  this.data.producto.cantidad * product.costoUnitario
-            })
+            // Check if product already exists in the table to combine quantities and apply correct wholesale ranges
+            const existingItemIndex = this.data.items.findIndex(item => item.idProducto === this.data.producto.idProducto)
+            let totalQty = this.data.producto.cantidad
+            let mergedObservaciones = this.data.producto.observaciones
+
+            if (existingItemIndex !== -1) {
+                const existingItem = this.data.items[existingItemIndex]
+                totalQty += Number(existingItem.cantidad)
+                mergedObservaciones = [existingItem.observaciones, this.data.producto.observaciones].filter(Boolean).join(', ')
+            }
+
+            let precioUnitario = product.precio
+            if (product.esMayorista && product.precioMayorista && product.precioMayorista.length > 0) {
+                const matchingRange = product.precioMayorista.find(pm => totalQty >= pm.minimo && totalQty <= pm.maximo)
+                if (matchingRange) {
+                    precioUnitario = matchingRange.precio
+                } else {
+                    precioUnitario = product.precio
+                }
+            }
+
+            if (existingItemIndex !== -1) {
+                // Update the existing row
+                this.data.items[existingItemIndex].cantidad = totalQty
+                this.data.items[existingItemIndex].costoUnitario = precioUnitario
+                this.data.items[existingItemIndex].observaciones = mergedObservaciones
+                this.data.items[existingItemIndex].subTotal = totalQty * precioUnitario
+            } else {
+                // Add a new row
+                this.data.items.push({
+                    ...this.data.producto,
+                    producto: product.nombre,
+                    costoUnitario: precioUnitario,
+                    subTotal: this.data.producto.cantidad * precioUnitario
+                })
+            }
 
             this.calcularFactura()
             this.data.producto.idProducto = null
