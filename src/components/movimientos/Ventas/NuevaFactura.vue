@@ -805,7 +805,7 @@ export default {
 
             let precioUnitario = product.precio
             if (product.esMayorista && product.precioMayorista && product.precioMayorista.length > 0) {
-                const matchingRange = product.precioMayorista.find(pm => totalQty >= pm.minimo && totalQty <= pm.maximo)
+                const matchingRange = product.precioMayorista.find(pm => totalQty >= pm.minimo && (pm.rangoIndefinido || totalQty <= pm.maximo))
                 if (matchingRange) {
                     precioUnitario = matchingRange.precio
                 } else {

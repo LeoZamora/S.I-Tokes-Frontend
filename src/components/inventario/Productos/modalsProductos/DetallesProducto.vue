@@ -144,6 +144,20 @@
                             <div class="text-caption text-grey">Stock Mínimo</div>
                           </div>
                         </v-col>
+                        <v-col cols="6" class="mt-2">
+                          <div class="text-center pa-3 bg-purple-lighten-5 rounded">
+                            <v-icon size="24" color="purple" class="mb-1">mdi-cart-arrow-down</v-icon>
+                            <div class="text-h6 font-weight-bold">{{ fullProductData.minimoVenta != null ? fullProductData.minimoVenta : 'N/A' }}</div>
+                            <div class="text-caption text-grey">Mínimo de Venta</div>
+                          </div>
+                        </v-col>
+                        <v-col cols="6" class="mt-2">
+                          <div class="text-center pa-3 bg-teal-lighten-5 rounded">
+                            <v-icon size="24" color="teal" class="mb-1">{{ fullProductData.esFacturarSinInventario ? 'mdi-check-circle' : 'mdi-close-circle' }}</v-icon>
+                            <div class="text-h6 font-weight-bold">{{ fullProductData.esFacturarSinInventario ? 'Permitido' : 'No permitido' }}</div>
+                            <div class="text-caption text-grey">Facturar Sin Inv.</div>
+                          </div>
+                        </v-col>
                       </v-row>
                     </v-card>
 
@@ -213,7 +227,7 @@
                         <tbody>
                           <tr v-for="(pm, index) in fullProductData.precioMayorista" :key="index">
                             <td class="text-center text-body-2">{{ pm.minimo }}</td>
-                            <td class="text-center text-body-2">{{ pm.maximo }}</td>
+                            <td class="text-center text-body-2">{{ pm.rangoIndefinido || !pm.maximo || pm.maximo === 0 ? 'A más' : pm.maximo }}</td>
                             <td class="text-center text-body-2 font-weight-bold text-success">{{ formateCurrency(pm.precio) }}</td>
                             <td class="text-center text-body-2 font-weight-bold text-indigo">{{ calcularUtilidad(pm.precio, fullProductData.costo) }}</td>
                             <td class="text-center text-caption text-grey-darken-2">{{ pm.observaciones || '—' }}</td>
