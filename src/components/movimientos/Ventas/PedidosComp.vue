@@ -1558,7 +1558,8 @@ export default {
           fullProduct.precioMayorista.find(
             (pm) =>
               totalQty >= pm.minimo &&
-              totalQty <= pm.maximo
+              (pm.rangoIndefinido ||
+                totalQty <= pm.maximo)
           )
         if (matchingRange) {
           precioUnitario = matchingRange.precio
