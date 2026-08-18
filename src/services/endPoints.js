@@ -80,6 +80,7 @@ const endPoints = {
 
     getUnidadMedida: 'api/unidades-medida/combobox',
     postUnidadMedida: 'api/unidades-medida',
+    getImpuestos: 'api/impuestos/combobox',
 
     //getTipoMov: 'api/tipos-movimiento/combobox',
     getTipoMovById: 'api/tipos-movimiento/',
