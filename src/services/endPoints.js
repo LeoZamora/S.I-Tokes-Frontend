@@ -40,6 +40,7 @@ const endPoints = {
     postCliente: 'api/Cliente',
     putCliente: 'api/Cliente',
     deleteCliente: 'api/Cliente',
+    getTipoDocumentoCombobox: 'api/TipoDocumento/combobox',
 
     getRutas: 'api/rutas',
     postRutas: 'api/rutas',

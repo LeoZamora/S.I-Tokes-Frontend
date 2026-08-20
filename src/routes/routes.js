@@ -294,10 +294,12 @@ const routes = createRouter({
       }
     },
     {
-      path: '/tipo-cliente',
-      name: 'Tipos de Cliente',
+      path: '/clientes/tipos-cliente',
+      name: 'Tipos de cliente',
       component: () =>
-        import('@/components/dev-alert.vue'),
+        import(
+          '@/components/clientes/TiposClienteComp.vue'
+        ),
       meta: {
         protected: true,
         keepAlive: true,
@@ -343,7 +345,7 @@ routes.beforeEach((to, from, next) => {
 
     const authStore = useStore()
     const isAuthenticated = authStore.isLoggedIn
-    
+
     if (to.meta.requiredAuth && !isAuthenticated) {
         return next({ path: '/login' })
     } 
