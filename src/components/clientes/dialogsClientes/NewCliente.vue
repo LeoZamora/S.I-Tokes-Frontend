@@ -1,143 +1,551 @@
 <template>
-  <v-dialog v-model="localShow" max-width="600" persistent>
-    <v-card id="diag-fact">
-      <v-card-title class="bg-indigo-darken-4 d-flex align-center">
-        <h5>
-          <v-icon>mdi-account-tie</v-icon>
-          {{ localTitle }}
-        </h5>
-        <v-spacer/>
-        <v-btn icon size="small" color="white" variant="tonal" @click="closeDialog()">
-          <v-icon>mdi-close</v-icon>
-          <v-tooltip activator="parent" location="top" text="Cerrar"/>
-        </v-btn>
-      </v-card-title>
-      <v-divider/>
-      <v-card-text class="py-2">
-        <v-row class="pb-0">
-          <v-col v-if="!localEdit" cols="6" md="6" sm="6" class="d-flex justify-start align-center pb-0">
-            <v-card variant="tonal" color="green">  
-              <v-card-text class="pa-2">
-                <div class="d-flex justify-start align-center">
-                  <small class="mr-2">Fecha de Registro: </small>
-                  <small>
-                    <strong>
-                      {{ localEdit ? '' : formatedDate(localView ? data.dataCliente.fechaRegistro : data.nowDate) }}
-                    </strong>
-                  </small>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col :cols="localEdit ? 12 : 6" :md="localEdit ? 12 : 6" :sm="localEdit ? 12 : 6"
-              class="d-flex justify-end align-center pb-0">
-            <v-checkbox v-model="data.dataCliente.personaNatural" color="indigo" density="compact" class="label"
-               :readonly="readonlyOption()" hide-details>
-              <template v-slot:label>
-                <span id="checkLabel">Persona Natural</span>
-              </template>
-            </v-checkbox>
-          </v-col>
-        </v-row>
-        <v-card-subtitle class="d-flex align-center text-center my-4">
-          <small class="mr-2 font-weight-bold">GENERALES</small>
-          <v-divider/>
-        </v-card-subtitle>
-        <v-form ref="form">
-          <v-row >
-            <v-col cols="12" md="12" sm="12" class="py-2">
-              <v-select
-                  v-model="data.dataCliente.idCategoriaCliente"
-                  :items="data.categoriaCliente"
-                  density="compact"
-                  variant="outlined"
-                  label="Tipo Cliente"
-                  placeholder="tipo de Cliente"
-                  color="indigo"
-                  persistent-placeholder
-                  :rules="[v => !!v || 'Requerido.']"
-                  :readonly="readonlyOption()"
-              ></v-select>
-            </v-col>
-            <v-col cols="12" md="12" sm="12" class="py-2">
-              <v-text-field v-model="data.dataCliente.nombre" prepend-inner-icon="mdi-account" density="compact"
-                :rules="[v => !!v || 'Requerido.']" color="indigo"
-                variant="outlined" label="Nombre:" placeholder="Ingrese el nombre del cliente"
-                persistent-placeholder :readonly="readonlyOption()"/>
-            </v-col>
-            <v-col cols="12" md="6" sm="6" class="py-2">
-              <v-autocomplete :items="data.departamentos" v-model="data.dataCliente.idDepartamento"
-                density="compact" color="indigo"
-                :rules="[v => !!v || 'Requerido.']"
-                variant="outlined" label="Departamento" placeholder="ingrese un departamento"
-                persistent-placeholder :readonly="readonlyOption()"/>
-            </v-col>
-            <v-col cols="12" md="6" sm="6" class="py-2">
-            <v-autocomplete :items="data.municipios" v-model="data.dataCliente.idMunicipio"
-              density="compact" color="indigo" variant="outlined" label="Municipio" 
-              placeholder="ingrese un municipio"
-              persistent-placeholder :readonly="readonlyOption()"/>
-            </v-col>
-            <v-col cols="12" md="6" sm="6" class="py-2">
-              <v-autocomplete :items="cmb.rutas" v-model="data.dataCliente.idRuta"
-                :rules="[v => !!v || 'Requerido.']" color="indigo"
-                prepend-inner-icon="mdi-map-marker" density="compact"
-                variant="outlined" label="Ruta:" placeholder="Ruta que cubre al cliente"
-                persistent-placeholder :readonly="readonlyOption()"/>
-            </v-col>
-            <v-col cols="12" md="6" sm="6" class="py-2">
-              <v-text-field v-model="data.dataCliente.telefono" prepend-inner-icon="mdi-phone" density="compact"
-                variant="outlined" label="Teléfono" placeholder="teléfono del Cliente" color="indigo"
-                persistent-placeholder type="number" :readonly="readonlyOption()"/>
-            </v-col>
-            <v-col cols="12" md="12" sm="12" class="py-2">
-              <v-textarea v-model="data.dataCliente.direccion" prepend-inner-icon="mdi-text" density="compact"
-                variant="outlined" label="Dirección" placeholder="dirección del Cliente"
-                persistent-placeholder :rows="2" :readonly="readonlyOption()" color="indigo"/>
-            </v-col>
-          </v-row>
-        </v-form>
-      </v-card-text>
-      <v-divider/>
-      <v-card-actions v-if="!localView">
-        <v-btn color="grey" variant="outlined" @click="closeDialog()">
-          Cancelar
+  <v-card elevation="1" class="rounded-lg mb-6 bg-grey-lighten-5 w-100">
+    <!-- BARRA SUPERIOR / HEADER DEL CARD DE CLIENTE (IGUAL A GESTION PRODUCTO) -->
+    <v-toolbar density="comfortable" class="px-2 bg-grey-lighten-5 border-b">
+      <v-btn icon variant="text" class="mr-2" @click="closeDialog()">
+        <v-icon color="grey-darken-2">mdi-arrow-left</v-icon>
+        <v-tooltip activator="parent" location="bottom">Volver al listado</v-tooltip>
+      </v-btn>
+
+      <div class="d-flex align-center">
+        <v-avatar color="white" size="36" class="mr-3 border" variant="flat">
+          <v-icon color="indigo-darken-4" size="22">mdi-account-tie</v-icon>
+        </v-avatar>
+        <div>
+          <div class="text-subtitle-1 font-weight-bold text-indigo-darken-4">
+            {{ localTitle }}
+          </div>
+          <div class="text-caption text-grey-darken-1" v-if="localEdit && data.dataCliente.nombre">
+            {{ data.dataCliente.nombre }} <span v-if="data.dataCliente.codigo">(Código: {{ data.dataCliente.codigo }})</span>
+          </div>
+          <div class="text-caption text-grey-darken-1" v-else-if="localView && data.dataCliente.nombre">
+            Ficha de Detalle del Cliente - {{ data.dataCliente.nombre }}
+          </div>
+          <div class="text-caption text-grey-darken-1" v-else>
+            Complete los campos para registrar un nuevo cliente en el sistema
+          </div>
+        </div>
+      </div>
+
+      <v-spacer></v-spacer>
+
+      <div class="d-flex align-center ga-2">
+        <v-btn color="grey-darken-1" variant="tonal" size="small" prepend-icon="mdi-close" @click="closeDialog()">
+          {{ localView ? 'Volver' : 'Cancelar' }}
         </v-btn>
         <v-btn 
-            class="bg-indigo-darken-4" 
-            @click="handleSave()"
-            :disabled="data.disabledBtn"
-            prepend-icon="mdi-content-save-outline"
-            elevation="2"
+          v-if="!localView"
+          color="indigo-darken-4" 
+          variant="elevated" 
+          size="small" 
+          prepend-icon="mdi-content-save"
+          :disabled="data.disabledBtn"
+          @click="handleSave()"
         >
-            <template v-if="data.disabledBtn">
-                <v-progress-circular 
-                    color="white" 
-                    indeterminate
-                    :size="24" 
-                    :width="3"
-                    class="mr-2"
-                />
-                <span class="text-white">
-                    Guardando...
-                </span>
-            </template>
-            <template v-else>
-                <span class="text-white font-weight-bold">
-                    Guardar
-                </span>
-            </template>
+          <template v-if="data.disabledBtn">
+            <v-progress-circular color="white" indeterminate :size="18" :width="2" class="mr-1"/>
+            Guardando...
+          </template>
+          <template v-else>
+            Guardar Cliente
+          </template>
         </v-btn>
-      </v-card-actions>
-      <OverlayComp :show="data.overlay.show"/>
-    </v-card>
+      </div>
+    </v-toolbar>
 
+    <!-- FORMULARIO PRINCIPAL CON ESTRUCTURA EN 2 COLUMNAS (8 COLS / 4 COLS) -->
+    <v-card-text class="pa-4 pa-md-6">
+      <v-form ref="form" class="w-100">
+        <v-row dense>
+          <!-- COLUMNA PRINCIPAL IZQUIERDA (8 columnas) -->
+          <v-col cols="12" md="8">
+            <div class="d-flex flex-column ga-4">
+              
+              <!-- 1. CLASIFICACIÓN Y DATOS GENERALES -->
+              <v-card variant="flat" class="border rounded-lg bg-white overflow-hidden" elevation="0">
+                <div class="bg-indigo-lighten-5 px-4 py-2 border-b d-flex align-center justify-space-between flex-wrap ga-2">
+                  <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4 d-flex align-center">
+                    <v-icon size="small" class="mr-2" color="indigo">mdi-card-account-details-outline</v-icon>
+                    Clasificación y Datos Generales
+                  </div>
+                  <v-chip size="x-small" color="indigo" variant="tonal" class="font-weight-medium">
+                    Obligatorio
+                  </v-chip>
+                </div>
+
+                <div class="pa-4">
+                  <v-row dense>
+                    <!-- Categoría / Tipo de Cliente -->
+                    <v-col cols="12" sm="6">
+                      <v-select
+                        v-model="data.dataCliente.idCategoriaCliente"
+                        :items="data.categoriaCliente"
+                        label="Tipo de cliente"
+                        variant="outlined"
+                        density="compact"
+                        color="indigo"
+                        prepend-inner-icon="mdi-shape-outline"
+                        hide-details="auto"
+                        persistent-placeholder
+                        :rules="[rules.required]"
+                        :readonly="readonlyOption()"
+                      />
+                    </v-col>
+
+                    <!-- Código del Cliente -->
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="data.dataCliente.codigo"
+                        label="Código de Cliente"
+                        variant="outlined"
+                        density="compact"
+                        color="indigo"
+                        hide-details="auto"
+                        persistent-placeholder
+                        :readonly="readonlyOption()"
+                      />
+                    </v-col>
+
+                    <!-- Nombre Comercial -->
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="data.dataCliente.nombre"
+                        label="Nombre Comercial / Cliente"
+                        variant="outlined"
+                        density="compact"
+                        color="indigo"
+                        prepend-inner-icon="mdi-account"
+                        hide-details="auto"
+                        persistent-placeholder
+                        :rules="[rules.required, rules.minLength(3)]"
+                        :readonly="readonlyOption()"
+                      />
+                    </v-col>
+
+                    <!-- Razón Social -->
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="data.dataCliente.razonSocial"
+                        label="Razón Social"
+                        variant="outlined"
+                        density="compact"
+                        color="indigo"
+                        prepend-inner-icon="mdi-office-building"
+                        hide-details="auto"
+                        persistent-placeholder
+                        :readonly="readonlyOption()"
+                      />
+                    </v-col>
+
+                    <!-- Tipo de Documento -->
+                    <v-col cols="12" sm="6">
+                      <v-select
+                        v-model="data.dataCliente.idTipoDocumento"
+                        :items="cmb.tiposDocumento"
+                        label="Tipo de Identificación"
+                        variant="outlined"
+                        density="compact"
+                        color="indigo"
+                        prepend-inner-icon="mdi-card-account-details"
+                        hide-details="auto"
+                        persistent-placeholder
+                        clearable
+                        :readonly="readonlyOption()"
+                      />
+                    </v-col>
+
+                    <!-- Número de Documento -->
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="data.dataCliente.noDocumento"
+                        label="Número de Identificación"
+                        variant="outlined"
+                        density="compact"
+                        color="indigo"
+                        prepend-inner-icon="mdi-numeric"
+                        hide-details="auto"
+                        persistent-placeholder
+                        :readonly="readonlyOption()"
+                      />
+                    </v-col>
+
+                    <!-- Teléfono -->
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="data.dataCliente.telefono"
+                        label="Teléfono"
+                        variant="outlined"
+                        density="compact"
+                        color="indigo"
+                        prepend-inner-icon="mdi-phone"
+                        hide-details="auto"
+                        persistent-placeholder
+                        :readonly="readonlyOption()"
+                      />
+                    </v-col>
+
+                    <!-- Correo Electrónico -->
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="data.dataCliente.correo"
+                        label="Correo Electrónico"
+                        placeholder="cliente@correo.com"
+                        variant="outlined"
+                        density="compact"
+                        color="indigo"
+                        prepend-inner-icon="mdi-email-outline"
+                        hide-details="auto"
+                        persistent-placeholder
+                        :readonly="readonlyOption()"
+                      />
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-card>
+
+              <!-- 2. DIRECCIONES Y UBICACIONES DEL CLIENTE -->
+              <v-card variant="flat" class="border rounded-lg bg-white overflow-hidden" elevation="0">
+                <div class="bg-indigo-lighten-5 px-4 py-2 border-b d-flex align-center justify-space-between flex-wrap ga-2">
+                  <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4 d-flex align-center">
+                    <v-icon size="small" class="mr-2" color="indigo">mdi-map-marker-multiple</v-icon>
+                    Direcciones y Ubicaciones ({{ data.dataCliente.direcciones ? data.dataCliente.direcciones.length : 0 }})
+                  </div>
+                  <v-btn
+                    v-if="!localView"
+                    size="small"
+                    color="indigo"
+                    variant="tonal"
+                    prepend-icon="mdi-plus"
+                    @click="openAddressModal('add')"
+                  >
+                    Añadir Dirección
+                  </v-btn>
+                </div>
+
+                <div class="pa-4">
+                  <v-table density="compact" class="elevation-0 border rounded-lg overflow-hidden">
+                    <thead>
+                      <tr class="bg-indigo-lighten-5">
+                        <th class="text-left font-weight-bold text-caption py-2" style="width: 20%">
+                          Nombre
+                        </th>
+                        <th class="text-left font-weight-bold text-caption py-2" style="width: 22%">
+                          Ubicación
+                        </th>
+                        <th class="text-left font-weight-bold text-caption py-2" style="width: 38%">
+                          Dirección Detallada
+                        </th>
+                        <th class="text-center font-weight-bold text-caption py-2" style="width: 12%">
+                          Facturación
+                        </th>
+                        <th v-if="!localView" class="text-center font-weight-bold text-caption py-2" style="width: 8%">
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(dir, idx) in data.dataCliente.direcciones" :key="idx" class="hover-row">
+                        <!-- Nombre / Identificador -->
+                        <td class="py-2 text-caption font-weight-bold text-indigo-darken-4">
+                          <div class="d-flex align-center">
+                            <v-icon size="small" color="indigo" class="mr-1">mdi-map-marker</v-icon>
+                            <span>{{ dir.nombre || 'Principal' }}</span>
+                          </div>
+                        </td>
+
+                        <!-- Ubicación Dept / Mun -->
+                        <td class="py-2 text-caption">
+                          <div class="font-weight-medium">{{ getNombreDept(dir.idDepartamento) }}</div>
+                          <div class="text-caption text-grey" v-if="dir.idMunicipio && dir.idMunicipio !== '- - -'">
+                            {{ getNombreMun(dir.idDepartamento, dir.idMunicipio) }}
+                          </div>
+                        </td>
+
+                        <!-- Dirección Ingresada & GPS -->
+                        <td class="py-2 text-caption text-wrap" style="max-width: 260px;">
+                          <div>{{ dir.direccionIngresada || '—' }}</div>
+                          <div v-if="dir.googleMapsURL || (dir.latitude && dir.longitude)" class="mt-1">
+                            <a :href="getGpsUrl(dir)" target="_blank" class="text-teal font-weight-bold text-decoration-none d-inline-flex align-center" style="font-size: 11px;">
+                              <v-icon size="x-small" color="teal" class="mr-1">mdi-navigation</v-icon> Ver en Google Maps
+                            </a>
+                          </div>
+                        </td>
+
+                        <!-- Facturación -->
+                        <td class="py-2 text-center">
+                          <v-tooltip text="Dirección principal de facturación" location="top">
+                            <template v-slot:activator="{ props }">
+                              <v-radio
+                                v-if="!localView"
+                                v-bind="props"
+                                :model-value="dir.esDirFacturacion"
+                                @click="setBillingAddress(idx)"
+                                color="amber-darken-3"
+                                density="compact"
+                                hide-details
+                                class="d-inline-flex justify-center"
+                              />
+                              <v-chip v-else-if="dir.esDirFacturacion" size="x-small" color="amber-darken-3" variant="flat">
+                                Facturación
+                              </v-chip>
+                              <span v-else class="text-grey text-caption">—</span>
+                            </template>
+                          </v-tooltip>
+                        </td>
+
+                        <!-- Acciones -->
+                        <td v-if="!localView" class="py-2 text-center">
+                          <div class="d-flex align-center justify-center ga-1">
+                            <v-btn icon size="x-small" variant="text" color="indigo" @click="openAddressModal('edit', dir, idx)">
+                              <v-icon size="small">mdi-pencil</v-icon>
+                              <v-tooltip activator="parent" location="top">Editar</v-tooltip>
+                            </v-btn>
+                            <v-btn icon size="x-small" variant="text" color="error" @click="removeAddress(idx)" :disabled="data.dataCliente.direcciones.length <= 1">
+                              <v-icon size="small">mdi-delete</v-icon>
+                              <v-tooltip activator="parent" location="top">Eliminar</v-tooltip>
+                            </v-btn>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <!-- FILA CLICKABLE PARA AGREGAR NUEVA DIRECCIÓN (IGUAL A GESTION PRODUCTO) -->
+                      <tr
+                        v-if="!localView"
+                        class="text-center hover-add-row"
+                        style="cursor: pointer"
+                        @click="openAddressModal('add')"
+                      >
+                        <td
+                          :colspan="localView ? 4 : 5"
+                          class="py-2 text-indigo-darken-4 font-weight-bold text-caption bg-indigo-lighten-5"
+                        >
+                          <v-icon size="small" class="mr-1">mdi-plus-circle-outline</v-icon>
+                          Agregar nueva dirección
+                        </td>
+                      </tr>
+
+                      <!-- FILA VACÍA -->
+                      <tr v-if="!data.dataCliente.direcciones || data.dataCliente.direcciones.length === 0">
+                        <td :colspan="localView ? 4 : 5" class="text-center text-grey text-caption py-3">
+                          <v-icon class="mr-1" size="small">mdi-information-outline</v-icon>
+                          No hay direcciones registradas para este cliente.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </div>
+              </v-card>
+
+            </div>
+          </v-col>
+
+          <!-- COLUMNA LATERAL DERECHA (4 columnas) -->
+          <v-col cols="12" md="4">
+            <div class="d-flex flex-column ga-4">
+              
+              <!-- 3. RUTA Y LOGÍSTICA -->
+              <v-card variant="flat" class="border rounded-lg bg-white overflow-hidden" elevation="0">
+                <div class="bg-indigo-lighten-5 px-4 py-2 border-b d-flex align-center justify-space-between">
+                  <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4 d-flex align-center">
+                    <v-icon size="small" class="mr-2" color="indigo">mdi-routes</v-icon>
+                    Ruta y Logística
+                  </div>
+                  <v-chip size="x-small" color="indigo" variant="tonal" class="font-weight-medium">
+                    Obligatorio
+                  </v-chip>
+                </div>
+
+                <div class="pa-4">
+                  <v-autocomplete 
+                    :items="cmb.rutas" 
+                    v-model="data.dataCliente.idRuta"
+                    :rules="[rules.required]" 
+                    color="indigo"
+                    prepend-inner-icon="mdi-map-marker-path" 
+                    density="compact"
+                    variant="outlined" 
+                    label="Ruta Principal *" 
+                    placeholder="Seleccione ruta que cubre al cliente"
+                    persistent-placeholder 
+                    hide-details="auto"
+                    :readonly="readonlyOption()"
+                  />
+
+                  <v-textarea
+                    v-model="data.dataCliente.observaciones"
+                    label="Observaciones"
+                    placeholder="Observaciones sobre el cliente o referencias especiales..."
+                    variant="outlined"
+                    density="compact"
+                    color="indigo"
+                    prepend-inner-icon="mdi-text"
+                    hide-details="auto"
+                    rows="3"
+                    class="mt-3"
+                    persistent-placeholder
+                    :readonly="readonlyOption()"
+                  />
+                </div>
+              </v-card>
+
+              <!-- 4. ESTADO DEL CLIENTE -->
+              <v-card variant="flat" class="border rounded-lg bg-white overflow-hidden" elevation="0">
+                <div class="bg-indigo-lighten-5 px-4 py-2 border-b d-flex align-center justify-space-between">
+                  <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4 d-flex align-center">
+                    <v-icon size="small" class="mr-2" color="indigo">mdi-cog-outline</v-icon>
+                    Estado del Cliente
+                  </div>
+                </div>
+
+                <div class="pa-4">
+                  <div class="d-flex align-center justify-space-between">
+                    <div>
+                      <div class="text-subtitle-2 font-weight-bold">
+                        {{ data.dataCliente.estado ? 'Cliente Activo' : 'Cliente Inactivo' }}
+                      </div>
+                      <div class="text-caption text-grey">
+                        {{ data.dataCliente.estado ? 'Disponible para pedidos y facturación' : 'Inhabilitado en el sistema' }}
+                      </div>
+                    </div>
+                    <v-switch
+                      v-model="data.dataCliente.estado"
+                      color="indigo"
+                      density="compact"
+                      hide-details
+                      :readonly="readonlyOption()"
+                    />
+                  </div>
+                </div>
+              </v-card>
+            </div>
+          </v-col>
+        </v-row>
+      </v-form>
+    </v-card-text>
+
+    <!-- DIÁLOGO SECUNDARIO PARA AGREGAR / EDITAR UNA DIRECCIÓN -->
+    <v-dialog v-model="addrModal.show" max-width="540" persistent>
+      <v-card class="rounded-lg">
+        <v-card-title class="bg-indigo-darken-4 text-white text-subtitle-1 font-weight-bold d-flex align-center py-2 px-3">
+          <v-icon class="mr-2" size="small">mdi-map-marker-plus</v-icon>
+          {{ addrModal.isEdit ? 'Editar Dirección' : 'Agregar Nueva Dirección' }}
+          <v-spacer/>
+          <v-btn icon size="x-small" color="white" variant="text" @click="addrModal.show = false">
+            <v-icon size="small">mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <v-form ref="addrForm">
+            <v-row dense>
+              <!-- Nombre de Dirección -->
+              <v-col cols="12" class="py-1">
+                <v-text-field
+                  v-model="addrModal.form.nombre"
+                  label="Nombre / Identificador de la dirección *"
+                  placeholder="Ej: Principal, Sucursal Norte, Bodega"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  prepend-inner-icon="mdi-tag-outline"
+                  hide-details="auto"
+                  :rules="[rules.required]"
+                />
+              </v-col>
+
+              <!-- Departamento -->
+              <v-col cols="12" sm="6" class="py-1">
+                <v-autocomplete
+                  v-model="addrModal.form.idDepartamento"
+                  :items="data.departamentos"
+                  label="Departamento *"
+                  placeholder="Seleccione departamento"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  prepend-inner-icon="mdi-city-variant-outline"
+                  hide-details="auto"
+                  :rules="[rules.required]"
+                  @update:model-value="onAddrDeptChange"
+                />
+              </v-col>
+
+              <!-- Municipio -->
+              <v-col cols="12" sm="6" class="py-1">
+                <v-autocomplete
+                  v-model="addrModal.form.idMunicipio"
+                  :items="addrModal.municipios"
+                  label="Municipio"
+                  placeholder="Seleccione municipio"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  prepend-inner-icon="mdi-city"
+                  hide-details="auto"
+                />
+              </v-col>
+
+              <!-- Dirección Ingresada -->
+              <v-col cols="12" class="py-1">
+                <v-textarea
+                  v-model="addrModal.form.direccionIngresada"
+                  label="Dirección Completa *"
+                  placeholder="Ingrese el texto exacto de la dirección"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  prepend-inner-icon="mdi-map-marker"
+                  rows="3"
+                  hide-details="auto"
+                  :rules="[rules.required]"
+                />
+              </v-col>
+
+              <!-- URL Google Maps o Coordenadas -->
+              <v-col cols="12" class="py-1">
+                <v-text-field
+                  v-model="addrModal.form.googleMapsURL"
+                  label="Enlace Google Maps / Coordenadas (Opcional)"
+                  placeholder="https://maps.google.com/?q=... o Lat, Long"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  prepend-inner-icon="mdi-crosshairs-gps"
+                  hide-details="auto"
+                />
+              </v-col>
+
+              <!-- Es Dirección de Facturación -->
+              <v-col cols="12" class="py-1">
+                <v-checkbox
+                  v-model="addrModal.form.esDirFacturacion"
+                  label="Establecer como dirección principal de facturación"
+                  color="amber-darken-3"
+                  density="compact"
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-card-actions class="pa-3 bg-grey-lighten-4">
+          <v-btn color="grey-darken-1" variant="text" size="small" @click="addrModal.show = false">
+            Cancelar
+          </v-btn>
+          <v-spacer/>
+          <v-btn color="indigo-darken-4" variant="elevated" size="small" prepend-icon="mdi-check" @click="saveAddressFromModal">
+            Aceptar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <OverlayComp :show="data.overlay.show"/>
     <SuccessAlert 
       :success="data.alertSuccess.success" 
       :msg="data.alertSuccess.msg" 
       :show="data.alertSuccess.show" 
     />
-  </v-dialog>
+  </v-card>
 </template>
 
 <script>
@@ -154,8 +562,10 @@ export default {
     await Promise.all([
       this.getCategoriaCliente(),
       this.getDepartamentos(),
-      this.loadCmbRutas()
+      this.loadCmbRutas(),
+      this.loadCmbTiposDocumento()
     ])
+    await this.initData()
   },
 
   components: {
@@ -190,8 +600,13 @@ export default {
   data() {
     return {
       cmb: {
-        rutas: []
+        rutas: [],
+        tiposDocumento: []
       },
+      rules: {
+        required: v => !!v || 'Campo obligatorio.',
+        minLength: len => v => (v && v.length >= len) || `Mínimo ${len} caracteres.`
+      }
     }
   },
 
@@ -207,31 +622,35 @@ export default {
       nowDate: new Date(),
       dataCliente: {
         categoriaCliente: null,
+        codigo: null,
         departamento: null,
         direccion: null,
-        estado: null,
+        estado: true,
         fechaRegistro: null,
         idCategoriaCliente: null,
         idCliente: null,
         idDepartamento: null,
         idMunicipio: null,
         idRuta: null,
+        idTipoDocumento: null,
+        noDocumento: null,
+        razonSocial: null,
         municipio: null,
-        personaNatural: false,
         nombre: null,
+        correo: null,
+        observaciones: null,
         ruta: null,
         telefono: null,
         usuarioRegistro: null,
+        direcciones: []
       },
-      // Overlay
       overlay: {
-          show: false
+        show: false
       },
-      // ALERT SUCCESS
       alertSuccess: {
-          show: false,
-          msg: '',
-          success: false,
+        show: false,
+        msg: '',
+        success: false,
       },
       disabledBtn: false,
       departamentos: [],
@@ -241,45 +660,146 @@ export default {
       requestHttp: new RequestHttp()
     })
 
-    async function getCliente(id) {
-      return await data.requestHttp.getByIdCliente(id)
+    const addrModal = reactive({
+      show: false,
+      isEdit: false,
+      editIdx: -1,
+      municipios: [],
+      form: {
+        idDireccion: null,
+        nombre: 'Principal',
+        idDepartamento: null,
+        idMunicipio: null,
+        direccionIngresada: '',
+        googleMapsURL: '',
+        esDirFacturacion: false,
+        observaciones: ''
+      }
+    })
+
+    function assignClientData(src) {
+      if (!src) return
+
+      data.idCliente = src.idCliente || data.idCliente || null
+
+      data.dataCliente = {
+        idCliente: src.idCliente || data.idCliente || null,
+        codigo: src.codigo || null,
+        nombre: src.nombre || null,
+        razonSocial: src.razonSocial || null,
+        idCategoriaCliente: src.idCategoriaCliente || (src.idCategoriaClienteNavigation ? src.idCategoriaClienteNavigation.idCategoriaCliente : null),
+        idTipoDocumento: src.idTipoDocumento || null,
+        noDocumento: src.noDocumento || null,
+        telefono: src.telefono || null,
+        correo: src.correo || src.email || null,
+        idRuta: src.idRuta || null,
+        idDepartamento: src.idDepartamento || null,
+        idMunicipio: src.idMunicipio || null,
+        direccion: src.direccion || null,
+        observaciones: src.observaciones || null,
+        estado: src.estado !== undefined ? src.estado : true,
+        fechaRegistro: src.fechaRegistro || new Date().toISOString(),
+        usuarioRegistro: src.usuarioRegistro || null,
+        direcciones: Array.isArray(src.direcciones) && src.direcciones.length > 0
+          ? src.direcciones.map(d => ({ ...d }))
+          : []
+      }
+
+      // Si es un cliente existente que no tiene lista de direcciones pero tiene dirección base registrada
+      if (data.dataCliente.direcciones.length === 0 && (src.direccion || src.idDepartamento)) {
+        data.dataCliente.direcciones.push({
+          idDireccion: null,
+          nombre: 'Principal',
+          idDepartamento: data.dataCliente.idDepartamento || null,
+          idMunicipio: data.dataCliente.idMunicipio || null,
+          direccionIngresada: data.dataCliente.direccion || '',
+          googleMapsURL: src.googleMapsURL || '',
+          latitude: src.latitude || null,
+          longitude: src.longitude || null,
+          esDirFacturacion: true
+        })
+      }
     }
-    
+
+    function resetForm() {
+      data.idCliente = null
+      data.dataCliente = {
+        idCliente: null,
+        codigo: null,
+        nombre: null,
+        razonSocial: null,
+        idCategoriaCliente: null,
+        idTipoDocumento: null,
+        noDocumento: null,
+        telefono: null,
+        correo: null,
+        idRuta: null,
+        idDepartamento: null,
+        idMunicipio: null,
+        direccion: null,
+        observaciones: null,
+        estado: true,
+        fechaRegistro: new Date().toISOString(),
+        usuarioRegistro: null,
+        direcciones: []
+      }
+    }
+
+    async function initData() {
+      if (props.prov && (props.prov.idCliente || props.prov.nombre)) {
+        data.overlay.show = true
+        data.idCliente = props.prov.idCliente || null
+
+        // 1. Asignación inmediata desde props para respuesta instantánea
+        assignClientData(props.prov)
+
+        // 2. Consulta a API para datos detallados si existe idCliente
+        if (props.prov.idCliente) {
+          try {
+            const result = await data.requestHttp.getByIdCliente(props.prov.idCliente)
+            if (result && result.code === 200 && result.data) {
+              const apiData = result.data.data || result.data
+              assignClientData(apiData)
+            }
+          } catch (err) {
+            console.error('Error fetching client by id:', err)
+          }
+        }
+
+        if (data.dataCliente.idDepartamento) {
+          await getMunicipios()
+        }
+
+        data.overlay.show = false
+      } else {
+        resetForm()
+      }
+    }
+
     watch(() => props.show, (newValue) => {
       localShow.value = newValue
     })
 
-    watch(() => props.ver, (val) => {
+    watch(() => props.ver, async (val) => {
       localView.value = val
-    })
-
-    watch(() => props.prov, async (val) => {
-      localCliente.value = val
-      
-      if (val) {
-        data.overlay.show = true
-        data.idCliente = localCliente.value.idCliente
-        
-        const result = await getCliente(data.idCliente)
-        if (result.code === 200) {
-          data.dataCliente = result.data
-        }
-        data.overlay.show = false
+      if (val === true && props.prov) {
+        await initData()
       }
     })
 
     watch(() => props.editar, async (val) => {
       localEdit.value = val
-            
-      if (val === true) {
-        data.overlay.show = true
-        const result = await getCliente(props.prov.idCliente)
-        if (result.code === 200) {
-          data.dataCliente = result.data
-        }
-        data.overlay.show = false
+      if (val === true && props.prov) {
+        await initData()
       }
     })
+
+    watch(() => props.prov, async (val) => {
+      localCliente.value = val
+      if (val && Object.keys(val).length > 0) {
+        await initData()
+      }
+    }, { deep: true })
 
     watch(() => props.title, (val) => {
       localTitle.value = val
@@ -287,6 +807,7 @@ export default {
 
     async function getMunicipios() {
       data.municipios = []
+      if (!data.dataCliente.idDepartamento) return;
       const result = await data.requestHttp.getMunById(data.dataCliente.idDepartamento)
 
       if (result.code === 200) {
@@ -294,7 +815,6 @@ export default {
           data.municipios.push({title: item.nombre, value: item.id})
         })
       }
-
     }
 
     watch(() => data.dataCliente.idDepartamento, (val) => {
@@ -308,10 +828,11 @@ export default {
       data.alertSuccess.show = true
       data.alertSuccess.success = success
       setTimeout(() => {
-          data.alertSuccess.show = false
-          data.alertSuccess.msg = ''
+        data.alertSuccess.show = false
+        data.alertSuccess.msg = ''
       }, 1500);
     }
+
     return {
       localShow,
       localEdit,
@@ -319,7 +840,9 @@ export default {
       localCliente,
       localView,
       data,
+      addrModal,
       store,
+      initData,
       getMunicipios,
       showSuccesAlert
     }
@@ -327,17 +850,150 @@ export default {
 
   methods: {
     async loadCmbRutas() {
-      var rutas = await getItemsCombobox('api/rutas/combobox')
-      this.cmb.rutas = rutas
+      try {
+        const rutas = await getItemsCombobox('api/rutas/combobox')
+        this.cmb.rutas = rutas
+      } catch (e) {
+        console.error('Error loading rutas combobox:', e)
+      }
+    },
+
+    getGpsUrl(dir) {
+      if (!dir) return '#';
+      if (dir.googleMapsURL) return dir.googleMapsURL;
+      if (dir.latitude && dir.longitude) {
+        return 'https://www.google.com/maps/dir/?api=1&destination=' + dir.latitude + ',' + dir.longitude;
+      }
+      return '#';
+    },
+
+    getNombreDept(idDept) {
+      if (!idDept) return '- - -';
+      const item = this.data.departamentos.find(d => d.value === idDept);
+      return item ? item.title : String(idDept);
+    },
+
+    getNombreMun(idDept, idMun) {
+      if (!idMun) return '';
+      const item = this.data.municipios.find(m => m.value === idMun);
+      return item ? item.title : '';
+    },
+
+    async loadCmbTiposDocumento() {
+      try {
+        const result = await this.data.requestHttp.getTipoDocumentoCombobox()
+        if (result && Array.isArray(result)) {
+          this.cmb.tiposDocumento = result.map(t => ({ title: t.nombre, value: t.id }))
+        }
+      } catch (e) {
+        console.error('Error loading tipos documento combobox:', e)
+      }
+    },
+
+    // --- MÉTODOS DE GESTIÓN DE DIRECCIONES ---
+    openAddressModal(type, item = null, idx = -1) {
+      if (type === 'edit' && item) {
+        this.addrModal.isEdit = true
+        this.addrModal.editIdx = idx
+        this.addrModal.form = { ...item }
+        this.onAddrDeptChange(item.idDepartamento)
+      } else {
+        this.addrModal.isEdit = false
+        this.addrModal.editIdx = -1
+        this.addrModal.form = {
+          idDireccion: null,
+          nombre: this.data.dataCliente.direcciones.length === 0 ? 'Principal' : 'Sucursal ' + (this.data.dataCliente.direcciones.length + 1),
+          idDepartamento: this.data.dataCliente.idDepartamento || null,
+          idMunicipio: this.data.dataCliente.idMunicipio || null,
+          direccionIngresada: '',
+          googleMapsURL: '',
+          esDirFacturacion: this.data.dataCliente.direcciones.length === 0
+        }
+        if (this.addrModal.form.idDepartamento) {
+          this.onAddrDeptChange(this.addrModal.form.idDepartamento)
+        }
+      }
+      this.addrModal.show = true
+    },
+
+    async onAddrDeptChange(idDept) {
+      this.addrModal.municipios = []
+      if (!idDept) return;
+      const result = await this.data.requestHttp.getMunById(idDept)
+      if (result.code === 200) {
+        this.addrModal.municipios = result.data.map(item => ({ title: item.nombre, value: item.id }))
+      }
+    },
+
+    saveAddressFromModal() {
+      if (!this.addrModal.form.nombre || !this.addrModal.form.idDepartamento || !this.addrModal.form.direccionIngresada) {
+        this.showSuccesAlert('Por favor complete los campos obligatorios de la dirección', false)
+        return
+      }
+
+      if (this.addrModal.form.esDirFacturacion) {
+        this.data.dataCliente.direcciones.forEach(d => d.esDirFacturacion = false)
+      }
+
+      if (this.addrModal.isEdit && this.addrModal.editIdx >= 0) {
+        this.data.dataCliente.direcciones[this.addrModal.editIdx] = { ...this.addrModal.form }
+      } else {
+        this.data.dataCliente.direcciones.push({ ...this.addrModal.form })
+      }
+
+      const mainDir = this.data.dataCliente.direcciones.find(d => d.esDirFacturacion) || this.data.dataCliente.direcciones[0]
+      if (mainDir) {
+        this.data.dataCliente.idDepartamento = mainDir.idDepartamento
+        this.data.dataCliente.idMunicipio = mainDir.idMunicipio
+        this.data.dataCliente.direccion = mainDir.direccionIngresada
+      }
+
+      this.addrModal.show = false
+    },
+
+    setBillingAddress(idx) {
+      this.data.dataCliente.direcciones.forEach((d, i) => {
+        d.esDirFacturacion = (i === idx)
+      })
+      const mainDir = this.data.dataCliente.direcciones[idx]
+      if (mainDir) {
+        this.data.dataCliente.idDepartamento = mainDir.idDepartamento
+        this.data.dataCliente.idMunicipio = mainDir.idMunicipio
+        this.data.dataCliente.direccion = mainDir.direccionIngresada
+      }
+    },
+
+    removeAddress(idx) {
+      if (this.data.dataCliente.direcciones.length <= 1) {
+        this.showSuccesAlert('El cliente debe mantener al menos 1 dirección', false)
+        return
+      }
+      const removedWasBilling = this.data.dataCliente.direcciones[idx].esDirFacturacion
+      this.data.dataCliente.direcciones.splice(idx, 1)
+      if (removedWasBilling && this.data.dataCliente.direcciones.length > 0) {
+        this.data.dataCliente.direcciones[0].esDirFacturacion = true
+      }
     },
 
     async handleSave() {
       const valid = await this.$refs.form.validate()
       if (!valid.valid) return
 
+      if (!this.data.dataCliente.direcciones || this.data.dataCliente.direcciones.length === 0) {
+        this.showSuccesAlert('Debe agregar al menos una dirección para el cliente', false)
+        return
+      }
+
       try {
         const usuario = this.store.getNameUser()
         this.data.dataCliente.usuarioRegistro = String(usuario)
+
+        const mainDir = this.data.dataCliente.direcciones.find(d => d.esDirFacturacion) || this.data.dataCliente.direcciones[0]
+        if (mainDir) {
+          this.data.dataCliente.idDepartamento = mainDir.idDepartamento
+          this.data.dataCliente.idMunicipio = mainDir.idMunicipio
+          this.data.dataCliente.direccion = mainDir.direccionIngresada
+        }
 
         if (!this.localEdit) {
 
@@ -347,7 +1003,7 @@ export default {
           this.data.disabledBtn = false
           this.data.overlay.show = false
 
-          if (result.code === 200) {
+          if (result && (result.code === 200 || result.code === 201)) {
             this.showSuccesAlert('¡Registro Guardado!', true)
             setTimeout(() => {
               this.$emit('closeDialog', false)
@@ -367,7 +1023,7 @@ export default {
             this.data.disabledBtn = false
             this.data.overlay.show = false
             
-            if (result.code === 200) {
+            if (result && (result.code === 200 || result.code === 204)) {
               this.showSuccesAlert('¡Registro Editado!', true)
               setTimeout(() => {
                 this.$emit('closeDialog', false)
@@ -378,12 +1034,14 @@ export default {
               return
             }
           } else {
-            this.showSuccesAlert('Hubo un inconveniente, contactese con soporte.', false)
+            this.showSuccesAlert('Hubo un inconveniente, contáctese con soporte.', false)
             return
           }
         }
       } catch (error) {
-        this.showSuccesAlert('Hubo un inconveniente, contactese con soporte.', false)
+        this.data.disabledBtn = false
+        this.data.overlay.show = false
+        this.showSuccesAlert('Hubo un inconveniente, contáctese con soporte.', false)
         return
       }
     },
@@ -391,26 +1049,27 @@ export default {
     async getCategoriaCliente() {
       this.data.categoriaCliente = []
       const result = await this.data.requestHttp.getCategoriaClientes()
-      result.map(item => {
-        this.data.categoriaCliente.push({title: item.nombre, value: item.idCategoriaCliente})
-      })
+      if (result && Array.isArray(result)) {
+        result.map(item => {
+          this.data.categoriaCliente.push({title: item.nombre, value: item.idCategoriaCliente})
+        })
+      }
     },
 
     async getDepartamentos() {
       this.data.departamentos = []
       const result = await this.data.requestHttp.getDepartamentos()
 
-      if (result.code === 200) {
+      if (result && result.code === 200 && Array.isArray(result.data)) {
         result.data.map(item => {
           this.data.departamentos.push({title: item.nombre, value: item.id})
         })
       }
-
     },
 
     formatedDate(dataString) {
-      const value = formatters.formatDate(dataString)
-      return value
+      if (!dataString) return '- - -';
+      return formatters.formatDate(dataString)
     },
 
     closeDialog() {
@@ -421,9 +1080,9 @@ export default {
     readonlyOption() {
       if (this.localView) {
         return true
-      } else if (this.editar) {
+      } else if (this.localEdit) {
         return false
-      } else if (!this.editar && !this.localView) {
+      } else if (!this.localEdit && !this.localView) {
         return false
       }
     }
@@ -432,20 +1091,12 @@ export default {
 </script>
 
 <style scoped>
-.v-card-item {
-  padding: 8px 12px !important;
+.hover-row:hover {
+  background-color: #f8fafc;
 }
 
-#diag-fact {
-  position: relative;
+.hover-add-row:hover {
+  background-color: #e0e7ff !important;
+  transition: background-color 0.2s ease;
 }
-
-#body-card {
-  z-index: 2;
-}
-
-#checkLabel {
-  font-size: 12px !important;
-}
-
 </style>

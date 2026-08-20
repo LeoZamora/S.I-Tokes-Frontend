@@ -559,6 +559,14 @@ class RequestHttp {
             }
         }
     }
+    async getTipoDocumentoCombobox() {
+        try {
+            const result = await axios.get(endPoints.getTipoDocumentoCombobox)
+            return result.data
+        } catch (error) {
+            return []
+        }
+    }
 
     // CATEGORIA CLIENTES
     async getCategoriaClientes() {

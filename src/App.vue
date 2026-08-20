@@ -665,6 +665,11 @@ export default {
           title: 'Clientes',
           route: 'Clientes',
           idVentana: '9'
+        },
+        {
+          title: 'Tipos de cliente',
+          route: 'Tipos de cliente',
+          idVentana: '9'
         }
       ],
       cajas: [

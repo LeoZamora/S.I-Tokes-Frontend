@@ -294,15 +294,17 @@ const routes = createRouter({
       }
     },
     {
-      path: '/tipo-cliente',
-      name: 'Tipos de Cliente',
+      path: '/clientes/tipos-cliente',
+      name: 'Tipos de cliente',
       component: () =>
-        import('@/components/dev-alert.vue'),
+        import(
+          '@/components/clientes/TiposClienteComp.vue'
+        ),
       meta: {
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'T. Cliente | DevoDigital'
+        title: 'Tipos de Cliente | DevoDigital'
       }
     },
     {
