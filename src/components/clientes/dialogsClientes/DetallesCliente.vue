@@ -123,7 +123,7 @@
                       </template>
                       <v-list-item-title class="text-caption text-grey-darken-1">Correo Electrónico:</v-list-item-title>
                       <v-list-item-subtitle class="text-caption font-weight-medium text-grey-darken-3">
-                        {{ fullClienteData.correo || fullClienteData.email || '—' }}
+                        {{ fullClienteData.email || fullClienteData.correo || '—' }}
                       </v-list-item-subtitle>
                     </v-list-item>
                   </v-list>
@@ -151,6 +151,17 @@
                     </v-list-item>
                     <v-divider class="my-1" />
 
+                    <v-list-item class="px-0 py-1" v-if="fullClienteData.departamento">
+                      <template v-slot:prepend>
+                        <v-icon size="18" color="teal" class="me-2">mdi-city-variant-outline</v-icon>
+                      </template>
+                      <v-list-item-title class="text-caption text-grey-darken-1">Ubicación:</v-list-item-title>
+                      <v-list-item-subtitle class="text-caption font-weight-medium text-grey-darken-3">
+                        {{ fullClienteData.departamento }}<span v-if="fullClienteData.municipio && fullClienteData.municipio !== '- - -'">, {{ fullClienteData.municipio }}</span>
+                      </v-list-item-subtitle>
+                    </v-list-item>
+                    <v-divider class="my-1" v-if="fullClienteData.departamento" />
+
                     <v-list-item class="px-0 py-1" v-if="fullClienteData.observaciones">
                       <template v-slot:prepend>
                         <v-icon size="18" color="blue-grey" class="me-2">mdi-text</v-icon>
@@ -161,6 +172,61 @@
                       </v-list-item-subtitle>
                     </v-list-item>
                   </v-list>
+                </v-card>
+
+                <!-- Control de Crédito -->
+                <v-card variant="flat" class="border rounded-lg bg-white pa-4 mb-3" elevation="0">
+                  <div class="d-flex align-center justify-space-between mb-3">
+                    <div class="d-flex align-center">
+                      <v-icon color="indigo" size="20" class="me-2">mdi-credit-card-outline</v-icon>
+                      <h4 class="font-weight-bold text-indigo-darken-4">Control de Crédito</h4>
+                    </div>
+                    <v-chip
+                      size="x-small"
+                      :color="(fullClienteData.esTieneCredito || fullClienteData.EsTieneCredito) ? 'green-darken-2' : 'grey-darken-1'"
+                      variant="tonal"
+                      class="font-weight-bold"
+                    >
+                      {{ (fullClienteData.esTieneCredito || fullClienteData.EsTieneCredito) ? 'Crédito Habilitado' : 'Sin Crédito' }}
+                    </v-chip>
+                  </div>
+
+                  <v-list density="compact" class="pa-0" v-if="fullClienteData.esTieneCredito || fullClienteData.EsTieneCredito">
+                    <v-list-item class="px-0 py-1">
+                      <template v-slot:prepend>
+                        <v-icon size="18" color="indigo" class="me-2">mdi-calendar-sync</v-icon>
+                      </template>
+                      <v-list-item-title class="text-caption text-grey-darken-1">Tipo de Crédito:</v-list-item-title>
+                      <v-list-item-subtitle class="text-caption font-weight-medium text-grey-darken-3">
+                        {{ (fullClienteData.esCreditoMensual || fullClienteData.EsCreditoMensual) ? 'Crédito Mensual' : 'Por Días de Crédito' }}
+                      </v-list-item-subtitle>
+                    </v-list-item>
+                    <v-divider class="my-1" />
+
+                    <v-list-item class="px-0 py-1">
+                      <template v-slot:prepend>
+                        <v-icon size="18" color="green-darken-2" class="me-2">mdi-currency-usd</v-icon>
+                      </template>
+                      <v-list-item-title class="text-caption text-grey-darken-1">Límite de Crédito:</v-list-item-title>
+                      <v-list-item-subtitle class="text-caption font-weight-bold text-green-darken-3">
+                        C$ {{ (fullClienteData.limiteCredito ?? fullClienteData.LimiteCredito ?? 0).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                      </v-list-item-subtitle>
+                    </v-list-item>
+                    <v-divider class="my-1" />
+
+                    <v-list-item class="px-0 py-1">
+                      <template v-slot:prepend>
+                        <v-icon size="18" color="amber-darken-3" class="me-2">mdi-calendar-clock</v-icon>
+                      </template>
+                      <v-list-item-title class="text-caption text-grey-darken-1">Días de Crédito:</v-list-item-title>
+                      <v-list-item-subtitle class="text-caption font-weight-medium text-grey-darken-3">
+                        {{ fullClienteData.diasCredito ?? fullClienteData.DiasCredito ?? '—' }} días
+                      </v-list-item-subtitle>
+                    </v-list-item>
+                  </v-list>
+                  <div v-else class="text-caption text-grey text-center py-2">
+                    Este cliente no posee línea de crédito habilitada.
+                  </div>
                 </v-card>
 
                 <!-- Información del Registro -->
@@ -316,7 +382,6 @@ export default {
       tipoDocumento: null,
       noDocumento: null,
       telefono: null,
-      correo: null,
       email: null,
       ruta: null,
       idRutaNavigation: null,
@@ -327,6 +392,10 @@ export default {
       estado: true,
       fechaRegistro: null,
       usuarioRegistro: null,
+      esTieneCredito: false,
+      esCreditoMensual: false,
+      limiteCredito: null,
+      diasCredito: null,
       direcciones: []
     })
 
