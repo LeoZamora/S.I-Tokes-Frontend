@@ -85,17 +85,6 @@
             </v-col>
           </v-row>
 
-          <v-card-subtitle
-            class="d-flex align-center text-center mb-2"
-          >
-            <v-divider />
-            <span
-              class="mx-6 text-grey font-weight-bold"
-              >Clientes</span
-            >
-            <v-divider />
-          </v-card-subtitle>
-
           <v-data-table
             :loading="data.loading"
             :search="data.search"
@@ -147,36 +136,92 @@
               </div>
             </template>
 
-            <!-- SLOT TIPO DOCUMENTO -->
+            <!-- SLOT IDENTIFICACIÓN (UNIFICADO) -->
             <template
-              v-slot:item.tipoDocumento="{ item }"
+              v-slot:item.identificacion="{
+                item
+              }"
             >
-              <span
-                v-if="item.tipoDocumento"
-                class="font-weight-medium"
-                >{{ item.tipoDocumento }}</span
+              <div
+                v-if="item.noDocumento"
+                class="d-flex flex-column align-center ga-1"
               >
+                <span
+                  v-if="item.tipoDocumento"
+                  class="text-caption text-grey-darken-1 font-weight-medium"
+                  style="
+                    font-size: 11px !important;
+                  "
+                >
+                  {{ item.tipoDocumento }}
+                </span>
+                <v-chip
+                  size="x-small"
+                  color="blue-grey-darken-3"
+                  variant="tonal"
+                  class="font-weight-bold"
+                >
+                  {{ item.noDocumento }}
+                </v-chip>
+              </div>
+              <span
+                v-else-if="item.tipoDocumento"
+                class="font-weight-medium text-caption"
+              >
+                {{ item.tipoDocumento }}
+              </span>
               <span v-else class="text-grey"
                 >—</span
               >
             </template>
 
-            <!-- SLOT NUMERO DOCUMENTO -->
+            <!-- SLOT CONTACTO (TELÉFONO Y EMAIL) -->
             <template
-              v-slot:item.noDocumento="{ item }"
+              v-slot:item.contacto="{ item }"
             >
-              <v-chip
-                v-if="item.noDocumento"
-                size="x-small"
-                color="blue-grey-darken-2"
-                variant="tonal"
-                class="font-weight-bold"
+              <div
+                class="d-flex flex-column align-center ga-1"
               >
-                {{ item.noDocumento }}
-              </v-chip>
-              <span v-else class="text-grey"
-                >—</span
-              >
+                <span
+                  v-if="item.telefono"
+                  class="font-weight-medium d-flex align-center"
+                >
+                  <v-icon
+                    size="x-small"
+                    color="grey-darken-1"
+                    class="me-1"
+                    >mdi-phone</v-icon
+                  >
+                  {{ item.telefono }}
+                </span>
+                <span
+                  v-if="item.email"
+                  class="text-caption text-grey-darken-1 d-flex align-center"
+                >
+                  <v-icon
+                    size="x-small"
+                    color="grey-darken-1"
+                    class="me-1"
+                    >mdi-email-outline</v-icon
+                  >
+                  {{ item.email }}
+                </span>
+                <span
+                  v-if="
+                    !item.telefono && !item.email
+                  "
+                  class="text-grey"
+                  >—</span
+                >
+              </div>
+            </template>
+
+            <template
+              v-slot:item.ubicacion="{ item }"
+            >
+              {{
+                `${item.departamento}, ${item.municipio}`
+              }}
             </template>
 
             <!-- VISUALIZACIÓN ESPECIAL: RUTAS -->
@@ -481,6 +526,174 @@
               >
             </template>
 
+            <!-- VISUALIZACIÓN ESPECIAL: CRÉDITO -->
+            <template
+              v-slot:item.credito="{ item }"
+            >
+              <v-menu
+                v-if="
+                  item.esTieneCredito ||
+                  item.EsTieneCredito
+                "
+                location="bottom end"
+                transition="scale-transition"
+                :close-on-content-click="false"
+              >
+                <template
+                  v-slot:activator="{ props }"
+                >
+                  <v-chip
+                    color="green-darken-2"
+                    size="small"
+                    variant="outlined"
+                    class="font-weight-bold"
+                    v-bind="props"
+                    style="cursor: pointer"
+                  >
+                    <v-icon
+                      size="x-small"
+                      class="mr-1"
+                      >mdi-credit-card-outline</v-icon
+                    >
+                    Con Crédito
+                    <v-icon
+                      size="x-small"
+                      class="ml-1"
+                      >mdi-eye</v-icon
+                    >
+                  </v-chip>
+                </template>
+
+                <v-card
+                  width="290"
+                  class="elevation-4 border rounded-lg"
+                >
+                  <v-card-item
+                    class="bg-green-lighten-5 py-2"
+                  >
+                    <v-card-title
+                      class="text-subtitle-2 font-weight-bold text-green-darken-4 d-flex align-center justify-space-between"
+                    >
+                      <span
+                        class="d-flex align-center"
+                      >
+                        <v-icon
+                          size="small"
+                          class="mr-1"
+                          color="green-darken-2"
+                          >mdi-credit-card-outline</v-icon
+                        >
+                        Detalle de Crédito
+                      </span>
+                      <v-chip
+                        size="x-small"
+                        color="green-darken-2"
+                        variant="flat"
+                        max-width="110"
+                        class="text-truncate"
+                      >
+                        {{ item.nombre }}
+                      </v-chip>
+                    </v-card-title>
+                  </v-card-item>
+                  <v-divider></v-divider>
+
+                  <v-list
+                    density="compact"
+                    class="py-1"
+                  >
+                    <v-list-item
+                      density="compact"
+                      class="py-1"
+                    >
+                      <template v-slot:prepend>
+                        <v-icon
+                          size="small"
+                          color="green-darken-2"
+                          >mdi-currency-usd</v-icon
+                        >
+                      </template>
+                      <v-list-item-title
+                        class="text-caption font-weight-bold text-green-darken-3"
+                      >
+                        Límite: C$
+                        {{
+                          (
+                            item.limiteCredito ??
+                            item.LimiteCredito ??
+                            0
+                          ).toLocaleString(
+                            'es-NI',
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            }
+                          )
+                        }}
+                      </v-list-item-title>
+                    </v-list-item>
+
+                    <v-list-item
+                      density="compact"
+                      class="py-1"
+                    >
+                      <template v-slot:prepend>
+                        <v-icon
+                          size="small"
+                          color="indigo"
+                          >mdi-calendar-sync</v-icon
+                        >
+                      </template>
+                      <v-list-item-title
+                        class="text-caption font-weight-medium"
+                      >
+                        Tipo:
+                        {{
+                          item.esCreditoMensual ||
+                          item.EsCreditoMensual
+                            ? 'Crédito Mensual'
+                            : 'Por Días'
+                        }}
+                      </v-list-item-title>
+                    </v-list-item>
+
+                    <v-list-item
+                      density="compact"
+                      class="py-1"
+                    >
+                      <template v-slot:prepend>
+                        <v-icon
+                          size="small"
+                          color="amber-darken-3"
+                          >mdi-calendar-clock</v-icon
+                        >
+                      </template>
+                      <v-list-item-title
+                        class="text-caption font-weight-medium"
+                      >
+                        Días:
+                        {{
+                          item.diasCredito ??
+                          item.DiasCredito ??
+                          '—'
+                        }}
+                        días
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-card>
+              </v-menu>
+              <v-chip
+                v-else
+                size="x-small"
+                color="grey-darken-1"
+                variant="tonal"
+                class="font-weight-medium"
+              >
+                Sin Crédito
+              </v-chip>
+            </template>
+
             <template v-slot:item.opc="{ item }">
               <v-menu
                 :close-on-content-click="false"
@@ -554,6 +767,32 @@
                       Ver cliente
                     </template>
                   </v-list-item>
+
+                  <v-list-item
+                    v-if="hasAccessToFunct('93')"
+                    rounded
+                    density="compact"
+                    :prepend-icon="
+                      item.estado
+                        ? 'mdi-cancel'
+                        : 'mdi-check-circle-outline'
+                    "
+                    :color="
+                      item.estado
+                        ? 'error'
+                        : 'indigo'
+                    "
+                    @click="showAlert(item)"
+                  >
+                    <template v-slot:title>
+                      <v-divider vertical />
+                      {{
+                        item.estado
+                          ? 'Desactivar cliente'
+                          : 'Activar cliente'
+                      }}
+                    </template>
+                  </v-list-item>
                 </v-list>
               </v-menu>
             </template>
@@ -570,6 +809,7 @@
                     ? 'Activo'
                     : 'Inactivo'
                 "
+                class="font-weight-medium"
               />
             </template>
           </v-data-table>
@@ -678,18 +918,26 @@ export default {
           align: 'center'
         },
         {
-          title: 'Tipo ID.',
-          key: 'tipoDocumento',
+          title: 'Identificación',
+          key: 'identificacion',
+          align: 'center',
+          width: 1,
+          class: 'pa-0',
+          cellProps: { class: 'pa-0' }
+        },
+        {
+          title: 'Contacto',
+          key: 'contacto',
           align: 'center'
         },
         {
-          title: 'Número ID.',
-          key: 'noDocumento',
+          title: 'Ubicación',
+          key: 'ubicacion',
           align: 'center'
         },
         {
-          title: 'Teléfono',
-          key: 'telefono',
+          title: 'Crédito',
+          key: 'credito',
           align: 'center'
         },
         {
@@ -827,7 +1075,7 @@ export default {
 
     deleteAction(val) {
       if (val === true) {
-        this.deleteItem()
+        this.changeStateCliente()
       }
       this.data.viewAlert = false
     },
@@ -835,6 +1083,43 @@ export default {
     showAlert(item) {
       this.data.viewAlert = true
       this.data.selectedItem = item
+    },
+
+    async changeStateCliente() {
+      if (this.data.selectedItem?.idCliente) {
+        const token =
+          JSON.parse(
+            localStorage.getItem('token')
+          ) || {}
+        const usuario = token.usuario || ''
+        const nuevoEstado =
+          !this.data.selectedItem.estado
+
+        const result =
+          await this.data.requestHttp.putEstadoCliente(
+            this.data.selectedItem.idCliente,
+            nuevoEstado,
+            usuario
+          )
+
+        const msg = this.data.selectedItem?.estado
+          ? '¡Cliente desactivado!'
+          : '¡Cliente activado!'
+
+        if (result.code === 200) {
+          this.showSuccesAlert(msg, true)
+          this.getClientes()
+        } else {
+          const msgAlert = this.data.selectedItem
+            ?.estado
+            ? 'desactivar'
+            : 'activar'
+          const errorMsg =
+            result.data?.message ||
+            `Hubo un problema al ${msgAlert} el cliente`
+          this.showSuccesAlert(errorMsg, false)
+        }
+      }
     },
 
     async deleteItem() {
