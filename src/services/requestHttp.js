@@ -559,6 +559,20 @@ class RequestHttp {
             }
         }
     }
+    async putEstadoCliente(id, estado, usuario) {
+        try {
+            const result = await axios.put(`${endPoints.putCliente}/${id}/estado?estado=${estado}&usuario=${encodeURIComponent(usuario)}`)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error?.response?.status || 500,
+                data: error?.response?.data
+            }
+        }
+    }
     async getTipoDocumentoCombobox() {
         try {
             const result = await axios.get(endPoints.getTipoDocumentoCombobox)
