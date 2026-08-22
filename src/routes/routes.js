@@ -144,13 +144,13 @@ const routes = createRouter({
       name: 'Pedidos',
       component: () =>
         import(
-          '@/components/movimientos/Ventas/PedidosComp.vue'
+          '@/components/movimientos/Ventas/WorkspacePedidosComp.vue'
         ),
       meta: {
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Pedidos | DevoDigital'
+        title: 'Workspace Pedidos | DevoDigital'
       }
     },
     {

@@ -32,117 +32,273 @@
       <v-divider />
 
       <!-- FILTROS PRINCIPALES -->
-      <v-card class="pa-4 mb-2" elevation="0">
-        <div class="d-flex align-center mb-3">
-          <v-icon color="primary" class="mr-2"
-            >mdi-filter</v-icon
-          >
-          <span
-            class="text-subtitle-2 font-weight-medium"
-            >Filtros de búsqueda</span
-          >
-        </div>
-
-        <v-row dense align="center">
-          <v-col cols="12" md="2" sm="4">
-            <v-text-field
-              v-model="search.desde"
-              label="Fecha inicial"
-              type="date"
-              density="compact"
-              variant="outlined"
-              hide-details
-              prepend-inner-icon="mdi-calendar-arrow-left"
-            />
-          </v-col>
-          <v-col cols="12" md="2" sm="4">
-            <v-text-field
-              v-model="search.hasta"
-              label="Fecha final"
-              type="date"
-              density="compact"
-              variant="outlined"
-              hide-details
-              prepend-inner-icon="mdi-calendar-arrow-right"
-            />
-          </v-col>
-          <v-col cols="12" md="3" sm="4">
-            <v-autocomplete
-              v-model="search.idCliente"
-              label="Cliente"
-              :items="cmb.clientes"
-              density="compact"
-              variant="outlined"
-              hide-details
-              clearable
-              prepend-inner-icon="mdi-account"
-            />
-          </v-col>
-          <v-col cols="12" md="2" sm="6">
-            <v-autocomplete
-              v-model="search.idEstadoActual"
-              label="Estado"
-              :items="cmb.estados"
-              density="compact"
-              variant="outlined"
-              hide-details
-              clearable
-              prepend-inner-icon="mdi-list-status"
-            />
-          </v-col>
-          <v-col cols="12" md="2" sm="6">
-            <v-text-field
-              v-model="search.noPedido"
-              label="Nº Pedido"
-              density="compact"
-              variant="outlined"
-              hide-details
-              clearable
-              prepend-inner-icon="mdi-pound"
-              placeholder="PE-XXXX"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="1"
-            sm="12"
-            class="d-flex justify-end ga-2"
-          >
-            <v-btn
-              color="primary"
-              variant="flat"
-              density="compact"
-              icon="mdi-magnify"
-              @click="getPedidos()"
+      <v-card
+        class="pa-4 mb-3 border rounded-lg"
+        elevation="0"
+      >
+        <!-- CABECERA DE FILTROS -->
+        <div
+          class="d-flex align-center justify-space-between mb-3 flex-wrap ga-2"
+        >
+          <div class="d-flex align-center">
+            <v-icon color="primary" class="mr-2"
+              >mdi-filter-variant</v-icon
             >
-              <v-icon>mdi-magnify</v-icon>
-              <v-tooltip
-                activator="parent"
-                location="top"
-                >Buscar</v-tooltip
-              >
+            <span
+              class="text-subtitle-2 font-weight-bold text-indigo-darken-4"
+              >Filtros de búsqueda</span
+            >
+          </div>
+          <div class="d-flex align-center ga-2">
+            <v-btn
+              size="small"
+              :variant="
+                showAdvancedFilters
+                  ? 'flat'
+                  : 'outlined'
+              "
+              :color="
+                showAdvancedFilters
+                  ? 'indigo'
+                  : 'indigo-darken-2'
+              "
+              prepend-icon="mdi-tune-variant"
+              @click="
+                showAdvancedFilters =
+                  !showAdvancedFilters
+              "
+              class="text-none"
+            >
+              {{
+                showAdvancedFilters
+                  ? 'Ocultar Filtros Avanzados'
+                  : 'Filtros Avanzados'
+              }}
+              <v-badge
+                v-if="hasActiveAdvancedFilters"
+                dot
+                color="amber-darken-3"
+                class="ml-1"
+              />
+              <v-icon class="ml-1" size="small">
+                {{
+                  showAdvancedFilters
+                    ? 'mdi-chevron-up'
+                    : 'mdi-chevron-down'
+                }}
+              </v-icon>
             </v-btn>
             <v-btn
-              color="grey"
+              size="small"
+              color="grey-darken-1"
               variant="outlined"
-              density="compact"
-              icon="mdi-broom"
+              prepend-icon="mdi-broom"
+              class="text-none"
               @click="clearFilters()"
             >
-              <v-icon>mdi-broom</v-icon>
-              <v-tooltip
-                activator="parent"
-                location="top"
-                >Limpiar</v-tooltip
-              >
+              Limpiar Todo
             </v-btn>
-          </v-col>
-        </v-row>
+          </div>
+        </div>
+
+        <!-- FILTROS BÁSICOS -->
+        <div
+          class="d-flex align-center flex-wrap ga-2 bg-grey-lighten-4 pa-2 rounded-lg border"
+        >
+          <span
+            class="text-caption font-weight-bold text-grey-darken-2 me-1"
+            >Filtros Rápidos (por Fecha de Pedido):</span
+          >
+
+          <v-btn
+            size="small"
+            :variant="
+              search.quickFilter === 'pedidos_hoy'
+                ? 'flat'
+                : 'tonal'
+            "
+            color="indigo"
+            prepend-icon="mdi-calendar-today"
+            class="text-none font-weight-medium"
+            @click="
+              applyQuickFilter('pedidos_hoy')
+            "
+          >
+            Pedidos de hoy
+          </v-btn>
+
+          <v-btn
+            size="small"
+            :variant="
+              search.quickFilter === 'pedidos_ayer'
+                ? 'flat'
+                : 'tonal'
+            "
+            color="indigo-darken-2"
+            prepend-icon="mdi-calendar-minus"
+            class="text-none font-weight-medium"
+            @click="
+              applyQuickFilter('pedidos_ayer')
+            "
+          >
+            Pedidos de ayer
+          </v-btn>
+
+          <v-btn
+            size="small"
+            :variant="
+              search.quickFilter === 'pedidos_semana'
+                ? 'flat'
+                : 'tonal'
+            "
+            color="indigo-darken-4"
+            prepend-icon="mdi-calendar-range"
+            class="text-none font-weight-medium"
+            @click="
+              applyQuickFilter('pedidos_semana')
+            "
+          >
+            Pedidos de la semana
+          </v-btn>
+
+          <v-btn
+            v-if="search.quickFilter"
+            size="small"
+            variant="text"
+            color="grey-darken-2"
+            icon="mdi-close-circle"
+            @click="applyQuickFilter('todos')"
+          >
+            <v-icon size="small"
+              >mdi-close-circle</v-icon
+            >
+            <v-tooltip
+              activator="parent"
+              location="top"
+              >Limpiar filtro rápido</v-tooltip
+            >
+          </v-btn>
+        </div>
+
+        <!-- FILTROS AVANZADOS (Desplegable) -->
+        <v-expand-transition>
+          <div
+            v-show="showAdvancedFilters"
+            class="mt-4 pt-3 border-t bg-indigo-lighten-5 pa-3 rounded-lg"
+          >
+            <div
+              class="text-caption font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center"
+            >
+              <v-icon
+                size="small"
+                class="me-1"
+                color="indigo"
+                >mdi-calendar-range</v-icon
+              >
+              Rangos de Fechas Avanzados
+            </div>
+            <v-row dense>
+              <!-- 1. Rango Fecha Registro / Recibido -->
+              <v-col cols="12" md="6">
+                <v-card
+                  variant="outlined"
+                  class="pa-2 bg-white rounded-lg border-indigo-lighten-4 h-100"
+                >
+                  <div
+                    class="text-caption font-weight-bold text-indigo mb-2 d-flex align-center"
+                  >
+                    <v-icon
+                      size="x-small"
+                      class="me-1"
+                      >mdi-receipt-text-clock</v-icon
+                    >
+                    Fecha Recibido (Registro)
+                  </div>
+                  <v-row dense>
+                    <v-col cols="6">
+                      <v-text-field
+                        v-model="search.desde"
+                        label="Desde"
+                        type="date"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        color="indigo"
+                        @change="getPedidos()"
+                      />
+                    </v-col>
+                    <v-col cols="6">
+                      <v-text-field
+                        v-model="search.hasta"
+                        label="Hasta"
+                        type="date"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        color="indigo"
+                        @change="getPedidos()"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-col>
+
+              <!-- 2. Rango Fecha Atendido -->
+              <v-col cols="12" md="6">
+                <v-card
+                  variant="outlined"
+                  class="pa-2 bg-white rounded-lg border-indigo-lighten-4 h-100"
+                >
+                  <div
+                    class="text-caption font-weight-bold text-amber-darken-3 mb-2 d-flex align-center"
+                  >
+                    <v-icon
+                      size="x-small"
+                      class="me-1"
+                      >mdi-calendar-check</v-icon
+                    >
+                    Fecha Atendido
+                  </div>
+                  <v-row dense>
+                    <v-col cols="6">
+                      <v-text-field
+                        v-model="
+                          search.fechaAtencionDesde
+                        "
+                        label="Desde"
+                        type="date"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        color="amber-darken-3"
+                        @change="getPedidos()"
+                      />
+                    </v-col>
+                    <v-col cols="6">
+                      <v-text-field
+                        v-model="
+                          search.fechaAtencionHasta
+                        "
+                        label="Hasta"
+                        type="date"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        color="amber-darken-3"
+                        @change="getPedidos()"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-col>
+            </v-row>
+          </div>
+        </v-expand-transition>
       </v-card>
 
-      <!-- MÉTRICAS -->
+      <!-- MÉTRICAS / KPI -->
       <v-row dense class="px-4 mb-2">
-        <v-col cols="12" md="6" sm="6">
+        <v-col cols="12" md="4" sm="6">
           <v-card
             variant="flat"
             color="indigo-lighten-5"
@@ -159,20 +315,50 @@
               </v-avatar>
               <div>
                 <div
-                  class="text-caption text-indigo-darken-3 font-weight-medium"
+                  class="text-caption text-indigo-darken-3 font-weight-bold"
                 >
-                  Pedidos Registrados
+                  N° Pedidos Recibidos
                 </div>
                 <div
                   class="text-h6 font-weight-bold text-indigo-darken-4"
                 >
-                  {{ data.pedidos.length }}
+                  {{ pedidosRecibidosCount }}
                 </div>
               </div>
             </div>
           </v-card>
         </v-col>
-        <v-col cols="12" md="6" sm="6">
+        <v-col cols="12" md="4" sm="6">
+          <v-card
+            variant="flat"
+            color="amber-lighten-5"
+            class="pa-3 rounded-lg"
+          >
+            <div class="d-flex align-center">
+              <v-avatar
+                color="amber-darken-3"
+                class="mr-3 text-white"
+              >
+                <v-icon
+                  >mdi-calendar-check</v-icon
+                >
+              </v-avatar>
+              <div>
+                <div
+                  class="text-caption text-amber-darken-4 font-weight-bold"
+                >
+                  N° Pedidos Atendidos
+                </div>
+                <div
+                  class="text-h6 font-weight-bold text-amber-darken-4"
+                >
+                  {{ pedidosAtendidosCount }}
+                </div>
+              </div>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="4" sm="12">
           <v-card
             variant="flat"
             color="green-lighten-5"
@@ -180,16 +366,16 @@
           >
             <div class="d-flex align-center">
               <v-avatar
-                color="green"
+                color="green-darken-3"
                 class="mr-3 text-white"
               >
                 <v-icon>mdi-cash-multiple</v-icon>
               </v-avatar>
               <div>
                 <div
-                  class="text-caption text-green-darken-3 font-weight-medium"
+                  class="text-caption text-green-darken-4 font-weight-bold"
                 >
-                  Monto Total de Pedidos
+                  Total de Todos los Pedidos
                 </div>
                 <div
                   class="text-h6 font-weight-bold text-green-darken-4"
@@ -220,6 +406,92 @@
           class="rounded"
           :items-per-page="15"
         >
+          <!-- ENCABEZADOS DE COLUMNA CON FILTROS -->
+          <template
+            v-slot:header.noPedido="{ column }"
+          >
+            <div
+              class="d-flex flex-column align-center py-1 ga-1 w-100"
+            >
+              <span
+                class="font-weight-bold text-caption text-indigo-darken-4"
+                >Nº Pedido</span
+              >
+              <v-text-field
+                v-model="search.noPedido"
+                density="compact"
+                variant="outlined"
+                hide-details
+                clearable
+                color="indigo"
+                placeholder="Filtrar Nº"
+                style="
+                  min-width: 100px;
+                  max-width: 130px;
+                "
+                @update:model-value="getPedidos()"
+                @click:clear="getPedidos()"
+              />
+            </div>
+          </template>
+
+          <template
+            v-slot:header.cliente="{ column }"
+          >
+            <div
+              class="d-flex flex-column align-start py-1 ga-1 w-100"
+            >
+              <span
+                class="font-weight-bold text-caption text-indigo-darken-4"
+                >Cliente</span
+              >
+              <v-autocomplete
+                v-model="search.idCliente"
+                :items="cmb.clientes"
+                density="compact"
+                variant="outlined"
+                hide-details
+                clearable
+                color="indigo"
+                placeholder="Todos los clientes"
+                style="
+                  min-width: 170px;
+                  max-width: 240px;
+                "
+                @update:model-value="getPedidos()"
+                @click:clear="getPedidos()"
+              />
+            </div>
+          </template>
+
+          <template
+            v-slot:header.estado="{ column }"
+          >
+            <div
+              class="d-flex flex-column align-center py-1 ga-1 w-100"
+            >
+              <span
+                class="font-weight-bold text-caption text-indigo-darken-4"
+                >Estado</span
+              >
+              <v-autocomplete
+                v-model="search.idEstadoActual"
+                :items="cmb.estados"
+                density="compact"
+                variant="outlined"
+                hide-details
+                clearable
+                color="indigo"
+                placeholder="Todos"
+                style="
+                  min-width: 120px;
+                  max-width: 150px;
+                "
+                @update:model-value="getPedidos()"
+                @click:clear="getPedidos()"
+              />
+            </div>
+          </template>
           <template
             v-slot:item.noPedido="{ item }"
           >
@@ -242,6 +514,19 @@
               formatDate(
                 item.fechaEntregaSolicitada
               )
+            }}
+          </template>
+          <template
+            v-slot:item.fechaEntregaProgramada="{
+              item
+            }"
+          >
+            {{
+              item.fechaEntregaProgramada
+                ? formatDate(
+                    item.fechaEntregaProgramada
+                  )
+                : '—'
             }}
           </template>
           <template v-slot:item.estado="{ item }">
@@ -269,20 +554,52 @@
             >
           </template>
           <template v-slot:item.opc="{ item }">
-            <v-btn
-              icon
-              size="small"
-              color="primary"
-              variant="text"
-              @click="viewPedidoDetail(item)"
+            <div
+              class="d-flex align-center justify-center"
             >
-              <v-icon size="20">mdi-eye</v-icon>
-              <v-tooltip
-                activator="parent"
-                location="top"
-                >Ver detalle</v-tooltip
+              <v-btn
+                icon
+                size="small"
+                color="indigo-darken-3"
+                variant="text"
+                @click="viewPedidoDetail(item)"
               >
-            </v-btn>
+                <v-icon size="20">mdi-eye</v-icon>
+                <v-tooltip
+                  activator="parent"
+                  location="top"
+                  >Ver detalle</v-tooltip
+                >
+              </v-btn>
+              <v-btn
+                icon
+                size="small"
+                :color="
+                  item.fechaEntregaProgramada
+                    ? 'deep-purple-darken-3'
+                    : 'amber-darken-3'
+                "
+                variant="text"
+                @click="
+                  openProgramarEntregaDialog(item)
+                "
+              >
+                <v-icon size="20">{{
+                  item.fechaEntregaProgramada
+                    ? 'mdi-calendar-sync'
+                    : 'mdi-calendar-clock'
+                }}</v-icon>
+                <v-tooltip
+                  activator="parent"
+                  location="top"
+                  >{{
+                    item.fechaEntregaProgramada
+                      ? 'Reprogramar entrega'
+                      : 'Programar entrega'
+                  }}</v-tooltip
+                >
+              </v-btn>
+            </div>
           </template>
         </v-data-table>
       </v-card>
@@ -291,273 +608,502 @@
     <!-- DIÁLOGO DE DETALLE DEL PEDIDO -->
     <v-dialog
       v-model="dialogs.view"
-      max-width="800"
+      max-width="900"
       persistent
     >
       <v-card
         v-if="selectedPedido"
-        class="rounded-lg elevation-12"
+        class="rounded-lg overflow-hidden elevation-12"
       >
+        <!-- Encabezado del diálogo -->
         <v-card-title
-          class="bg-indigo-darken-4 text-white d-flex align-center py-2 px-3"
+          class="d-flex align-center bg-indigo-darken-4 text-white py-2 px-4"
         >
           <v-avatar
             size="36"
             color="white"
-            class="mr-3"
+            class="me-3"
             variant="flat"
           >
-            <v-icon color="indigo" size="20"
-              >mdi-text-box-search-outline</v-icon
+            <v-icon
+              color="indigo-darken-4"
+              size="22"
+              >mdi-receipt-text-outline</v-icon
             >
           </v-avatar>
-          <h5
-            class="text-h6 font-weight-bold text-white"
-          >
-            Detalles de Pedido:
-            {{ selectedPedido.noPedido }}
-          </h5>
+          <div>
+            <div
+              class="text-subtitle-1 font-weight-bold"
+            >
+              Detalles del Pedido
+            </div>
+            <div
+              class="text-caption text-indigo-lighten-4"
+            >
+              Nº Pedido:
+              <span
+                class="font-weight-bold text-white"
+                >{{
+                  selectedPedido.noPedido
+                }}</span
+              >
+            </div>
+          </div>
           <v-spacer />
+          <v-chip
+            :color="
+              getEstadoColor(
+                selectedPedido.idEstadoActual
+              )
+            "
+            size="small"
+            variant="flat"
+            class="font-weight-bold me-3 text-uppercase"
+          >
+            {{ selectedPedido.estado }}
+          </v-chip>
           <v-btn
+            variant="text"
             icon
             size="small"
             color="white"
-            variant="text"
             @click="dialogs.view = false"
           >
             <v-icon>mdi-close</v-icon>
+            <v-tooltip
+              activator="parent"
+              location="top"
+              >Cerrar</v-tooltip
+            >
           </v-btn>
         </v-card-title>
 
+        <!-- Contenido principal (Visualización Única y Ordenada) -->
         <v-card-text
-          class="pa-4 bg-grey-lighten-4"
+          class="px-4 pt-4 pb-4 bg-grey-lighten-5"
           style="
-            max-height: 70vh;
+            max-height: 80vh;
             overflow-y: auto;
           "
         >
           <v-row dense>
+            <!-- 1. INFORMACIÓN GENERAL -->
             <v-col cols="12" md="6">
               <v-card
-                class="pa-3 mb-2"
-                variant="outlined"
+                variant="flat"
+                class="border rounded-lg bg-white pa-4 mb-3 h-100"
+                elevation="0"
               >
                 <div
-                  class="text-subtitle-2 font-weight-bold text-indigo mb-2"
+                  class="d-flex align-center mb-3"
                 >
-                  Información General
+                  <v-icon
+                    color="indigo-darken-3"
+                    size="20"
+                    class="me-2"
+                    >mdi-information-outline</v-icon
+                  >
+                  <h4
+                    class="font-weight-bold text-indigo-darken-4 text-subtitle-1"
+                  >
+                    Información General
+                  </h4>
                 </div>
-                <div
-                  class="d-flex justify-space-between py-1 border-bottom"
+
+                <v-list
+                  density="compact"
+                  class="pa-0"
                 >
-                  <span
-                    class="text-caption text-grey"
-                    >Cliente:</span
-                  >
-                  <span
-                    class="text-body-2 font-weight-medium"
-                    >{{
-                      selectedPedido.cliente
-                    }}</span
-                  >
-                </div>
-                <div
-                  class="d-flex justify-space-between py-1 border-bottom"
-                >
-                  <span
-                    class="text-caption text-grey"
-                    >Ruta Cliente:</span
-                  >
-                  <span
-                    class="text-body-2 font-weight-medium"
-                    >{{
-                      selectedPedido.rutaCliente ||
-                      '—'
-                    }}</span
-                  >
-                </div>
-                <div
-                  class="d-flex justify-space-between py-1 border-bottom"
-                >
-                  <span
-                    class="text-caption text-grey"
-                    >Fecha Registro:</span
-                  >
-                  <span class="text-body-2">{{
-                    formatDate(
-                      selectedPedido.fechaRegistro
-                    )
-                  }}</span>
-                </div>
-                <div
-                  class="d-flex justify-space-between py-1 border-bottom"
-                >
-                  <span
-                    class="text-caption text-grey"
-                    >Registrado por:</span
-                  >
-                  <span
-                    class="text-body-2 font-weight-medium"
-                    >{{
-                      selectedPedido.usuarioRegistro ||
-                      '—'
-                    }}</span
-                  >
-                </div>
-                <div
-                  class="d-flex justify-space-between py-1 border-bottom"
-                >
-                  <span
-                    class="text-caption text-grey"
-                    >Fecha Entrega
-                    Solicitada:</span
-                  >
-                  <span
-                    class="text-body-2 font-weight-bold"
-                    >{{
-                      formatDate(
-                        selectedPedido.fechaEntregaSolicitada
-                      )
-                    }}</span
-                  >
-                </div>
-                <div
-                  class="d-flex justify-space-between py-1"
-                >
-                  <span
-                    class="text-caption text-grey"
-                    >Solicitud de Crédito:</span
-                  >
-                  <v-chip
-                    size="x-small"
-                    :color="
-                      selectedPedido.isSolicitudCredito
-                        ? 'success'
-                        : 'grey'
+                  <v-list-item class="px-0 py-1">
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="indigo-darken-2"
+                        class="me-2"
+                        >mdi-account</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Cliente:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 font-weight-bold text-indigo-darken-4"
+                    >
+                      {{ selectedPedido.cliente }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-divider class="my-1" />
+
+                  <v-list-item class="px-0 py-1">
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="indigo-darken-2"
+                        class="me-2"
+                        >mdi-calendar</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Fecha:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 font-weight-bold text-grey-darken-4"
+                    >
+                      {{
+                        formatDate(
+                          selectedPedido.fechaRegistro
+                        )
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-divider class="my-1" />
+
+                  <v-list-item class="px-0 py-1">
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="indigo-darken-2"
+                        class="me-2"
+                        >mdi-calendar-clock</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Fecha Entrega
+                      Solicitada:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 font-weight-bold text-grey-darken-4"
+                    >
+                      {{
+                        formatDate(
+                          selectedPedido.fechaEntregaSolicitada
+                        )
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-divider
+                    class="my-1"
+                    v-if="
+                      selectedPedido.fechaEntregaProgramada
                     "
-                    variant="flat"
+                  />
+
+                  <v-list-item
+                    class="px-0 py-1"
+                    v-if="
+                      selectedPedido.fechaEntregaProgramada
+                    "
                   >
-                    {{
-                      selectedPedido.isSolicitudCredito
-                        ? 'Sí'
-                        : 'No'
-                    }}
-                  </v-chip>
-                </div>
-              </v-card>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-card
-                class="pa-3 mb-2"
-                variant="outlined"
-              >
-                <div
-                  class="text-subtitle-2 font-weight-bold text-indigo mb-2"
-                >
-                  Datos de Entrega
-                </div>
-                <div class="py-1">
-                  <span
-                    class="text-caption text-grey d-block"
-                    >Enviar A:</span
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="amber-darken-3"
+                        class="me-2"
+                        >mdi-truck-clock</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Fecha Entrega
+                      Programada:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 font-weight-bold text-amber-darken-4"
+                    >
+                      {{
+                        formatDate(
+                          selectedPedido.fechaEntregaProgramada
+                        )
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-divider
+                    class="my-1"
+                    v-if="
+                      selectedPedido.fechaEntregado
+                    "
+                  />
+
+                  <v-list-item
+                    class="px-0 py-1"
+                    v-if="
+                      selectedPedido.fechaEntregado
+                    "
                   >
-                  <span
-                    class="text-body-2 font-weight-medium"
-                    >{{
-                      selectedPedido.enviarA ||
-                      '—'
-                    }}</span
-                  >
-                </div>
-                <div class="py-1">
-                  <span
-                    class="text-caption text-grey d-block"
-                    >Ubicación:</span
-                  >
-                  <span
-                    class="text-body-2 font-weight-medium"
-                    >{{
-                      selectedPedido.ubicacion ||
-                      '—'
-                    }}</span
-                  >
-                </div>
-                <div class="py-1">
-                  <span
-                    class="text-caption text-grey d-block"
-                    >Observaciones:</span
-                  >
-                  <span
-                    class="text-body-2 italic"
-                    >{{
-                      selectedPedido.observaciones ||
-                      'Sin observaciones'
-                    }}</span
-                  >
-                </div>
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="green-darken-2"
+                        class="me-2"
+                        >mdi-package-variant-closed-check</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Fecha
+                      Entregado:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 font-weight-bold text-green-darken-4"
+                    >
+                      {{
+                        formatDate(
+                          selectedPedido.fechaEntregado
+                        )
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-divider class="my-1" />
+
+                  <v-list-item class="px-0 py-1">
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="indigo-darken-2"
+                        class="me-2"
+                        >mdi-credit-card-outline</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Solicitud de
+                      Crédito:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 font-weight-medium pt-1"
+                    >
+                      <v-chip
+                        size="small"
+                        :color="
+                          selectedPedido.isSolicitudCredito
+                            ? 'success'
+                            : 'grey-darken-1'
+                        "
+                        variant="flat"
+                        class="font-weight-bold"
+                      >
+                        {{
+                          selectedPedido.isSolicitudCredito
+                            ? 'Sí'
+                            : 'No'
+                        }}
+                      </v-chip>
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
               </v-card>
             </v-col>
 
-            <!-- Apertura de Caja Info -->
-            <v-col cols="12" class="mt-1">
+            <!-- 2. ENTREGA Y REGISTRO -->
+            <v-col cols="12" md="6">
               <v-card
-                class="pa-3 mb-2"
-                variant="outlined"
+                variant="flat"
+                class="border rounded-lg bg-white pa-4 mb-3 h-100"
+                elevation="0"
               >
                 <div
-                  class="text-subtitle-2 font-weight-bold text-indigo mb-2"
+                  class="d-flex align-center mb-3"
                 >
-                  Sesión de Caja Asociada
+                  <v-icon
+                    color="indigo-darken-3"
+                    size="20"
+                    class="me-2"
+                    >mdi-truck-delivery-outline</v-icon
+                  >
+                  <h4
+                    class="font-weight-bold text-indigo-darken-4 text-subtitle-1"
+                  >
+                    Entrega y Registro
+                  </h4>
                 </div>
+
+                <v-list
+                  density="compact"
+                  class="pa-0"
+                >
+                  <v-list-item class="px-0 py-1">
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="indigo-darken-2"
+                        class="me-2"
+                        >mdi-account-edit</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Registrado
+                      por:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 font-weight-bold text-grey-darken-4"
+                    >
+                      {{
+                        selectedPedido.usuarioRegistro ||
+                        '—'
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-divider class="my-1" />
+
+                  <v-list-item class="px-0 py-1">
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="indigo-darken-2"
+                        class="me-2"
+                        >mdi-map-marker-radius-outline</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Ubicación de
+                      registro:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 font-weight-bold text-grey-darken-4"
+                    >
+                      {{
+                        selectedPedido.ubicacion ||
+                        '—'
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-divider class="my-1" />
+
+                  <v-list-item class="px-0 py-1">
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="indigo-darken-2"
+                        class="me-2"
+                        >mdi-map-marker-outline</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Enviar
+                      A:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 font-weight-bold text-grey-darken-4"
+                    >
+                      {{
+                        selectedPedido.enviarA ||
+                        '—'
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  <v-divider class="my-1" />
+
+                  <v-list-item class="px-0 py-1">
+                    <template v-slot:prepend>
+                      <v-icon
+                        size="18"
+                        color="indigo-darken-2"
+                        class="me-2"
+                        >mdi-text-box-outline</v-icon
+                      >
+                    </template>
+                    <v-list-item-title
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >Observaciones:</v-list-item-title
+                    >
+                    <v-list-item-subtitle
+                      class="text-body-2 text-grey-darken-4 font-italic"
+                    >
+                      {{
+                        selectedPedido.observaciones ||
+                        'Sin observaciones'
+                      }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+              </v-card>
+            </v-col>
+
+            <!-- 3. SESIÓN DE CAJA ASOCIADA -->
+            <v-col cols="12" class="mb-3">
+              <v-card
+                variant="flat"
+                class="border rounded-lg bg-white pa-4"
+                elevation="0"
+              >
                 <div
+                  class="d-flex align-center mb-2"
+                >
+                  <v-icon
+                    color="indigo-darken-3"
+                    size="20"
+                    class="me-2"
+                    >mdi-cash-register</v-icon
+                  >
+                  <h4
+                    class="font-weight-bold text-indigo-darken-4 text-subtitle-1"
+                  >
+                    Sesión de Caja Asociada
+                  </h4>
+                </div>
+
+                <v-row
+                  dense
                   v-if="
                     selectedPedido.idAperturaCaja
                   "
-                  class="d-flex justify-space-between flex-wrap"
+                  class="pt-1"
                 >
-                  <div>
-                    <span
-                      class="text-caption text-grey"
-                      >Caja:</span
+                  <v-col cols="12" md="4">
+                    <div
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
                     >
-                    <span
-                      class="text-body-2 font-weight-medium"
-                      >{{
+                      Caja:
+                    </div>
+                    <div
+                      class="text-body-1 font-weight-bold text-grey-darken-4"
+                    >
+                      {{
                         selectedPedido.aperturaCajaCaja ||
                         '—'
-                      }}</span
+                      }}
+                    </div>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <div
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
                     >
-                  </div>
-                  <div>
-                    <span
-                      class="text-caption text-grey"
-                      >Código Apertura:</span
+                      Código Apertura:
+                    </div>
+                    <div
+                      class="text-body-1 font-weight-bold text-indigo-darken-4"
                     >
-                    <span
-                      class="text-body-2 font-weight-medium"
-                      >{{
+                      {{
                         selectedPedido.aperturaCajaCodigo ||
                         '—'
-                      }}</span
+                      }}
+                    </div>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <div
+                      class="text-body-2 font-weight-medium text-grey-darken-3"
                     >
-                  </div>
-                  <div>
-                    <span
-                      class="text-caption text-grey"
-                      >Abierto por:</span
+                      Abierto por:
+                    </div>
+                    <div
+                      class="text-body-1 font-weight-bold text-grey-darken-4"
                     >
-                    <span
-                      class="text-body-2 font-weight-medium"
-                      >{{
+                      {{
                         selectedPedido.aperturaCajaUsuario ||
                         '—'
-                      }}</span
-                    >
-                  </div>
-                </div>
+                      }}
+                    </div>
+                  </v-col>
+                </v-row>
                 <div
                   v-else
-                  class="text-caption text-grey-darken-1 italic"
+                  class="text-body-2 text-grey-darken-3 font-italic pt-1"
                 >
                   Este pedido no fue registrado
                   bajo una sesión de caja
@@ -565,134 +1111,433 @@
                 </div>
               </v-card>
             </v-col>
-          </v-row>
 
-          <v-card
-            class="border mt-3"
-            rounded="lg"
-            elevation="0"
-          >
-            <v-card-title
-              class="text-subtitle-2 font-weight-bold py-2 bg-indigo-lighten-5 text-indigo"
-            >
-              Detalle de Productos
-            </v-card-title>
-            <v-table
-              density="compact"
-              class="elevation-0"
-            >
-              <thead>
-                <tr class="bg-grey-lighten-3">
-                  <th
-                    class="font-weight-bold text-caption"
-                  >
-                    Código
-                  </th>
-                  <th
-                    class="font-weight-bold text-caption"
-                  >
-                    Producto
-                  </th>
-                  <th
-                    class="text-center font-weight-bold text-caption"
-                  >
-                    Cantidad
-                  </th>
-                  <th
-                    class="text-right font-weight-bold text-caption"
-                  >
-                    Precio Unit. (C$)
-                  </th>
-                  <th
-                    class="text-right font-weight-bold text-caption"
-                  >
-                    Subtotal (C$)
-                  </th>
-                  <th
-                    class="font-weight-bold text-caption"
-                  >
-                    Observaciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="item in selectedPedido.detallePedido"
-                  :key="item.idDetallePedido"
+            <!-- 4. DETALLE DE PRODUCTOS (Alta Legibilidad) -->
+            <v-col cols="12">
+              <v-card
+                variant="flat"
+                class="border rounded-lg bg-white pa-4"
+                elevation="0"
+              >
+                <div
+                  class="d-flex align-center justify-space-between mb-3 flex-wrap ga-2"
                 >
-                  <td
-                    class="text-caption font-weight-bold"
+                  <div
+                    class="d-flex align-center"
                   >
-                    {{
-                      item.codigoProducto || '—'
-                    }}
-                  </td>
-                  <td class="text-caption">
-                    {{ item.producto }}
-                  </td>
-                  <td
-                    class="text-center text-caption font-weight-medium"
+                    <v-avatar
+                      size="32"
+                      color="indigo-lighten-5"
+                      class="me-2"
+                    >
+                      <v-icon
+                        color="indigo-darken-4"
+                        size="20"
+                        >mdi-package-variant-closed</v-icon
+                      >
+                    </v-avatar>
+                    <div>
+                      <h4
+                        class="font-weight-bold text-indigo-darken-4 text-subtitle-1"
+                      >
+                        Detalle de Productos
+                      </h4>
+                      <div
+                        class="text-body-2 font-weight-medium text-grey-darken-3"
+                      >
+                        {{
+                          selectedPedido.detallePedido
+                            ? selectedPedido
+                                .detallePedido
+                                .length
+                            : 0
+                        }}
+                        producto(s) en este pedido
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="text-subtitle-1 font-weight-bold text-indigo-darken-4"
                   >
-                    {{ item.cantidad }}
-                  </td>
-                  <td
-                    class="text-right text-caption"
-                  >
-                    {{
-                      formatCurrency(
-                        item.precioUnitarioAfecha
-                      )
-                    }}
-                  </td>
-                  <td
-                    class="text-right text-caption font-weight-bold text-success"
-                  >
-                    {{
-                      formatCurrency(
-                        item.cantidad *
-                          item.precioUnitarioAfecha
-                      )
-                    }}
-                  </td>
-                  <td
-                    class="text-caption text-grey italic"
-                  >
-                    {{
-                      item.observaciones || '—'
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-          </v-card>
+                    Total General:
+                    <span
+                      class="text-success-darken-2 text-h6 font-weight-bold ml-1"
+                    >
+                      {{
+                        formatCurrency(
+                          selectedPedido.totalAfecha
+                        )
+                      }}
+                    </span>
+                  </div>
+                </div>
 
-          <div
-            class="d-flex justify-end align-center mt-4 pa-2 bg-white border rounded-lg"
-          >
-            <div
-              class="text-subtitle-1 font-weight-bold mr-4 text-indigo"
-            >
-              Total General:
-            </div>
-            <div
-              class="text-h6 font-weight-bold text-success"
-            >
-              {{
-                formatCurrency(
-                  selectedPedido.totalAfecha
-                )
-              }}
-            </div>
-          </div>
+                <v-table
+                  density="compact"
+                  class="border rounded"
+                >
+                  <thead>
+                    <tr
+                      class="bg-indigo-lighten-5"
+                    >
+                      <th
+                        class="font-weight-bold text-body-2 text-indigo-darken-4"
+                      >
+                        Código
+                      </th>
+                      <th
+                        class="font-weight-bold text-body-2 text-indigo-darken-4"
+                      >
+                        Producto
+                      </th>
+                      <th
+                        class="text-center font-weight-bold text-body-2 text-indigo-darken-4"
+                      >
+                        Cantidad
+                      </th>
+                      <th
+                        class="text-right font-weight-bold text-body-2 text-indigo-darken-4"
+                      >
+                        Precio Unit. (C$)
+                      </th>
+                      <th
+                        class="text-right font-weight-bold text-body-2 text-indigo-darken-4"
+                      >
+                        Subtotal (C$)
+                      </th>
+                      <th
+                        class="font-weight-bold text-body-2 text-indigo-darken-4"
+                      >
+                        Observaciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="item in selectedPedido.detallePedido"
+                      :key="item.idDetallePedido"
+                    >
+                      <td
+                        class="text-body-2 font-weight-bold text-indigo-darken-4"
+                      >
+                        {{
+                          item.codigoProducto ||
+                          '—'
+                        }}
+                      </td>
+                      <td
+                        class="text-body-2 font-weight-bold text-grey-darken-4"
+                      >
+                        {{ item.producto }}
+                      </td>
+                      <td
+                        class="text-center text-body-2 font-weight-bold text-grey-darken-4"
+                      >
+                        {{ item.cantidad }}
+                      </td>
+                      <td
+                        class="text-right text-body-2 font-weight-medium text-grey-darken-4"
+                      >
+                        {{
+                          formatCurrency(
+                            item.precioUnitarioAfecha
+                          )
+                        }}
+                      </td>
+                      <td
+                        class="text-right text-body-2 font-weight-bold text-success-darken-2"
+                      >
+                        {{
+                          formatCurrency(
+                            item.cantidad *
+                              item.precioUnitarioAfecha
+                          )
+                        }}
+                      </td>
+                      <td
+                        class="text-body-2 text-grey-darken-3 font-italic"
+                      >
+                        {{
+                          item.observaciones ||
+                          '—'
+                        }}
+                      </td>
+                    </tr>
+                    <tr
+                      v-if="
+                        !selectedPedido.detallePedido ||
+                        selectedPedido
+                          .detallePedido
+                          .length === 0
+                      "
+                    >
+                      <td
+                        colspan="6"
+                        class="text-center text-grey-darken-3 text-body-2 py-4 font-italic"
+                      >
+                        No hay productos
+                        registrados en este
+                        pedido.
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </v-card>
+            </v-col>
+          </v-row>
         </v-card-text>
-        <v-card-actions class="bg-grey-lighten-4">
+
+        <!-- Acciones -->
+        <v-divider />
+        <v-card-actions
+          class="bg-grey-lighten-4 px-4 py-2 d-flex align-center"
+        >
+          <v-btn
+            :color="
+              selectedPedido.fechaEntregaProgramada
+                ? 'deep-purple-darken-3'
+                : 'amber-darken-3'
+            "
+            variant="flat"
+            :prepend-icon="
+              selectedPedido.fechaEntregaProgramada
+                ? 'mdi-calendar-sync'
+                : 'mdi-calendar-clock'
+            "
+            class="text-none font-weight-bold"
+            @click="openProgramarEntregaDialog(selectedPedido)"
+          >
+            {{
+              selectedPedido.fechaEntregaProgramada
+                ? 'Reprogramar Entrega'
+                : 'Programar Entrega'
+            }}
+          </v-btn>
           <v-spacer />
           <v-btn
-            color="grey-darken-1"
-            variant="outlined"
+            color="grey-darken-2"
+            variant="tonal"
             @click="dialogs.view = false"
-            >Cerrar</v-btn
+            prepend-icon="mdi-close"
           >
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- DIÁLOGO DE PROGRAMAR / REPROGRAMAR ENTREGA -->
+    <v-dialog
+      v-model="dialogs.programarEntrega"
+      max-width="550"
+      persistent
+    >
+      <v-card
+        v-if="selectedPedido"
+        class="rounded-lg overflow-hidden elevation-12"
+      >
+        <v-card-title
+          class="d-flex align-center text-white py-3 px-4"
+          :class="
+            selectedPedido.fechaEntregaProgramada
+              ? 'bg-deep-purple-darken-3'
+              : 'bg-amber-darken-3'
+          "
+        >
+          <v-avatar
+            size="36"
+            color="white"
+            class="me-3"
+            variant="flat"
+          >
+            <v-icon
+              :color="
+                selectedPedido.fechaEntregaProgramada
+                  ? 'deep-purple-darken-3'
+                  : 'amber-darken-3'
+              "
+              size="22"
+              >{{
+                selectedPedido.fechaEntregaProgramada
+                  ? 'mdi-calendar-sync'
+                  : 'mdi-calendar-clock'
+              }}</v-icon
+            >
+          </v-avatar>
+          <div>
+            <div
+              class="text-subtitle-1 font-weight-bold"
+            >
+              {{
+                selectedPedido.fechaEntregaProgramada
+                  ? 'Reprogramar Entrega'
+                  : 'Programar Entrega'
+              }}
+            </div>
+            <div
+              class="text-caption text-white opacity-90"
+            >
+              Nº Pedido:
+              <span
+                class="font-weight-bold text-white"
+                >{{
+                  selectedPedido.noPedido
+                }}</span
+              >
+              — {{ selectedPedido.cliente }}
+            </div>
+          </div>
+          <v-spacer />
+          <v-btn
+            variant="text"
+            icon
+            size="small"
+            color="white"
+            @click="
+              dialogs.programarEntrega = false
+            "
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text
+          class="pa-4 bg-grey-lighten-5"
+        >
+          <!-- Banner informativo con Fecha Solicitada por el Cliente -->
+          <v-card
+            variant="flat"
+            class="pa-3 mb-4 rounded-lg bg-indigo-lighten-5 border-indigo-lighten-4 border"
+          >
+            <div class="d-flex align-center">
+              <v-icon
+                color="indigo-darken-3"
+                class="me-2"
+                size="22"
+                >mdi-clock-alert-outline</v-icon
+              >
+              <div>
+                <div
+                  class="text-caption font-weight-bold text-indigo-darken-3"
+                >
+                  Fecha Solicitada por el Cliente:
+                </div>
+                <div
+                  class="text-subtitle-2 font-weight-bold text-indigo-darken-4"
+                >
+                  {{
+                    selectedPedido
+                      ? formatDate(
+                          selectedPedido.fechaEntregaSolicitada
+                        )
+                      : '—'
+                  }}
+                </div>
+              </div>
+            </div>
+          </v-card>
+
+          <!-- Si ya tiene fecha programada anterior -->
+          <v-card
+            v-if="selectedPedido.fechaEntregaProgramada"
+            variant="flat"
+            class="pa-3 mb-4 rounded-lg bg-purple-lighten-5 border-purple-lighten-4 border"
+          >
+            <div class="d-flex align-center">
+              <v-icon
+                color="deep-purple-darken-3"
+                class="me-2"
+                size="22"
+                >mdi-calendar-check</v-icon
+              >
+              <div>
+                <div
+                  class="text-caption font-weight-bold text-deep-purple-darken-3"
+                >
+                  Fecha Programada Actual:
+                </div>
+                <div
+                  class="text-subtitle-2 font-weight-bold text-deep-purple-darken-4"
+                >
+                  {{
+                    formatDate(
+                      selectedPedido.fechaEntregaProgramada
+                    )
+                  }}
+                </div>
+              </div>
+            </div>
+          </v-card>
+
+          <v-form
+            ref="formProgramar"
+            v-model="formProgramarValid"
+          >
+            <v-row dense>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="
+                    programarForm.fechaEntregaProgramada
+                  "
+                  :label="
+                    selectedPedido.fechaEntregaProgramada
+                      ? 'Nueva Fecha a Reprogramar'
+                      : 'Fecha de Entrega a Programar'
+                  "
+                  type="date"
+                  variant="outlined"
+                  density="compact"
+                  :color="
+                    selectedPedido.fechaEntregaProgramada
+                      ? 'deep-purple-darken-3'
+                      : 'amber-darken-3'
+                  "
+                  :rules="[
+                    (v) =>
+                      !!v ||
+                      'La fecha de entrega es requerida'
+                  ]"
+                />
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+
+        <v-divider />
+        <v-card-actions
+          class="bg-grey-lighten-4 px-4 py-2"
+        >
+          <v-spacer />
+          <v-btn
+            color="grey-darken-2"
+            variant="tonal"
+            @click="
+              dialogs.programarEntrega = false
+            "
+          >
+            Cancelar
+          </v-btn>
+          <v-btn
+            :color="
+              selectedPedido.fechaEntregaProgramada
+                ? 'deep-purple-darken-3'
+                : 'amber-darken-3'
+            "
+            variant="flat"
+            :prepend-icon="
+              selectedPedido.fechaEntregaProgramada
+                ? 'mdi-calendar-sync'
+                : 'mdi-check'
+            "
+            :loading="saving"
+            @click="guardarProgramacionEntrega()"
+          >
+            {{
+              selectedPedido.fechaEntregaProgramada
+                ? 'Guardar Reprogramación'
+                : 'Guardar Programación'
+            }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -1147,11 +1992,18 @@ export default {
 
   beforeRouteEnter(to, from, next) {
     next((vm) => {
-      vm.getPedidos()
+      vm.applyQuickFilter('pedidos_hoy')
       vm.loadClientes()
       vm.loadEstados()
       vm.loadProductos()
     })
+  },
+
+  mounted() {
+    this.applyQuickFilter('pedidos_hoy')
+    this.loadClientes()
+    this.loadEstados()
+    this.loadProductos()
   },
 
   data() {
@@ -1162,9 +2014,19 @@ export default {
       saving: false,
       formValid: false,
 
+      showAdvancedFilters: false,
+      viewTab: 1,
+
       search: {
+        quickFilter: 'pedidos_hoy',
         desde: null,
         hasta: null,
+        fechaEntregaProgramadaDesde: null,
+        fechaEntregaProgramadaHasta: null,
+        fechaEntregadoDesde: null,
+        fechaEntregadoHasta: null,
+        fechaAtencionDesde: null,
+        fechaAtencionHasta: null,
         idCliente: null,
         idEstadoActual: null,
         noPedido: null
@@ -1187,18 +2049,24 @@ export default {
           title: 'Nº Pedido',
           key: 'noPedido',
           align: 'center',
-          sortable: true
-        },
-        {
-          title: 'Ruta',
-          key: 'rutaCliente',
-          align: 'start',
-          sortable: true
+          sortable: false
         },
         {
           title: 'Cliente',
           key: 'cliente',
           align: 'start',
+          sortable: false
+        },
+        {
+          title: 'Fecha Pedido',
+          key: 'fechaRegistro',
+          align: 'center',
+          sortable: true
+        },
+        {
+          title: 'Pedido Atendido',
+          key: 'fechaAtencion',
+          align: 'center',
           sortable: true
         },
         {
@@ -1208,18 +2076,17 @@ export default {
           sortable: true
         },
         {
+          title: 'Entrega Programada',
+          key: 'fechaEntregaProgramada',
+          align: 'center',
+          sortable: true
+        },
+        {
           title: 'Total',
           key: 'totalAfecha',
           align: 'end',
           sortable: true
         },
-        {
-          title: 'Fecha Registro',
-          key: 'fechaRegistro',
-          align: 'center',
-          sortable: true
-        },
-
         {
           title: 'Usuario Registro',
           key: 'usuarioRegistro',
@@ -1231,7 +2098,7 @@ export default {
           key: 'estado',
           align: 'center',
           sortable: true
-        },
+        }
       ],
 
       data: {
@@ -1259,7 +2126,15 @@ export default {
 
       dialogs: {
         view: false,
-        create: false
+        create: false,
+        programarEntrega: false
+      },
+
+      formProgramarValid: false,
+      programarForm: {
+        fechaEntregaProgramada: null,
+        fechaAtencion: null,
+        observaciones: ''
       },
 
       alert: {
@@ -1271,6 +2146,36 @@ export default {
   },
 
   computed: {
+    hasActiveAdvancedFilters() {
+      return !!(
+        this.search.desde ||
+        this.search.hasta ||
+        this.search.fechaAtencionDesde ||
+        this.search.fechaAtencionHasta
+      )
+    },
+    pedidosRecibidosCount() {
+      return this.data.pedidos.filter(
+        (p) =>
+          p.idEstadoActual === 1 ||
+          (p.estado || '')
+            .toLowerCase()
+            .includes('pendiente')
+      ).length
+    },
+    pedidosAtendidosCount() {
+      return this.data.pedidos.filter(
+        (p) =>
+          p.fechaAtencion ||
+          p.idEstadoActual === 2 ||
+          (p.estado || '')
+            .toLowerCase()
+            .includes('programad') ||
+          (p.estado || '')
+            .toLowerCase()
+            .includes('atendid')
+      ).length
+    },
     totalPedidosMonto() {
       return this.data.pedidos.reduce(
         (acc, item) =>
@@ -1294,26 +2199,94 @@ export default {
       this.alert.show = true
     },
 
+    formatDateStr(d) {
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    },
+
+    getTodayStr() {
+      return this.formatDateStr(new Date())
+    },
+
+    applyQuickFilter(type) {
+      const now = new Date()
+      const hoy = this.formatDateStr(now)
+
+      this.search.desde = null
+      this.search.hasta = null
+      this.search.fechaEntregaProgramadaDesde = null
+      this.search.fechaEntregaProgramadaHasta = null
+      this.search.fechaEntregadoDesde = null
+      this.search.fechaEntregadoHasta = null
+      this.search.fechaAtencionDesde = null
+      this.search.fechaAtencionHasta = null
+
+      if (type === 'pedidos_hoy') {
+        this.search.quickFilter = 'pedidos_hoy'
+        this.search.desde = hoy
+        this.search.hasta = hoy
+      } else if (type === 'pedidos_ayer') {
+        const dAyer = new Date()
+        dAyer.setDate(dAyer.getDate() - 1)
+        const ayer = this.formatDateStr(dAyer)
+        this.search.quickFilter = 'pedidos_ayer'
+        this.search.desde = ayer
+        this.search.hasta = ayer
+      } else if (type === 'pedidos_semana') {
+        const dSemana = new Date()
+        const dayOfWeek = dSemana.getDay()
+        const diffToMonday = dSemana.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)
+        const monday = new Date(dSemana.setDate(diffToMonday))
+        const inicioSemana = this.formatDateStr(monday)
+
+        this.search.quickFilter = 'pedidos_semana'
+        this.search.desde = inicioSemana
+        this.search.hasta = hoy
+      } else {
+        this.search.quickFilter = null
+      }
+
+      this.getPedidos()
+    },
+
     clearFilters() {
       this.search = {
+        quickFilter: null,
         desde: null,
         hasta: null,
+        fechaEntregaProgramadaDesde: null,
+        fechaEntregaProgramadaHasta: null,
+        fechaEntregadoDesde: null,
+        fechaEntregadoHasta: null,
+        fechaAtencionDesde: null,
+        fechaAtencionHasta: null,
         idCliente: null,
         idEstadoActual: null,
         noPedido: null
       }
+      this.showAdvancedFilters = false
       this.getPedidos()
     },
 
     async getPedidos() {
       this.loading = true
       const filterReq = {
-        desde: this.search.desde
-          ? new Date(this.search.desde)
-          : null,
-        hasta: this.search.hasta
-          ? new Date(this.search.hasta)
-          : null,
+        desde: this.search.desde || null,
+        hasta: this.search.hasta || null,
+        fechaEntregaProgramadaDesde:
+          this.search.fechaEntregaProgramadaDesde || null,
+        fechaEntregaProgramadaHasta:
+          this.search.fechaEntregaProgramadaHasta || null,
+        fechaEntregadoDesde:
+          this.search.fechaEntregadoDesde || null,
+        fechaEntregadoHasta:
+          this.search.fechaEntregadoHasta || null,
+        fechaAtencionDesde:
+          this.search.fechaAtencionDesde || null,
+        fechaAtencionHasta:
+          this.search.fechaAtencionHasta || null,
         idCliente: this.search.idCliente || null,
         idEstadoActual:
           this.search.idEstadoActual || null,
@@ -1326,7 +2299,21 @@ export default {
             filterReq
           )
         if (res.code === 200) {
-          this.data.pedidos = res.data
+          // Filtrar en recepción para mostrar solamente pedidos pendientes y programados/atendidos
+          this.data.pedidos = (
+            res.data || []
+          ).filter((p) => {
+            const estado = (
+              p.estado || ''
+            ).toLowerCase()
+            return (
+              estado.includes('pendiente') ||
+              estado.includes('programad') ||
+              estado.includes('atendid') ||
+              p.idEstadoActual === 1 ||
+              p.idEstadoActual === 2
+            )
+          })
         } else {
           this.showAlert(
             'No se pudieron cargar los pedidos',
@@ -1341,6 +2328,61 @@ export default {
         )
       } finally {
         this.loading = false
+      }
+    },
+
+    openProgramarEntregaDialog(item) {
+      this.selectedPedido = item
+      const hoy = this.getTodayStr()
+      this.programarForm = {
+        fechaEntregaProgramada: item.fechaEntregaProgramada
+          ? item.fechaEntregaProgramada.substr(0, 10)
+          : hoy
+      }
+      this.dialogs.programarEntrega = true
+    },
+
+    async guardarProgramacionEntrega() {
+      if (!this.programarForm.fechaEntregaProgramada) {
+        this.showAlert(
+          'Por favor seleccione la fecha de entrega a programar',
+          'warning'
+        )
+        return
+      }
+
+      this.saving = true
+      try {
+        const payload = {
+          fechaEntregaProgramada: this.programarForm.fechaEntregaProgramada
+        }
+
+        const res = await this.requestHttp.programarEntregaPedido(
+          this.selectedPedido.idPedido,
+          payload
+        )
+
+        if (res.code === 200) {
+          this.dialogs.programarEntrega = false
+          this.showAlert(
+            res.data?.msg || 'Entrega del pedido programada correctamente',
+            'success'
+          )
+          this.getPedidos()
+        } else {
+          this.showAlert(
+            res.data?.msg || 'Error al programar la entrega del pedido',
+            'error'
+          )
+        }
+      } catch (e) {
+        console.error(e)
+        this.showAlert(
+          'Error al conectar con el servidor para programar entrega',
+          'error'
+        )
+      } finally {
+        this.saving = false
       }
     },
 
@@ -1364,12 +2406,22 @@ export default {
         const res =
           await this.requestHttp.getPedidosEstados()
         if (res.code === 200) {
-          this.cmb.estados = res.data.map(
-            (e) => ({
+          // Filtrar para que solo aparezcan los estados: Pendiente y Programado
+          this.cmb.estados = res.data
+            .filter((e) => {
+              const name = (
+                e.title || ''
+              ).toLowerCase()
+              return (
+                name.includes('pendiente') ||
+                name.includes('programad') ||
+                name.includes('atendid')
+              )
+            })
+            .map((e) => ({
               title: e.title,
               value: e.value
-            })
-          )
+            }))
         }
       } catch (e) {
         console.error(
@@ -1433,6 +2485,7 @@ export default {
 
     async viewPedidoDetail(item) {
       this.loading = true
+      this.viewTab = 1
       try {
         const res =
           await this.requestHttp.getPedidoById(
