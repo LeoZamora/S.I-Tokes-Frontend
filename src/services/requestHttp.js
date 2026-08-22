@@ -1257,6 +1257,30 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async asignarCamionPedido(idPedido, data) {
+        try {
+            const result = await axios.put(`api/pedidos/${idPedido}/asignacion`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getPedidosPorCamion(idCamion, params = {}) {
+        try {
+            const result = await axios.get(`api/pedidos/camion/${idCamion}/pedidos`, { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async marcarPedidoEntregado(idPedido, data) {
+        try {
+            const result = await axios.put(`api/pedidos/${idPedido}/entrega`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
 }
 
 export default RequestHttp
