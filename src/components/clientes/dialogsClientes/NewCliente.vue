@@ -1752,6 +1752,32 @@ export default {
             mainDir.direccionIngresada
         }
 
+        // Sanitizar campos numéricos de crédito antes de enviar al backend
+        const esCredito = !!this.data.dataCliente.esTieneCredito
+        this.data.dataCliente.esTieneCredito = esCredito
+
+        if (!esCredito) {
+          this.data.dataCliente.esCreditoMensual = false
+          this.data.dataCliente.limiteCredito = null
+          this.data.dataCliente.diasCredito = null
+        } else {
+          this.data.dataCliente.esCreditoMensual = !!this.data.dataCliente.esCreditoMensual
+
+          const lim = this.data.dataCliente.limiteCredito
+          if (lim === '' || lim === null || lim === undefined || isNaN(Number(lim))) {
+            this.data.dataCliente.limiteCredito = null
+          } else {
+            this.data.dataCliente.limiteCredito = Number(lim)
+          }
+
+          const dias = this.data.dataCliente.diasCredito
+          if (dias === '' || dias === null || dias === undefined || isNaN(Number(dias))) {
+            this.data.dataCliente.diasCredito = null
+          } else {
+            this.data.dataCliente.diasCredito = parseInt(dias, 10)
+          }
+        }
+
         if (!this.localEdit) {
           this.data.disabledBtn = true
           this.data.overlay.show = true

@@ -1215,6 +1215,14 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async programarEntregaPedido(idPedido, data) {
+        try {
+            const result = await axios.put(`api/pedidos/${idPedido}/programacion`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
 
     // CAJAS
     async getCajas() {
