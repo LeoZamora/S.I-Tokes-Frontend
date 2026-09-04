@@ -83,7 +83,6 @@
                         :headers="data.headers"
                         :items="data.items"
                         density="compact"
-                        hide-default-footer
                         class="elevation-0"
                         :header-props="{
                             class: 'text-uppercase font-weight-bold bg-indigo-lighten-5'
