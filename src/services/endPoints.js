@@ -101,7 +101,22 @@ const endPoints = {
 
     // CAJA
     getCajas: 'api/cajas',
-    postCierreCaja: 'api/cierres-caja'
+    postCierreCaja: 'api/cierres-caja',
+
+    // IMPORTACIONES
+    getExpedienteImportacion: 'api/ExpedienteImportacion',
+    getExpedienteImportacionFiltrar: 'api/ExpedienteImportacion/filtrar',
+    postExpedienteImportacion: 'api/ExpedienteImportacion',
+    putExpedienteImportacion: 'api/ExpedienteImportacion',
+    deleteExpedienteImportacion: 'api/ExpedienteImportacion',
+
+    subirDocumentoImportacion: 'api/DocumentoImportacion/subir',
+    getDocumentosPorExpediente: 'api/DocumentoImportacion/expediente',
+    getDocumentoImportacion: 'api/DocumentoImportacion',
+    getUrlFirmadaDocumento: 'api/DocumentoImportacion',
+    descargarDocumentoImportacion: 'api/DocumentoImportacion',
+    deleteDocumentoImportacion: 'api/DocumentoImportacion',
+    getTipoDocumentoImportacionCombobox: 'api/TipoDocumento/combobox'
 }
 
 export default endPoints

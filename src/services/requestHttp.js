@@ -200,9 +200,9 @@ class RequestHttp {
     }
 
      // PROVEEDORES
-    async getProveedores() {
+    async getProveedores(params = {}) {
         try {
-            const result  = await axios.get(endPoints.getProveedor)
+            const result  = await axios.get(endPoints.getProveedor, { params })
             return result.data
         } catch (error) {
             return null
@@ -1277,6 +1277,106 @@ class RequestHttp {
     async marcarPedidoEntregado(idPedido, data) {
         try {
             const result = await axios.put(`api/pedidos/${idPedido}/entrega`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    // IMPORTACIONES
+    async getExpedientesImportacion(params = {}) {
+        try {
+            const result = await axios.get(endPoints.getExpedienteImportacionFiltrar, { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getExpedienteImportacionById(id) {
+        try {
+            const result = await axios.get(`${endPoints.getExpedienteImportacion}/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postExpedienteImportacion(data) {
+        try {
+            const result = await axios.post(endPoints.postExpedienteImportacion, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async putExpedienteImportacion(id, data) {
+        try {
+            const result = await axios.put(`${endPoints.putExpedienteImportacion}/${id}`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async deleteExpedienteImportacion(id) {
+        try {
+            const result = await axios.delete(`${endPoints.deleteExpedienteImportacion}/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    // DOCUMENTOS IMPORTACION
+    async subirDocumentoImportacion(formData) {
+        try {
+            const result = await axios.post(endPoints.subirDocumentoImportacion, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getDocumentosPorExpediente(idExpediente) {
+        try {
+            const result = await axios.get(`${endPoints.getDocumentosPorExpediente}/${idExpediente}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getUrlFirmadaDocumento(id, duracionSegundos = 3600) {
+        try {
+            const result = await axios.get(`${endPoints.getUrlFirmadaDocumento}/${id}/url-firmada`, {
+                params: { duracionSegundos }
+            })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async descargarDocumentoImportacion(id) {
+        try {
+            const result = await axios.get(`${endPoints.descargarDocumentoImportacion}/${id}/descargar`, {
+                responseType: 'blob'
+            })
+            return { code: 200, data: result.data, headers: result.headers }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async deleteDocumentoImportacion(id) {
+        try {
+            const result = await axios.delete(`${endPoints.deleteDocumentoImportacion}/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getTiposDocumentoCombobox() {
+        try {
+            const result = await axios.get(endPoints.getTipoDocumentoImportacionCombobox)
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }
