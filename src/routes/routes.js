@@ -182,6 +182,20 @@ const routes = createRouter({
       }
     },
     {
+      path: '/importaciones',
+      name: 'Importaciones',
+      component: () =>
+        import(
+          '@/components/movimientos/Compras/ImportacionesComp.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Importaciones | DevoDigital'
+      }
+    },
+    {
       path: '/categorias',
       name: 'Categorías Productos',
       component: () =>

@@ -706,6 +706,11 @@ export default {
           title: 'Órdenes de compra',
           route: 'Órdenes de compra',
           idVentana: '7'
+        },
+        {
+          title: 'Importaciones',
+          route: 'Importaciones',
+          idVentana: '7'
         }
       ],
       rutas: [
