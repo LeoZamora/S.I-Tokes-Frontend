@@ -674,6 +674,21 @@ export default {
       ],
       cajas: [
         {
+          title: 'Cajas',
+          route: 'Cajas',
+          idVentana: '3'
+        },
+        {
+          title: 'Apertura',
+          route: 'Apertura',
+          idVentana: '3'
+        },
+        {
+          title: 'Arqueo',
+          route: 'Arqueo',
+          idVentana: '3'
+        },
+        {
           title: 'Cierre',
           route: 'Cierre',
           idVentana: '3'

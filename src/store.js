@@ -8,13 +8,19 @@ export const useStore = defineStore('auth', {
         theme: ref(localStorage.getItem('theme') || 'dark'),
     }),
     actions: {
-        login(decodeToken) {
+        login(decodeToken, rawToken = null) {
             const token = JSON.stringify(decodeToken)
             localStorage.setItem("token", token);
+            if (rawToken) {
+                localStorage.setItem("authToken", rawToken);
+            }
             this.isLoggedIn = true;
         },
         getInfoUser() {
             return JSON.parse(localStorage.getItem("token"))
+        },
+        getRawToken() {
+            return localStorage.getItem("authToken") || localStorage.getItem("raw_token")
         },
         sendExp(exp) {
             localStorage.setItem('exp', exp)
@@ -35,6 +41,8 @@ export const useStore = defineStore('auth', {
         },
         logout() {
             localStorage.removeItem("token");
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("raw_token");
             localStorage.removeItem("rol");
             localStorage.removeItem("name");
             localStorage.removeItem('exp');

@@ -536,14 +536,8 @@ use([
 ])
 
 export default {
-  mounted() {
+  activated() {
     this.loadDataVentas()
-  },
-
-  beforeRouteEnter(to, from, next) {
-    next((vm) => {
-      vm.loadDataVentas()
-    })
   },
   data() {
     return {

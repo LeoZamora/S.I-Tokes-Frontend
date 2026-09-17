@@ -13,7 +13,7 @@
       <template v-slot:append>
         <v-btn v-if="hasAccessToFunct('42')" icon color="primary" class="mr-2" variant="text" @click="openDialog('tipo', 'create', null)">
           <v-icon>mdi-account-plus</v-icon>
-          <v-tooltip activator="parent" location="left">Agregar Usuario</v-tooltip>
+          <v-tooltip activator="parent" location="left">Agregar Rol</v-tooltip>
         </v-btn>
       </template>
       <v-divider/>
@@ -36,12 +36,18 @@
         </v-row>
         <v-card-subtitle class="d-flex align-center text-center mb-2">
           <v-divider/>
-          <span class="mx-6 text-grey font-weight-bold">Usuarios</span>
+          <span class="mx-6 text-grey font-weight-bold">Roles</span>
           <v-divider/>
         </v-card-subtitle>
         <v-data-table :loading="data.loading" :search="data.search" :mobile="isMobile" class="border"
             :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle"
             :header-props="{ class: 'font-weight-bold text-uppercase' }">
+          <template v-slot:item.codigo="{ item }">
+            <span class="font-weight-bold">{{ item.codigo || '—' }}</span>
+          </template>
+          <template v-slot:item.cantUsuarios="{ item }">
+            <v-chip size="small" variant="tonal" color="primary">{{ item.cantUsuarios ?? 0 }}</v-chip>
+          </template>
           <template v-slot:item.fechaRegistro="{ item }">
             <div>{{ formateDate(item.fechaRegistro) }}</div>
           </template>
@@ -180,7 +186,9 @@ export default {
     const data = reactive({
       headers: [
         {title: '', key: 'opc', align: 'center'},
+        {title: 'Código', key: 'codigo', align: 'center'},
         {title: 'Rol', key: 'nombre', align: 'center'},
+        {title: 'Cant. Usuarios', key: 'cantUsuarios', align: 'center'},
         {title: 'Usuario Registro', key: 'usuarioRegistro', align: 'center'},
         {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
         {title: 'Estado', key: 'estado', align: 'center'},
@@ -471,14 +479,15 @@ export default {
     async load_DataPermisosDisplay(item) {
       this.ctrl_Carga = true
       let me = this.data
-      me.win2.data.permisos.idRol = item.idrol
+      const idRol = item.idRol ?? item.idrol
+      me.win2.data.permisos.idRol = idRol
       me.win2.data.permisos.facturacion = []
       me.win2.data.permisos.configuracion = []
       try {
 
         //
         const permisos =
-            await httpGet('api/Rol/Permisos/' + item.idrol)
+            await httpGet('api/Rol/Permisos/' + idRol)
 
         /*4: GESTION PRESTAMOS
         * 5: OTROS PERMISOS

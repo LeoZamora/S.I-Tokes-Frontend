@@ -33,6 +33,7 @@ export function getItemsCombobox(url, concat = true) {
                 items.push({
                     title: (x.codigo && concat) ? x.codigo + '-' + x.nombre : x.nombre,
                     value: x.id,
+                    ...x,
                 })
             })
 

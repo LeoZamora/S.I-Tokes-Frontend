@@ -575,14 +575,17 @@
     </v-dialog>
 
     <NuevaFactura
+      v-if="data.editFactura.show"
       :show="data.editFactura.show"
       :editar="data.editFactura.editar"
       :idFact="data.idVenta"
+      :clientesList="cmb.clientes"
       @closeDialog="closeDialog"
       :title="data.editFactura.title"
       @refreshTable="getVentas"
     />
     <ViewVenta
+      v-if="data.viewFactura.show"
       :show="data.viewFactura.show"
       :factura="data.viewFactura.item"
       @closeDialog="closeDialog"

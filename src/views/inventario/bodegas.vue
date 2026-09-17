@@ -1373,24 +1373,31 @@ export default {
 
   computed: {
     filteredSucursales() {
-      if (!this.searchSucursales)
-        return this.sucursales
-      const search = this.searchSucursales
-        .toLowerCase()
-        .trim()
-      return this.sucursales.filter(
-        (s) =>
-          s.nombre
-            .toLowerCase()
-            .includes(search) ||
-          (s.codigo &&
-            s.codigo
+      let list = [...this.sucursales]
+      if (this.searchSucursales) {
+        const search = this.searchSucursales
+          .toLowerCase()
+          .trim()
+        list = list.filter(
+          (s) =>
+            s.nombre
               .toLowerCase()
-              .includes(search)) ||
-          s.municipio
-            .toLowerCase()
-            .includes(search)
-      )
+              .includes(search) ||
+            (s.codigo &&
+              s.codigo
+                .toLowerCase()
+                .includes(search)) ||
+            (s.municipio &&
+              s.municipio
+                .toLowerCase()
+                .includes(search))
+        )
+      }
+      return list.sort((a, b) => {
+        const codA = a.codigo || ''
+        const codB = b.codigo || ''
+        return codB.localeCompare(codA, undefined, { numeric: true, sensitivity: 'base' })
+      })
     },
 
     filteredCamiones() {
@@ -1457,8 +1464,12 @@ export default {
     async fetchSucursales() {
       const res =
         await this.requestHttp.getSucursales()
-      if (res.code === 200) {
-        this.sucursales = res.data
+      if (res.code === 200 && Array.isArray(res.data)) {
+        this.sucursales = res.data.sort((a, b) => {
+          const codA = a.codigo || ''
+          const codB = b.codigo || ''
+          return codB.localeCompare(codA, undefined, { numeric: true, sensitivity: 'base' })
+        })
       }
     },
 
@@ -1473,8 +1484,12 @@ export default {
     async fetchBodegas() {
       const res =
         await this.requestHttp.getBodegas()
-      if (res.code === 200) {
-        this.bodegas = res.data
+      if (res.code === 200 && Array.isArray(res.data)) {
+        this.bodegas = res.data.sort((a, b) => {
+          const codA = a.codigo || ''
+          const codB = b.codigo || ''
+          return codB.localeCompare(codA, undefined, { numeric: true, sensitivity: 'base' })
+        })
       }
     },
 

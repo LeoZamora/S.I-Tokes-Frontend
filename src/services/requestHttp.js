@@ -1,6 +1,32 @@
 import axios from "axios";
 import endPoints from "./endPoints";
 
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('authToken') || localStorage.getItem('raw_token') || localStorage.getItem('token')
+    if (!token) return {}
+    let bearerToken = token
+    if (typeof token === 'string' && token.trim().startsWith('{')) {
+        try {
+            const parsed = JSON.parse(token)
+            bearerToken = parsed.token || parsed.authToken || parsed.raw_token || null
+        } catch (e) {
+            bearerToken = null
+        }
+    }
+    return bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}
+}
+
+axios.interceptors.request.use(
+    (config) => {
+        const authHeaders = getAuthHeaders()
+        if (authHeaders.Authorization) {
+            config.headers.Authorization = authHeaders.Authorization
+        }
+        return config
+    },
+    (error) => Promise.reject(error)
+)
+
 class RequestHttp {
     // CATEGORIAS
     async getCategorias() {
@@ -144,6 +170,20 @@ class RequestHttp {
     }
 
     // PRODUCTOS
+    async getProductosDetalleVenta() {
+        try {
+            const result = await axios.get(endPoints.getProductosDetalleVenta)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
     async getProductos(type = null) {
         try {
             var url = endPoints.getProducto
@@ -452,15 +492,16 @@ class RequestHttp {
     }
     async postVenta(data) {
         try {
-            const result  = await axios.post(endPoints.postVenta, data)
+            const headers = getAuthHeaders()
+            const result  = await axios.post(endPoints.postVenta, data, { headers })
             return {
                 code: result?.data?.code ?? result.status,
                 data: result.data
             }
         } catch (error) {
             return {
-                code: error.response.status,
-                data: error.response.data
+                code: error.response?.status || 500,
+                data: error.response?.data
             }
         }
     }
@@ -513,6 +554,20 @@ class RequestHttp {
             return {
                 code: error.response.status,
                 data: error.response.data
+            }
+        }
+    }
+    async getDetalleCreditoCliente(id) {
+        try {
+            const result = await axios.get(`${endPoints.getCliente}/${id}/detalle-credito`)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response ? error.response.status : 500,
+                data: error.response ? error.response.data : null
             }
         }
     }
@@ -682,8 +737,86 @@ class RequestHttp {
             }
         } catch (error) {
             return {
-                code: error.response.status,
-                data: error.response.data
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
+
+    // CAJAS AUTORIZADAS POR USUARIO
+    async getCajasAutorizadas(idUsuario) {
+        try {
+            const result = await axios.get(`${endPoints.getUsuario}/${idUsuario}/cajas-autorizadas`)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
+
+    async getCajasAutorizadasIds(idUsuario) {
+        try {
+            const result = await axios.get(`${endPoints.getUsuario}/${idUsuario}/cajas-autorizadas/ids`)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
+
+    async putCajasAutorizadas(idUsuario, idCajas) {
+        try {
+            const result = await axios.put(`${endPoints.getUsuario}/${idUsuario}/cajas-autorizadas`, {
+                idCajas: idCajas
+            })
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
+
+    async postCajaAutorizada(idUsuario, idCaja) {
+        try {
+            const result = await axios.post(`${endPoints.getUsuario}/${idUsuario}/cajas-autorizadas/${idCaja}`)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
+
+    async deleteCajaAutorizada(idUsuario, idCaja) {
+        try {
+            const result = await axios.delete(`${endPoints.getUsuario}/${idUsuario}/cajas-autorizadas/${idCaja}`)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
             }
         }
     }
@@ -1233,6 +1366,62 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async getCajaById(id) {
+        try {
+            const result = await axios.get(`${endPoints.getCajas}/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postCaja(data) {
+        try {
+            const result = await axios.post(endPoints.getCajas, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async putCaja(id, data) {
+        try {
+            const result = await axios.put(`${endPoints.getCajas}/${id}`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getAperturasCaja() {
+        try {
+            const result = await axios.get(endPoints.getAperturasCaja)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getAperturaCajaById(id) {
+        try {
+            const result = await axios.get(`${endPoints.getAperturaCajaById}/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getAperturaPreviewStock(idCaja) {
+        try {
+            const result = await axios.get(`${endPoints.getAperturaPreviewStock}/${idCaja}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postAperturaCaja(data) {
+        try {
+            const result = await axios.post(endPoints.postAperturaCaja, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
     async getCajaAperturaVigente(idCaja) {
         try {
             const result = await axios.get(`${endPoints.getCajas}/${idCaja}/apertura-vigente`)
@@ -1244,6 +1433,22 @@ class RequestHttp {
     async getCajaAperturaVigenteResumen(idCaja) {
         try {
             const result = await axios.get(`${endPoints.getCajas}/${idCaja}/apertura-vigente/resumen`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getArqueosCaja() {
+        try {
+            const result = await axios.get(endPoints.getArqueosCaja)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postArqueoCaja(data) {
+        try {
+            const result = await axios.post(endPoints.postArqueosCaja || endPoints.postArqueoCaja, data)
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }

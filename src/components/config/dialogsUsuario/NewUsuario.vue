@@ -35,19 +35,24 @@
                 <v-form ref="form">
                     <v-row dense>
                         <v-col cols="12" md="12" sm="12" class="py-2">
-                            <v-text-field v-model="data.usuario.username" prepend-inner-icon="mdi-account" density="compact" 
-                                variant="outlined" label="Usuario" placeholder="ingrese el Usuario" 
+                            <v-text-field v-model="data.usuario.nombre" prepend-inner-icon="mdi-account-details" density="compact" 
+                                variant="outlined" label="Nombre Completo" placeholder="Ingrese el nombre completo" 
                                 persistent-placeholder color="indigo" :rules="data.rules.rule"/>
                         </v-col>
                         <v-col cols="12" md="12" sm="12" class="py-2">
-                            <v-select v-model="data.usuario.idrol" :items="data.roles" prepend-inner-icon="mdi-account-question" density="compact" 
-                                variant="outlined" label="Rol" placeholder="roles" persistent-placeholder
+                            <v-text-field v-model="data.usuario.username" prepend-inner-icon="mdi-account" density="compact" 
+                                variant="outlined" label="Usuario" placeholder="Ingrese el usuario" 
+                                persistent-placeholder color="indigo" :rules="data.rules.rule"/>
+                        </v-col>
+                        <v-col cols="12" md="12" sm="12" class="py-2">
+                            <v-select v-model="data.usuario.idrol" :items="data.roles" prepend-inner-icon="mdi-account-cog" density="compact" 
+                                variant="outlined" label="Rol" placeholder="Seleccione un rol" persistent-placeholder
                                 color="indigo" :rules="data.rules.rule"/>
                         </v-col>
                         <v-col cols="12" md="12" sm="12" class="py-2">
                             <v-text-field v-model="data.usuario.password" :append-inner-icon="data.showPass ? 'mdi-eye' : 'mdi-eye-off'" 
                                 density="compact" @click:append-inner="data.showPass = !data.showPass"
-                                variant="outlined" label="Contraseña" placeholder="ingrese una contraseña"  
+                                variant="outlined" label="Contraseña" placeholder="Ingrese una contraseña"  
                                 persistent-placeholder :type="data.showPass ? 'text' : 'password'"
                                 color="indigo" :rules="data.rules.rule"/>
                         </v-col>
@@ -99,7 +104,6 @@
 
 <script>
 import { formatters } from '@/helpers/formatters';
-import { utilsFunctions } from '@/helpers/utilFunctions';
 import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
 import { useStore } from '@/store';
@@ -131,9 +135,15 @@ export default {
         watch(() => props.show, (newValue) => {
             localShow.value = newValue
             if (newValue) {
-                data.usuario.usuarioRegistro = store.getNameUser()
+                data.nowDate = new Date()
+                data.usuario = {
+                    idrol: null,
+                    nombre: null,
+                    username: null,
+                    password: null,
+                    usuarioRegistro: store.getNameUser(),
+                }
             }
-            
         })
 
         const data = reactive({
@@ -143,9 +153,10 @@ export default {
             nowDate: new Date(),
             usuario: {
                 idrol: null,
+                nombre: null,
                 username: null,
                 password: null,
-                usuarioRegistro: null,
+                usuarioRegistro: store.getNameUser(),
             },
             disabledBtn: false,
             roles: [],
@@ -174,6 +185,7 @@ export default {
         }
 
         return {
+            store,
             localShow,
             data,
             showSuccesAlert
@@ -188,6 +200,9 @@ export default {
             if (valid.valid) {
                 this.data.disabledBtn = true
                 this.data.overlay.show = true
+                if (!this.data.usuario.usuarioRegistro) {
+                    this.data.usuario.usuarioRegistro = this.store.getNameUser()
+                }
                 const result = await this.data.requestHttp.postUsuario(this.data.usuario)
                 this.data.disabledBtn = false
                 this.data.overlay.show = false
@@ -195,21 +210,23 @@ export default {
                 if (result.code === 200) {
                     this.showSuccesAlert('Usuario Guardado!', true)
                     setTimeout(() => {
-                        this.$emit('closeDialog', false)
-                        this.localShow = false
+                        this.closeDialog()
                     }, 1500);
                 } else {
-                    this.showSuccesAlert('No se pudo guardar el usuario', false)
+                    const errorMsg = result.data || 'No se pudo guardar el usuario'
+                    this.showSuccesAlert(typeof errorMsg === 'string' ? errorMsg : 'No se pudo guardar el usuario', false)
                     return
                 }
             }
         },
         
         async getRoles() {
+            this.data.roles = []
             const result = await this.data.requestHttp.getRoles()
             if (result !== null) {
                 result.map(item => {
-                    this.data.roles.push({title: item.nombre, value: item.idrol})
+                    const label = item.codigo ? `[${item.codigo}] ${item.nombre}` : item.nombre
+                    this.data.roles.push({title: label, value: item.idRol ?? item.idrol})
                 })
             }
         },        
@@ -221,7 +238,17 @@ export default {
 
         closeDialog() {
             this.$emit('closeDialog', false)
-            this.data.usuario = {}
+            this.localShow = false
+            this.data.usuario = {
+                idrol: null,
+                nombre: null,
+                username: null,
+                password: null,
+                usuarioRegistro: this.store.getNameUser(),
+            }
+            if (this.$refs.form) {
+                this.$refs.form.resetValidation()
+            }
         },
     },
 }

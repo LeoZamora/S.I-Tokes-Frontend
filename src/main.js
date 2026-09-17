@@ -16,6 +16,19 @@ import 'intro.js/minified/introjs.min.css';
 Axios.defaults.baseURL = 'http://localhost:5091/'
 //Axios.defaults.baseURL = 'https://inversiones-zafiro.com/devodigital/'
 
+Axios.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('raw_token')
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
+        return config
+    },
+    (error) => {
+        return Promise.reject(error)
+    }
+)
+
 const pinia = createPinia();
 const app = createApp(App);
 app.use(pinia);

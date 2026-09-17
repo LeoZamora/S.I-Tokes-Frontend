@@ -11,6 +11,7 @@ const endPoints = {
     getCode: 'api/SubCatProducto/codigo-recomendado',
 
     getProducto: 'api/Producto',
+    getProductosDetalleVenta: 'api/Producto/detalle-venta',
     postProducto: 'api/Producto',
     putProducto: 'api/Producto',
     deleteProducto: 'api/Producto',
@@ -37,6 +38,7 @@ const endPoints = {
     geCodeCompra: 'api/Compra/codigo-recomendado',
 
     getCliente: 'api/Cliente',
+    getClienteDetalleCredito: 'api/Cliente/detalle-credito',
     postCliente: 'api/Cliente',
     putCliente: 'api/Cliente',
     deleteCliente: 'api/Cliente',
@@ -52,7 +54,7 @@ const endPoints = {
     deleteCategoriaCliente: 'api/CategoriaCliente',
 
     getVenta: 'api/Venta',
-    postVenta: 'api/Venta',
+    postVenta: 'api/v2/venta',
     putVenta: 'api/Venta',
     deleteVenta: 'api/Venta',
     getTipoVenta: 'api/tipos-venta/combobox',
@@ -101,6 +103,12 @@ const endPoints = {
 
     // CAJA
     getCajas: 'api/cajas',
+    getAperturasCaja: 'api/aperturas-caja',
+    getAperturaCajaById: 'api/aperturas-caja',
+    getAperturaPreviewStock: 'api/aperturas-caja/preview-stock',
+    postAperturaCaja: 'api/aperturas-caja',
+    getArqueosCaja: 'api/arqueos-caja',
+    postArqueoCaja: 'api/arqueos-caja',
     postCierreCaja: 'api/cierres-caja',
 
     // IMPORTACIONES

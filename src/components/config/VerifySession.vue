@@ -270,10 +270,12 @@ export default {
                 const result = await this.data.requestHttp.postLogin(this.data.data)
 
                 if(result.token) {
+                    localStorage.setItem("authToken", result.token)
+                    localStorage.setItem("raw_token", result.token)
                     await this.delay(1500)
                     let jwtHandler = new JWTDecoder(result.token)
                     const decode = jwtHandler.decodeToken()
-                    this.store.login(decode)
+                    this.store.login(decode, result.token)
                     this.store.sendExp(decode.exp)
                     this.store.sendNameUser(this.data.data.usuario)
                     this.$router.push({ path: '/' })

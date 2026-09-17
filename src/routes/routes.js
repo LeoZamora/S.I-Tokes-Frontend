@@ -336,6 +336,48 @@ const routes = createRouter({
       }
     },
     {
+      path: '/caja/cajas',
+      name: 'Cajas',
+      component: () =>
+        import(
+          '@/views/caja/cajas.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Gestión de Cajas | DevoDigital'
+      }
+    },
+    {
+      path: '/caja/apertura',
+      name: 'Apertura',
+      component: () =>
+        import(
+          '@/views/caja/apertura.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Apertura de Caja | DevoDigital'
+      }
+    },
+    {
+      path: '/caja/arqueo',
+      name: 'Arqueo',
+      component: () =>
+        import(
+          '@/views/caja/arqueo.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Arqueo de Caja | DevoDigital'
+      }
+    },
+    {
       path: '/caja/cierre',
       name: 'Cierre',
       component: () =>
