@@ -123,7 +123,9 @@
                           class="text-h6 font-weight-bold text-red"
                         >
                           {{
-                            data.facturas.filter(c => !c.estado).length
+                            data.facturas.filter(
+                              (c) => !c.estado
+                            ).length
                           }}
                         </div>
                       </div>
@@ -268,6 +270,34 @@
             </v-icon>
           </template>
 
+          <template v-slot:header.bodegaNombre>
+            <div>Bodega</div>
+            <v-autocomplete
+              v-model="search.idBodega"
+              variant="outlined"
+              density="compact"
+              :items="cmb.bodegas"
+              item-title="title"
+              item-value="value"
+              hide-details
+              clearable
+            />
+          </template>
+
+          <template v-slot:header.cajaNombre>
+            <div>Caja</div>
+            <v-autocomplete
+              v-model="search.idCaja"
+              variant="outlined"
+              density="compact"
+              :items="cmb.cajas"
+              item-title="title"
+              item-value="value"
+              hide-details
+              clearable
+            />
+          </template>
+
           <template v-slot:header.rutaCliente>
             <div>Ruta</div>
             <v-autocomplete
@@ -306,6 +336,70 @@
             <v-skeleton-loader
               type="table-row@10"
             ></v-skeleton-loader>
+          </template>
+
+          <template
+            v-slot:item.bodegaNombre="{ item }"
+          >
+            <div
+              class="d-flex align-center justify-center"
+            >
+              <v-chip
+                v-if="
+                  item.bodegaNombre || item.bodega
+                "
+                size="small"
+                color="blue-grey-darken-1"
+                variant="tonal"
+                class="font-weight-medium"
+              >
+                <v-icon start size="14"
+                  >mdi-store-outline</v-icon
+                >
+                {{
+                  item.bodegaNombre || item.bodega
+                }}
+              </v-chip>
+              <span
+                v-else
+                class="text-grey-lighten-1"
+                >—</span
+              >
+            </div>
+          </template>
+
+          <template
+            v-slot:item.cajaNombre="{ item }"
+          >
+            <div
+              class="d-flex align-center justify-center"
+            >
+              <v-chip
+                v-if="
+                  item.cajaNombre ||
+                  item.caja ||
+                  item.cajaCodigo
+                "
+                size="small"
+                color="indigo-darken-1"
+                variant="tonal"
+                class="font-weight-medium"
+              >
+                <v-icon start size="14"
+                  >mdi-cash-register</v-icon
+                >
+                {{
+                  item.cajaNombre ||
+                  item.caja ||
+                  item.cajaCodigo
+                }}
+              </v-chip>
+              <span
+                v-else
+                class="text-grey-lighten-1"
+                >—</span
+              >
+            </div>
           </template>
 
           <template v-slot:item.total="{ item }">
@@ -360,7 +454,7 @@
           <template
             v-slot:item.observaciones="{ item }"
           >
-            <div style="min-width: 400px;">
+            <div style="max-width: 200px" class="text-truncate" :title="item.observaciones">
               {{ item.observaciones }}
             </div>
           </template>
@@ -629,6 +723,8 @@ export default {
       vm.getVentas()
       vm.loadCmbClientes()
       vm.loadCmbRutas()
+      vm.loadCmbBodegas()
+      vm.loadCmbCajas()
       vm.verifyDataSecurity()
     })
   },
@@ -670,14 +766,18 @@ export default {
 
       cmb: {
         clientes: [],
-        rutas: []
+        rutas: [],
+        bodegas: [],
+        cajas: []
       },
 
       search: {
         desde: getIntervaloMesActual().fechaDesde,
         hasta: getIntervaloMesActual().fechaHasta,
         idCliente: null,
-        idRuta: null
+        idRuta: null,
+        idBodega: null,
+        idCaja: null
       }
     }
   },
@@ -703,10 +803,16 @@ export default {
       const introKey = 'tutorialVenta'
       if (localStorage.getItem(introKey)) return
 
-      const el = document.querySelector('.headInfo')
-      const el2 = document.querySelector('.detalleVentas')
-      const el3 = document.querySelector('.options')
-      const el4 = document.querySelector('.nuevaVenta')
+      const el =
+        document.querySelector('.headInfo')
+      const el2 = document.querySelector(
+        '.detalleVentas'
+      )
+      const el3 =
+        document.querySelector('.options')
+      const el4 = document.querySelector(
+        '.nuevaVenta'
+      )
 
       if (!el || !el2 || !el3 || !el4) return
 
@@ -804,7 +910,7 @@ export default {
         //   }
         // },
         {
-          title: 'Nº Factura',
+          title: 'Nº Venta',
           key: 'noVenta',
           sortable: false,
           align: 'center',
@@ -815,7 +921,7 @@ export default {
             class: 'pa-1'
           }
         },
-        {
+        /*{
           title: 'Tipo Venta',
           key: 'tipoVenta',
           sortable: false,
@@ -825,6 +931,36 @@ export default {
           },
           cellProps: {
             class: 'pa-1'
+          }
+        },*/
+        {
+          title: 'Bodega',
+          key: 'bodegaNombre',
+          sortable: false,
+          align: 'center',
+          cellProps: {
+            class: 'pa-1'
+          },
+          headerProps: {
+            class: 'pa-1',
+            style: {
+              width: '200px'
+            }
+          }
+        },
+        {
+          title: 'Caja',
+          key: 'cajaNombre',
+          sortable: false,
+          align: 'center',
+          cellProps: {
+            class: 'pa-1'
+          },
+          headerProps: {
+            class: 'pa-1',
+            style: {
+              width: '200px'
+            }
           }
         },
         {
@@ -872,9 +1008,15 @@ export default {
         {
           title: 'Observaciones',
           key: 'observaciones',
-          align: 'center'
+          align: 'center',
+          headerProps: {
+            class: 'pa-1'
+          },
+          cellProps: {
+            class: 'pa-1'
+          }
         },
-        {
+        /*{
           title: 'Ubicación POS',
           key: 'ubicacion',
           align: 'center',
@@ -888,8 +1030,8 @@ export default {
               width: '200px'
             }
           }
-        },
-        {
+        },*/
+        /*{
           title: 'Estado Mensaje',
           key: 'estadoMensaje',
           align: 'center',
@@ -900,29 +1042,69 @@ export default {
           headerProps: {
             class: 'pa-1',
             style: {
+              width: '100px'
+            }
+          }
+        },*/
+        {
+          title: 'Fecha Registro',
+          key: 'fechaRegistro',
+          align: 'center',
+          cellProps: {
+            class: 'pa-0',
+            width: '1px'
+          },
+          headerProps: {
+            class: 'pa-0',
+            style: {
               width: '1px'
             }
           }
         },
         {
-          title: 'Fecha Registro',
-          key: 'fechaRegistro',
-          align: 'center'
-        },
-        {
           title: 'Usuario Registro',
           key: 'usuarioRegistro',
-          align: 'center'
+          align: 'center',
+          cellProps: {
+            class: 'pa-0',
+            width: '1px'
+          },
+          headerProps: {
+            class: 'pa-0',
+            style: {
+              width: '1px'
+            }
+          }
         },
         {
           title: 'Condición',
           key: 'credito',
-          align: 'center'
+          align: 'center',
+          cellProps: {
+            class: 'pa-0',
+            width: '1px'
+          },
+          headerProps: {
+            class: 'pa-0',
+            style: {
+              width: '1px'
+            }
+          }
         },
         {
           title: 'Estado',
           key: 'estado',
-          align: 'center'
+          align: 'center',
+          cellProps: {
+            class: 'pa-0',
+            width: '1px'
+          },
+          headerProps: {
+            class: 'pa-0',
+            style: {
+              width: '1px'
+            }
+          }
         }
       ],
       facturas: [],
@@ -991,6 +1173,13 @@ export default {
     }
   },
 
+  mounted() {
+    this.loadCmbClientes()
+    this.loadCmbRutas()
+    this.loadCmbBodegas()
+    this.loadCmbCajas()
+  },
+
   methods: {
     hasAccessToFunct,
 
@@ -1040,6 +1229,26 @@ export default {
         'api/rutas/combobox'
       )
       this.cmb.rutas = rutas
+    },
+
+    async loadCmbBodegas() {
+      const bodegas = await getItemsCombobox(
+        'api/bodegas/combobox'
+      )
+      this.cmb.bodegas = bodegas || []
+    },
+
+    async loadCmbCajas() {
+      try {
+        const res = await httpGet('api/cajas')
+        const items = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : [])
+        this.cmb.cajas = items.map((c) => ({
+          title: c.codigo ? `${c.codigo} - ${c.nombre}` : c.nombre,
+          value: c.idCaja
+        }))
+      } catch (err) {
+        console.error('Error cargando combo de cajas:', err)
+      }
     },
 
     setStyle({ index }) {

@@ -97,6 +97,92 @@
                     </span>
                   </div>
 
+                  <!-- Alerta si NO tiene caja activa -->
+                  <v-alert
+                    v-if="!data.sesionCaja.loading && !data.sesionCaja.tieneAperturaActiva && !localEdit"
+                    type="warning"
+                    variant="tonal"
+                    density="comfortable"
+                    rounded="lg"
+                    class="mb-3 border border-warning"
+                  >
+                    <template v-slot:prepend>
+                      <v-avatar color="warning-lighten-4" size="34" class="mr-2">
+                        <v-icon color="warning-darken-3" size="20">mdi-cash-register</v-icon>
+                      </v-avatar>
+                    </template>
+                    <div class="font-weight-bold text-caption text-warning-darken-4">
+                      Sin Apertura de Caja Activa
+                    </div>
+                    <div class="text-caption text-grey-darken-3" style="font-size: 11px !important; line-height: 1.3;">
+                      El usuario <strong>@{{ data.sesionCaja.usuario }}</strong> no posee una apertura de caja activa. No es posible registrar facturas sin una sesión de caja.
+                    </div>
+                  </v-alert>
+
+                  <!-- Visualización de Cajero y Bodega en Sesión Activa -->
+                  <v-card
+                    v-else-if="data.sesionCaja.tieneAperturaActiva"
+                    variant="flat"
+                    class="pa-3 mb-3 border rounded-lg bg-indigo-lighten-5"
+                  >
+                    <div class="d-flex align-center justify-space-between mb-2">
+                      <div class="text-caption font-weight-bold text-indigo-darken-4 d-flex align-center">
+                        <v-icon size="16" class="mr-1" color="indigo-darken-3">mdi-cash-register</v-icon>
+                        Sesión: {{ data.sesionCaja.cajaNombre || data.sesionCaja.cajaCodigo || 'Caja' }}
+                      </div>
+                      <v-chip
+                        size="x-small"
+                        color="success"
+                        variant="flat"
+                        class="font-weight-bold"
+                      >
+                        <v-icon start size="10">mdi-circle</v-icon>
+                        Activa
+                      </v-chip>
+                    </div>
+
+                    <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+                      <!-- Cajero con Avatar, Nombre y @username -->
+                      <div class="d-flex align-center">
+                        <v-avatar
+                          size="38"
+                          color="indigo-darken-4"
+                          class="text-white font-weight-bold mr-2 elevation-1"
+                        >
+                          <span v-if="data.sesionCaja.nombre">{{ data.sesionCaja.nombre.charAt(0).toUpperCase() }}</span>
+                          <v-icon v-else size="20">mdi-account</v-icon>
+                        </v-avatar>
+                        <div>
+                          <div class="text-subtitle-2 font-weight-bold text-grey-darken-4 lh-1">
+                            {{ data.sesionCaja.nombre || data.sesionCaja.usuario || 'Cajero' }}
+                          </div>
+                          <div
+                            class="text-caption text-grey-darken-1 font-weight-medium"
+                            style="font-size: 11px !important; line-height: 1.2;"
+                          >
+                            @{{ data.sesionCaja.usuario || '—' }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Bodega Asociada -->
+                      <div class="text-right">
+                        <div class="text-caption text-grey-darken-2 font-weight-medium" style="font-size: 10px;">
+                          Bodega
+                        </div>
+                        <v-chip
+                          size="small"
+                          color="blue-grey-darken-3"
+                          variant="tonal"
+                          class="font-weight-bold"
+                        >
+                          <v-icon start size="14">mdi-store-outline</v-icon>
+                          {{ data.sesionCaja.bodegaNombre || 'Sin Bodega' }}
+                        </v-chip>
+                      </div>
+                    </div>
+                  </v-card>
+
                   <v-row dense>
                     <!-- No. Factura (solo en modo edición) -->
                     <v-col
@@ -870,7 +956,7 @@
             variant="flat"
             size="small"
             @click="guardarFactura()"
-            :disabled="data.contDisableBtn"
+            :disabled="data.contDisableBtn || (!localEdit && !data.sesionCaja.tieneAperturaActiva)"
             prepend-icon="mdi-content-save-outline"
             class="text-none px-6 font-weight-bold"
             elevation="2"
@@ -1139,8 +1225,9 @@
 <script>
 import { formatters } from '@/helpers/formatters'
 import RequestHttp from '@/services/requestHttp'
-import { computed, reactive, ref, watch } from 'vue'
-import { getItemsCombobox } from '@/scripts/api.js'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { getItemsCombobox, httpGet } from '@/scripts/api.js'
+import { useStore } from '@/store'
 import AlertComp from '@/components/reutilizable/AlertComp.vue'
 import SuccessAlert from '@/components/widgets/SuccessAlert.vue'
 import OverlayComp from '@/components/reutilizable/OverlayComp.vue'
@@ -1155,6 +1242,7 @@ export default {
     }
     this.getProductos()
     this.getTipoVentas()
+    this.cargarSesionCajaActiva()
   },
 
   props: {
@@ -1188,6 +1276,8 @@ export default {
   },
 
   setup(props) {
+    const store = useStore()
+
     const data = reactive({
       rules: {
         rule: [
@@ -1233,6 +1323,19 @@ export default {
           width: '105px'
         }
       ],
+
+      sesionCaja: {
+        idAperturaCaja: null,
+        idCaja: null,
+        cajaCodigo: '',
+        cajaNombre: '',
+        idBodega: null,
+        bodegaNombre: '',
+        idUsuario: null,
+        nombre: '',
+        usuario: '',
+        loading: false
+      },
 
       productos: [],
       tipoVenta: [],
@@ -1403,6 +1506,78 @@ export default {
         data.factura.total / 36.6243
     }
 
+    const cargarSesionCajaActiva = async () => {
+      try {
+        data.sesionCaja.loading = true
+        data.sesionCaja.tieneAperturaActiva = false
+        data.sesionCaja.idAperturaCaja = null
+        data.sesionCaja.idCaja = null
+        data.sesionCaja.cajaCodigo = ''
+        data.sesionCaja.cajaNombre = ''
+        data.sesionCaja.bodegaNombre = ''
+        data.sesionCaja.idBodega = null
+
+        const token = store.getInfoUser()
+        if (!token || !token.idusuario) return
+
+        const idUsuario = parseInt(token.idusuario)
+        data.sesionCaja.idUsuario = idUsuario
+        data.sesionCaja.usuario = token.usuario || ''
+        data.sesionCaja.nombre = localStorage.getItem('name') || token.usuario || ''
+
+        // 1. Obtener apertura activa del usuario
+        const resApertura = await httpGet(`api/usuarios/${idUsuario}/caja-activa`)
+        if (resApertura && resApertura.tieneAperturaActiva === true && resApertura.apertura) {
+          const ap = resApertura.apertura
+          data.sesionCaja.tieneAperturaActiva = true
+          data.sesionCaja.idAperturaCaja = ap.idAperturaCaja
+          data.sesionCaja.idCaja = ap.idCaja
+          data.sesionCaja.cajaCodigo = ap.cajaCodigo || ''
+          data.sesionCaja.cajaNombre = ap.cajaNombre || ''
+          if (ap.usuarioAperturaNombre) {
+            data.sesionCaja.usuario = ap.usuarioAperturaNombre
+          }
+
+          // 2. Obtener datos de la caja (bodega y cajero si está disponible)
+          const resCajas = await httpGet('api/cajas')
+          const cajas = Array.isArray(resCajas) ? resCajas : (Array.isArray(resCajas?.data) ? resCajas.data : [])
+          if (data.sesionCaja.idCaja && cajas.length > 0) {
+            const caja = cajas.find((c) => c.idCaja === data.sesionCaja.idCaja)
+            if (caja) {
+              data.sesionCaja.bodegaNombre = caja.bodegaNombre || ''
+              data.sesionCaja.idBodega = caja.idBodega || null
+              if (caja.cajeroUltimaSesionNombre) {
+                data.sesionCaja.nombre = caja.cajeroUltimaSesionNombre
+              }
+            }
+          }
+        } else {
+          data.sesionCaja.tieneAperturaActiva = false
+        }
+
+        // 3. Obtener nombre completo del usuario si aún no está definido o es igual al username
+        if (!data.sesionCaja.nombre || data.sesionCaja.nombre === data.sesionCaja.usuario) {
+          const resUsuarios = await httpGet('api/usuario/listar')
+          const usuarios = Array.isArray(resUsuarios) ? resUsuarios : (Array.isArray(resUsuarios?.data) ? resUsuarios.data : [])
+          if (usuarios.length > 0) {
+            const u = usuarios.find((x) => (x.idusuario || x.idUsuario) === idUsuario || x.username === token.usuario)
+            if (u && u.nombre) {
+              data.sesionCaja.nombre = u.nombre
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error cargando sesión activa de caja:', err)
+        data.sesionCaja.tieneAperturaActiva = false
+      } finally {
+        data.sesionCaja.loading = false
+      }
+    }
+
+    onMounted(() => {
+      cargarSesionCajaActiva()
+    })
+
     const localShow = ref(props.show)
     const localEdit = ref(props.editar)
     const localFact = ref(props.idFact)
@@ -1412,6 +1587,9 @@ export default {
       () => props.show,
       (newValue) => {
         localShow.value = newValue
+        if (newValue) {
+          cargarSesionCajaActiva()
+        }
       }
     )
 
@@ -1583,7 +1761,8 @@ export default {
       showSuccesAlert,
       showAlert,
       getVenta,
-      calcularFactura
+      calcularFactura,
+      cargarSesionCajaActiva
     }
   },
 
@@ -1890,6 +2069,15 @@ export default {
 
       try {
         if (!this.localEdit) {
+          if (!this.data.sesionCaja.tieneAperturaActiva) {
+            this.showAlert(
+              2,
+              'No cuenta con una apertura de caja activa para registrar ventas. Realice una apertura de caja primero.',
+              'warning'
+            )
+            return
+          }
+
           if (!valid.valid) {
             this.showAlert(
               2,

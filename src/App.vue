@@ -742,7 +742,7 @@ export default {
           idVentana: '12'
         },
         {
-          title: 'Productos',
+          title: 'Catálogo Productos',
           route: 'Productos',
           idVentana: '12'
         },

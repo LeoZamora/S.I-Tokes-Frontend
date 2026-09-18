@@ -44,17 +44,28 @@
           >
             Nueva Sucursal
           </v-btn>
-          <v-btn
-            v-else-if="activeTab === 'camiones'"
-            color="indigo-darken-4"
-            prepend-icon="mdi-truck-plus"
-            variant="tonal"
-            density="comfortable"
-            class="rounded font-weight-bold"
-            @click="openDialogCamion(null)"
-          >
-            Nuevo Camión
-          </v-btn>
+          <template v-else-if="activeTab === 'camiones'">
+            <v-btn
+              color="teal-darken-3"
+              prepend-icon="mdi-file-chart-outline"
+              variant="flat"
+              density="comfortable"
+              class="rounded font-weight-bold mr-2 text-none"
+              @click="openDialogConsolidado()"
+            >
+              Ver Inventario Consolidado
+            </v-btn>
+            <v-btn
+              color="indigo-darken-4"
+              prepend-icon="mdi-truck-plus"
+              variant="tonal"
+              density="comfortable"
+              class="rounded font-weight-bold text-none"
+              @click="openDialogCamion(null)"
+            >
+              Nuevo Camión
+            </v-btn>
+          </template>
         </div>
       </div>
 
@@ -716,7 +727,7 @@
       <!-- PESTAÑA CAMIONES -->
       <v-window-item value="camiones">
         <!-- Barra de controles de Camiones -->
-        <v-row class="mb-2 align-center" dense>
+        <v-row class="mb-2 align-center justify-space-between" dense>
           <v-col cols="12" sm="6" md="4">
             <v-text-field
               v-model="searchCamiones"
@@ -727,6 +738,18 @@
               color="indigo"
               hide-details
             ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="8" class="d-flex justify-end ga-2">
+            <v-btn
+              color="teal-darken-3"
+              variant="tonal"
+              density="comfortable"
+              prepend-icon="mdi-file-chart-outline"
+              class="rounded font-weight-bold text-none"
+              @click="openDialogConsolidado()"
+            >
+              Ver Inventario Consolidado
+            </v-btn>
           </v-col>
         </v-row>
 
@@ -753,8 +776,8 @@
             :key="item.idCamion"
             cols="12"
             sm="6"
-            md="4"
-            lg="3"
+            md="6"
+            lg="4"
           >
             <v-card
               class="rounded elevation-1 overflow-hidden hover-card h-100 d-flex flex-column border-top-indigo"
@@ -770,7 +793,7 @@
                     <h4
                       class="text-subtitle-2 font-weight-bold text-indigo-darken-4 mb-0"
                     >
-                      Distribuidor
+                      Camión Distribuidor
                     </h4>
                     <v-chip
                       size="x-small"
@@ -786,30 +809,22 @@
                     size="32"
                     class="text-indigo-darken-4 font-weight-bold"
                   >
-                    <v-icon size="small"
-                      >mdi-truck</v-icon
-                    >
+                    <v-icon size="small">mdi-truck</v-icon>
                   </v-avatar>
                 </div>
 
                 <!-- Placa Vehicular Realista Centrada -->
-                <div
-                  class="d-flex justify-center my-3"
-                >
+                <div class="d-flex justify-center my-3">
                   <div class="license-plate">
                     <div class="plate-bolts">
                       <span class="bolt"></span>
                       <span class="bolt"></span>
                     </div>
                     <div class="plate-content">
-                      <div
-                        class="plate-top text-uppercase"
-                      >
+                      <div class="plate-top text-uppercase">
                         Distribuidor
                       </div>
-                      <div
-                        class="plate-number text-uppercase font-weight-bold"
-                      >
+                      <div class="plate-number text-uppercase font-weight-bold">
                         {{ item.placa }}
                       </div>
                       <div class="plate-bottom">
@@ -819,53 +834,78 @@
                   </div>
                 </div>
 
-                <v-list
-                  class="bg-transparent mt-2 pa-0 density-compact"
+                <!-- Métricas Operativas Clave para el Encargado de Carga -->
+                <v-card
+                  variant="flat"
+                  color="grey-lighten-4"
+                  class="pa-2 rounded mb-2"
                 >
-                  <v-list-item
-                    class="px-0 py-0"
-                    min-height="20"
-                  >
-                    <template v-slot:prepend>
-                      <v-icon
-                        color="grey-darken-1"
-                        size="x-small"
-                        class="mr-1"
-                        >mdi-calendar-clock</v-icon
-                      >
-                    </template>
-                    <span
-                      class="text-caption text-grey-darken-3"
-                    >
-                      Registrado:
-                      {{
-                        formatDate(item.createdAt)
-                      }}
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <span class="text-caption text-grey-darken-2 font-weight-medium">
+                      <v-icon size="x-small" color="indigo" class="mr-1">mdi-package-variant</v-icon>
+                      Mercadería a Bordo:
                     </span>
-                  </v-list-item>
-                  <v-list-item
-                    class="px-0 py-0"
-                    min-height="20"
-                  >
-                    <template v-slot:prepend>
-                      <v-icon
-                        color="grey-darken-1"
-                        size="x-small"
-                        class="mr-1"
-                        >mdi-account</v-icon
-                      >
-                    </template>
-                    <span
-                      class="text-caption text-grey-darken-3"
-                    >
-                      Por:
-                      {{
-                        item.createdBy ||
-                        'Sistema'
-                      }}
+                    <span class="text-caption font-weight-bold text-indigo-darken-4">
+                      {{ formatCurrency(item.valorMercaderiaTotal || 0) }}
                     </span>
-                  </v-list-item>
-                </v-list>
+                  </div>
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <span class="text-caption text-grey-darken-2 font-weight-medium">
+                      <v-icon size="x-small" color="blue-grey" class="mr-1">mdi-counter</v-icon>
+                      Carga Actual:
+                    </span>
+                    <span class="text-caption font-weight-bold text-grey-darken-4">
+                      {{ item.totalUnidades || 0 }} uds ({{ item.totalProductos || 0 }} prod.)
+                    </span>
+                  </div>
+                  <div class="d-flex align-center justify-space-between">
+                    <span class="text-caption text-grey-darken-2 font-weight-medium">
+                      <v-icon size="x-small" color="grey-darken-1" class="mr-1">mdi-clock-outline</v-icon>
+                      Última Carga:
+                    </span>
+                    <span class="text-caption font-weight-medium text-grey-darken-3">
+                      {{ item.fechaUltimaCarga ? formatDateTime(item.fechaUltimaCarga) : 'Sin registros' }}
+                    </span>
+                  </div>
+                </v-card>
+
+                <!-- Botón Principal: Cargar Inventario -->
+                <v-btn
+                  block
+                  color="indigo-darken-4"
+                  variant="flat"
+                  density="comfortable"
+                  prepend-icon="mdi-dolly"
+                  class="rounded font-weight-bold mb-2 text-caption"
+                  :disabled="!item.estado"
+                  @click="openDialogTraslado(item)"
+                >
+                  Cargar Inventario
+                </v-btn>
+
+                <!-- Botones Secundarios: Ver Carga & Historial -->
+                <div class="d-flex ga-2">
+                  <v-btn
+                    variant="tonal"
+                    color="indigo"
+                    size="small"
+                    prepend-icon="mdi-package-variant-closed"
+                    class="flex-grow-1 rounded font-weight-bold text-caption"
+                    @click="openDialogInventarioCamion(item)"
+                  >
+                    Ver Carga
+                  </v-btn>
+                  <v-btn
+                    variant="tonal"
+                    color="blue-grey-darken-2"
+                    size="small"
+                    prepend-icon="mdi-history"
+                    class="flex-grow-1 rounded font-weight-bold text-caption"
+                    @click="openDialogHistorialCargas(item)"
+                  >
+                    Historial
+                  </v-btn>
+                </div>
               </div>
 
               <v-divider></v-divider>
@@ -916,7 +956,7 @@
           </v-col>
 
           <!-- Tarjeta "+" para agregar uno nuevo -->
-          <v-col cols="12" sm="6" md="4" lg="3">
+          <v-col cols="12" sm="6" md="6" lg="4">
             <v-card
               class="rounded border-dashed h-100 d-flex flex-column align-center justify-center cursor-pointer add-new-card py-6"
               @click="openDialogCamion(null)"
@@ -1289,11 +1329,911 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- ================= DIÁLOGO TRASLADAR / CARGAR INVENTARIO A CAMIÓN ================= -->
+    <v-dialog
+      v-model="dialogTraslado.show"
+      max-width="950"
+      persistent
+      scrollable
+    >
+      <v-card class="rounded overflow-hidden">
+        <v-card-title
+          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
+        >
+          <div class="d-flex align-center">
+            <v-icon start class="mr-2">mdi-dolly</v-icon>
+            <span class="text-subtitle-1 font-weight-bold">
+              Cargar Inventario a Camión: {{ dialogTraslado.camion?.placa }}
+            </span>
+          </div>
+          <v-chip size="small" color="white" variant="outlined" class="font-weight-bold">
+            Bodega Destino: {{ dialogTraslado.camion?.bodegaNombre || dialogTraslado.camion?.placa }}
+          </v-chip>
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4" style="max-height: 75vh;">
+          <!-- Selección de Bodega Origen -->
+          <v-row dense class="mb-2">
+            <v-col cols="12" sm="6">
+              <v-select
+                v-model="dialogTraslado.idBodegaOrigen"
+                :items="bodegasOrigenOptions"
+                item-title="nombre"
+                item-value="idBodega"
+                label="Bodega de Origen (Desde donde se carga)*"
+                prepend-inner-icon="mdi-warehouse"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                :loading="dialogTraslado.loadingStock"
+                @update:model-value="onBodegaOrigenChange"
+              >
+                <template v-slot:item="{ props, item }">
+                  <v-list-item v-bind="props" :subtitle="item.raw.codigo ? `Código: ${item.raw.codigo}` : ''">
+                    <template v-slot:append v-if="item.raw.esPrincipal">
+                      <v-chip size="x-small" color="amber-darken-3" variant="flat">Principal</v-chip>
+                    </template>
+                  </v-list-item>
+                </template>
+              </v-select>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-text-field
+                :model-value="dialogTraslado.camion?.bodegaNombre || `Bodega Camión (${dialogTraslado.camion?.placa})`"
+                label="Bodega de Destino (Camión)"
+                prepend-inner-icon="mdi-truck"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                readonly
+                disabled
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- Sección para Seleccionar y Agregar Producto -->
+          <v-card variant="flat" color="indigo-lighten-5" class="pa-3 rounded mb-3 border border-indigo-lighten-4">
+            <div class="text-caption font-weight-bold text-indigo-darken-4 mb-2">
+              <v-icon size="small" color="indigo-darken-4" class="mr-1">mdi-plus-box</v-icon>
+              AGREGAR PRODUCTO A LA CARGA
+            </div>
+            <v-row dense class="align-center">
+              <v-col cols="12" sm="6" md="7">
+                <v-autocomplete
+                  v-model="dialogTraslado.selectedProducto"
+                  :items="bodegaOrigenStock"
+                  item-title="nombre"
+                  return-object
+                  label="Buscar producto por nombre o código..."
+                  placeholder="Escribe para buscar..."
+                  prepend-inner-icon="mdi-magnify"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  bg-color="white"
+                  hide-details
+                  :disabled="!dialogTraslado.idBodegaOrigen || dialogTraslado.loadingStock"
+                  @update:model-value="onProductoSelected"
+                >
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template v-slot:title>
+                        <span class="font-weight-bold">[{{ item.raw.codigo }}]</span> {{ item.raw.nombre }}
+                      </template>
+                      <template v-slot:subtitle>
+                        <div class="d-flex ga-2 text-caption">
+                          <span>Cat: {{ item.raw.categoria || 'N/A' }}</span>
+                          <span>|</span>
+                          <span class="text-success font-weight-bold">Disp: {{ item.raw.stockDisponible }}</span>
+                          <span>|</span>
+                          <span>Costo: {{ formatCurrency(item.raw.costo) }}</span>
+                        </div>
+                      </template>
+                    </v-list-item>
+                  </template>
+                </v-autocomplete>
+              </v-col>
+
+              <v-col cols="6" sm="3" md="3">
+                <v-text-field
+                  v-model.number="dialogTraslado.selectedCantidad"
+                  type="number"
+                  min="1"
+                  :max="dialogTraslado.selectedProducto ? dialogTraslado.selectedProducto.stockDisponible : 9999"
+                  label="Cantidad"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  bg-color="white"
+                  hide-details
+                  :disabled="!dialogTraslado.selectedProducto"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6" sm="3" md="2">
+                <v-btn
+                  block
+                  color="indigo-darken-4"
+                  variant="flat"
+                  density="comfortable"
+                  prepend-icon="mdi-plus"
+                  class="rounded font-weight-bold text-caption"
+                  :disabled="!dialogTraslado.selectedProducto || !dialogTraslado.selectedCantidad || dialogTraslado.selectedCantidad <= 0"
+                  @click="agregarProductoATraslado"
+                >
+                  Agregar
+                </v-btn>
+              </v-col>
+            </v-row>
+
+            <!-- Resumen del producto seleccionado -->
+            <div v-if="dialogTraslado.selectedProducto" class="d-flex flex-wrap ga-3 mt-2 text-caption text-indigo-darken-4 font-weight-medium">
+              <span><strong>Código:</strong> {{ dialogTraslado.selectedProducto.codigo }}</span>
+              <span><strong>Stock Disponible:</strong> <span class="text-success font-weight-bold">{{ dialogTraslado.selectedProducto.stockDisponible }}</span></span>
+              <span><strong>Costo Unit.:</strong> {{ formatCurrency(dialogTraslado.selectedProducto.costo) }}</span>
+              <span><strong>Precio Venta:</strong> {{ formatCurrency(dialogTraslado.selectedProducto.precio) }}</span>
+            </div>
+          </v-card>
+
+          <!-- Tabla de Productos a Cargar -->
+          <div class="d-flex align-center justify-space-between mb-2">
+            <span class="text-subtitle-2 font-weight-bold text-grey-darken-3">
+              Detalle de Productos para Cargar ({{ dialogTraslado.detalles.length }})
+            </span>
+          </div>
+
+          <v-table density="compact" class="border rounded mb-3">
+            <thead class="bg-grey-lighten-4 font-weight-bold">
+              <tr>
+                <th class="text-left py-2">Código</th>
+                <th class="text-left py-2">Producto</th>
+                <th class="text-center py-2" style="width: 140px;">Cantidad</th>
+                <th class="text-right py-2">Costo Unit.</th>
+                <th class="text-right py-2">Subtotal Costo</th>
+                <th class="text-center py-2" style="width: 50px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, idx) in dialogTraslado.detalles" :key="item.idProducto">
+                <td class="font-weight-medium text-caption">{{ item.codigo }}</td>
+                <td class="font-weight-bold text-caption text-indigo-darken-4">{{ item.nombre }}</td>
+                <td class="text-center">
+                  <v-text-field
+                    v-model.number="item.cantidad"
+                    type="number"
+                    min="1"
+                    :max="item.stockDisponible"
+                    density="compact"
+                    variant="outlined"
+                    hide-details
+                    style="max-width: 100px; margin: 0 auto;"
+                    @update:model-value="item.subtotalCosto = item.cantidad * item.costo"
+                  ></v-text-field>
+                </td>
+                <td class="text-right text-caption">{{ formatCurrency(item.costo) }}</td>
+                <td class="text-right font-weight-bold text-caption text-indigo-darken-4">
+                  {{ formatCurrency(item.cantidad * item.costo) }}
+                </td>
+                <td class="text-center">
+                  <v-btn
+                    icon="mdi-delete-outline"
+                    variant="text"
+                    color="red-darken-2"
+                    size="small"
+                    @click="eliminarDetalleTraslado(idx)"
+                  ></v-btn>
+                </td>
+              </tr>
+              <tr v-if="dialogTraslado.detalles.length === 0">
+                <td colspan="6" class="text-center py-4 text-grey text-caption">
+                  No hay productos agregados a la carga. Selecciona y agrega productos arriba.
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+
+          <!-- Barra de Totales de la Carga -->
+          <v-card variant="flat" color="grey-lighten-4" class="pa-3 rounded mb-3">
+            <div class="d-flex flex-wrap align-center justify-space-between ga-3">
+              <div>
+                <span class="text-caption text-grey-darken-2">Total Ítems: </span>
+                <span class="text-subtitle-2 font-weight-bold text-grey-darken-4">{{ dialogTraslado.detalles.length }}</span>
+              </div>
+              <v-divider vertical class="mx-1" />
+              <div>
+                <span class="text-caption text-grey-darken-2">Total Unidades: </span>
+                <span class="text-subtitle-2 font-weight-bold text-indigo-darken-4">{{ totalUnidadesTraslado }}</span>
+              </div>
+              <v-divider vertical class="mx-1" />
+              <div>
+                <span class="text-caption text-grey-darken-2">Valor Total de la Carga (Costo): </span>
+                <span class="text-subtitle-1 font-weight-bold text-success-darken-2">{{ formatCurrency(totalValorTraslado) }}</span>
+              </div>
+            </div>
+          </v-card>
+
+          <!-- Observaciones -->
+          <v-textarea
+            v-model="dialogTraslado.observaciones"
+            label="Observaciones del Traslado / Carga"
+            placeholder="Ej: Carga inicial para ruta matutina..."
+            variant="outlined"
+            density="compact"
+            rows="2"
+            color="indigo"
+            hide-details
+          ></v-textarea>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="outlined"
+            color="grey"
+            density="comfortable"
+            class="rounded font-weight-bold text-caption"
+            @click="dialogTraslado.show = false"
+          >
+            Cancelar
+          </v-btn>
+          <v-btn
+            color="indigo-darken-4"
+            variant="flat"
+            density="comfortable"
+            prepend-icon="mdi-check"
+            class="rounded font-weight-bold px-4 text-caption"
+            :loading="dialogTraslado.saving"
+            :disabled="dialogTraslado.detalles.length === 0"
+            @click="saveTraslado"
+          >
+            Confirmar y Cargar Camión
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ================= DIÁLOGO INVENTARIO A BORDO DEL CAMIÓN ================= -->
+    <v-dialog
+      v-model="dialogInventarioCamion.show"
+      max-width="950"
+      persistent
+      scrollable
+    >
+      <v-card class="rounded overflow-hidden">
+        <v-card-title
+          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
+        >
+          <div class="d-flex align-center">
+            <v-icon start class="mr-2">mdi-package-variant-closed</v-icon>
+            <span class="text-subtitle-1 font-weight-bold">
+              Inventario a Bordo: Camión {{ dialogInventarioCamion.camion?.placa }}
+            </span>
+          </div>
+          <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="dialogInventarioCamion.show = false"></v-btn>
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4" style="max-height: 75vh;">
+          <!-- Tarjetas Resumen de Mercadería a Bordo -->
+          <v-row dense class="mb-3">
+            <v-col cols="12" sm="4">
+              <v-card variant="flat" color="indigo-lighten-5" class="pa-3 rounded border border-indigo-lighten-4">
+                <div class="text-caption text-grey-darken-2">Productos Diferentes</div>
+                <div class="text-h6 font-weight-bold text-indigo-darken-4">{{ dialogInventarioCamion.items.length }}</div>
+              </v-card>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-card variant="flat" color="blue-lighten-5" class="pa-3 rounded border border-blue-lighten-4">
+                <div class="text-caption text-grey-darken-2">Total Unidades a Bordo</div>
+                <div class="text-h6 font-weight-bold text-blue-darken-4">{{ totalUnidadesInventarioCamion }}</div>
+              </v-card>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-card variant="flat" color="teal-lighten-5" class="pa-3 rounded border border-teal-lighten-4">
+                <div class="text-caption text-grey-darken-2">Valor Mercadería (Costo)</div>
+                <div class="text-h6 font-weight-bold text-teal-darken-4">{{ formatCurrency(totalCostoInventarioCamion) }}</div>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <!-- Búsqueda -->
+          <v-row dense class="mb-2">
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="dialogInventarioCamion.search"
+                label="Buscar en inventario a bordo..."
+                prepend-inner-icon="mdi-magnify"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- Loader -->
+          <div v-if="dialogInventarioCamion.loading" class="d-flex justify-center my-6">
+            <v-progress-circular indeterminate color="indigo-darken-4" size="40"></v-progress-circular>
+          </div>
+
+          <!-- Tabla de Inventario a Bordo -->
+          <v-table v-else density="compact" class="border rounded">
+            <thead class="bg-grey-lighten-4 font-weight-bold">
+              <tr>
+                <th class="text-left py-2">Código</th>
+                <th class="text-left py-2">Producto</th>
+                <th class="text-left py-2">Categoría</th>
+                <th class="text-center py-2">Cantidad a Bordo</th>
+                <th class="text-right py-2">Costo Unit.</th>
+                <th class="text-right py-2">Precio Venta</th>
+                <th class="text-right py-2">Total Costo</th>
+                <th class="text-right py-2">Total Venta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in filteredInventarioCamion" :key="item.idProducto">
+                <td class="font-weight-medium text-caption">{{ item.codigo }}</td>
+                <td class="font-weight-bold text-caption text-indigo-darken-4">{{ item.nombre }}</td>
+                <td class="text-caption text-grey-darken-2">{{ item.categoria || 'N/A' }}</td>
+                <td class="text-center font-weight-bold text-caption text-indigo-darken-4">{{ item.cantidadTotal }}</td>
+                <td class="text-right text-caption">{{ formatCurrency(item.costoUnitario) }}</td>
+                <td class="text-right text-caption">{{ formatCurrency(item.precioUnitario) }}</td>
+                <td class="text-right font-weight-bold text-caption text-teal-darken-4">{{ formatCurrency(item.totalCosto) }}</td>
+                <td class="text-right font-weight-bold text-caption text-blue-darken-4">{{ formatCurrency(item.totalVenta) }}</td>
+              </tr>
+              <tr v-if="filteredInventarioCamion.length === 0">
+                <td colspan="8" class="text-center py-6 text-grey text-caption">
+                  Este camión no tiene mercadería a bordo actualmente.
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="indigo-darken-4"
+            variant="flat"
+            density="comfortable"
+            class="rounded font-weight-bold px-4 text-caption"
+            @click="dialogInventarioCamion.show = false"
+          >
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ================= DIÁLOGO HISTORIAL DE CARGAS DEL CAMIÓN ================= -->
+    <v-dialog
+      v-model="dialogHistorialCargas.show"
+      max-width="950"
+      persistent
+      scrollable
+    >
+      <v-card class="rounded overflow-hidden">
+        <v-card-title
+          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
+        >
+          <div class="d-flex align-center">
+            <v-icon start class="mr-2">mdi-history</v-icon>
+            <span class="text-subtitle-1 font-weight-bold">
+              Historial de Cargas / Traslados: Camión {{ dialogHistorialCargas.camion?.placa }}
+            </span>
+          </div>
+          <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="dialogHistorialCargas.show = false"></v-btn>
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4" style="max-height: 75vh;">
+          <!-- Búsqueda -->
+          <v-row dense class="mb-2">
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="dialogHistorialCargas.search"
+                label="Buscar en historial (referencia, bodega, usuario)..."
+                prepend-inner-icon="mdi-magnify"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- Loader -->
+          <div v-if="dialogHistorialCargas.loading" class="d-flex justify-center my-6">
+            <v-progress-circular indeterminate color="indigo-darken-4" size="40"></v-progress-circular>
+          </div>
+
+          <!-- Tabla de Historial -->
+          <v-table v-else density="compact" class="border rounded">
+            <thead class="bg-grey-lighten-4 font-weight-bold">
+              <tr>
+                <th class="text-left py-2">Fecha / Hora</th>
+                <th class="text-left py-2">Referencia</th>
+                <th class="text-left py-2">Bodega Origen</th>
+                <th class="text-center py-2">Ítems</th>
+                <th class="text-right py-2">Valor Total</th>
+                <th class="text-left py-2">Responsable</th>
+                <th class="text-left py-2">Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in filteredHistorialCargas" :key="item.idMovInventario">
+                <td class="font-weight-medium text-caption">{{ formatDateTime(item.fechaRegistro) }}</td>
+                <td class="font-weight-bold text-caption text-indigo-darken-4">{{ item.referencia || '---' }}</td>
+                <td class="text-caption">{{ item.bodegaOrigenNombre || '---' }}</td>
+                <td class="text-center font-weight-bold text-caption">{{ item.totalItems || 0 }}</td>
+                <td class="text-right font-weight-bold text-caption text-teal-darken-4">{{ formatCurrency(item.totalValor) }}</td>
+                <td class="text-caption text-grey-darken-3">{{ item.usuarioRegistro || 'Sistema' }}</td>
+                <td class="text-caption text-grey-darken-2">{{ item.observaciones || '---' }}</td>
+              </tr>
+              <tr v-if="filteredHistorialCargas.length === 0">
+                <td colspan="7" class="text-center py-6 text-grey text-caption">
+                  No hay registros de cargas anteriores para este camión.
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="indigo-darken-4"
+            variant="flat"
+            density="comfortable"
+            class="rounded font-weight-bold px-4 text-caption"
+            @click="dialogHistorialCargas.show = false"
+          >
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ================= DIÁLOGO INVENTARIO CONSOLIDADO DE CAMIONES ================= -->
+    <v-dialog
+      v-model="dialogConsolidado.show"
+      max-width="1250"
+      persistent
+      scrollable
+    >
+      <v-card class="rounded overflow-hidden">
+        <!-- Header del Diálogo -->
+        <v-card-title
+          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
+        >
+          <div class="d-flex align-center">
+            <v-avatar size="36" color="white" class="mr-3" variant="flat">
+              <v-icon color="indigo-darken-4" size="22">mdi-truck-cargo-container</v-icon>
+            </v-avatar>
+            <div>
+              <div class="text-subtitle-1 font-weight-bold lh-1">
+                Inventario Consolidado de Carga en Camiones
+              </div>
+              <div class="text-indigo-lighten-4 text-caption">
+                Informe de existencias, productos y valorización agrupado por unidad de transporte
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-center ga-2 flex-wrap mt-2 mt-sm-0">
+            <v-chip
+              v-if="dialogConsolidado.data?.fechaGeneracion"
+              size="small"
+              color="indigo-lighten-4"
+              variant="flat"
+              class="text-indigo-darken-4 font-weight-bold"
+            >
+              <v-icon start size="14">mdi-clock-outline</v-icon>
+              {{ formatDateTime(dialogConsolidado.data.fechaGeneracion) }}
+            </v-chip>
+            <v-btn
+              icon
+              variant="text"
+              size="small"
+              color="white"
+              @click="toggleExpandAllConsolidado()"
+            >
+              <v-icon size="20">mdi-arrow-expand-vertical</v-icon>
+              <v-tooltip activator="parent" location="top" text="Expandir / Contraer Todo" />
+            </v-btn>
+            <v-btn
+              icon
+              variant="text"
+              size="small"
+              color="white"
+              :loading="dialogConsolidado.loading"
+              @click="fetchInformeConsolidado()"
+            >
+              <v-icon size="20">mdi-refresh</v-icon>
+              <v-tooltip activator="parent" location="top" text="Actualizar Datos" />
+            </v-btn>
+            <v-btn
+              icon
+              variant="text"
+              size="small"
+              color="white"
+              @click="imprimirInformeConsolidado()"
+            >
+              <v-icon size="20">mdi-printer</v-icon>
+              <v-tooltip activator="parent" location="top" text="Imprimir Informe" />
+            </v-btn>
+            <v-btn
+              icon
+              variant="text"
+              size="small"
+              color="white"
+              @click="dialogConsolidado.show = false"
+            >
+              <v-icon size="20">mdi-close</v-icon>
+              <v-tooltip activator="parent" location="top" text="Cerrar" />
+            </v-btn>
+          </div>
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4 bg-grey-lighten-4" style="max-height: 80vh;" id="printable-consolidado-content">
+          <!-- Barra de Filtros y Búsqueda -->
+          <v-card variant="flat" class="pa-3 mb-3 rounded border bg-white">
+            <v-row dense align="center">
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  v-model="dialogConsolidado.search"
+                  label="Buscar producto, placa o categoría..."
+                  prepend-inner-icon="mdi-magnify"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  hide-details
+                  clearable
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-autocomplete
+                  v-model="dialogConsolidado.filterIdCamion"
+                  :items="camionesOptionsInforme"
+                  item-title="title"
+                  item-value="value"
+                  label="Filtrar por Camión"
+                  prepend-inner-icon="mdi-truck"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  hide-details
+                  @update:model-value="fetchInformeConsolidado()"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" md="4" sm="12" class="d-flex align-center justify-md-end">
+                <v-switch
+                  v-model="dialogConsolidado.soloConStock"
+                  label="Solo con Stock Activo (> 0)"
+                  color="indigo"
+                  density="compact"
+                  hide-details
+                  @update:model-value="fetchInformeConsolidado()"
+                ></v-switch>
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <!-- Loader -->
+          <div v-if="dialogConsolidado.loading" class="d-flex flex-column align-center justify-center my-10">
+            <v-progress-circular indeterminate color="indigo-darken-4" size="50" width="4"></v-progress-circular>
+            <span class="text-caption font-weight-bold text-indigo-darken-4 mt-3">Generando informe consolidado...</span>
+          </div>
+
+          <!-- Resumen de Métricas Globales (KPI Cards) -->
+          <template v-else-if="filteredInformeCamiones.length > 0">
+            <v-row dense class="mb-3">
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="indigo-lighten-5" class="pa-2 rounded border border-indigo-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Camiones</div>
+                  <div class="text-h6 font-weight-bold text-indigo-darken-4">{{ resumenInformeConsolidado.totalCamiones }}</div>
+                  <div class="text-caption text-indigo-darken-2 font-weight-bold" style="font-size: 10px;">Unidades de reparto</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="deep-purple-lighten-5" class="pa-2 rounded border border-deep-purple-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Productos Distintos</div>
+                  <div class="text-h6 font-weight-bold text-deep-purple-darken-4">{{ resumenInformeConsolidado.totalProductosDistintos }}</div>
+                  <div class="text-caption text-deep-purple-darken-2 font-weight-bold" style="font-size: 10px;">Variedad en carga</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="blue-lighten-5" class="pa-2 rounded border border-blue-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Total Unidades</div>
+                  <div class="text-h6 font-weight-bold text-blue-darken-4">{{ resumenInformeConsolidado.totalUnidades }}</div>
+                  <div class="text-caption text-blue-darken-2 font-weight-bold" style="font-size: 10px;">Carga total a bordo</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="teal-lighten-5" class="pa-2 rounded border border-teal-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Valor Total Costo</div>
+                  <div class="text-subtitle-1 font-weight-bold text-teal-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidado.totalCosto) }}</div>
+                  <div class="text-caption text-teal-darken-2 font-weight-bold" style="font-size: 10px;">Inversión en carga</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="blue-grey-lighten-5" class="pa-2 rounded border border-blue-grey-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Valor Total Venta</div>
+                  <div class="text-subtitle-1 font-weight-bold text-blue-grey-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidado.totalVenta) }}</div>
+                  <div class="text-caption text-blue-grey-darken-2 font-weight-bold" style="font-size: 10px;">Proyección venta</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="green-lighten-5" class="pa-2 rounded border border-green-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Ganancia Estimada</div>
+                  <div class="text-subtitle-1 font-weight-bold text-green-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidado.ganancia) }}</div>
+                  <div class="text-caption text-green-darken-3 font-weight-bold" style="font-size: 10px;">
+                    Margen: {{ resumenInformeConsolidado.margen }}%
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Agrupación por Camión (Expansion Panels de Informe) -->
+            <v-expansion-panels
+              v-model="dialogConsolidado.expandedPanels"
+              multiple
+              variant="popout"
+              class="mb-3"
+            >
+              <v-expansion-panel
+                v-for="(camion, idx) in filteredInformeCamiones"
+                :key="camion.idCamion || idx"
+                class="mb-2 border rounded-lg overflow-hidden bg-white"
+                elevation="1"
+              >
+                <!-- Cabecera del Camión -->
+                <v-expansion-panel-title class="py-2 px-3 bg-grey-lighten-4">
+                  <div class="d-flex align-center justify-space-between flex-wrap w-100 pr-2 ga-2">
+                    <div class="d-flex align-center">
+                      <v-chip
+                        size="small"
+                        color="indigo-darken-4"
+                        variant="flat"
+                        class="font-weight-bold mr-2 text-white"
+                      >
+                        <v-icon start size="16">mdi-truck</v-icon>
+                        {{ camion.placa }}
+                      </v-chip>
+                      <div class="mr-3">
+                        <div class="text-subtitle-2 font-weight-bold text-grey-darken-4 lh-1">
+                          {{ camion.bodegaNombre || ('Camión ' + camion.placa) }}
+                        </div>
+                        <div class="text-caption text-grey-darken-1" style="font-size: 11px;">
+                          {{ camion.codigoBodega ? 'Código: ' + camion.codigoBodega + ' | ' : '' }}
+                          <span v-if="camion.fechaUltimaCarga">
+                            Última Carga: {{ formatDateTime(camion.fechaUltimaCarga) }}
+                            <span v-if="camion.usuarioUltimaCarga">({{ camion.usuarioUltimaCarga }})</span>
+                          </span>
+                          <span v-else>Sin registro de carga previa</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Badges Resumen del Camión (Subtotales) -->
+                    <div class="d-flex align-center flex-wrap ga-1">
+                      <v-chip size="x-small" color="indigo" variant="tonal" class="font-weight-bold">
+                        {{ camion.totalProductos }} ítems
+                      </v-chip>
+                      <v-chip size="x-small" color="blue-darken-3" variant="tonal" class="font-weight-bold">
+                        {{ camion.totalUnidades }} unids.
+                      </v-chip>
+                      <v-chip size="x-small" color="teal-darken-3" variant="tonal" class="font-weight-bold">
+                        Costo: {{ formatCurrency(camion.valorTotalCosto) }}
+                      </v-chip>
+                      <v-chip size="x-small" color="blue-grey-darken-3" variant="tonal" class="font-weight-bold">
+                        Venta: {{ formatCurrency(camion.valorTotalVenta) }}
+                      </v-chip>
+                      <v-chip size="x-small" color="green-darken-3" variant="flat" class="font-weight-bold text-white">
+                        Ganancia: {{ formatCurrency(camion.gananciaEstimada) }} ({{ camion.margenPorcentaje }}%)
+                      </v-chip>
+                    </div>
+                  </div>
+                </v-expansion-panel-title>
+
+                <!-- Tabla de Productos del Camión -->
+                <v-expansion-panel-text class="pa-0">
+                  <v-table density="compact" class="table-consolidado-camion">
+                    <thead class="bg-indigo-lighten-5 font-weight-bold">
+                      <tr>
+                        <th class="text-center py-2" style="width: 40px;">#</th>
+                        <th class="text-left py-2" style="width: 90px;">Código</th>
+                        <th class="text-left py-2">Producto</th>
+                        <th class="text-left py-2">Categoría</th>
+                        <th class="text-center py-2">U.M.</th>
+                        <th class="text-center py-2" style="width: 80px;">Carga</th>
+                        <th class="text-right py-2">Costo Unit.</th>
+                        <th class="text-right py-2">Precio Venta</th>
+                        <th class="text-right py-2 font-weight-bold text-teal-darken-4">Subtotal Costo</th>
+                        <th class="text-right py-2 font-weight-bold text-blue-darken-4">Subtotal Venta</th>
+                        <th class="text-right py-2 font-weight-bold text-green-darken-4">Ganancia Est.</th>
+                        <th class="text-center py-2" style="width: 70px;">Margen</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(prod, pIdx) in camion.productos"
+                        :key="prod.idStockBodega || prod.idProducto || pIdx"
+                        class="hover-row"
+                      >
+                        <td class="text-center text-caption text-grey font-weight-bold">{{ pIdx + 1 }}</td>
+                        <td class="text-caption font-weight-medium">
+                          <v-chip size="x-small" variant="flat" color="grey-lighten-3" class="font-weight-bold">
+                            {{ prod.codigo || '---' }}
+                          </v-chip>
+                        </td>
+                        <td class="text-caption font-weight-bold text-indigo-darken-4">
+                          {{ prod.nombre }}
+                        </td>
+                        <td class="text-caption text-grey-darken-2">
+                          {{ prod.categoria || '---' }}
+                        </td>
+                        <td class="text-center text-caption text-grey-darken-3">
+                          {{ prod.unidadMedida || 'Und' }}
+                        </td>
+                        <td class="text-center font-weight-bold text-caption text-indigo-darken-4">
+                          <v-chip size="x-small" color="indigo-lighten-5" class="text-indigo-darken-4 font-weight-bold">
+                            {{ prod.cantidad }}
+                          </v-chip>
+                        </td>
+                        <td class="text-right text-caption">
+                          {{ formatCurrency(prod.costoUnitario) }}
+                        </td>
+                        <td class="text-right text-caption">
+                          {{ formatCurrency(prod.precioUnitario) }}
+                        </td>
+                        <td class="text-right font-weight-bold text-caption text-teal-darken-4">
+                          {{ formatCurrency(prod.totalCosto) }}
+                        </td>
+                        <td class="text-right font-weight-bold text-caption text-blue-darken-4">
+                          {{ formatCurrency(prod.totalVenta) }}
+                        </td>
+                        <td class="text-right font-weight-bold text-caption text-green-darken-4">
+                          {{ formatCurrency(prod.gananciaEstimada) }}
+                        </td>
+                        <td class="text-center text-caption">
+                          <v-chip
+                            size="x-small"
+                            :color="prod.margenPorcentaje >= 30 ? 'green-darken-3' : (prod.margenPorcentaje > 0 ? 'amber-darken-4' : 'grey')"
+                            variant="tonal"
+                            class="font-weight-bold"
+                          >
+                            {{ prod.margenPorcentaje }}%
+                          </v-chip>
+                        </td>
+                      </tr>
+                      <tr v-if="!camion.productos || camion.productos.length === 0">
+                        <td colspan="12" class="text-center py-4 text-grey text-caption">
+                          No hay productos registrados en la carga de este camión.
+                        </td>
+                      </tr>
+                    </tbody>
+                    <!-- Fila de Subtotales del Camión -->
+                    <tfoot class="bg-indigo-lighten-5 font-weight-bold">
+                      <tr class="border-top-2">
+                        <td colspan="5" class="text-right py-2 text-caption text-indigo-darken-4">
+                          <strong>Subtotal Camión {{ camion.placa }}:</strong>
+                          <span class="text-caption text-grey-darken-2 ml-1">({{ camion.totalProductos }} productos)</span>
+                        </td>
+                        <td class="text-center py-2 text-caption text-indigo-darken-4">
+                          <strong>{{ camion.totalUnidades }}</strong>
+                        </td>
+                        <td colspan="2" class="text-right py-2 text-caption text-grey-darken-2">
+                          Totales Camión:
+                        </td>
+                        <td class="text-right py-2 text-caption text-teal-darken-4">
+                          <strong>{{ formatCurrency(camion.valorTotalCosto) }}</strong>
+                        </td>
+                        <td class="text-right py-2 text-caption text-blue-darken-4">
+                          <strong>{{ formatCurrency(camion.valorTotalVenta) }}</strong>
+                        </td>
+                        <td class="text-right py-2 text-caption text-green-darken-4">
+                          <strong>{{ formatCurrency(camion.gananciaEstimada) }}</strong>
+                        </td>
+                        <td class="text-center py-2 text-caption font-weight-bold text-indigo-darken-4">
+                          <strong>{{ camion.margenPorcentaje }}%</strong>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </v-table>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <!-- Card de Gran Total Consolidado Final -->
+            <v-card variant="flat" class="pa-3 border rounded-lg bg-indigo-darken-4 text-white">
+              <div class="d-flex align-center justify-space-between flex-wrap ga-3">
+                <div class="d-flex align-center">
+                  <v-icon size="24" class="mr-2" color="white">mdi-sigma</v-icon>
+                  <div>
+                    <div class="text-subtitle-1 font-weight-bold lh-1 text-white">
+                      Gran Total Consolidado (Todos los Camiones)
+                    </div>
+                    <div class="text-caption text-indigo-lighten-3">
+                      Total {{ resumenInformeConsolidado.totalCamiones }} camiones | {{ resumenInformeConsolidado.totalProductosDistintos }} productos distintos | {{ resumenInformeConsolidado.totalUnidades }} unidades en ruta
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex align-center flex-wrap ga-3">
+                  <div class="text-right">
+                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">Total Costo</div>
+                    <div class="text-subtitle-2 font-weight-bold text-white">{{ formatCurrency(resumenInformeConsolidado.totalCosto) }}</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">Total Venta Estimada</div>
+                    <div class="text-subtitle-2 font-weight-bold text-white">{{ formatCurrency(resumenInformeConsolidado.totalVenta) }}</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-caption text-green-lighten-3" style="font-size: 11px;">Ganancia Global ({{ resumenInformeConsolidado.margen }}%)</div>
+                    <div class="text-subtitle-2 font-weight-bold text-green-accent-2">{{ formatCurrency(resumenInformeConsolidado.ganancia) }}</div>
+                  </div>
+                </div>
+              </div>
+            </v-card>
+          </template>
+
+          <!-- No Data View -->
+          <v-sheet
+            v-else
+            class="text-center py-10 rounded border bg-white"
+          >
+            <v-avatar color="indigo-lighten-5" size="64" class="mb-3">
+              <v-icon size="36" color="indigo-darken-3">mdi-truck-outline</v-icon>
+            </v-avatar>
+            <h4 class="text-subtitle-1 font-weight-bold text-grey-darken-3">
+              No se encontraron datos para el informe
+            </h4>
+            <p class="text-caption text-grey-darken-1 mt-1">
+              Verifique los filtros seleccionados o asegúrese de que los camiones cuenten con cargas de inventario registradas.
+            </p>
+          </v-sheet>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4 d-flex justify-space-between align-center">
+          <div class="text-caption text-grey-darken-2 font-weight-medium">
+            Mostrando {{ filteredInformeCamiones.length }} de {{ dialogConsolidado.data?.totalCamiones || 0 }} camiones
+          </div>
+          <div class="d-flex ga-2">
+            <v-btn
+              color="indigo-darken-4"
+              variant="tonal"
+              density="comfortable"
+              prepend-icon="mdi-printer"
+              class="rounded font-weight-bold px-4 text-caption"
+              @click="imprimirInformeConsolidado()"
+            >
+              Imprimir
+            </v-btn>
+            <v-btn
+              color="indigo-darken-4"
+              variant="flat"
+              density="comfortable"
+              class="rounded font-weight-bold px-4 text-caption"
+              @click="dialogConsolidado.show = false"
+            >
+              Cerrar
+            </v-btn>
+          </div>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
 import RequestHttp from '@/services/requestHttp'
+import { formatters } from '@/helpers/formatters'
 
 export default {
   name: 'BodegasManagement',
@@ -1361,6 +2301,49 @@ export default {
         }
       },
 
+      // Diálogo de Traslado / Carga a Camión
+      dialogTraslado: {
+        show: false,
+        loadingStock: false,
+        saving: false,
+        camion: null,
+        idBodegaOrigen: null,
+        observaciones: '',
+        detalles: [],
+        selectedProducto: null,
+        selectedCantidad: 1
+      },
+      bodegaOrigenStock: [],
+
+      // Diálogo de Inventario a Bordo
+      dialogInventarioCamion: {
+        show: false,
+        loading: false,
+        camion: null,
+        search: '',
+        items: []
+      },
+
+      // Diálogo de Historial de Cargas
+      dialogHistorialCargas: {
+        show: false,
+        loading: false,
+        camion: null,
+        search: '',
+        items: []
+      },
+
+      // Diálogo de Inventario Consolidado de Camiones
+      dialogConsolidado: {
+        show: false,
+        loading: false,
+        filterIdCamion: null,
+        soloConStock: true,
+        search: '',
+        data: null,
+        expandedPanels: []
+      },
+
       // Alertas
       alert: {
         show: false,
@@ -1411,14 +2394,179 @@ export default {
       )
     },
 
+    bodegasOrigenOptions() {
+      const destId = this.dialogTraslado.camion?.idBodega
+      return this.bodegas.filter((b) => b.estado && b.idBodega !== destId)
+    },
+
+    totalUnidadesTraslado() {
+      return this.dialogTraslado.detalles.reduce((acc, item) => acc + (Number(item.cantidad) || 0), 0)
+    },
+
+    totalValorTraslado() {
+      return this.dialogTraslado.detalles.reduce((acc, item) => acc + ((Number(item.cantidad) || 0) * (Number(item.costo) || 0)), 0)
+    },
+
+    filteredInventarioCamion() {
+      let list = [...this.dialogInventarioCamion.items]
+      if (this.dialogInventarioCamion.search) {
+        const s = this.dialogInventarioCamion.search.toLowerCase().trim()
+        list = list.filter((i) =>
+          (i.codigo && i.codigo.toLowerCase().includes(s)) ||
+          (i.nombre && i.nombre.toLowerCase().includes(s)) ||
+          (i.categoria && i.categoria.toLowerCase().includes(s))
+        )
+      }
+      return list
+    },
+
+    totalUnidadesInventarioCamion() {
+      return this.dialogInventarioCamion.items.reduce((acc, i) => acc + (Number(i.cantidadTotal) || 0), 0)
+    },
+
+    totalCostoInventarioCamion() {
+      return this.dialogInventarioCamion.items.reduce((acc, i) => acc + (Number(i.totalCosto) || 0), 0)
+    },
+
+    totalVentaInventarioCamion() {
+      return this.dialogInventarioCamion.items.reduce((acc, i) => acc + (Number(i.totalVenta) || 0), 0)
+    },
+
+    filteredHistorialCargas() {
+      let list = [...this.dialogHistorialCargas.items]
+      if (this.dialogHistorialCargas.search) {
+        const s = this.dialogHistorialCargas.search.toLowerCase().trim()
+        list = list.filter((h) =>
+          (h.referencia && h.referencia.toLowerCase().includes(s)) ||
+          (h.bodegaOrigenNombre && h.bodegaOrigenNombre.toLowerCase().includes(s)) ||
+          (h.usuarioRegistro && h.usuarioRegistro.toLowerCase().includes(s)) ||
+          (h.observaciones && h.observaciones.toLowerCase().includes(s))
+        )
+      }
+      return list
+    },
+
     usuarioLogueado() {
       return (
         localStorage.getItem('name') || 'Admin'
       )
+    },
+
+    camionesOptionsInforme() {
+      const options = [{ title: 'Todos los Camiones', value: null }]
+      if (this.camiones && this.camiones.length > 0) {
+        this.camiones.forEach((c) => {
+          options.push({
+            title: `Camión ${c.placa}${c.bodegaNombre ? ' (' + c.bodegaNombre + ')' : ''}`,
+            value: c.idCamion
+          })
+        })
+      }
+      return options
+    },
+
+    filteredInformeCamiones() {
+      if (!this.dialogConsolidado.data?.camiones) return []
+      let list = this.dialogConsolidado.data.camiones
+
+      if (this.dialogConsolidado.search) {
+        const s = this.dialogConsolidado.search.toLowerCase().trim()
+        list = list
+          .map((c) => {
+            const placaMatch = c.placa?.toLowerCase().includes(s)
+            const bodegaMatch =
+              c.bodegaNombre?.toLowerCase().includes(s) ||
+              c.codigoBodega?.toLowerCase().includes(s)
+            const productosFiltrados = (c.productos || []).filter(
+              (p) =>
+                p.nombre?.toLowerCase().includes(s) ||
+                p.codigo?.toLowerCase().includes(s) ||
+                p.categoria?.toLowerCase().includes(s)
+            )
+            if (placaMatch || bodegaMatch) {
+              return c
+            } else if (productosFiltrados.length > 0) {
+              const valorCosto = productosFiltrados.reduce(
+                (sum, p) => sum + (Number(p.totalCosto) || 0),
+                0
+              )
+              const valorVenta = productosFiltrados.reduce(
+                (sum, p) => sum + (Number(p.totalVenta) || 0),
+                0
+              )
+              const ganancia = valorVenta - valorCosto
+              const margen =
+                valorCosto > 0
+                  ? Math.round((ganancia / valorCosto) * 100 * 100) / 100
+                  : valorVenta > 0
+                  ? 100
+                  : 0
+              return {
+                ...c,
+                productos: productosFiltrados,
+                totalProductos: productosFiltrados.length,
+                totalUnidades: productosFiltrados.reduce(
+                  (sum, p) => sum + (Number(p.cantidad) || 0),
+                  0
+                ),
+                valorTotalCosto: valorCosto,
+                valorTotalVenta: valorVenta,
+                gananciaEstimada: ganancia,
+                margenPorcentaje: margen
+              }
+            }
+            return null
+          })
+          .filter(Boolean)
+      }
+      return list
+    },
+
+    resumenInformeConsolidado() {
+      const camiones = this.filteredInformeCamiones
+      const totalCamiones = camiones.length
+      const totalUnidades = camiones.reduce(
+        (sum, c) => sum + (Number(c.totalUnidades) || 0),
+        0
+      )
+      const totalCosto = camiones.reduce(
+        (sum, c) => sum + (Number(c.valorTotalCosto) || 0),
+        0
+      )
+      const totalVenta = camiones.reduce(
+        (sum, c) => sum + (Number(c.valorTotalVenta) || 0),
+        0
+      )
+      const ganancia = totalVenta - totalCosto
+      const margen =
+        totalCosto > 0
+          ? ((ganancia / totalCosto) * 100).toFixed(2)
+          : totalVenta > 0
+          ? '100.00'
+          : '0.00'
+
+      const allProdIds = new Set()
+      camiones.forEach((c) => {
+        ;(c.productos || []).forEach((p) => allProdIds.add(p.idProducto))
+      })
+
+      return {
+        totalCamiones,
+        totalProductosDistintos: allProdIds.size,
+        totalUnidades,
+        totalCosto,
+        totalVenta,
+        ganancia,
+        margen
+      }
     }
   },
 
   methods: {
+    formatCurrency(val) {
+      return formatters.formatCurrency(val || 0, 'NIO')
+    },
+
     formatDate(dateString) {
       if (!dateString) return '---'
       const date = new Date(dateString)
@@ -1426,6 +2574,18 @@ export default {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
+      })
+    },
+
+    formatDateTime(dateString) {
+      if (!dateString) return '---'
+      const date = new Date(dateString)
+      return date.toLocaleString('es-NI', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       })
     },
 
@@ -1770,11 +2930,244 @@ export default {
           'error'
         )
       }
-    }
-  },
+    },
 
-  mounted() {
-    this.loadAllData()
+    // ================= MÉTODOS TRASLADO / CARGA A CAMIÓN =================
+    async openDialogTraslado(camion) {
+      this.dialogTraslado.camion = camion
+      this.dialogTraslado.idBodegaOrigen = null
+      this.dialogTraslado.observaciones = ''
+      this.dialogTraslado.detalles = []
+      this.dialogTraslado.selectedProducto = null
+      this.dialogTraslado.selectedCantidad = 1
+      this.bodegaOrigenStock = []
+
+      // Auto-seleccionar bodega principal si está disponible o la primera bodega activa diferente al camión
+      const principal = this.bodegas.find((b) => b.esPrincipal && b.idBodega !== camion.idBodega)
+      if (principal) {
+        this.dialogTraslado.idBodegaOrigen = principal.idBodega
+        await this.onBodegaOrigenChange(principal.idBodega)
+      } else {
+        const first = this.bodegas.find((b) => b.estado && b.idBodega !== camion.idBodega)
+        if (first) {
+          this.dialogTraslado.idBodegaOrigen = first.idBodega
+          await this.onBodegaOrigenChange(first.idBodega)
+        }
+      }
+
+      this.dialogTraslado.show = true
+    },
+
+    async onBodegaOrigenChange(idBodega) {
+      this.dialogTraslado.detalles = []
+      this.dialogTraslado.selectedProducto = null
+      this.dialogTraslado.selectedCantidad = 1
+      this.bodegaOrigenStock = []
+
+      if (!idBodega) return
+
+      this.dialogTraslado.loadingStock = true
+      try {
+        const res = await this.requestHttp.getBodegaStock(idBodega)
+        if (res.code === 200 && Array.isArray(res.data)) {
+          this.bodegaOrigenStock = res.data.filter((item) => Number(item.stockDisponible) > 0)
+        }
+      } catch (err) {
+        this.showSnackbar('Error al obtener el stock de la bodega seleccionada.', 'error')
+      } finally {
+        this.dialogTraslado.loadingStock = false
+      }
+    },
+
+    onProductoSelected(prod) {
+      if (prod) {
+        this.dialogTraslado.selectedCantidad = 1
+      }
+    },
+
+    agregarProductoATraslado() {
+      const prod = this.dialogTraslado.selectedProducto
+      const cant = Number(this.dialogTraslado.selectedCantidad)
+
+      if (!prod) {
+        this.showSnackbar('Por favor selecciona un producto.', 'warning')
+        return
+      }
+      if (!cant || cant <= 0) {
+        this.showSnackbar('La cantidad a trasladar debe ser mayor a 0.', 'warning')
+        return
+      }
+      if (cant > prod.stockDisponible) {
+        this.showSnackbar(`La cantidad (${cant}) excede el stock disponible (${prod.stockDisponible}).`, 'error')
+        return
+      }
+
+      const existingIndex = this.dialogTraslado.detalles.findIndex((d) => d.idProducto === prod.idProducto)
+      if (existingIndex >= 0) {
+        const newTotalCant = Number(this.dialogTraslado.detalles[existingIndex].cantidad) + cant
+        if (newTotalCant > prod.stockDisponible) {
+          this.showSnackbar(`El acumulado (${newTotalCant}) excede el stock disponible (${prod.stockDisponible}).`, 'error')
+          return
+        }
+        this.dialogTraslado.detalles[existingIndex].cantidad = newTotalCant
+        this.dialogTraslado.detalles[existingIndex].subtotalCosto = newTotalCant * Number(prod.costo || 0)
+      } else {
+        this.dialogTraslado.detalles.push({
+          idProducto: prod.idProducto,
+          codigo: prod.codigo,
+          nombre: prod.nombre,
+          categoria: prod.categoria,
+          cantidad: cant,
+          stockDisponible: prod.stockDisponible,
+          costo: Number(prod.costo || 0),
+          precio: Number(prod.precio || 0),
+          subtotalCosto: cant * Number(prod.costo || 0),
+          observaciones: null
+        })
+      }
+
+      this.dialogTraslado.selectedProducto = null
+      this.dialogTraslado.selectedCantidad = 1
+    },
+
+    eliminarDetalleTraslado(index) {
+      this.dialogTraslado.detalles.splice(index, 1)
+    },
+
+    async saveTraslado() {
+      if (!this.dialogTraslado.idBodegaOrigen) {
+        this.showSnackbar('Debe seleccionar una bodega de origen.', 'warning')
+        return
+      }
+      if (!this.dialogTraslado.camion?.idBodega) {
+        this.showSnackbar('El camión no tiene una bodega asignada válida.', 'error')
+        return
+      }
+      if (this.dialogTraslado.detalles.length === 0) {
+        this.showSnackbar('Debe agregar al menos un producto a la carga.', 'warning')
+        return
+      }
+
+      this.dialogTraslado.saving = true
+      const payload = {
+        idBodegaOrigen: this.dialogTraslado.idBodegaOrigen,
+        idBodegaDestino: this.dialogTraslado.camion.idBodega,
+        observaciones: this.dialogTraslado.observaciones || null,
+        usuarioRegistro: this.usuarioLogueado,
+        detalles: this.dialogTraslado.detalles.map((d) => ({
+          idProducto: d.idProducto,
+          cantidad: Number(d.cantidad),
+          observaciones: d.observaciones || null
+        }))
+      }
+
+      try {
+        const res = await this.requestHttp.postTraslado(payload)
+        if (res.code === 200) {
+          this.showSnackbar('Carga trasladada exitosamente al camión.')
+          this.dialogTraslado.show = false
+          await this.loadAllData()
+        } else {
+          this.showSnackbar(res.data?.msg || res.data || 'Error al procesar el traslado.', 'error')
+        }
+      } catch (err) {
+        this.showSnackbar('Error de conexión al procesar el traslado.', 'error')
+      } finally {
+        this.dialogTraslado.saving = false
+      }
+    },
+
+    // ================= MÉTODOS INVENTARIO DEL CAMIÓN =================
+    async openDialogInventarioCamion(camion) {
+      this.dialogInventarioCamion.camion = camion
+      this.dialogInventarioCamion.search = ''
+      this.dialogInventarioCamion.items = []
+      this.dialogInventarioCamion.show = true
+      this.dialogInventarioCamion.loading = true
+
+      try {
+        const res = await this.requestHttp.getCamionInventario(camion.idCamion)
+        if (res.code === 200 && Array.isArray(res.data)) {
+          this.dialogInventarioCamion.items = res.data
+        }
+      } catch (err) {
+        this.showSnackbar('Error al cargar inventario del camión.', 'error')
+      } finally {
+        this.dialogInventarioCamion.loading = false
+      }
+    },
+
+    // ================= MÉTODOS HISTORIAL DE CARGAS =================
+    async openDialogHistorialCargas(camion) {
+      this.dialogHistorialCargas.camion = camion
+      this.dialogHistorialCargas.search = ''
+      this.dialogHistorialCargas.items = []
+      this.dialogHistorialCargas.show = true
+      this.dialogHistorialCargas.loading = true
+
+      try {
+        const res = await this.requestHttp.getCamionHistorialCargas(camion.idCamion)
+        if (res.code === 200 && Array.isArray(res.data)) {
+          this.dialogHistorialCargas.items = res.data
+        }
+      } catch (err) {
+        this.showSnackbar('Error al cargar historial del camión.', 'error')
+      } finally {
+        this.dialogHistorialCargas.loading = false
+      }
+    },
+
+    // ================= MÉTODOS INFORME CONSOLIDADO =================
+    async openDialogConsolidado(idCamion = null) {
+      this.dialogConsolidado.filterIdCamion = idCamion
+      this.dialogConsolidado.search = ''
+      this.dialogConsolidado.show = true
+      await this.fetchInformeConsolidado()
+    },
+
+    async fetchInformeConsolidado() {
+      try {
+        this.dialogConsolidado.loading = true
+        const params = {
+          soloConStock: this.dialogConsolidado.soloConStock
+        }
+        if (this.dialogConsolidado.filterIdCamion) {
+          params.idCamion = this.dialogConsolidado.filterIdCamion
+        }
+        const res = await this.requestHttp.getInformeStockCamiones(params)
+        if (res.code === 200 && res.data) {
+          this.dialogConsolidado.data = res.data
+          this.dialogConsolidado.expandedPanels = (res.data.camiones || []).map(
+            (_, i) => i
+          )
+        } else {
+          this.showSnackbar(
+            res.data?.msg || 'Error al cargar informe consolidado',
+            'error'
+          )
+        }
+      } catch (err) {
+        console.error('Error al obtener informe consolidado:', err)
+        this.showSnackbar('Error de conexión al cargar el informe', 'error')
+      } finally {
+        this.dialogConsolidado.loading = false
+      }
+    },
+
+    toggleExpandAllConsolidado() {
+      const total = this.filteredInformeCamiones.length
+      if (this.dialogConsolidado.expandedPanels.length === total) {
+        this.dialogConsolidado.expandedPanels = []
+      } else {
+        this.dialogConsolidado.expandedPanels = this.filteredInformeCamiones.map(
+          (_, i) => i
+        )
+      }
+    },
+
+    imprimirInformeConsolidado() {
+      window.print()
+    }
   },
 
   activated() {
@@ -1882,5 +3275,41 @@ export default {
 
 .ga-3 {
   gap: 12px;
+}
+
+/* Tabla de informe consolidado */
+.table-consolidado-camion {
+  font-size: 12px;
+}
+.table-consolidado-camion th {
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.table-consolidado-camion .hover-row:hover {
+  background-color: #f8faff;
+}
+.border-top-2 {
+  border-top: 2px solid #3f51b5 !important;
+}
+
+@media print {
+  /* Ocultar el resto de la página y modal overlay */
+  body * {
+    visibility: hidden;
+  }
+  #printable-consolidado-content,
+  #printable-consolidado-content * {
+    visibility: visible;
+  }
+  #printable-consolidado-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #fff !important;
+  }
 }
 </style>

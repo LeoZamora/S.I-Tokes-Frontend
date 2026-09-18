@@ -31,11 +31,12 @@ const endPoints = {
     putProveedorProducto: 'api/ProveedorProducto',
     deleteProveedorProducto: 'api/ProveedorProducto',
 
-    getCompra: 'api/Compra',
-    postCompra: 'api/Compra',
-    putCompra: 'api/Compra',
-    deleteCompra: 'api/Compra',
-    geCodeCompra: 'api/Compra/codigo-recomendado',
+    getCompra: 'api/compras',
+    postCompra: 'api/compras',
+    putCompra: 'api/compras',
+    deleteCompra: 'api/compras',
+    geCodeCompra: 'api/compras/codigo-recomendado',
+    getCompraMovimientoInventario: 'api/compras',
 
     getCliente: 'api/Cliente',
     getClienteDetalleCredito: 'api/Cliente/detalle-credito',
@@ -124,7 +125,14 @@ const endPoints = {
     getUrlFirmadaDocumento: 'api/DocumentoImportacion',
     descargarDocumentoImportacion: 'api/DocumentoImportacion',
     deleteDocumentoImportacion: 'api/DocumentoImportacion',
-    getTipoDocumentoImportacionCombobox: 'api/TipoDocumento/combobox'
+    getTipoDocumentoImportacionCombobox: 'api/TipoDocumento/combobox',
+
+    // TRASLADOS
+    postTraslado: 'api/traslados',
+    getTraslados: 'api/traslados',
+
+    // BODEGAS COMBOBOX
+    getBodegasCombobox: 'api/bodegas/combobox'
 }
 
 export default endPoints

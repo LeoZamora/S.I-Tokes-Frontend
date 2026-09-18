@@ -192,6 +192,19 @@
                 Ver Apertura Vigente
               </template>
             </v-list-item>
+
+            <v-list-item
+              rounded
+              density="compact"
+              prepend-icon="mdi-history"
+              color="indigo"
+              @click="abrirHistorialCaja(item)"
+            >
+              <template v-slot:title>
+                <v-divider vertical />
+                Historial de Sesiones
+              </template>
+            </v-list-item>
           </v-list>
         </v-menu>
       </template>
@@ -298,13 +311,38 @@
         </span>
       </template>
 
+      <!-- Columna Cajero Ult. Sesión -->
+      <template v-slot:item.cajeroUltimaSesion="{ item }">
+        <div v-if="item.cajeroUltimaSesion || item.cajeroUltimaSesionNombre" class="d-flex align-center">
+          <v-avatar size="24" color="indigo-lighten-5" class="mr-2">
+            <v-icon size="14" color="indigo-darken-3">mdi-account</v-icon>
+          </v-avatar>
+          <div>
+            <div class="font-weight-bold text-caption text-grey-darken-4">
+              {{ item.cajeroUltimaSesionNombre || item.cajeroUltimaSesion }}
+            </div>
+            <div
+              v-if="item.cajeroUltimaSesionNombre && item.cajeroUltimaSesion"
+              class="text-caption text-grey font-weight-medium"
+              style="font-size: 10px !important; line-height: 1;"
+            >
+              @{{ item.cajeroUltimaSesion }}
+            </div>
+          </div>
+        </div>
+        <span v-else class="text-caption text-grey font-italic">—</span>
+      </template>
+
       <!-- Columna Estado -->
       <template v-slot:item.estadoNombre="{ item }">
         <v-chip
-          :color="isCajaAbierta(item) ? 'green' : 'error'"
+          :color="getEstadoChip(item).color"
+          :variant="getEstadoChip(item).variant"
           size="small"
+          class="font-weight-bold text-white"
         >
-          {{ item.estadoNombre || (item.idEstadoActual === 1 ? 'Abierta' : 'Cerrada') }}
+          <v-icon start size="x-small">{{ getEstadoChip(item).icon }}</v-icon>
+          {{ getEstadoChip(item).text }}
         </v-chip>
       </template>
     </v-data-table>
@@ -401,57 +439,215 @@
       </v-card>
     </v-dialog>
 
-    <!-- APERTURA VIGENTE DETAIL DIALOG -->
-    <v-dialog v-model="dialogs.apertura" max-width="500">
-      <v-card class="rounded-lg">
-        <v-card-title class="bg-green-darken-3 d-flex align-center py-3 px-4 text-white">
-          <v-icon class="mr-2">mdi-lock-open-outline</v-icon>
+    <!-- DIÁLOGO: HISTORIAL DE SESIONES / APERTURAS DE LA CAJA -->
+    <v-dialog v-model="dialogs.historial" max-width="920" persistent scrollable>
+      <v-card class="rounded-lg overflow-hidden elevation-10">
+        <!-- Header -->
+        <div class="pa-4 bg-indigo-darken-4 text-white d-flex align-center justify-space-between">
+          <div class="d-flex align-center">
+            <v-avatar size="38" color="white" class="mr-3" variant="flat">
+              <v-icon color="indigo-darken-4" size="22">mdi-history</v-icon>
+            </v-avatar>
+            <div>
+              <div class="text-subtitle-1 font-weight-bold leading-tight">
+                Historial de Sesiones / Aperturas
+              </div>
+              <div class="text-caption text-indigo-lighten-4">
+                {{ historialCaja.caja?.nombre }} ({{ historialCaja.caja?.codigo || '—' }}) — Bodega: {{ historialCaja.caja?.bodegaNombre }}
+              </div>
+            </div>
+          </div>
+          <v-btn icon color="white" variant="text" size="small" @click="dialogs.historial = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+
+        <v-card-text class="pa-4 bg-grey-lighten-5">
+          <!-- Loader -->
+          <div v-if="historialCaja.loading" class="text-center py-8">
+            <v-progress-circular indeterminate color="indigo-darken-3" size="48" />
+            <div class="text-caption text-grey-darken-1 mt-2">Cargando historial de aperturas...</div>
+          </div>
+
+          <!-- Empty state -->
+          <v-alert
+            v-else-if="historialCaja.items.length === 0"
+            type="info"
+            variant="tonal"
+            class="rounded-lg"
+          >
+            No se han registrado aperturas o sesiones anteriores para esta caja.
+          </v-alert>
+
+          <!-- Tabla de Historial de la Caja -->
+          <v-card v-else variant="flat" class="border rounded-lg bg-white overflow-hidden" elevation="0">
+            <div class="pa-3 bg-grey-lighten-4 border-b d-flex align-center justify-space-between">
+              <span class="text-caption font-weight-bold text-grey-darken-3 text-uppercase">
+                Aperturas Registradas ({{ historialCaja.items.length }})
+              </span>
+            </div>
+
+            <v-data-table
+              :headers="headersHistorialCaja"
+              :items="historialCaja.items"
+              density="compact"
+              hover
+              items-per-page="10"
+              class="font"
+              :header-props="{ class: 'font-weight-bold text-uppercase bg-indigo-lighten-5' }"
+            >
+              <template v-slot:item.codigo="{ item }">
+                <span class="font-weight-bold text-indigo-darken-4">{{ item.codigo }}</span>
+              </template>
+
+              <template v-slot:item.usuarioAperturaNombre="{ item }">
+                <div class="d-flex align-center">
+                  <v-avatar size="22" color="indigo-lighten-5" class="mr-2">
+                    <v-icon size="13" color="indigo-darken-3">mdi-account</v-icon>
+                  </v-avatar>
+                  <span class="font-weight-medium text-grey-darken-4">
+                    {{ item.usuarioAperturaNombre || '—' }}
+                  </span>
+                </div>
+              </template>
+
+              <template v-slot:item.fechaApertura="{ item }">
+                <span class="text-caption font-weight-medium">{{ formatDate(item.fechaApertura) }}</span>
+              </template>
+
+              <template v-slot:item.montoAperturaEfectivo="{ item }">
+                <span class="font-weight-bold text-success">{{ formatCurrency(item.montoAperturaEfectivo) }}</span>
+              </template>
+
+              <template v-slot:item.montoAperturaMercaderia="{ item }">
+                <span class="font-weight-bold text-blue-grey-darken-2">{{ formatCurrency(item.montoAperturaMercaderia) }}</span>
+              </template>
+
+              <template v-slot:item.estado="{ item }">
+                <v-chip
+                  :color="item.estado ? 'success' : 'blue-grey-darken-1'"
+                  size="x-small"
+                  variant="flat"
+                  class="font-weight-bold text-uppercase"
+                >
+                  {{ item.estado ? 'Vigente' : 'Cerrada' }}
+                </v-chip>
+              </template>
+
+              <template v-slot:item.acciones="{ item }">
+                <v-btn
+                  icon="mdi-receipt-text-outline"
+                  size="x-small"
+                  color="indigo-darken-3"
+                  variant="tonal"
+                  title="Ver Comprobante"
+                  @click="verDetalleComprobante(item)"
+                />
+              </template>
+            </v-data-table>
+          </v-card>
+        </v-card-text>
+
+        <v-divider />
+        <v-card-actions class="pa-3 bg-white d-flex justify-end">
+          <v-btn color="indigo-darken-3" variant="tonal" class="px-5 font-weight-bold text-none" @click="dialogs.historial = false">
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- APERTURA VIGENTE / DETALLE DIALOG -->
+    <v-dialog v-model="dialogs.apertura" max-width="600">
+      <v-card class="rounded-lg overflow-hidden elevation-10">
+        <v-card-title class="bg-indigo-darken-4 d-flex align-center py-3 px-4 text-white">
+          <v-avatar size="32" color="white" class="mr-2" variant="flat">
+            <v-icon color="indigo-darken-4" size="18">mdi-receipt-text-check-outline</v-icon>
+          </v-avatar>
           <span class="text-subtitle-1 font-weight-bold">
-            Apertura Vigente - {{ detalleAperturaCaja?.nombre }}
+            Comprobante de Apertura - {{ detalleAperturaCaja?.nombre }}
           </span>
           <v-spacer />
-          <v-btn icon size="small" color="white" variant="tonal" @click="dialogs.apertura = false">
+          <v-btn icon size="small" color="white" variant="text" @click="dialogs.apertura = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
 
         <v-divider />
 
-        <v-card-text class="pa-4">
+        <v-card-text class="pa-4 bg-grey-lighten-5">
           <div v-if="loadingApertura" class="text-center py-6">
-            <v-progress-circular indeterminate color="green" />
+            <v-progress-circular indeterminate color="indigo-darken-3" />
             <div class="text-caption text-grey mt-2">Cargando datos de apertura...</div>
           </div>
 
           <div v-else-if="detalleApertura">
-            <v-list density="compact" lines="two">
-              <v-list-item prepend-icon="mdi-barcode">
-                <v-list-item-title class="font-weight-bold">Código Apertura</v-list-item-title>
-                <v-list-item-subtitle>{{ detalleApertura.codigo || '—' }}</v-list-item-subtitle>
-              </v-list-item>
+            <v-card variant="flat" class="pa-3 rounded-lg border bg-white mb-2" elevation="0">
+              <v-row dense>
+                <v-col cols="12" sm="6">
+                  <span class="text-caption text-grey font-weight-bold">CÓDIGO APERTURA:</span>
+                  <div class="text-body-2 font-weight-bold text-indigo-darken-4">
+                    {{ detalleApertura.codigo || '—' }}
+                  </div>
+                </v-col>
 
-              <v-list-item prepend-icon="mdi-account">
-                <v-list-item-title class="font-weight-bold">Usuario Apertura</v-list-item-title>
-                <v-list-item-subtitle>{{ detalleApertura.usuarioAperturaNombre || detalleApertura.usuarioApertura || '—' }}</v-list-item-subtitle>
-              </v-list-item>
+                <v-col cols="12" sm="6">
+                  <span class="text-caption text-grey font-weight-bold">ESTADO:</span>
+                  <div>
+                    <v-chip
+                      :color="detalleApertura.estado ? 'success' : 'blue-grey-darken-1'"
+                      size="x-small"
+                      variant="flat"
+                      class="font-weight-bold text-uppercase"
+                    >
+                      {{ detalleApertura.estado ? 'VIGENTE / ACTIVA' : 'CERRADA' }}
+                    </v-chip>
+                  </div>
+                </v-col>
 
-              <v-list-item prepend-icon="mdi-calendar-clock">
-                <v-list-item-title class="font-weight-bold">Fecha Apertura</v-list-item-title>
-                <v-list-item-subtitle>{{ formatDate(detalleApertura.fechaApertura) }}</v-list-item-subtitle>
-              </v-list-item>
+                <v-col cols="12" sm="6" class="mt-2">
+                  <span class="text-caption text-grey font-weight-bold">CAJERO RESPONSABLE:</span>
+                  <div class="text-body-2 font-weight-medium text-grey-darken-4 d-flex align-center">
+                    <v-icon size="x-small" color="indigo" class="mr-1">mdi-account</v-icon>
+                    {{ detalleApertura.usuarioAperturaNombre || detalleApertura.usuarioApertura || '—' }}
+                  </div>
+                </v-col>
 
-              <v-list-item prepend-icon="mdi-cash">
-                <v-list-item-title class="font-weight-bold">Monto Efectivo Inicial</v-list-item-title>
-                <v-list-item-subtitle class="text-green-darken-3 font-weight-bold">
-                  {{ formatCurrency(detalleApertura.montoAperturaEfectivo) }}
-                </v-list-item-subtitle>
-              </v-list-item>
+                <v-col cols="12" sm="6" class="mt-2">
+                  <span class="text-caption text-grey font-weight-bold">FECHA Y HORA:</span>
+                  <div class="text-body-2 text-grey-darken-4">
+                    {{ formatDate(detalleApertura.fechaApertura) }}
+                  </div>
+                </v-col>
 
-              <v-list-item v-if="detalleApertura.observacion" prepend-icon="mdi-text-box">
-                <v-list-item-title class="font-weight-bold">Observación</v-list-item-title>
-                <v-list-item-subtitle>{{ detalleApertura.observacion }}</v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
+                <v-divider class="my-3 w-100" />
+
+                <v-col cols="12" sm="6">
+                  <div class="pa-2 bg-green-lighten-5 rounded border border-green-lighten-3">
+                    <span class="text-caption text-green-darken-4 font-weight-bold d-block">FONDO EFECTIVO:</span>
+                    <span class="text-subtitle-1 font-weight-black text-green-darken-4">
+                      {{ formatCurrency(detalleApertura.montoAperturaEfectivo) }}
+                    </span>
+                  </div>
+                </v-col>
+
+                <v-col cols="12" sm="6">
+                  <div class="pa-2 bg-indigo-lighten-5 rounded border border-indigo-lighten-3">
+                    <span class="text-caption text-indigo-darken-4 font-weight-bold d-block">VALOR MERCADERÍA:</span>
+                    <span class="text-subtitle-1 font-weight-black text-indigo-darken-4">
+                      {{ formatCurrency(detalleApertura.montoAperturaMercaderia) }}
+                    </span>
+                  </div>
+                </v-col>
+
+                <v-col cols="12" class="mt-2" v-if="detalleApertura.observaciones || detalleApertura.observacion">
+                  <span class="text-caption text-grey font-weight-bold">OBSERVACIONES:</span>
+                  <div class="text-caption pa-2 bg-grey-lighten-4 rounded mt-1 text-grey-darken-3">
+                    {{ detalleApertura.observaciones || detalleApertura.observacion }}
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card>
           </div>
 
           <div v-else class="text-center py-4 text-grey">
@@ -461,8 +657,8 @@
 
         <v-divider />
 
-        <v-card-actions class="pa-3 bg-grey-lighten-4 d-flex justify-end">
-          <v-btn variant="outlined" color="grey-darken-2" @click="dialogs.apertura = false">
+        <v-card-actions class="pa-3 bg-white d-flex justify-end">
+          <v-btn variant="tonal" color="indigo-darken-3" class="font-weight-bold px-4" @click="dialogs.apertura = false">
             Cerrar
           </v-btn>
         </v-card-actions>
@@ -505,7 +701,24 @@ export default {
 
     const dialogs = reactive({
       form: false,
-      apertura: false
+      apertura: false,
+      historial: false
+    })
+
+    const headersHistorialCaja = [
+      { title: 'Código Apertura', key: 'codigo', align: 'start' },
+      { title: 'Cajero Responsable', key: 'usuarioAperturaNombre', align: 'start' },
+      { title: 'Fecha y Hora', key: 'fechaApertura', align: 'start' },
+      { title: 'Fondo Inicial Efectivo', key: 'montoAperturaEfectivo', align: 'end' },
+      { title: 'Valor Mercadería', key: 'montoAperturaMercaderia', align: 'end' },
+      { title: 'Estado', key: 'estado', align: 'center' },
+      { title: 'Acción', key: 'acciones', align: 'center', sortable: false }
+    ]
+
+    const historialCaja = reactive({
+      caja: null,
+      items: [],
+      loading: false
     })
 
     const formData = reactive({
@@ -522,9 +735,52 @@ export default {
     })
 
     const estadosOptions = [
-      { title: 'Abiertas', value: 'abiertas' },
+      { title: 'Aperturadas', value: 'aperturadas' },
+      { title: 'Arqueadas', value: 'arqueadas' },
       { title: 'Cerradas', value: 'cerradas' }
     ]
+
+    const getEstadoChip = (caja) => {
+      const nombre = (caja?.estadoNombre || '').toLowerCase().trim()
+      if (nombre.includes('aperturad') || nombre.includes('abiert')) {
+        return {
+          color: 'green-darken-3',
+          text: caja.estadoNombre || 'Aperturada',
+          icon: 'mdi-lock-open-variant',
+          variant: 'flat'
+        }
+      }
+      if (nombre.includes('arquead')) {
+        return {
+          color: 'amber-darken-3',
+          text: caja.estadoNombre || 'Arqueada',
+          icon: 'mdi-scale-balance',
+          variant: 'flat'
+        }
+      }
+      if (nombre.includes('cerrad')) {
+        return {
+          color: 'blue-grey-darken-1',
+          text: caja.estadoNombre || 'Cerrada',
+          icon: 'mdi-lock',
+          variant: 'flat'
+        }
+      }
+      if (nombre.includes('inactiv') || nombre.includes('bloquead') || nombre.includes('cancelad')) {
+        return {
+          color: 'red-darken-3',
+          text: caja.estadoNombre || 'Inactiva',
+          icon: 'mdi-alert-circle-outline',
+          variant: 'flat'
+        }
+      }
+      return {
+        color: 'indigo-darken-2',
+        text: caja?.estadoNombre || 'Desconocido',
+        icon: 'mdi-information-outline',
+        variant: 'flat'
+      }
+    }
 
     const data = reactive({
       headers: [
@@ -540,12 +796,13 @@ export default {
             class: 'pa-0'
           }
         },
-        { title: 'Bodega', key: 'bodegaNombre', align: 'center' },
+        { title: 'Bodega', key: 'bodegaNombre', align: 'center', sortable: false },
         { title: 'Nombre', key: 'nombre', align: 'start' },
         { title: 'Descripción', key: 'descripcion', align: 'start' },
         { title: 'Cajeros Autorizados', key: 'cajerosAutorizados', align: 'center', sortable: false },
         { title: 'Fecha Ult. Sesión', key: 'fechaUltimaSesion', align: 'center' },
-        { title: 'Estado', key: 'estadoNombre', align: 'center' }
+        { title: 'Cajero Ult. Sesión', key: 'cajeroUltimaSesion', align: 'start', sortable: false },
+        { title: 'Estado', key: 'estadoNombre', align: 'center', sortable: false },
       ],
       items: [],
       bodegas: [],
@@ -565,25 +822,35 @@ export default {
 
     const isCajaAbierta = (caja) => {
       if (!caja || !caja.estadoNombre) return false
-      return caja.estadoNombre.toLowerCase().includes('abiert')
+      const nombre = caja.estadoNombre.toLowerCase()
+      return nombre.includes('abiert') || nombre.includes('aperturad') || nombre.includes('arquead')
     }
 
     const filteredItems = computed(() => {
-      let list = data.items
+      let list = [...data.items]
 
       if (filters.idBodega !== null && filters.idBodega !== undefined) {
         list = list.filter(c => c.idBodega === filters.idBodega)
       }
 
       if (filters.estado !== null && filters.estado !== undefined) {
-        if (filters.estado === 'abiertas') {
-          list = list.filter(c => isCajaAbierta(c))
+        if (filters.estado === 'aperturadas' || filters.estado === 'abiertas') {
+          list = list.filter(c => {
+            const nom = (c.estadoNombre || '').toLowerCase()
+            return nom.includes('abiert') || nom.includes('aperturad')
+          })
+        } else if (filters.estado === 'arqueadas') {
+          list = list.filter(c => (c.estadoNombre || '').toLowerCase().includes('arquead'))
         } else if (filters.estado === 'cerradas') {
-          list = list.filter(c => !isCajaAbierta(c))
+          list = list.filter(c => (c.estadoNombre || '').toLowerCase().includes('cerrad'))
         }
       }
 
-      return list
+      return list.sort((a, b) => {
+        const codA = a.codigo || ''
+        const codB = b.codigo || ''
+        return codB.localeCompare(codA, undefined, { numeric: true, sensitivity: 'base' })
+      })
     })
 
     const showSuccesAlert = (msg, success = true) => {
@@ -609,7 +876,11 @@ export default {
         // Cargar cajas
         const resCajas = await requestHttp.getCajas()
         if (resCajas.code === 200 && Array.isArray(resCajas.data)) {
-          data.items = resCajas.data
+          data.items = resCajas.data.sort((a, b) => {
+            const codA = a.codigo || ''
+            const codB = b.codigo || ''
+            return codB.localeCompare(codA, undefined, { numeric: true, sensitivity: 'base' })
+          })
         } else {
           data.items = []
         }
@@ -738,6 +1009,30 @@ export default {
       }
     }
 
+    const abrirHistorialCaja = async (caja) => {
+      historialCaja.caja = caja
+      historialCaja.items = []
+      historialCaja.loading = true
+      dialogs.historial = true
+
+      try {
+        const res = await requestHttp.getAperturasByCaja(caja.idCaja)
+        if (res.code === 200 && Array.isArray(res.data)) {
+          historialCaja.items = res.data
+        }
+      } catch (err) {
+        console.error('Error cargando historial de la caja:', err)
+      } finally {
+        historialCaja.loading = false
+      }
+    }
+
+    const verDetalleComprobante = (apertura) => {
+      detalleAperturaCaja.value = historialCaja.caja || { nombre: apertura.cajaNombre }
+      detalleApertura.value = apertura
+      dialogs.apertura = true
+    }
+
     return {
       data,
       filters,
@@ -761,7 +1056,12 @@ export default {
       openEditDialog,
       closeFormDialog,
       saveCaja,
-      verAperturaVigente
+      verAperturaVigente,
+      getEstadoChip,
+      headersHistorialCaja,
+      historialCaja,
+      abrirHistorialCaja,
+      verDetalleComprobante
     }
   }
 }

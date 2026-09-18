@@ -447,6 +447,20 @@ class RequestHttp {
             return null
         }
     }
+    async getCompraMovimientoInventario(id) {
+        try {
+            const result = await axios.get(`${endPoints.getCompra}/${id}/movimiento-inventario`)
+            return {
+                code: result.status,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data || null
+            }
+        }
+    }
 
     // VENTAS
     async getVentas() {
@@ -1108,7 +1122,7 @@ class RequestHttp {
     // CODIGO RECOMENDADO
     async getCodigo() {
         try {
-            const result  = await axios.get('api/Compra/codigo-recomendado')
+            const result  = await axios.get(endPoints.geCodeCompra)
             return {
                 code: result.data
             }
@@ -1272,6 +1286,30 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async getCamionInventario(idCamion) {
+        try {
+            const result = await axios.get(`api/camiones/${idCamion}/inventario`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getCamionHistorialCargas(idCamion) {
+        try {
+            const result = await axios.get(`api/camiones/${idCamion}/historial-cargas`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getInformeStockCamiones(params = {}) {
+        try {
+            const result = await axios.get('api/camiones/informe-stock', { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
 
     // BODEGAS
     async getBodegas() {
@@ -1282,9 +1320,26 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async getBodegasCombobox(codigoTipoBodega = null) {
+        try {
+            const params = codigoTipoBodega ? { codigoTipoBodega } : {}
+            const result = await axios.get('api/bodegas/combobox', { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
     async getBodegasPorTipo(tipoBodegaId) {
         try {
             const result = await axios.get(`api/bodegas/Tipo/${tipoBodegaId}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getBodegaStock(idBodega) {
+        try {
+            const result = await axios.get(`api/bodegas/${idBodega}/stock`)
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }
@@ -1309,6 +1364,32 @@ class RequestHttp {
     async deleteBodega(id, usuario) {
         try {
             const result = await axios.delete(`api/bodegas/${id}?usuario=${usuario}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    // TRASLADOS
+    async postTraslado(data) {
+        try {
+            const result = await axios.post('api/traslados', data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getTraslados(params = {}) {
+        try {
+            const result = await axios.get('api/traslados', { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getTrasladoStockDisponible(idBodega, idProducto) {
+        try {
+            const result = await axios.get(`api/traslados/stock-disponible?idBodega=${idBodega}&idProducto=${idProducto}`)
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }
@@ -1433,6 +1514,14 @@ class RequestHttp {
     async getCajaAperturaVigenteResumen(idCaja) {
         try {
             const result = await axios.get(`${endPoints.getCajas}/${idCaja}/apertura-vigente/resumen`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getAperturasByCaja(idCaja) {
+        try {
+            const result = await axios.get(`${endPoints.getCajas}/${idCaja}/aperturas`)
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }

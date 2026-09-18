@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100 pa-4">
+  <div class="w-100">
     <!-- Snackbar de alertas -->
     <v-snackbar v-model="alert.show" :color="alert.type" timeout="4000" location="top right">
       <div class="d-flex align-center">
@@ -8,412 +8,212 @@
       </div>
     </v-snackbar>
 
-    <!-- Encabezado y Métricas -->
-    <v-card class="border-t border-b mb-4" elevation="0" rounded="0">
-      <div class="d-flex align-center justify-space-between flex-wrap pa-3 bg-white">
+    <!-- Encabezado y búsqueda -->
+    <v-card class="border-t border-b" elevation="0" rounded="0">
+      <!-- Encabezado -->
+      <template v-slot:prepend>
         <div class="d-flex align-center">
-          <v-avatar color="indigo-lighten-5" class="mr-3" size="44">
-            <v-icon color="indigo-darken-3" size="26">mdi-lock-open-check-outline</v-icon>
-          </v-avatar>
-          <div>
-            <span class="text-h6 font-weight-bold d-block text-indigo-darken-4">Apertura de Caja</span>
-            <span class="text-caption text-grey-darken-1">Gestión de inicio de sesión de caja, fondos iniciales y control de turnos</span>
+          <div class="text-h6 font-weight-bold d-flex align-center">
+            <v-icon class="me-2" color="indigo">
+              mdi-lock-open-check-outline
+            </v-icon>
+            Apertura de Caja
           </div>
         </div>
+      </template>
 
-        <div class="d-flex align-center ga-3 flex-wrap">
-          <!-- Pestañas de Vista -->
-          <v-tabs v-model="activeTab" color="indigo-darken-3" density="compact">
-            <v-tab value="cajas" class="text-none font-weight-bold">
-              <v-icon start size="18">mdi-cash-register</v-icon>
-              Cajas Disponibles
-            </v-tab>
-            <v-tab value="historial" class="text-none font-weight-bold">
-              <v-icon start size="18">mdi-history</v-icon>
-              Historial de Aperturas
-            </v-tab>
-          </v-tabs>
-
-          <!-- Toggle Cards vs Tabla (solo en tab cajas) -->
-          <v-btn-toggle
-            v-if="activeTab === 'cajas'"
-            v-model="viewMode"
-            mandatory
-            variant="outlined"
-            color="indigo-darken-4"
-            density="compact"
-            class="rounded bg-white"
-          >
-            <v-btn value="grid" icon="mdi-view-grid" size="small" title="Vista Tarjetas" />
-            <v-btn value="list" icon="mdi-view-list" size="small" title="Vista Lista" />
-          </v-btn-toggle>
-
-          <v-btn
-            color="indigo-darken-3"
-            variant="flat"
-            size="small"
-            class="text-none font-weight-bold"
-            prepend-icon="mdi-refresh"
-            :loading="loading"
-            @click="recargarTodo()"
-          >
-            Actualizar
-          </v-btn>
-        </div>
-      </div>
       <v-divider />
 
-      <!-- Tarjetas de Métricas -->
-      <v-row class="pa-3 align-center" dense>
-        <v-col cols="12" md="4" sm="6">
-          <v-card variant="flat" color="blue-lighten-5" class="pa-3 rounded-lg border border-blue-lighten-4">
-            <div class="d-flex align-center">
-              <v-avatar color="blue-darken-3" class="mr-3 text-white" size="42">
-                <v-icon size="22">mdi-lock-outline</v-icon>
-              </v-avatar>
-              <div>
-                <div class="text-caption text-blue-darken-4 font-weight-medium">Cajas Listas para Aperturar</div>
-                <div class="text-h6 font-weight-black text-blue-darken-4">
-                  {{ stats.cerradas }}
-                </div>
-              </div>
-            </div>
-          </v-card>
+      <v-row class="pa-2" dense>
+        <v-col cols="6" md="6" sm="6">
+          <v-text-field
+            color="indigo"
+            density="compact"
+            variant="outlined"
+            append-inner-icon="mdi-magnify"
+            label="Buscar cajas"
+            v-model="searchQuery"
+            hide-details
+            placeholder="Ingrese un texto a buscar..."
+            persistent-placeholder
+          />
         </v-col>
-
-        <v-col cols="12" md="4" sm="6">
-          <v-card variant="flat" color="green-lighten-5" class="pa-3 rounded-lg border border-green-lighten-4">
-            <div class="d-flex align-center">
-              <v-avatar color="green-darken-3" class="mr-3 text-white" size="42">
-                <v-icon size="22">mdi-lock-open-variant-outline</v-icon>
-              </v-avatar>
-              <div>
-                <div class="text-caption text-green-darken-4 font-weight-medium">Cajas Aperturadas / En Turno</div>
-                <div class="text-h6 font-weight-black text-green-darken-4">
-                  {{ stats.abiertas }}
-                </div>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="4" sm="12">
-          <v-card variant="flat" color="indigo-lighten-5" class="pa-3 rounded-lg border border-indigo-lighten-4">
-            <div class="d-flex align-center">
-              <v-avatar color="indigo-darken-3" class="mr-3 text-white" size="42">
-                <v-icon size="22">mdi-cash-multiple</v-icon>
-              </v-avatar>
-              <div>
-                <div class="text-caption text-indigo-darken-4 font-weight-medium">Total Fondo Inicial en Cajas Activas</div>
-                <div class="text-h6 font-weight-black text-indigo-darken-4">
-                  {{ formatCurrency(stats.totalFondoInicial) }}
-                </div>
-              </div>
-            </div>
-          </v-card>
+        <v-col
+          cols="6"
+          md="6"
+          sm="6"
+          class="d-flex justify-end align-center"
+        >
+          <v-btn
+            class="mr-2"
+            variant="text"
+            color="indigo"
+            @click="recargarTodo"
+            icon
+            size="small"
+          >
+            <v-icon>
+              mdi-refresh
+            </v-icon>
+            <v-tooltip
+              location="top center"
+              activator="parent"
+            >
+              Actualizar
+            </v-tooltip>
+          </v-btn>
         </v-col>
       </v-row>
     </v-card>
 
-    <!-- PESTAÑA 1: GESTIÓN Y APERTURA DE CAJAS -->
-    <v-window v-model="activeTab">
-      <v-window-item value="cajas">
-        <!-- Barra de Filtros -->
-        <v-row class="mb-3 align-center" dense>
-          <v-col cols="12" sm="6" md="4">
-            <v-text-field
-              v-model="searchQuery"
-              label="Buscar caja por nombre, código o bodega..."
-              prepend-inner-icon="mdi-magnify"
-              density="compact"
-              variant="outlined"
-              color="indigo"
-              hide-details
-              clearable
-              bg-color="white"
-            />
-          </v-col>
-          <v-col cols="12" sm="6" md="3">
-            <v-select
-              v-model="filtroEstado"
-              :items="[
-                { title: 'Todas las cajas', value: 'todos' },
-                { title: 'Solo Cerradas (Disponibles)', value: 'cerradas' },
-                { title: 'Solo Aperturadas', value: 'aperturadas' }
-              ]"
-              label="Filtrar por estado"
-              density="compact"
-              variant="outlined"
-              color="indigo"
-              hide-details
-              bg-color="white"
-            />
-          </v-col>
-        </v-row>
+    <!-- Tabla de cajas -->
+    <v-data-table
+      class="font"
+      density="compact"
+      :headers="headers"
+      :items="filteredCajas"
+      :items-per-page="10"
+      :search="searchQuery"
+      :loading="loading"
+      :row-props="setStyle"
+      :header-props="{
+        class: 'font-weight-bold'
+      }"
+      hover
+    >
+      <template v-slot:loader>
+        <v-progress-linear
+          color="indigo"
+          indeterminate
+          height="2"
+        />
+      </template>
+      <template v-slot:loading>
+        <v-skeleton-loader
+          type="table-row@10"
+        ></v-skeleton-loader>
+      </template>
 
-        <!-- Loader -->
-        <div v-if="loading" class="d-flex justify-center my-10">
-          <v-progress-circular indeterminate color="indigo-darken-3" size="56" />
-        </div>
-
-        <!-- Sin Cajas -->
-        <v-alert
-          v-else-if="filteredCajas.length === 0"
-          type="info"
-          variant="tonal"
-          class="rounded-lg"
+      <!-- Header Filtro Bodega -->
+      <template v-slot:header.bodegaNombre>
+        <div>Bodega</div>
+        <v-autocomplete
+          v-model="filtroBodega"
+          variant="outlined"
+          density="compact"
+          :items="bodegasOptions"
+          hide-details
+          clearable
+          placeholder="Todas"
+          color="indigo"
+          class="mt-1"
         >
-          No se encontraron cajas registradas o que coincidan con los filtros aplicados.
-        </v-alert>
+        </v-autocomplete>
+      </template>
 
-        <!-- VISTA GRID (TARJETAS) -->
-        <v-row v-else-if="viewMode === 'grid'" dense>
-          <v-col
-            v-for="caja in filteredCajas"
-            :key="caja.idCaja"
-            cols="12"
-            sm="6"
-            md="4"
-            lg="3"
-          >
-            <v-card
-              class="rounded-lg elevation-2 overflow-hidden hover-card h-100 d-flex flex-column border"
-              :style="getCardBorder(caja)"
-            >
-              <!-- Encabezado de Tarjeta -->
-              <div class="pa-3 bg-indigo-darken-4 text-white d-flex align-center justify-space-between">
-                <div>
-                  <span class="text-subtitle-2 font-weight-bold d-block">{{ caja.nombre }}</span>
-                  <span class="text-caption text-indigo-lighten-3">Código: {{ caja.codigo || '—' }}</span>
-                </div>
-                <v-chip
-                  :color="caja.isCerrada ? 'blue-grey-lighten-4' : 'success'"
-                  :class="caja.isCerrada ? 'text-blue-grey-darken-4' : 'text-white'"
-                  size="x-small"
-                  variant="flat"
-                  class="font-weight-bold text-uppercase"
-                >
-                  <v-icon start size="12">
-                    {{ caja.isCerrada ? 'mdi-lock' : 'mdi-lock-open-variant' }}
-                  </v-icon>
-                  {{ caja.estadoNombre }}
-                </v-chip>
-              </div>
+      <!-- Header Filtro Estado -->
+      <template v-slot:header.estadoNombre>
+        <div>Estado</div>
+        <v-autocomplete
+          v-model="filtroEstado"
+          variant="outlined"
+          density="compact"
+          :items="estadosOptions"
+          hide-details
+          clearable
+          placeholder="Todos"
+          color="indigo"
+          class="mt-1"
+        >
+        </v-autocomplete>
+      </template>
 
-              <!-- Cuerpo de la Tarjeta -->
-              <div class="pa-3 flex-grow-1 bg-white">
-                <div class="d-flex align-center text-caption text-grey-darken-2 mb-2">
-                  <v-icon size="16" color="indigo" class="mr-1">mdi-warehouse</v-icon>
-                  <span>Bodega: <strong>{{ caja.bodegaNombre }}</strong></span>
-                </div>
+      <!-- Columna Bodega -->
+      <template v-slot:item.bodegaNombre="{ item }">
+        <span class="font-weight-medium">{{ item.bodegaNombre || '—' }}</span>
+      </template>
 
-                <v-divider class="my-2" />
-
-                <!-- Si la caja está Cerrada (Lista para abrir) -->
-                <div v-if="caja.isCerrada" class="py-2 text-center">
-                  <div class="text-caption text-grey-darken-1 mb-3">
-                    La caja se encuentra cerrada y disponible para iniciar turno.
-                  </div>
-                  <v-btn
-                    color="indigo-darken-3"
-                    variant="flat"
-                    block
-                    prepend-icon="mdi-lock-open-check"
-                    class="font-weight-bold text-none py-2 elevation-1"
-                    @click="openAperturaDialog(caja)"
-                  >
-                    Aperturar Caja
-                  </v-btn>
-                </div>
-
-                <!-- Si la caja ya está Aperturada o Arqueada -->
-                <div v-else class="caja-info">
-                  <div class="d-flex justify-space-between py-1 border-b">
-                    <span class="text-caption text-grey">Apertura No:</span>
-                    <span class="text-caption font-weight-bold text-indigo-darken-3">{{ caja.apertura?.codigo || '—' }}</span>
-                  </div>
-                  <div class="d-flex justify-space-between py-1 border-b">
-                    <span class="text-caption text-grey">Cajero Responsable:</span>
-                    <span class="text-caption font-weight-medium text-grey-darken-4">{{ caja.apertura?.usuarioAperturaNombre || '—' }}</span>
-                  </div>
-                  <div class="d-flex justify-space-between py-1 border-b">
-                    <span class="text-caption text-grey">Fecha y Hora:</span>
-                    <span class="text-caption text-grey-darken-3">{{ formatDate(caja.apertura?.fechaApertura) }}</span>
-                  </div>
-                  <div class="d-flex justify-space-between py-1 border-b">
-                    <span class="text-caption text-grey">Fondo Inicial:</span>
-                    <span class="text-caption font-weight-bold text-success">{{ formatCurrency(caja.apertura?.montoAperturaEfectivo) }}</span>
-                  </div>
-                  <div class="d-flex justify-space-between py-1">
-                    <span class="text-caption text-grey">Valor Mercadería:</span>
-                    <span class="text-caption font-weight-bold text-blue-grey-darken-2">{{ formatCurrency(caja.apertura?.montoAperturaMercaderia) }}</span>
-                  </div>
-
-                  <div class="mt-3">
-                    <v-btn
-                      color="indigo"
-                      variant="tonal"
-                      block
-                      size="small"
-                      prepend-icon="mdi-eye-outline"
-                      class="font-weight-bold text-none"
-                      @click="verDetalleApertura(caja.apertura)"
-                    >
-                      Ver Comprobante
-                    </v-btn>
-                  </div>
-                </div>
-              </div>
-            </v-card>
-          </v-col>
-        </v-row>
-
-        <!-- VISTA LISTA (TABLA) -->
-        <v-card v-else variant="flat" class="border rounded-lg bg-white overflow-hidden" elevation="0">
-          <v-table density="comfortable" hover>
-            <thead>
-              <tr class="bg-grey-lighten-4">
-                <th class="text-left font-weight-bold text-caption text-grey-darken-3">Caja</th>
-                <th class="text-left font-weight-bold text-caption text-grey-darken-3">Código</th>
-                <th class="text-left font-weight-bold text-caption text-grey-darken-3">Bodega</th>
-                <th class="text-center font-weight-bold text-caption text-grey-darken-3">Estado</th>
-                <th class="text-left font-weight-bold text-caption text-grey-darken-3">Cajero / Turno</th>
-                <th class="text-right font-weight-bold text-caption text-grey-darken-3">Fondo Inicial</th>
-                <th class="text-right font-weight-bold text-caption text-grey-darken-3">Valor Mercadería</th>
-                <th class="text-center font-weight-bold text-caption text-grey-darken-3">Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="caja in filteredCajas" :key="caja.idCaja">
-                <td class="font-weight-bold text-body-2 text-indigo-darken-4">
-                  {{ caja.nombre }}
-                </td>
-                <td class="text-caption text-grey-darken-2">
-                  {{ caja.codigo || '—' }}
-                </td>
-                <td class="text-caption text-grey-darken-3">
-                  {{ caja.bodegaNombre }}
-                </td>
-                <td class="text-center">
-                  <v-chip
-                    :color="caja.isCerrada ? 'blue-grey-lighten-4' : 'success'"
-                    :class="caja.isCerrada ? 'text-blue-grey-darken-4' : 'text-white'"
-                    size="x-small"
-                    variant="flat"
-                    class="font-weight-bold text-uppercase"
-                  >
-                    {{ caja.estadoNombre }}
-                  </v-chip>
-                </td>
-                <td class="text-caption">
-                  <span v-if="!caja.isCerrada" class="font-weight-medium text-grey-darken-4">
-                    {{ caja.apertura?.usuarioAperturaNombre || '—' }}
-                    <small class="d-block text-grey">{{ formatDate(caja.apertura?.fechaApertura) }}</small>
-                  </span>
-                  <span v-else class="text-grey font-italic">Sin sesión activa</span>
-                </td>
-                <td class="text-right text-caption font-weight-bold text-success">
-                  {{ !caja.isCerrada ? formatCurrency(caja.apertura?.montoAperturaEfectivo) : '—' }}
-                </td>
-                <td class="text-right text-caption font-weight-bold text-blue-grey-darken-2">
-                  {{ !caja.isCerrada ? formatCurrency(caja.apertura?.montoAperturaMercaderia) : '—' }}
-                </td>
-                <td class="text-center">
-                  <v-btn
-                    v-if="caja.isCerrada"
-                    color="indigo-darken-3"
-                    variant="flat"
-                    size="x-small"
-                    prepend-icon="mdi-lock-open-check"
-                    class="font-weight-bold text-none"
-                    @click="openAperturaDialog(caja)"
-                  >
-                    Aperturar
-                  </v-btn>
-                  <v-btn
-                    v-else
-                    color="indigo"
-                    variant="tonal"
-                    size="x-small"
-                    icon="mdi-eye-outline"
-                    title="Ver detalle"
-                    @click="verDetalleApertura(caja.apertura)"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-card>
-      </v-window-item>
-
-      <!-- PESTAÑA 2: HISTORIAL DE APERTURAS -->
-      <v-window-item value="historial">
-        <v-card variant="flat" class="border rounded-lg bg-white overflow-hidden" elevation="0">
-          <div class="pa-3 bg-grey-lighten-4 border-b d-flex align-center justify-space-between flex-wrap gap-2">
-            <div class="d-flex align-center">
-              <v-icon color="indigo-darken-3" class="mr-2">mdi-history</v-icon>
-              <span class="text-subtitle-2 font-weight-bold text-grey-darken-4">Registro Histórico de Aperturas de Caja</span>
-            </div>
-            <v-chip size="small" color="indigo-darken-3" variant="flat" class="font-weight-bold">
-              {{ aperturasHistorial.length }} aperturas registradas
-            </v-chip>
+      <!-- Columna Nombre -->
+      <template v-slot:item.nombre="{ item }">
+        <div>
+          <div class="font-weight-bold text-indigo-darken-4">
+            {{ item.nombre }}
           </div>
+          <div v-if="item.codigo" class="text-caption text-grey">
+            {{ item.codigo }}
+          </div>
+        </div>
+      </template>
 
-          <v-data-table
-            :headers="headersHistorial"
-            :items="aperturasHistorial"
-            :loading="loadingHistorial"
-            density="compact"
-            hover
-            items-per-page="15"
-            class="historial-table"
-          >
-            <template v-slot:item.codigo="{ item }">
-              <span class="font-weight-bold text-indigo-darken-3">{{ item.codigo }}</span>
-            </template>
+      <!-- Columna Cajero / Turno -->
+      <template v-slot:item.cajeroTurno="{ item }">
+        <div v-if="!item.isCerrada" class="d-flex align-center">
+          <v-avatar size="24" color="indigo-lighten-5" class="mr-2">
+            <v-icon size="14" color="indigo-darken-3">mdi-account</v-icon>
+          </v-avatar>
+          <div>
+            <div class="font-weight-bold text-caption text-grey-darken-4">
+              {{ item.cajeroUltimaSesionNombre || item.apertura?.usuarioAperturaNombre || item.cajeroUltimaSesion || '—' }}
+            </div>
+            <div class="text-caption text-grey" style="font-size: 11px;">
+              {{ formatDate(item.apertura?.fechaApertura || item.fechaUltimaSesion) }}
+            </div>
+          </div>
+        </div>
+        <span v-else class="text-caption text-grey font-italic">Sin sesión activa</span>
+      </template>
 
-            <template v-slot:item.cajaNombre="{ item }">
-              <div class="font-weight-medium text-grey-darken-4">{{ item.cajaNombre }}</div>
-              <small class="text-grey">Cód: {{ item.cajaCodigo || '—' }}</small>
-            </template>
+      <!-- Columna Fondo Inicial -->
+      <template v-slot:item.montoAperturaEfectivo="{ item }">
+        <span class="text-caption font-weight-bold text-success">
+          {{ !item.isCerrada && item.apertura ? formatCurrency(item.apertura.montoAperturaEfectivo) : '—' }}
+        </span>
+      </template>
 
-            <template v-slot:item.fechaApertura="{ item }">
-              <span>{{ formatDate(item.fechaApertura) }}</span>
-            </template>
+      <!-- Columna Valor Mercadería -->
+      <template v-slot:item.montoAperturaMercaderia="{ item }">
+        <span class="text-caption font-weight-bold text-blue-grey-darken-2">
+          {{ !item.isCerrada && item.apertura ? formatCurrency(item.apertura.montoAperturaMercaderia) : '—' }}
+        </span>
+      </template>
 
-            <template v-slot:item.montoAperturaEfectivo="{ item }">
-              <span class="font-weight-bold text-success">{{ formatCurrency(item.montoAperturaEfectivo) }}</span>
-            </template>
+      <!-- Columna Estado -->
+      <template v-slot:item.estadoNombre="{ item }">
+        <v-chip
+          :color="getEstadoChip(item).color"
+          :variant="getEstadoChip(item).variant"
+          size="small"
+          class="font-weight-bold text-white"
+        >
+          <v-icon start size="x-small">{{ getEstadoChip(item).icon }}</v-icon>
+          {{ getEstadoChip(item).text }}
+        </v-chip>
+      </template>
 
-            <template v-slot:item.montoAperturaMercaderia="{ item }">
-              <span class="font-weight-bold text-blue-grey-darken-2">{{ formatCurrency(item.montoAperturaMercaderia) }}</span>
-            </template>
-
-            <template v-slot:item.estado="{ item }">
-              <v-chip
-                :color="item.estado ? 'success' : 'grey-darken-1'"
-                size="x-small"
-                variant="flat"
-                class="font-weight-bold text-uppercase"
-              >
-                {{ item.estado ? 'Vigente' : 'Cerrada' }}
-              </v-chip>
-            </template>
-
-            <template v-slot:item.acciones="{ item }">
-              <v-btn
-                icon="mdi-eye-outline"
-                size="x-small"
-                color="indigo-darken-3"
-                variant="tonal"
-                title="Ver Comprobante"
-                @click="verDetalleApertura(item)"
-              />
-            </template>
-          </v-data-table>
-        </v-card>
-      </v-window-item>
-    </v-window>
+      <!-- Columna Acción -->
+      <template v-slot:item.acciones="{ item }">
+        <v-btn
+          v-if="item.isCerrada"
+          color="indigo-darken-3"
+          variant="flat"
+          size="x-small"
+          prepend-icon="mdi-lock-open-check"
+          class="font-weight-bold text-none"
+          @click="openAperturaDialog(item)"
+        >
+          Aperturar
+        </v-btn>
+        <v-btn
+          v-else
+          color="indigo-darken-3"
+          variant="tonal"
+          size="x-small"
+          icon="mdi-receipt-text-outline"
+          title="Ver comprobante"
+          @click="verDetalleApertura(item.apertura)"
+        />
+      </template>
+    </v-data-table>
 
     <!-- DIÁLOGO: FORMULARIO DE APERTURA DE CAJA -->
     <v-dialog v-model="dialogs.apertura" max-width="850" persistent scrollable>
@@ -719,18 +519,31 @@ export default {
   data() {
     return {
       requestHttp: new RequestHttp(),
-      activeTab: 'cajas',
-      viewMode: 'grid',
       loading: false,
-      loadingHistorial: false,
       loadingStockPreview: false,
       guardandoApertura: false,
 
       searchQuery: '',
-      filtroEstado: 'todos',
+      filtroBodega: null,
+      filtroEstado: null,
+
+      headers: [
+        { title: 'Bodega', key: 'bodegaNombre', align: 'center', sortable: false },
+        { title: 'Caja', key: 'nombre', align: 'start' },
+        { title: 'Cajero / Turno', key: 'cajeroTurno', align: 'start', sortable: false },
+        { title: 'Fondo Inicial', key: 'montoAperturaEfectivo', align: 'end', sortable: false },
+        { title: 'Valor Mercadería', key: 'montoAperturaMercaderia', align: 'end', sortable: false },
+        { title: 'Estado', key: 'estadoNombre', align: 'center', sortable: false },
+        { title: 'Acción', key: 'acciones', align: 'center', sortable: false }
+      ],
+
+      estadosOptions: [
+        { title: 'Aperturadas', value: 'aperturadas' },
+        { title: 'Arqueadas', value: 'arqueadas' },
+        { title: 'Cerradas', value: 'cerradas' }
+      ],
 
       cajas: [],
-      aperturasHistorial: [],
       activeCaja: null,
       stockMercaderiaPreview: 0,
       detalleApertura: null,
@@ -772,17 +585,6 @@ export default {
         0.5: 0
       },
 
-      headersHistorial: [
-        { title: 'Código Apertura', key: 'codigo', align: 'start' },
-        { title: 'Caja', key: 'cajaNombre', align: 'start' },
-        { title: 'Cajero Responsable', key: 'usuarioAperturaNombre', align: 'start' },
-        { title: 'Fecha y Hora', key: 'fechaApertura', align: 'start' },
-        { title: 'Fondo Efectivo', key: 'montoAperturaEfectivo', align: 'end' },
-        { title: 'Valor Mercadería', key: 'montoAperturaMercaderia', align: 'end' },
-        { title: 'Estado', key: 'estado', align: 'center' },
-        { title: 'Acciones', key: 'acciones', align: 'center', sortable: false }
-      ],
-
       alert: {
         show: false,
         message: '',
@@ -799,38 +601,55 @@ export default {
       }, 0);
     },
 
-    stats() {
-      const abiertas = this.cajas.filter(c => !c.isCerrada).length;
-      const cerradas = this.cajas.filter(c => c.isCerrada).length;
-      const totalFondoInicial = this.cajas
-        .filter(c => !c.isCerrada && c.apertura)
-        .reduce((acc, c) => acc + (Number(c.apertura?.montoAperturaEfectivo) || 0), 0);
-
-      return {
-        abiertas,
-        cerradas,
-        totalFondoInicial
-      };
+    bodegasOptions() {
+      const map = new Map();
+      const list = [];
+      this.cajas.forEach(c => {
+        if (c.idBodega && !map.has(c.idBodega)) {
+          map.set(c.idBodega, true);
+          list.push({ title: c.bodegaNombre, value: c.idBodega });
+        }
+      });
+      return list;
     },
 
     filteredCajas() {
-      let list = this.cajas;
+      let list = [...this.cajas];
 
-      if (this.filtroEstado === 'cerradas') {
-        list = list.filter(c => c.isCerrada);
-      } else if (this.filtroEstado === 'aperturadas') {
-        list = list.filter(c => !c.isCerrada);
+      if (this.filtroBodega !== null && this.filtroBodega !== undefined) {
+        list = list.filter(c => c.idBodega === this.filtroBodega);
       }
 
-      if (!this.searchQuery) return list;
+      if (this.filtroEstado) {
+        if (this.filtroEstado === 'aperturadas' || this.filtroEstado === 'abiertas') {
+          list = list.filter(c => {
+            const nom = (c.estadoNombre || '').toLowerCase();
+            return nom.includes('abiert') || nom.includes('aperturad');
+          });
+        } else if (this.filtroEstado === 'arqueadas') {
+          list = list.filter(c => (c.estadoNombre || '').toLowerCase().includes('arquead'));
+        } else if (this.filtroEstado === 'cerradas') {
+          list = list.filter(c => (c.estadoNombre || '').toLowerCase().includes('cerrad'));
+        }
+      }
 
-      const q = this.searchQuery.toLowerCase().trim();
-      return list.filter(c =>
-        (c.nombre && c.nombre.toLowerCase().includes(q)) ||
-        (c.codigo && c.codigo.toLowerCase().includes(q)) ||
-        (c.bodegaNombre && c.bodegaNombre.toLowerCase().includes(q)) ||
-        (c.apertura?.usuarioAperturaNombre && c.apertura.usuarioAperturaNombre.toLowerCase().includes(q))
-      );
+      if (this.searchQuery && this.searchQuery.trim() !== '') {
+        const q = this.searchQuery.toLowerCase().trim();
+        list = list.filter(c =>
+          (c.nombre && c.nombre.toLowerCase().includes(q)) ||
+          (c.codigo && c.codigo.toLowerCase().includes(q)) ||
+          (c.bodegaNombre && c.bodegaNombre.toLowerCase().includes(q)) ||
+          (c.cajeroUltimaSesionNombre && c.cajeroUltimaSesionNombre.toLowerCase().includes(q)) ||
+          (c.cajeroUltimaSesion && c.cajeroUltimaSesion.toLowerCase().includes(q)) ||
+          (c.apertura?.usuarioAperturaNombre && c.apertura.usuarioAperturaNombre.toLowerCase().includes(q))
+        );
+      }
+
+      return list.sort((a, b) => {
+        const codA = a.codigo || '';
+        const codB = b.codigo || '';
+        return codB.localeCompare(codA, undefined, { numeric: true, sensitivity: 'base' });
+      });
     }
   },
 
@@ -852,10 +671,7 @@ export default {
     },
 
     async recargarTodo() {
-      await Promise.all([
-        this.cargarCajas(),
-        this.cargarHistorialAperturas()
-      ]);
+      await this.cargarCajas();
     },
 
     async cargarCajas() {
@@ -864,17 +680,21 @@ export default {
         const res = await this.requestHttp.getCajas();
         if (res && res.code === 200 && Array.isArray(res.data)) {
           const mapped = res.data.map(c => {
-            const estadoNombre = c.idEstadoActualNavigation?.nombre || 'Cerrada';
-            const isCerrada = estadoNombre.toLowerCase() === 'cerrada' || c.idEstadoActual === 3;
+            const estadoNombre = c.estadoNombre || c.idEstadoActualNavigation?.nombre || 'Cerrada';
+            const estLower = estadoNombre.toLowerCase();
+            const isCerrada = estLower === 'cerrada' || estLower.includes('cerrad');
             return {
               idCaja: c.idCaja,
               codigo: c.codigo,
               nombre: c.nombre,
               idBodega: c.idBodega,
-              bodegaNombre: c.idBodegaNavigation?.nombre || 'Sucursal Principal',
+              bodegaNombre: c.bodegaNombre || c.idBodegaNavigation?.nombre || 'Sin Bodega',
               idEstadoActual: c.idEstadoActual,
               estadoNombre: estadoNombre,
               isCerrada: isCerrada,
+              cajeroUltimaSesion: c.cajeroUltimaSesion,
+              cajeroUltimaSesionNombre: c.cajeroUltimaSesionNombre,
+              fechaUltimaSesion: c.fechaUltimaSesion,
               apertura: null
             };
           });
@@ -893,7 +713,11 @@ export default {
             }
           }));
 
-          this.cajas = mapped;
+          this.cajas = mapped.sort((a, b) => {
+            const codA = a.codigo || '';
+            const codB = b.codigo || '';
+            return codB.localeCompare(codA, undefined, { numeric: true, sensitivity: 'base' });
+          });
         } else {
           this.showAlert('No se pudieron obtener las cajas', 'error');
         }
@@ -904,18 +728,52 @@ export default {
       }
     },
 
-    async cargarHistorialAperturas() {
-      this.loadingHistorial = true;
-      try {
-        const res = await this.requestHttp.getAperturasCaja();
-        if (res && res.code === 200 && Array.isArray(res.data)) {
-          this.aperturasHistorial = res.data;
-        }
-      } catch (e) {
-        console.error('Error al cargar historial de aperturas:', e);
-      } finally {
-        this.loadingHistorial = false;
+    setStyle({ index }) {
+      return {
+        class: index % 2 === 0 ? 'bg-white' : 'bg-indigo-lighten-5'
+      };
+    },
+
+    getEstadoChip(caja) {
+      const nombre = (caja?.estadoNombre || '').toLowerCase().trim();
+      if (nombre.includes('aperturad') || nombre.includes('abiert')) {
+        return {
+          color: 'green-darken-3',
+          text: caja.estadoNombre || 'Aperturada',
+          icon: 'mdi-lock-open-variant',
+          variant: 'flat'
+        };
       }
+      if (nombre.includes('arquead')) {
+        return {
+          color: 'amber-darken-3',
+          text: caja.estadoNombre || 'Arqueada',
+          icon: 'mdi-scale-balance',
+          variant: 'flat'
+        };
+      }
+      if (nombre.includes('cerrad')) {
+        return {
+          color: 'blue-grey-darken-1',
+          text: caja.estadoNombre || 'Cerrada',
+          icon: 'mdi-lock',
+          variant: 'flat'
+        };
+      }
+      if (nombre.includes('inactiv') || nombre.includes('bloquead') || nombre.includes('cancelad')) {
+        return {
+          color: 'red-darken-3',
+          text: caja.estadoNombre || 'Inactiva',
+          icon: 'mdi-alert-circle-outline',
+          variant: 'flat'
+        };
+      }
+      return {
+        color: 'indigo-darken-2',
+        text: caja?.estadoNombre || 'Desconocido',
+        icon: 'mdi-information-outline',
+        variant: 'flat'
+      };
     },
 
     async openAperturaDialog(caja) {
@@ -997,13 +855,6 @@ export default {
       this.dialogs.detalle = true;
     },
 
-    getCardBorder(caja) {
-      if (!caja.isCerrada) {
-        return 'border-left: 4px solid #10B981 !important;';
-      }
-      return 'border-left: 4px solid #1A237E !important;';
-    },
-
     formatCurrency(val) {
       return formatters.formatCurrency(val || 0, 'NIO');
     },
@@ -1023,19 +874,15 @@ export default {
 </script>
 
 <style scoped>
-.hover-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.font {
+  font-size: 12px !important;
 }
 
-.hover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1) !important;
+.hover-scale {
+  transition: transform 0.2s;
 }
 
-.caja-info {
-  background: #f8fafc;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
+.hover-scale:hover {
+  transform: scale(1.1);
 }
 </style>

@@ -118,10 +118,25 @@
                                         density="comfortable"
                                         variant="outlined" 
                                         hide-details 
-                                        label="Proveedor"
+                                        label="Proveedor*"
                                         placeholder="Seleccione proveedor"  
                                         persistent-placeholder 
                                         :items="data.proveedores"
+                                        clearable
+                                        color="primary"
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="12" sm="12">
+                                    <v-autocomplete 
+                                        v-model="data.orden.idBodega" 
+                                        prepend-inner-icon="mdi-warehouse" 
+                                        density="comfortable"
+                                        variant="outlined" 
+                                        hide-details 
+                                        label="Bodega de Destino (Cargar a)*"
+                                        placeholder="Seleccione la bodega para recibir mercadería"  
+                                        persistent-placeholder 
+                                        :items="data.bodegas"
                                         clearable
                                         color="primary"
                                     />
@@ -133,7 +148,7 @@
                                         density="comfortable"
                                         variant="outlined" 
                                         hide-details 
-                                        label="Empleado"
+                                        label="Empleado Responsable"
                                         placeholder="Seleccione empleado"  
                                         persistent-placeholder 
                                         :items="data.empleados"
@@ -392,6 +407,7 @@ export default {
     await this.getCodigoRecomendado()
     this.getEmpleados()
     this.getProductos()
+    this.getBodegas()
   },  
 
   props: {
@@ -433,6 +449,29 @@ export default {
           value: item.idProveedor
         })
       })
+    }
+
+    const getBodegas = async () => {
+      data.bodegas = []
+      const result = await data.requestHttp.getBodegasCombobox('SUC')
+      if (result && result.code === 200 && Array.isArray(result.data)) {
+        result.data.forEach((item) => {
+          data.bodegas.push({
+            title: item.codigo ? `[${item.codigo}] ${item.nombre}` : item.nombre,
+            value: item.idBodega || item.id,
+            idBodega: item.idBodega || item.id,
+            codigo: item.codigo,
+            nombre: item.nombre,
+            sucursalNombre: item.sucursalNombre
+          })
+        })
+
+        if (!localEdit.value && !data.orden.idBodega) {
+          if (result.data.length > 0) {
+            data.orden.idBodega = result.data[0].idBodega || result.data[0].id
+          }
+        }
+      }
     }
 
     function calcularTotals() {
@@ -484,6 +523,7 @@ export default {
           
           getCodigoRecomendado()
           getProveedores()
+          getBodegas()
         }
       }
     )
@@ -498,6 +538,7 @@ export default {
             
             data.idOrden = result.idCompra
             data.orden.idProveedor = result.idProveedor
+            data.orden.idBodega = result.idBodega || null
             data.orden.noOrden = result.noOrden
             data.orden.aprobada = result.aprobada
             data.orden.observaciones = result.observaciones
@@ -597,6 +638,7 @@ export default {
       disableBtn: false,
       items: [],
       proveedores: [],
+      bodegas: [],
       empleados: [],
       productos: [],
       producto: {
@@ -614,6 +656,7 @@ export default {
       orden: {
         noOrden: null,
         idProveedor: null,
+        idBodega: null,
         aprobada: false,
         observaciones: null,
         usuarioRegistro: null,
@@ -699,6 +742,7 @@ export default {
       data,
       store,
       getCodigoRecomendado,
+      getBodegas,
       showAlert,
       showSuccesAlert,
       calcularTotals
@@ -790,9 +834,10 @@ export default {
       if (!this.localEdit) {
         if (
           !this.data.orden.noOrden ||
-          !this.data.orden.idProveedor
+          !this.data.orden.idProveedor ||
+          !this.data.orden.idBodega
         ) {
-          this.showAlert(2, 'Complete la información de venta', 'warning')
+          this.showAlert(2, 'Complete los campos obligatorios (Proveedor, Bodega Destino y Nº Orden)', 'warning')
           return
         } else {
           this.data.orden.detalle = []
@@ -813,12 +858,12 @@ export default {
           this.data.overlay.show = false
 
           if (result.code === 200 || result.code === 201) {
-            this.showSuccesAlert('¡Órden registrada!', true)
+            this.showSuccesAlert('¡Órden registrada y stock cargado a bodega!', true)
             setTimeout(() => {
               this.closeDialog()
             }, 1500);
           } else {
-            this.showSuccesAlert(`¡Órden no registrada. Verifique los datos!`, false)
+            this.showSuccesAlert(result.data?.msg || result.data || '¡Órden no registrada. Verifique los datos!', false)
             return
           }
         }
@@ -827,7 +872,7 @@ export default {
           !this.data.orden.noOrden ||
           !this.data.orden.idProveedor
         ) {
-          this.showAlert(2, 'Complete la información de venta', 'warning')
+          this.showAlert(2, 'Complete la información requerida', 'warning')
           return
         } else {
           this.data.orden.detalle = []

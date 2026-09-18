@@ -21,31 +21,39 @@
                 <v-card color="white" class="details px-4 py-2 mb-2 rounded-lg border" elevation="0">
                     <v-row dense>
                         <v-col>
-                            <div class="text-grey">INFORMACIÓN DEL CLIENTE</div>
+                            <div class="text-grey font-weight-bold">INFORMACIÓN DE LA COMPRA / PROVEEDOR</div>
                             <v-divider />
-                            <v-row>
-                                <v-col cols="3">
+                            <v-row dense class="mt-1">
+                                <v-col cols="12" sm="4" md="3">
                                     <div class="text-caption text-grey">
                                         PROVEEDOR:
                                     </div>
-                                    <div class="text-subtitle-2 font-weight-bold">
-                                        {{ data.orden.proveedor }}
+                                    <div class="text-subtitle-2 font-weight-bold text-grey-darken-4">
+                                        {{ data.orden.proveedor || '---' }}
                                     </div>
                                 </v-col>
-                                <v-col cols="3">
+                                <v-col cols="12" sm="4" md="3">
+                                    <div class="text-caption text-grey">
+                                        BODEGA DESTINO:
+                                    </div>
+                                    <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4">
+                                        {{ data.orden.bodegaNombre || 'Sin asignar' }}
+                                    </div>
+                                </v-col>
+                                <v-col cols="12" sm="4" md="3">
                                     <div class="text-caption text-grey">
                                         REGISTRADO POR:
                                     </div>
                                     <div class="text-subtitle-2">
-                                        {{ data.orden.usuarioRegistro }}
+                                        {{ data.orden.usuarioRegistro || 'Sistema' }}
                                     </div>
                                 </v-col>
-                                <v-col cols="3">
+                                <v-col cols="12" sm="4" md="3">
                                     <div class="text-caption text-grey">
                                         APROBADA:
                                     </div>
                                     <div class="text-subtitle-2">
-                                        {{ data.orden.aprobada ? 'SI' : 'NO' }}
+                                        {{ data.orden.aprobada ? 'SÍ' : 'NO' }}
                                     </div>
                                 </v-col>
                             </v-row>
@@ -201,7 +209,8 @@ export default {
                 data.orden.usuarioRegistro = result.usuarioRegistro
                 data.orden.fechaRegistro = result.fechaRegistro
                 data.orden.estado = result.estado
-                data.orden.proveedor = proveedor.nombre
+                data.orden.proveedor = proveedor ? proveedor.nombre : (val.proveedor || '')
+                data.orden.bodegaNombre = val.bodegaNombre || null
                 await Promise.all(result.detalleCompras.map(async (item) => {
                     const product = await data.requestHttp.getByIdProducto(item.idProducto)
                     data.items.push({
@@ -252,6 +261,7 @@ export default {
                 noOrden: null,
                 idProveedor: null,
                 proveedor: null,
+                bodegaNombre: null,
                 aprobada: false,
                 observaciones: null,
                 usuarioRegistro: null,
