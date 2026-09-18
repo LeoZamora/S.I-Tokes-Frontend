@@ -15,6 +15,7 @@ const endPoints = {
     postProducto: 'api/Producto',
     putProducto: 'api/Producto',
     deleteProducto: 'api/Producto',
+    postAsignarProductoBodegas: 'api/Producto/asignar-bodegas',
 
     getProveedor: 'api/Proveedor',
     postProveedor: 'api/Proveedor',
@@ -132,7 +133,8 @@ const endPoints = {
     getTraslados: 'api/traslados',
 
     // BODEGAS COMBOBOX
-    getBodegasCombobox: 'api/bodegas/combobox'
+    getBodegasCombobox: 'api/bodegas/combobox',
+    getStockBodegas: 'api/bodegas/stock-bodegas'
 }
 
 export default endPoints

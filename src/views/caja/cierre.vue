@@ -678,7 +678,7 @@ export default {
       });
     },
     
-    openCierreDialog(caja) {
+    async openCierreDialog(caja) {
       this.activeCaja = caja;
       
       this.form = {
@@ -689,6 +689,10 @@ export default {
       this.denominaciones.forEach(d => {
         this.cantidades[d.valor] = 0;
       });
+
+      if (!caja.apertura || !caja.resumen) {
+        await this.loadBoxDetails(caja);
+      }
       
       this.dialogs.cierre = true;
     },
@@ -701,6 +705,11 @@ export default {
     async submitCierre() {
       if (this.form.montoCierreRetiros < 0) {
         this.showAlert('El monto de retiros no puede ser negativo', 'warning');
+        return;
+      }
+
+      if (!this.activeCaja || !this.activeCaja.apertura?.idAperturaCaja) {
+        this.showAlert('No se encontró una apertura de caja activa o válida para cerrar.', 'error');
         return;
       }
       
@@ -725,7 +734,7 @@ export default {
         if (res.code === 200) {
           this.showAlert('El cierre de caja se ha procesado exitosamente', 'success');
           this.closeCierreDialog();
-          this.loadCajas();
+          await this.loadCajas();
         } else {
           let errorMsg = 'Error al guardar el cierre de caja';
           if (res.data) {

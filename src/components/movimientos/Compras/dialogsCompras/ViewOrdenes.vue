@@ -1,12 +1,12 @@
 <template>
-    <v-dialog v-model="localShow" max-width="800" persistent>
+    <v-dialog v-model="localShow" max-width="900" persistent>
         <v-card class="rounded-lg" elevation="10">
             <v-card-title class="d-flex align-center bg-indigo-darken-4 text-white ">
                 <v-avatar size="48" color="white" class="mr-4" variant="flat">
                     <v-icon color="indigo-darken-4" size="28">mdi-receipt</v-icon>
                 </v-avatar>
                 <div class="text-white">
-                    <h6 class="font-weight-bold">ÓRDEN</h6>
+                    <h6 class="font-weight-bold">ÓRDEN DE COMPRA</h6>
                     <div class="text-subtitle-1 text-grey-lighten-3">
                         Documento No. {{ data.orden.noOrden }}
                     </div>
@@ -17,22 +17,22 @@
                 </v-btn>
             </v-card-title>
 
-            <v-card-text class="pa-2 bg-grey-lighten-4">
-                <v-card color="white" class="details px-4 py-2 mb-2 rounded-lg border" elevation="0">
+            <v-card-text class="pa-3 bg-grey-lighten-4">
+                <v-card color="white" class="details px-4 py-3 mb-3 rounded-lg border" elevation="0">
                     <v-row dense>
-                        <v-col>
-                            <div class="text-grey font-weight-bold">INFORMACIÓN DE LA COMPRA / PROVEEDOR</div>
-                            <v-divider />
-                            <v-row dense class="mt-1">
-                                <v-col cols="12" sm="4" md="3">
+                        <v-col cols="12" md="10">
+                            <div class="text-caption text-indigo-darken-3 font-weight-bold mb-1">INFORMACIÓN DE LA COMPRA / PROVEEDOR</div>
+                            <v-divider class="mb-2" />
+                            <v-row dense>
+                                <v-col cols="12" sm="6" md="3">
                                     <div class="text-caption text-grey">
                                         PROVEEDOR:
                                     </div>
-                                    <div class="text-subtitle-2 font-weight-bold text-grey-darken-4">
+                                    <div class="text-subtitle-2 font-weight-bold text-grey-darken-4 text-truncate">
                                         {{ data.orden.proveedor || '---' }}
                                     </div>
                                 </v-col>
-                                <v-col cols="12" sm="4" md="3">
+                                <v-col cols="12" sm="6" md="3">
                                     <div class="text-caption text-grey">
                                         BODEGA DESTINO:
                                     </div>
@@ -40,7 +40,7 @@
                                         {{ data.orden.bodegaNombre || 'Sin asignar' }}
                                     </div>
                                 </v-col>
-                                <v-col cols="12" sm="4" md="3">
+                                <v-col cols="12" sm="6" md="3">
                                     <div class="text-caption text-grey">
                                         REGISTRADO POR:
                                     </div>
@@ -48,18 +48,18 @@
                                         {{ data.orden.usuarioRegistro || 'Sistema' }}
                                     </div>
                                 </v-col>
-                                <v-col cols="12" sm="4" md="3">
+                                <v-col cols="12" sm="6" md="3">
                                     <div class="text-caption text-grey">
                                         APROBADA:
                                     </div>
-                                    <div class="text-subtitle-2">
+                                    <div class="text-subtitle-2 font-weight-bold" :class="data.orden.aprobada ? 'text-green-darken-2' : 'text-grey-darken-1'">
                                         {{ data.orden.aprobada ? 'SÍ' : 'NO' }}
                                     </div>
                                 </v-col>
                             </v-row>
                         </v-col>
-                        <v-divider vertical/>
-                        <v-col cols="2" class="d-flex flex-column text-center justify-center align-center">
+                        <v-divider vertical class="d-none d-md-block" />
+                        <v-col cols="12" md="2" class="d-flex flex-column text-center justify-center align-center pt-2 pt-md-0">
                             <div>
                                 <div class="text-caption text-grey">
                                     FECHA REGISTRO
@@ -68,9 +68,9 @@
                                     {{ formateDate(data.orden.fechaRegistro) }}
                                 </div>
                             </div>
-                            <div>
+                            <div class="mt-1">
                                 <v-chip :color="!data.orden.estado ? 'orange-darken-3' : 'green-darken-3'"
-                                    density="compact">
+                                    density="compact" size="small" class="font-weight-bold">
                                     {{ data.orden.estado ? 'Activa' : 'Inactiva' }}
                                 </v-chip>
                             </div>
@@ -79,10 +79,10 @@
                 </v-card>
 
                 <!-- Tabla de productos -->
-                <v-card variant="flat" class="rounded-lg overflow-hidden mb-2 border" elevation="0">
-                    <v-card-title class="px-4" style="background-color: #e8eaf6;">
+                <v-card variant="flat" class="rounded-lg overflow-hidden mb-3 border" elevation="0">
+                    <v-card-title class="px-4 py-2" style="background-color: #e8eaf6;">
                         <v-icon color="indigo-darken-3" class="mr-2">mdi-cart</v-icon>
-                        <span class="text-subtitle-1 font-weight-bold">DETALLE DE PRODUCTOS</span>
+                        <span class="text-subtitle-2 font-weight-bold text-indigo-darken-4">DETALLE DE PRODUCTOS E IMPUESTOS</span>
                     </v-card-title>
 
                     <v-data-table hide-default-footer 
@@ -94,70 +94,87 @@
                         }"
                         height="200" fixed-header>
                         <template v-slot:item.costoUnitario="{ item }">
-                            <div>{{ formatedCurrency(item.costoUnitario, data.fomates.nio) }}</div>
+                            <div class="text-right font-weight-medium">{{ formatedCurrency(item.costoUnitario, data.fomates.nio) }}</div>
+                        </template>
+                        <template v-slot:item.montoImpuesto="{ item }">
+                            <div class="text-right font-weight-bold text-indigo-darken-3">
+                                {{ formatedCurrency(item.montoImpuesto, data.fomates.nio) }}
+                            </div>
                         </template>
                         <template v-slot:item.subTotal="{ item }">
-                            <div>{{ formatedCurrency(item.subTotal, data.fomates.nio) }}</div>
+                            <div class="text-right font-weight-bold text-indigo-darken-3">{{ formatedCurrency(item.totalConIva, data.fomates.nio) }}</div>
                         </template>
                     </v-data-table>
                 </v-card>
 
                 <!-- Totales y observaciones -->
-                <v-row>
-                    <v-col cols="7">
-                        <v-card variant="flat" color="white" class="px-4 rounded-lg border h-100">
-                            <div class="text-overline text-grey mb-2">OBSERVACIONES</div>
+                <v-row dense>
+                    <v-col cols="12" md="6">
+                        <v-card variant="flat" color="white" class="pa-4 rounded-lg border h-100">
+                            <div class="text-caption text-indigo-darken-3 font-weight-bold mb-2">OBSERVACIONES</div>
 
                             <v-textarea v-model="data.orden.observaciones" density="compact" variant="plain" 
-                                hide-details label="Observaciones" placeholder="ingrese algunos detalles de la orden" 
-                                persistent-placeholder rows="4" readonly/>
+                                hide-details placeholder="Sin observaciones registradas en la orden..." 
+                                rows="4" readonly/>
                         </v-card>
                     </v-col>
 
-                    <v-col cols="5">
-                        <v-card variant="flat" color="whiet" class="px-4 rounded-lg border h-100">
-                            <div class="text-overline text-grey mb-3">RESUMEN DE PAGO</div>
+                    <v-col cols="12" md="6">
+                        <v-card variant="flat" color="white" class="pa-4 rounded-lg border h-100">
+                            <div class="text-caption text-indigo-darken-3 font-weight-bold mb-3">RESUMEN DE PAGO</div>
 
-                            <div class="d-flex justify-space-between align-center mb-3">
-                                <span class="text-body-2">Sub Total</span>
-                                <span class="text-body-1 font-weight-medium">
+                            <div class="d-flex justify-space-between align-center mb-2">
+                                <span class="text-caption text-grey-darken-1 font-weight-medium">Sub Total (Neto):</span>
+                                <span class="text-subtitle-2 font-weight-bold text-grey-darken-3">
                                     {{ formatedCurrency(data.factura.subTotal, data.fomates.nio) }}
                                 </span>
                             </div>
 
-                            <div class="d-flex justify-space-between align-center mb-4">
-                                <span class="text-body-1 font-weight-bold">TOTAL GENERAL</span>
-                                <span class="text-h6 font-weight-bold text-indigo-darken-4">
+                            <div class="d-flex justify-space-between align-center mb-2">
+                                <span class="text-caption text-indigo-darken-3 font-weight-bold d-flex align-center">
+                                    <v-icon size="14" color="indigo-darken-3" class="mr-1">mdi-receipt-text-outline</v-icon>
+                                    Impuestos (IVA 15%):
+                                </span>
+                                <span class="text-subtitle-2 font-weight-bold text-indigo-darken-3">
+                                    {{ formatedCurrency(data.factura.totalImpuestos, data.fomates.nio) }}
+                                </span>
+                            </div>
+
+                            <v-divider class="my-2" thickness="2" />
+
+                            <div class="d-flex justify-space-between align-center mb-2">
+                                <span class="text-subtitle-2 font-weight-black text-indigo-darken-4">TOTAL GENERAL:</span>
+                                <span class="text-h6 font-weight-black text-indigo-darken-4">
                                     {{ formatedCurrency(data.factura.total, data.fomates.nio) }}
                                 </span>
                             </div>
 
-                            <!-- <v-divider class="my-3" />
+                            <v-divider class="my-2" />
 
-                            <div class="d-flex justify-space-between align-center mt-4">
+                            <div class="d-flex justify-space-between align-center pt-1">
                                 <div>
-                                    <span class="text-body-2">Equivalente en USD</span>
-                                    <div class="text-caption text-grey">Tipo de cambio aplicado</div>
+                                    <span class="text-caption text-grey-darken-1 font-weight-medium">Equivalente en USD</span>
+                                    <div class="text-caption text-grey" style="font-size: 10px;">T/C 36.6243</div>
                                 </div>
-                                <span class="text-body-1 font-weight-bold text-blue-darken-3">
+                                <span class="text-subtitle-1 font-weight-bold text-green-darken-2">
                                     {{ formatedCurrency(data.factura.usdTotal, data.fomates.usd) }}
                                 </span>
-                            </div> -->
+                            </div>
                         </v-card>
                     </v-col>
                 </v-row>
             </v-card-text>
 
             <v-divider/>
-            <v-card-actions>
-                <v-btn color="grey" variant="outlined" @click="closeDialog()">
+            <v-card-actions class="px-4 py-3 bg-white justify-end">
+                <v-btn color="grey-darken-1" variant="outlined" @click="closeDialog()" class="mr-2">
                     Cerrar
                 </v-btn>
                 <v-btn color="indigo-darken-4" variant="flat" @click="exportDialogToPDF()">
                     <template v-slot:prepend>
                         <v-icon>mdi-printer</v-icon>
                     </template>
-                    Descargar
+                    Descargar PDF
                 </v-btn>
             </v-card-actions>
 
@@ -194,8 +211,27 @@ export default {
         const localShow = ref(props.show)
         const localOrden = ref(props.orden)
 
+        const calcularTotals = () => {
+            let subTotal = 0
+            let totalImpuestos = 0
+            data.factura.subTotal = 0
+            data.factura.totalImpuestos = 0
+            data.factura.total = 0
+            data.factura.usdTotal = 0
+
+            data.items.forEach(item => {
+                subTotal += Number(item.subTotal || 0)
+                totalImpuestos += Number(item.montoImpuesto || 0)
+            })
+
+            data.factura.subTotal = Number(subTotal.toFixed(2))
+            data.factura.totalImpuestos = Number(totalImpuestos.toFixed(2))
+            data.factura.total = Number((subTotal + totalImpuestos).toFixed(2))
+            data.factura.usdTotal = Number((data.factura.total / 36.6243).toFixed(2))
+        }
+
         watch(() => props.orden, async (val) => {
-            if (localOrden.value.idCompra !== val.idCompra) {
+            if (val && val.idCompra && (!localOrden.value || localOrden.value.idCompra !== val.idCompra)) {
                 data.overlay.show = true
                 const result = await data.requestHttp.getByIdCompra(val.idCompra)
                 const proveedor = await data.requestHttp.getByIdProveedor(result.idProveedor)
@@ -213,13 +249,20 @@ export default {
                 data.orden.bodegaNombre = val.bodegaNombre || null
                 await Promise.all(result.detalleCompras.map(async (item) => {
                     const product = await data.requestHttp.getByIdProducto(item.idProducto)
+                    const costoUnit = Number(item.costoUnitario || 0)
+                    const cant = Number(item.cantidad || 0)
+                    const sub = Number((cant * costoUnit).toFixed(2))
+                    const imp = Number((sub * 0.15).toFixed(2))
                     data.items.push({
                         idCompra: item.idCompra,
                         idProducto: item.idProducto, 
-                        cantidad: item.cantidad,
-                        costoUnitario: item.costoUnitario,
+                        cantidad: cant,
+                        costoUnitario: costoUnit,
+                        costoConIva: Number((costoUnit * 1.15).toFixed(2)),
+                        montoImpuesto: imp,
                         observaciones: item.observaciones,
-                        subTotal: item.cantidad * item.costoUnitario,
+                        subTotal: sub,
+                        totalConIva: sub + imp,
                         producto: product.nombre
                     })
                 }))
@@ -231,30 +274,18 @@ export default {
         watch(() => props.show, async (newValue) => {
             localShow.value = newValue
         })
-        const  calcularTotals = () => {
-            let subTotal = 0
-            data.factura.subTotal = 0
-            data.factura.total = 0
-            data.factura.usdTotal = 0
 
-            data.items.forEach(item => {
-                subTotal += item.subTotal
-            })
-
-            data.factura.subTotal = subTotal
-            data.factura.total = data.factura.subTotal
-            data.factura.usdTotal = data.factura.total/36.4263
-        }
         watch(() => props.orden, (val) => {
             localOrden.value = val
         })
 
         const data = reactive({
             headers: [
-                {title: 'Producto', key: 'producto', align: 'center'},
-                {title: 'Cantidad', key: 'cantidad', align: 'center'},
-                {title: 'Precio Unit.', key: 'costoUnitario', align: 'center'},
-                {title: 'SubTotal', key: 'subTotal', align: 'center'},
+                { title: 'Producto', key: 'producto', align: 'start' },
+                { title: 'Cantidad', key: 'cantidad', align: 'center', width: '90px' },
+                { title: 'Costo Unitario', key: 'costoUnitario', align: 'end', width: '135px' },
+                { title: 'IVA (15%)', key: 'montoImpuesto', align: 'end', width: '110px' },
+                { title: 'SubTotal', key: 'subTotal', align: 'end', width: '130px' },
             ],
             items: [],
             orden: {
@@ -275,6 +306,7 @@ export default {
             },
             factura: {
                 subTotal: 0.00,
+                totalImpuestos: 0.00,
                 total: 0.00,
                 usdTotal: 0.00
             },
@@ -291,7 +323,8 @@ export default {
         return {
             localShow,
             localOrden,
-            data
+            data,
+            calcularTotals
         }
     },
 
@@ -336,7 +369,6 @@ export default {
             const M = 12;                 // margen general
             const R = 4;                  // "radio" visual (simulado)
             const lineH = 5;
-            const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
             const setText = (size = 10, style = "normal", rgb = COLORS.text) => {
                 doc.setFont("helvetica", style);
@@ -391,6 +423,7 @@ export default {
             // ===== Datos =====
             const noOrden = this.data.orden?.noOrden ?? "";
             const proveedor = this.data.orden?.proveedor ?? "";
+            const bodegaNombre = this.data.orden?.bodegaNombre ?? "Sin asignar";
             const usuarioRegistro = this.data.orden?.usuarioRegistro ?? "";
             const aprobada = this.data.orden?.aprobada ? "SI" : "NO";
             const estado = this.data.orden?.estado ? "Activa" : "Inactiva";
@@ -399,6 +432,7 @@ export default {
 
             // Totales
             const subTotal = this.data.factura?.subTotal ?? 0;
+            const totalImpuestos = this.data.factura?.totalImpuestos ?? 0;
             const total = this.data.factura?.total ?? 0;
 
             // ===== Layout =====
@@ -410,23 +444,22 @@ export default {
             doc.rect(0, 0, pageWidth, headerH, "F");
 
             setText(11, "bold", [255, 255, 255]);
-            doc.text("ORDEN", M, 7);
+            doc.text("ÓRDEN DE COMPRA", M, 7);
 
             setText(10, "normal", [255, 255, 255]);
             doc.text(`Documento No. ${noOrden}`, M, 13);
 
-            // “X” visual (opcional)
             setText(14, "bold", [255, 255, 255]);
             doc.text("DevoDigital", pageWidth - M, 11, { align: "right" });
 
             y = headerH + 6;
 
-            // ===== Card Información del cliente =====
+            // ===== Card Información del Proveedor y Bodega =====
             const card1H = 26;
             rect(M, y, pageWidth - M * 2, card1H, [255, 255, 255]);
 
             setText(8.5, "normal", COLORS.muted);
-            doc.text("INFORMACIÓN DEL CLIENTE", M + 4, y + 6);
+            doc.text("INFORMACIÓN DE LA COMPRA / PROVEEDOR", M + 4, y + 6);
 
             // Línea suave
             doc.setDrawColor(...COLORS.border);
@@ -439,21 +472,21 @@ export default {
             const innerW = pageWidth - M * 2 - 8;
 
             const colGap = 6;
-            const colW = (innerW - colGap * 3) / 4;
+            const colW = (innerW - colGap * 4) / 5;
 
-            // 4 columnas arriba
+            // Columnas
             labelValue("PROVEEDOR:", proveedor, innerX + (colW + colGap) * 0, innerY, colW);
-            labelValue("REGISTRADO POR:", usuarioRegistro, innerX + (colW + colGap) * 1, innerY, colW);
-            labelValue("APROBADA:", aprobada, innerX + (colW + colGap) * 2, innerY, colW);
+            labelValue("BODEGA DESTINO:", bodegaNombre, innerX + (colW + colGap) * 1, innerY, colW);
+            labelValue("REGISTRADO POR:", usuarioRegistro, innerX + (colW + colGap) * 2, innerY, colW);
+            labelValue("APROBADA:", aprobada, innerX + (colW + colGap) * 3, innerY, colW);
 
             // Fecha registro alineada a la derecha (con chip estado)
-            labelValue("FECHA REGISTRO", fechaRegistro, innerX + (colW + colGap) * 3, innerY, colW, {
+            labelValue("FECHA REGISTRO", fechaRegistro, innerX + (colW + colGap) * 4, innerY, colW, {
                 valueStyle: "bold",
                 maxLines: 1,
             });
 
-            // Chip estado (abajo de fecha)
-            const chipX = innerX + (colW + colGap) * 3;
+            const chipX = innerX + (colW + colGap) * 4;
             const chipY = innerY + 9;
             chip(estado, chipX, chipY);
 
@@ -466,7 +499,6 @@ export default {
             setText(11, "bold", COLORS.text);
             doc.text("DETALLE DE PRODUCTOS", M + 10, y + 6.8);
 
-            // “iconito” carrito simple (no SVG, solo texto)
             setText(12, "bold", COLORS.blue);
             doc.text("🛒", M + 4, y + 6.8);
 
@@ -474,19 +506,17 @@ export default {
 
             // Tabla (dentro del “card”)
             const tableCardY = y;
-            const tableCardH = 70; // puedes ajustar según cantidad de filas (autotable paginará)
+            const tableCardH = 70;
             rect(M, tableCardY, pageWidth - M * 2, tableCardH, [255, 255, 255]);
 
-            const headers = this.data.headers.map(h => h.title || h.key || "");
-            const filas = this.data.items.map(item =>
-                this.data.headers.map(h => {
-                const key = h.key;
-                if (key === "costoUnitario" || key === "subTotal") {
-                    return this.formatedCurrency(item[key], this.data.fomates.nio);
-                }
-                return item[key] !== undefined ? String(item[key]) : "";
-                })
-            );
+            const headers = ["Producto", "Cantidad", "Costo", "IVA (15%)", "SubTotal"];
+            const filas = this.data.items.map(item => [
+                String(item.producto || ''),
+                String(item.cantidad || ''),
+                this.formatedCurrency(item.costoUnitario, this.data.fomates.nio),
+                this.formatedCurrency(item.montoImpuesto, this.data.fomates.nio),
+                this.formatedCurrency(item.totalConIva, this.data.fomates.nio),
+            ]);
 
             doc.autoTable({
                 startY: tableCardY + 6,
@@ -511,9 +541,7 @@ export default {
                     lineWidth: 0.2,
                     lineColor: COLORS.border,
                 },
-                didDrawPage: (data) => {
-                // nada extra aquí
-                },
+                didDrawPage: () => {},
             });
 
             // y después de tabla (cursor real)
@@ -522,21 +550,20 @@ export default {
 
             // ===== Cards inferiores: Observaciones + Resumen de pago =====
             const bottomGap = 8;
-            const leftW = (pageWidth - M * 2 - bottomGap) * 0.62;
-            const rightW = (pageWidth - M * 2 - bottomGap) * 0.38;
-            const bottomH = 45;
+            const leftW = (pageWidth - M * 2 - bottomGap) * 0.58;
+            const rightW = (pageWidth - M * 2 - bottomGap) * 0.42;
+            const bottomH = 50;
 
             // Observaciones (izq)
             rect(M, y, leftW, bottomH, [255, 255, 255]);
             setText(9, "normal", COLORS.muted);
             doc.text("OBSERVACIONES", M + 4, y + 7);
 
-            // body obs
             setText(10, "normal", COLORS.text);
             const obsMaxW = leftW - 8;
             const obsLines = doc.splitTextToSize(observaciones, obsMaxW);
             const obsY = y + 14;
-            doc.text(obsLines.slice(0, 8), M + 4, obsY); // corta por seguridad visual
+            doc.text(obsLines.slice(0, 8), M + 4, obsY);
 
             // Resumen (der)
             const rx = M + leftW + bottomGap;
@@ -546,31 +573,43 @@ export default {
             doc.text("RESUMEN DE PAGO", rx + 4, y + 7);
 
             // Subtotal
-            setText(10, "normal", COLORS.text);
-            doc.text("Sub Total", rx + 4, y + 18);
+            setText(9.5, "normal", COLORS.text);
+            doc.text("Sub Total (Neto)", rx + 4, y + 16);
 
-            setText(10, "bold", COLORS.text);
+            setText(9.5, "bold", COLORS.text);
             doc.text(
                 this.formatedCurrency(subTotal, this.data.fomates.nio),
                 rx + rightW - 4,
-                y + 18,
+                y + 16,
+                { align: "right" }
+            );
+
+            // IVA
+            setText(9.5, "normal", COLORS.blue);
+            doc.text("Impuestos (IVA 15%)", rx + 4, y + 23);
+
+            setText(9.5, "bold", COLORS.blue);
+            doc.text(
+                this.formatedCurrency(totalImpuestos, this.data.fomates.nio),
+                rx + rightW - 4,
+                y + 23,
                 { align: "right" }
             );
 
             // Línea
             doc.setDrawColor(...COLORS.border);
             doc.setLineWidth(0.3);
-            doc.line(rx + 4, y + 23, rx + rightW - 4, y + 23);
+            doc.line(rx + 4, y + 28, rx + rightW - 4, y + 28);
 
             // Total general destacado
             setText(11, "bold", COLORS.text);
-            doc.text("TOTAL GENERAL", rx + 4, y + 33);
+            doc.text("TOTAL GENERAL", rx + 4, y + 37);
 
             setText(12, "bold", COLORS.blue);
             doc.text(
                 this.formatedCurrency(total, this.data.fomates.nio),
                 rx + rightW - 4,
-                y + 33,
+                y + 37,
                 { align: "right" }
             );
 
@@ -588,8 +627,6 @@ export default {
 
             doc.save(`Orden_${noOrden}.pdf`);
         }
-
-
     },
 }
 </script>
@@ -597,6 +634,10 @@ export default {
 <style scoped>
 .v-card-item{
     padding: 8px 12px !important;
+}
+
+.h-100 {
+    height: 100%;
 }
 
 .details {
@@ -614,6 +655,7 @@ export default {
 #checkLabel{
     font-size: 12px !important;
 }
+
 .font{
     font-size: 10px !important;
     font-weight: bold;

@@ -106,7 +106,19 @@
           ></v-skeleton-loader>
         </template>
         <template v-slot:item.costo="{ item }">
-          {{ formatCurrency(item.costo) }}
+          <div class="d-flex flex-column align-center py-1">
+            <span class="font-weight-medium text-grey-darken-3">
+              {{ formatCurrency(item.costo) }}
+            </span>
+            <span
+              v-if="item.costo !== null && item.costo !== undefined"
+              class="text-caption text-indigo-darken-3 font-weight-bold mt-0.5"
+              style="font-size: 0.72rem !important; line-height: 1;"
+              title="Costo con IVA (15%)"
+            >
+              c/IVA: {{ formatCurrency(item.costo * 1.15) }}
+            </span>
+          </div>
         </template>
         <template v-slot:item.precio="{ item }">
           <v-menu
@@ -143,7 +155,7 @@
             </template>
 
             <v-card
-              width="380"
+              width="440"
               class="elevation-4 border rounded-lg"
             >
               <v-card-item
@@ -202,7 +214,12 @@
                     <th
                       class="text-center font-weight-bold text-caption py-1"
                     >
-                      Precio Unit.
+                      Sin IVA
+                    </th>
+                    <th
+                      class="text-center font-weight-bold text-caption py-1"
+                    >
+                      Con IVA
                     </th>
                     <th
                       class="text-center font-weight-bold text-caption py-1"
@@ -230,10 +247,17 @@
                       }}
                     </td>
                     <td
-                      class="text-center text-caption py-1 text-success font-weight-bold"
+                      class="text-center text-caption py-1 font-weight-medium"
                     >
                       {{
                         formatCurrency(pm.precio)
+                      }}
+                    </td>
+                    <td
+                      class="text-center text-caption py-1 text-teal-darken-4 font-weight-bold"
+                    >
+                      {{
+                        formatCurrency(pm.precio * 1.15)
                       }}
                     </td>
                     <td
@@ -255,7 +279,7 @@
                     "
                   >
                     <td
-                      colspan="3"
+                      colspan="4"
                       class="text-center text-grey text-caption py-2"
                     >
                       Sin rangos registrados
@@ -265,9 +289,19 @@
               </v-table>
             </v-card>
           </v-menu>
-          <span v-else class="font-weight-medium">
-            {{ formatCurrency(item.precio) }}
-          </span>
+          <div v-else class="d-flex flex-column align-center py-1">
+            <span class="font-weight-medium text-grey-darken-3">
+              {{ formatCurrency(item.precio) }}
+            </span>
+            <span
+              v-if="item.precio !== null && item.precio !== undefined"
+              class="text-caption text-teal-darken-3 font-weight-bold mt-0.5"
+              style="font-size: 0.72rem !important; line-height: 1;"
+              title="Precio con IVA (15%)"
+            >
+              c/IVA: {{ formatCurrency(item.precio * 1.15) }}
+            </span>
+          </div>
         </template>
 
         <template
@@ -612,6 +646,19 @@
               </v-list-item>
 
               <v-divider />
+
+              <v-list-item
+                rounded
+                density="compact"
+                prepend-icon="mdi-warehouse-plus"
+                color="indigo"
+                @click="openAsignarBodegas(item)"
+              >
+                <template v-slot:title>
+                  <v-divider vertical />
+                  Asignar a Bodegas
+                </template>
+              </v-list-item>
 
               <v-list-item
                 rounded
@@ -1055,16 +1102,13 @@
                         color="indigo"
                         >mdi-cash-multiple</v-icon
                       >
-                      Costos, Precios y Esquema de
-                      Venta
+                      Costos, Precios y Esquema de Venta
                     </div>
                     <div
                       class="d-flex align-center"
                     >
                       <v-checkbox
-                        v-model="
-                          data.form.esMayorista
-                        "
+                        v-model="data.form.esMayorista"
                         color="indigo"
                         density="compact"
                         hide-details
@@ -1075,118 +1119,179 @@
                   </div>
 
                   <div class="pa-4">
-                    <!-- Fila de Costos -->
-                    <v-row dense class="mb-2">
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          v-model="
-                            data.form.costo
-                          "
-                          :rules="[
-                            rules.required,
-                            rules.numeric
-                          ]"
-                          prefix="C$"
-                          label="Costo Unitario (C$) *"
-                          variant="outlined"
-                          hide-details="auto"
+                    <!-- SECCION COSTO -->
+                    <div class="mb-4 pa-3 rounded-lg border bg-grey-lighten-5">
+                      <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
+                        <span class="text-caption font-weight-bold text-indigo-darken-3 d-flex align-center">
+                          <v-icon size="small" class="mr-1" color="indigo">mdi-calculator-variant-outline</v-icon>
+                          COSTO DEL PRODUCTO
+                        </span>
+                        <!-- Toggle Con IVA / Sin IVA para Costo -->
+                        <v-btn-toggle
+                          v-model="ivaConfig.costoModo"
+                          mandatory
                           density="compact"
                           color="indigo"
-                          type="number"
-                          step="0.01"
-                          @input="
-                            handleChangeCosto
-                          "
-                        />
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          v-model="
-                            data.form.costoDolar
-                          "
-                          :rules="[
-                            rules.required,
-                            rules.numeric
-                          ]"
-                          prefix="US$"
-                          label="Costo en Dólares (US$) *"
                           variant="outlined"
-                          hide-details="auto"
-                          density="compact"
-                          color="indigo"
-                          type="number"
-                          step="0.01"
-                          @input="
-                            handleChangeCostoDolar
-                          "
-                        />
-                      </v-col>
-                    </v-row>
-
-                    <!-- Si NO es mayorista: Precio Venta y Utilidad -->
-                    <div
-                      v-if="
-                        !data.form.esMayorista
-                      "
-                      class="bg-grey-lighten-5 pa-3 rounded-lg border"
-                    >
-                      <div
-                        class="text-caption font-weight-bold text-grey-darken-2 mb-2 d-flex align-center"
-                      >
-                        <v-icon
-                          size="small"
-                          class="mr-1"
-                          color="indigo"
-                          >mdi-tag-outline</v-icon
+                          rounded="pill"
+                          class="bg-white"
+                          @update:model-value="onToggleCostoModo"
                         >
-                        PRECIO DE VENTA Y MARGEN
-                        DE UTILIDAD UNITARIO
+                          <v-btn value="sin_iva" size="small" class="text-caption font-weight-bold px-3">
+                            <v-icon size="x-small" class="mr-1">mdi-tag-outline</v-icon>
+                            Sin IVA
+                          </v-btn>
+                          <v-btn value="con_iva" size="small" class="text-caption font-weight-bold px-3">
+                            <v-icon size="x-small" class="mr-1">mdi-receipt-text-outline</v-icon>
+                            Con IVA ({{ ivaConfig.tasaIva }}%)
+                          </v-btn>
+                        </v-btn-toggle>
                       </div>
+
                       <v-row dense>
                         <v-col cols="12" sm="6">
                           <v-text-field
-                            v-model="
-                              data.form.precio
-                            "
-                            :rules="[
-                              rules.required,
-                              rules.numeric
-                            ]"
+                            v-model="ivaConfig.costoInput"
+                            :rules="[rules.required, rules.numeric]"
                             prefix="C$"
-                            label="Precio de Venta (C$) *"
-                            variant="outlined"
-                            hide-details="auto"
-                            density="compact"
-                            color="indigo"
-                            type="number"
-                            @input="
-                              handleChangePrecio
-                            "
-                          />
-                        </v-col>
-                        <v-col cols="12" sm="6">
-                          <v-text-field
-                            v-model="
-                              data.form.utilidad
-                            "
-                            :rules="[
-                              rules.required,
-                              rules.numeric
-                            ]"
-                            prefix="%"
-                            label="% Margen de Utilidad *"
+                            :label="ivaConfig.costoModo === 'con_iva' ? `Costo Unitario (Con IVA ${ivaConfig.tasaIva}%) *` : 'Costo Unitario Base (Sin IVA) *'"
                             variant="outlined"
                             hide-details="auto"
                             density="compact"
                             color="indigo"
                             type="number"
                             step="0.01"
-                            @input="
-                              handleChangeUtilidad
-                            "
+                            bg-color="white"
+                            @input="onInputCosto(ivaConfig.costoInput)"
+                          />
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                          <v-text-field
+                            v-model="data.form.costoDolar"
+                            :rules="[rules.required, rules.numeric]"
+                            prefix="US$"
+                            label="Costo en Dólares (US$) *"
+                            variant="outlined"
+                            hide-details="auto"
+                            density="compact"
+                            color="indigo"
+                            type="number"
+                            step="0.01"
+                            bg-color="white"
+                            @input="handleChangeCostoDolar"
                           />
                         </v-col>
                       </v-row>
+
+                      <!-- Desglose Visual de Costo -->
+                      <div class="mt-2 pt-2 border-t d-flex flex-wrap align-center justify-space-between ga-2">
+                        <div class="d-flex align-center ga-1 text-caption text-grey-darken-2">
+                          <span class="text-grey-darken-1">Base Sin IVA:</span>
+                          <span class="font-weight-bold text-indigo-darken-3">C$ {{ costoBaseCalc.toFixed(2) }}</span>
+                        </div>
+                        <div class="d-flex align-center ga-1 text-caption text-grey-darken-2">
+                          <span class="text-grey-darken-1">IVA ({{ ivaConfig.tasaIva }}%):</span>
+                          <span class="font-weight-bold text-amber-darken-4">+ C$ {{ costoIvaCalc.toFixed(2) }}</span>
+                        </div>
+                        <div class="d-flex align-center ga-1 text-caption">
+                          <span class="text-grey-darken-2 font-weight-medium">Total Con IVA:</span>
+                          <span class="font-weight-black text-indigo-darken-4 bg-indigo-lighten-4 px-2 py-0.5 rounded">C$ {{ costoTotalCalc.toFixed(2) }}</span>
+                        </div>
+                        <div class="d-flex align-center ga-1 text-caption text-grey-darken-2">
+                          <span class="text-grey-darken-1">Equiv. US$:</span>
+                          <span class="font-weight-bold text-green-darken-3">${{ costoDolarCalc.toFixed(2) }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Si NO es mayorista: Precio Venta y Utilidad -->
+                    <div
+                      v-if="!data.form.esMayorista"
+                      class="pa-3 rounded-lg border bg-blue-grey-lighten-5"
+                    >
+                      <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
+                        <span class="text-caption font-weight-bold text-blue-grey-darken-3 d-flex align-center">
+                          <v-icon size="small" class="mr-1" color="primary">mdi-tag-outline</v-icon>
+                          PRECIO DE VENTA Y MARGEN DE UTILIDAD UNITARIO
+                        </span>
+                        <!-- Toggle Con IVA / Sin IVA para Precio -->
+                        <v-btn-toggle
+                          v-model="ivaConfig.precioModo"
+                          mandatory
+                          density="compact"
+                          color="primary"
+                          variant="outlined"
+                          rounded="pill"
+                          class="bg-white"
+                          @update:model-value="onTogglePrecioModo"
+                        >
+                          <v-btn value="sin_iva" size="small" class="text-caption font-weight-bold px-3">
+                            <v-icon size="x-small" class="mr-1">mdi-tag-outline</v-icon>
+                            Sin IVA
+                          </v-btn>
+                          <v-btn value="con_iva" size="small" class="text-caption font-weight-bold px-3">
+                            <v-icon size="x-small" class="mr-1">mdi-receipt-text-outline</v-icon>
+                            Con IVA ({{ ivaConfig.tasaIva }}%)
+                          </v-btn>
+                        </v-btn-toggle>
+                      </div>
+
+                      <v-row dense>
+                        <v-col cols="12" sm="6">
+                          <v-text-field
+                            v-model="ivaConfig.precioInput"
+                            :rules="[rules.required, rules.numeric]"
+                            prefix="C$"
+                            :label="ivaConfig.precioModo === 'con_iva' ? `Precio Final al Cliente (Con IVA ${ivaConfig.tasaIva}%) *` : 'Precio de Venta Base (Sin IVA) *'"
+                            variant="outlined"
+                            hide-details="auto"
+                            density="compact"
+                            color="primary"
+                            type="number"
+                            step="0.01"
+                            bg-color="white"
+                            @input="onInputPrecio(ivaConfig.precioInput)"
+                          />
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                          <v-text-field
+                            v-model="data.form.utilidad"
+                            :rules="[rules.required, rules.numeric]"
+                            prefix="%"
+                            label="% Margen de Utilidad *"
+                            variant="outlined"
+                            hide-details="auto"
+                            density="compact"
+                            color="primary"
+                            type="number"
+                            step="0.01"
+                            bg-color="white"
+                            @input="handleChangeUtilidad"
+                          />
+                        </v-col>
+                      </v-row>
+
+                      <!-- Desglose Visual de Precio y Ganancia -->
+                      <div class="mt-2 pt-2 border-t d-flex flex-wrap align-center justify-space-between ga-2">
+                        <div class="d-flex align-center ga-1 text-caption text-grey-darken-2">
+                          <span class="text-grey-darken-1">Precio Base:</span>
+                          <span class="font-weight-bold text-blue-grey-darken-4">C$ {{ precioBaseCalc.toFixed(2) }}</span>
+                        </div>
+                        <div class="d-flex align-center ga-1 text-caption text-grey-darken-2">
+                          <span class="text-grey-darken-1">IVA ({{ ivaConfig.tasaIva }}%):</span>
+                          <span class="font-weight-bold text-amber-darken-4">+ C$ {{ precioIvaCalc.toFixed(2) }}</span>
+                        </div>
+                        <div class="d-flex align-center ga-1 text-caption">
+                          <span class="text-grey-darken-2 font-weight-medium">Precio Final Cliente:</span>
+                          <span class="font-weight-black text-teal-darken-4 bg-teal-lighten-4 px-2 py-0.5 rounded">C$ {{ precioTotalCalc.toFixed(2) }}</span>
+                        </div>
+                        <div class="d-flex align-center ga-1 text-caption">
+                          <span class="text-grey-darken-1">Ganancia neta:</span>
+                          <span class="font-weight-bold" :class="gananciaNetaCalc >= 0 ? 'text-success' : 'text-error'">
+                            C$ {{ gananciaNetaCalc.toFixed(2) }} ({{ margenUtilidadCalc.toFixed(2) }}%)
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     <!-- Si ES mayorista: Tabla de Rangos -->
@@ -1202,9 +1307,7 @@
                             class="mr-1"
                             >mdi-table-plus</v-icon
                           >
-                          ESCALA DE PRECIOS
-                          MAYORISTAS POR RANGO DE
-                          CANTIDAD
+                          ESCALA DE PRECIOS MAYORISTAS POR RANGO DE CANTIDAD
                         </span>
                         <v-btn
                           color="indigo"
@@ -1229,25 +1332,31 @@
                           >
                             <th
                               class="text-center font-weight-bold text-caption"
-                              style="width: 16%"
+                              style="width: 14%"
                             >
                               Cant. Mínima
                             </th>
                             <th
                               class="text-center font-weight-bold text-caption"
-                              style="width: 16%"
+                              style="width: 14%"
                             >
                               Cant. Máxima
                             </th>
                             <th
                               class="text-center font-weight-bold text-caption"
-                              style="width: 20%"
+                              style="width: 18%"
                             >
-                              Precio Venta (C$)
+                              Precio Base (Sin IVA)
                             </th>
                             <th
                               class="text-center font-weight-bold text-caption"
                               style="width: 18%"
+                            >
+                              Precio Final (Con IVA)
+                            </th>
+                            <th
+                              class="text-center font-weight-bold text-caption"
+                              style="width: 15%"
                             >
                               Utilidad (%)
                             </th>
@@ -1349,6 +1458,9 @@
                                 "
                               />
                             </td>
+                            <td class="pa-1 text-center font-weight-bold text-indigo-darken-3 bg-indigo-lighten-5">
+                              C$ {{ (Number(row.precio || 0) * (1 + Number(ivaConfig.tasaIva || 15) / 100)).toFixed(2) }}
+                            </td>
                             <td class="pa-1">
                               <v-text-field
                                 v-model="
@@ -1417,7 +1529,7 @@
                             "
                           >
                             <td
-                              colspan="6"
+                              colspan="7"
                               class="py-2 text-indigo-darken-4 font-weight-bold text-caption bg-indigo-lighten-5"
                             >
                               <v-icon
@@ -1439,7 +1551,7 @@
                             "
                           >
                             <td
-                              colspan="6"
+                              colspan="7"
                               class="text-center text-grey text-caption py-4"
                             >
                               <v-icon
@@ -2457,6 +2569,12 @@
       :producto="data.productDialog"
       @cerrarDialog="closeDialogDet"
     />
+    <AsignarBodegasProducto
+      :show="asignarBodegaDisplay.show"
+      :producto="asignarBodegaDisplay.producto"
+      @closeDialog="closeAsignarBodegas"
+      @asignado="onProductoAsignado"
+    />
     <AlertComp
       :show="data.viewAlert"
       @deleteItem="deleteAction"
@@ -2662,6 +2780,7 @@ import {
 } from 'vue'
 import { utilsFunctions } from '@/helpers/utilFunctions'
 import DetallesProducto from './modalsProductos/DetallesProducto.vue'
+import AsignarBodegasProducto from './modalsProductos/AsignarBodegasProducto.vue'
 import RequestHttp from '@/services/requestHttp'
 import AlertComp from '@/components/widgets/AlertaAction.vue'
 import {
@@ -2689,6 +2808,7 @@ export default {
     NewCategoria,
     NewSubCategoria,
     DetallesProducto,
+    AsignarBodegasProducto,
     AlertComp
   },
 
@@ -2762,7 +2882,7 @@ export default {
           width: 200
         },
         {
-          title: 'Stock',
+          title: 'Stock General',
           key: 'cantidadTotal',
           align: 'center'
         },
@@ -2917,6 +3037,11 @@ export default {
 
   data() {
     return {
+      asignarBodegaDisplay: {
+        show: false,
+        producto: null
+      },
+
       display: {
         ajusteStock: false,
         verAjusteStock: false
@@ -3042,6 +3167,14 @@ export default {
         actualizandoCosto: false
       },
 
+      ivaConfig: {
+        tasaIva: 15,
+        costoModo: 'con_iva',
+        precioModo: 'sin_iva',
+        costoInput: null,
+        precioInput: null
+      },
+
       search: '',
       dialog: false,
       deleteDialog: false,
@@ -3069,6 +3202,58 @@ export default {
       return this.dialogMode === 'create'
         ? 'Nuevo Producto'
         : 'Editar Producto'
+    },
+    costoBaseCalc() {
+      if (this.ivaConfig.costoModo === 'con_iva') {
+        const val = Number(this.ivaConfig.costoInput || 0)
+        const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+        return val > 0 ? val / (1 + tasa) : 0
+      }
+      return Number(this.ivaConfig.costoInput || this.data.form.costo || 0)
+    },
+    costoIvaCalc() {
+      const base = this.costoBaseCalc
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      return base * tasa
+    },
+    costoTotalCalc() {
+      if (this.ivaConfig.costoModo === 'con_iva') {
+        return Number(this.ivaConfig.costoInput || 0)
+      }
+      return this.costoBaseCalc + this.costoIvaCalc
+    },
+    costoDolarCalc() {
+      const base = this.costoBaseCalc
+      return base > 0 ? base / 36.6243 : 0
+    },
+
+    precioBaseCalc() {
+      if (this.ivaConfig.precioModo === 'con_iva') {
+        const val = Number(this.ivaConfig.precioInput || 0)
+        const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+        return val > 0 ? val / (1 + tasa) : 0
+      }
+      return Number(this.ivaConfig.precioInput || this.data.form.precio || 0)
+    },
+    precioIvaCalc() {
+      const base = this.precioBaseCalc
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      return base * tasa
+    },
+    precioTotalCalc() {
+      if (this.ivaConfig.precioModo === 'con_iva') {
+        return Number(this.ivaConfig.precioInput || 0)
+      }
+      return this.precioBaseCalc + this.precioIvaCalc
+    },
+    gananciaNetaCalc() {
+      return this.precioBaseCalc - this.costoBaseCalc
+    },
+    margenUtilidadCalc() {
+      const costo = this.costoBaseCalc
+      const precio = this.precioBaseCalc
+      if (costo <= 0) return 0
+      return ((precio - costo) / costo) * 100
     }
   },
 
@@ -3215,6 +3400,84 @@ export default {
       )
     },
 
+    onInputCosto(val) {
+      this.ivaConfig.costoInput = val
+      const numVal =
+        val !== '' && val !== null && val !== undefined ? Number(val) : null
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      if (numVal === null || isNaN(numVal)) {
+        this.data.form.costo = null
+        this.data.form.costoDolar = null
+      } else {
+        if (this.ivaConfig.costoModo === 'con_iva') {
+          this.data.form.costo = Number((numVal / (1 + tasa)).toFixed(4))
+        } else {
+          this.data.form.costo = Number(numVal.toFixed(4))
+        }
+        this.data.form.costoDolar = (this.data.form.costo / 36.6243).toFixed(4)
+      }
+
+      if (this.data.form.esMayorista && this.data.form.preciosMayoristas) {
+        this.data.form.preciosMayoristas.forEach((row) => {
+          this.handleWholesalePrecioChange(row)
+        })
+      } else {
+        this.handleChangePrecio()
+      }
+    },
+
+    onToggleCostoModo(modo) {
+      this.ivaConfig.costoModo = modo
+      const costoBase = Number(this.data.form.costo || 0)
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      if (modo === 'con_iva') {
+        const conIva = costoBase * (1 + tasa)
+        this.ivaConfig.costoInput = conIva > 0 ? Number(conIva.toFixed(2)) : ''
+      } else {
+        this.ivaConfig.costoInput = costoBase > 0 ? Number(costoBase.toFixed(2)) : ''
+      }
+    },
+
+    onInputPrecio(val) {
+      this.ivaConfig.precioInput = val
+      const numVal =
+        val !== '' && val !== null && val !== undefined ? Number(val) : null
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      if (numVal === null || isNaN(numVal)) {
+        this.data.form.precio = null
+        this.data.form.utilidad = null
+      } else {
+        if (this.ivaConfig.precioModo === 'con_iva') {
+          this.data.form.precio = Number((numVal / (1 + tasa)).toFixed(4))
+        } else {
+          this.data.form.precio = Number(numVal.toFixed(4))
+        }
+        this.handleChangePrecio()
+      }
+    },
+
+    onTogglePrecioModo(modo) {
+      this.ivaConfig.precioModo = modo
+      const precioBase = Number(this.data.form.precio || 0)
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      if (modo === 'con_iva') {
+        const conIva = precioBase * (1 + tasa)
+        this.ivaConfig.precioInput = conIva > 0 ? Number(conIva.toFixed(2)) : ''
+      } else {
+        this.ivaConfig.precioInput = precioBase > 0 ? Number(precioBase.toFixed(2)) : ''
+      }
+    },
+
+    onChangeTasaIva(tasa) {
+      this.ivaConfig.tasaIva = Number(tasa || 15)
+      if (this.ivaConfig.costoModo === 'con_iva') {
+        this.onInputCosto(this.ivaConfig.costoInput)
+      }
+      if (this.ivaConfig.precioModo === 'con_iva') {
+        this.onInputPrecio(this.ivaConfig.precioInput)
+      }
+    },
+
     handleChangeCosto() {
       if (!this.data.form.costo) {
         this.data.form.costoDolar = null
@@ -3241,11 +3504,19 @@ export default {
     handleChangeCostoDolar() {
       if (!this.data.form.costoDolar) {
         this.data.form.costo = null
+        this.ivaConfig.costoInput = null
         return
       }
-      this.data.form.costo = (
+      this.data.form.costo = Number((
         this.data.form.costoDolar * 36.6243
-      ).toFixed(4)
+      ).toFixed(4))
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      if (this.ivaConfig.costoModo === 'con_iva') {
+        const conIva = this.data.form.costo * (1 + tasa)
+        this.ivaConfig.costoInput = Number(conIva.toFixed(2))
+      } else {
+        this.ivaConfig.costoInput = Number(this.data.form.costo.toFixed(2))
+      }
 
       if (
         this.data.form.esMayorista &&
@@ -3295,12 +3566,16 @@ export default {
     },
 
     handleChangePrecio() {
-      if (!this.data.form.precio) {
+      if (!this.data.form.precio || !this.data.form.costo) {
         this.data.form.utilidad = null
         return
       }
       var precio = Number(this.data.form.precio)
       var costo = Number(this.data.form.costo)
+      if (costo === 0) {
+        this.data.form.utilidad = 0
+        return
+      }
       this.data.form.utilidad = (
         ((precio - costo) / costo) *
         100
@@ -3308,17 +3583,28 @@ export default {
     },
 
     handleChangeUtilidad() {
-      if (!this.data.form.utilidad) {
-        this.data.form.precio =
-          this.data.form.costo
-        return
+      if (
+        this.data.form.utilidad === null ||
+        this.data.form.utilidad === '' ||
+        this.data.form.utilidad === undefined
+      ) {
+        this.data.form.precio = this.data.form.costo
+      } else {
+        var utilidad = Number(this.data.form.utilidad)
+        var costo = Number(this.data.form.costo || 0)
+        this.data.form.precio = Number(
+          ((utilidad / 100) * costo + costo).toFixed(4)
+        )
       }
-      var utilidad = Number(
-        this.data.form.utilidad
-      )
-      var costo = Number(this.data.form.costo)
-      this.data.form.precio =
-        (utilidad / 100) * costo + costo
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      if (this.ivaConfig.precioModo === 'con_iva') {
+        const conIva = Number(this.data.form.precio || 0) * (1 + tasa)
+        this.ivaConfig.precioInput = conIva > 0 ? Number(conIva.toFixed(2)) : ''
+      } else {
+        this.ivaConfig.precioInput = this.data.form.precio
+          ? Number(Number(this.data.form.precio).toFixed(2))
+          : ''
+      }
     },
 
     handleInputImagen() {
@@ -3744,8 +4030,12 @@ export default {
       if (!this.data.form.impuestos) {
         this.data.form.impuestos = []
       }
+      const defaultImpuesto =
+        this.cmb.impuestos && this.cmb.impuestos.length > 0
+          ? this.cmb.impuestos[0].value
+          : 1
       this.data.form.impuestos.push({
-        idImpuesto: null,
+        idImpuesto: defaultImpuesto,
         esAplicadoCompra: true,
         esAplicadoVenta: true
       })
@@ -3805,10 +4095,19 @@ export default {
       this.registroDisplay.tab = 0
       this.registroDisplay.imagen.url = null
       this.registroDisplay.imagen.archivo = null
+      this.ivaConfig.costoModo = 'con_iva'
+      this.ivaConfig.precioModo = 'sin_iva'
+      this.ivaConfig.tasaIva = 15
+      this.ivaConfig.costoInput = null
+      this.ivaConfig.precioInput = null
       await this.loadCmbUnidadMedida()
       await this.loadCmbCategoria()
       await this.loadCmbImpuestos()
       if (mode !== 'edit') {
+        const defaultImpuesto =
+          this.cmb.impuestos && this.cmb.impuestos.length > 0
+            ? this.cmb.impuestos[0].value
+            : 1
         this.data.form = {
           idProducto: 0,
           codigo: null,
@@ -3832,7 +4131,13 @@ export default {
           observaciones: '',
           esMayorista: false,
           preciosMayoristas: [],
-          impuestos: []
+          impuestos: [
+            {
+              idImpuesto: defaultImpuesto,
+              esAplicadoCompra: true,
+              esAplicadoVenta: true
+            }
+          ]
         }
       } else {
         await this.loadCmbSubCategoria(
@@ -3883,11 +4188,21 @@ export default {
         this.data.form.idCategoria =
           product.idCategoriaProducto
         this.data.form.costo = fullProduct.costo
+        this.ivaConfig.costoInput =
+          fullProduct.costo !== null &&
+          fullProduct.costo !== undefined
+            ? Number((Number(fullProduct.costo) * 1.15).toFixed(2))
+            : null
         this.data.form.categoria =
           fullProduct.categoria ||
           product.categoria
         this.data.form.nombre = fullProduct.nombre
         this.data.form.precio = fullProduct.precio
+        this.ivaConfig.precioInput =
+          fullProduct.precio !== null &&
+          fullProduct.precio !== undefined
+            ? Number(Number(fullProduct.precio).toFixed(2))
+            : null
         this.data.form.idSubCatProd =
           fullProduct.idSubCatProd
         this.data.form.tipoProducto =
@@ -3996,6 +4311,27 @@ export default {
       this.data.showDialog = key
     },
 
+    openAsignarBodegas(item) {
+      this.asignarBodegaDisplay.producto = { ...item }
+      this.asignarBodegaDisplay.show = true
+    },
+
+    closeAsignarBodegas() {
+      this.asignarBodegaDisplay.show = false
+      this.asignarBodegaDisplay.producto = null
+    },
+
+    async onProductoAsignado() {
+      this.closeAsignarBodegas()
+      if (this.snackbar?.show) {
+        this.snackbar.show({
+          text: '¡Producto asignado a bodegas exitosamente!',
+          color: 'success'
+        })
+      }
+      await this.getProductos()
+    },
+
     closeDialogUM() {
       this.data.showDiagUM = false
       this.data.unidadMedida = {}
@@ -4007,6 +4343,11 @@ export default {
       this.data.dialog = false
       this.selectedProduct = null
       this.data.form.idSubCatProd = null
+      this.ivaConfig.costoModo = 'con_iva'
+      this.ivaConfig.precioModo = 'sin_iva'
+      this.ivaConfig.tasaIva = 15
+      this.ivaConfig.costoInput = null
+      this.ivaConfig.precioInput = null
       this.data.form = {
         idProducto: 0,
         codigo: null,
@@ -4030,7 +4371,13 @@ export default {
         observaciones: '',
         esMayorista: false,
         preciosMayoristas: [],
-        impuestos: []
+        impuestos: [
+          {
+            idImpuesto: 1,
+            esAplicadoCompra: true,
+            esAplicadoVenta: true
+          }
+        ]
       }
     },
 

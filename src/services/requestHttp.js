@@ -238,6 +238,21 @@ class RequestHttp {
             return null
         }
     }
+    async postAsignarProductoBodegas(data, idProducto = null) {
+        try {
+            const url = idProducto ? `api/Producto/${idProducto}/asignar-bodegas` : endPoints.postAsignarProductoBodegas
+            const result = await axios.post(url, data)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
 
      // PROVEEDORES
     async getProveedores(params = {}) {
@@ -419,21 +434,23 @@ class RequestHttp {
     }
     async postCompra(data) {
         try {
-            const result  = await axios.post(endPoints.postCompra, data)
+            const headers = getAuthHeaders()
+            const result  = await axios.post(endPoints.postCompra, data, { headers })
             return {
                 code: result.status,
                 data: result.data
             }
         } catch (error) {
             return {
-                code: error.response.status,
-                data: error.response.data
+                code: error.response?.status || 500,
+                data: error.response?.data
             }
         }
     }
     async putCompra(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putCompra}/${id}`, data)
+            const headers = getAuthHeaders()
+            const result  = await axios.put(`${endPoints.putCompra}/${id}`, data, { headers })
             return result.data
         } catch (error) {
             return null
@@ -1340,6 +1357,22 @@ class RequestHttp {
     async getBodegaStock(idBodega) {
         try {
             const result = await axios.get(`api/bodegas/${idBodega}/stock`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getProductosPorBodega(idBodega, soloConStock = false) {
+        try {
+            const result = await axios.get(`api/bodegas/${idBodega}/productos?soloConStock=${soloConStock}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getStockBodegas(params = {}) {
+        try {
+            const result = await axios.get(endPoints.getStockBodegas, { params })
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }

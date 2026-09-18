@@ -1,7 +1,9 @@
 <template>
   <div class="w-100">
-    <!-- Encabezado y botón de agregar -->
-    <v-card class="border-t border-b" elevation="0" rounded="0">
+    <!-- Vista Principal: Tabla de Órdenes de Compra -->
+    <div v-if="!data.compra.show">
+      <!-- Encabezado y botón de agregar -->
+      <v-card class="border-t border-b" elevation="0" rounded="0">
       <!-- Encabezado -->
       <template v-slot:prepend>
         <div class="d-flex align-center">
@@ -239,8 +241,13 @@
 
       <!-- Columna Total -->
       <template v-slot:item.total="{ item }">
-        <div class="font-weight-bold text-indigo-darken-4 text-subtitle-2">
-          {{ formatedCurrency(item.total) }}
+        <div class="text-right">
+          <div class="font-weight-bold text-indigo-darken-4 text-subtitle-2">
+            {{ formatedCurrency(Number(item.total || 0) * 1.15) }}
+          </div>
+          <div class="text-caption text-grey font-weight-medium" style="font-size: 11px;">
+            Neto: {{ formatedCurrency(item.total) }}
+          </div>
         </div>
       </template>
 
@@ -267,16 +274,19 @@
         </div>
       </template>
     </v-data-table>
+  </div>
 
-    <!-- Diálogos -->
-    <NuevaFacturaCompras
-      :show="data.compra.show"
-      :editar="data.compra.editar"
-      :title="data.compra.title"
-      :orden="data.compra.item"
-      @closeDialog="closeDialog"
-      @refreshTable="loadData()"
-    />
+      <!-- Vista Formulario Completo -->
+      <div v-else class="w-100">
+        <NuevaFacturaCompras
+          :show="data.compra.show"
+          :editar="data.compra.editar"
+          :title="data.compra.title"
+          :orden="data.compra.item"
+          @closeDialog="closeDialog"
+          @refreshTable="loadData()"
+        />
+      </div>
 
     <ViewOrdenes
       :show="data.viewOrden.show"
@@ -342,7 +352,7 @@ export default {
             align: 'start'
           },
           {
-            title: 'Referencia',
+            title: 'Movimiento Inventario',
             key: 'referenciaMovInventario',
             align: 'start'
           },

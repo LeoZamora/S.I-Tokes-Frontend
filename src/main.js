@@ -18,9 +18,20 @@ Axios.defaults.baseURL = 'http://localhost:5091/'
 
 Axios.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('authToken') || localStorage.getItem('raw_token')
+        const token = localStorage.getItem('authToken') || localStorage.getItem('raw_token') || localStorage.getItem('token')
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`
+            let bearerToken = token
+            if (typeof token === 'string' && token.trim().startsWith('{')) {
+                try {
+                    const parsed = JSON.parse(token)
+                    bearerToken = parsed.token || parsed.authToken || parsed.raw_token || null
+                } catch (e) {
+                    bearerToken = null
+                }
+            }
+            if (bearerToken) {
+                config.headers.Authorization = `Bearer ${bearerToken}`
+            }
         }
         return config
     },

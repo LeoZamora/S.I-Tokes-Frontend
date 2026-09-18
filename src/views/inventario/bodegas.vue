@@ -1406,6 +1406,13 @@
                   :items="bodegaOrigenStock"
                   item-title="nombre"
                   return-object
+                  :custom-filter="(itemTitle, queryText, item) => {
+                    const q = (queryText || '').toLowerCase().trim()
+                    if (!q) return true
+                    const nombre = (item.raw?.nombre || '').toLowerCase()
+                    const codigo = (item.raw?.codigo || '').toLowerCase()
+                    return nombre.includes(q) || codigo.includes(q)
+                  }"
                   label="Buscar producto por nombre o código..."
                   placeholder="Escribe para buscar..."
                   prepend-inner-icon="mdi-magnify"
@@ -2969,8 +2976,13 @@ export default {
       this.dialogTraslado.loadingStock = true
       try {
         const res = await this.requestHttp.getBodegaStock(idBodega)
-        if (res.code === 200 && Array.isArray(res.data)) {
-          this.bodegaOrigenStock = res.data.filter((item) => Number(item.stockDisponible) > 0)
+        if (res && res.code === 200 && Array.isArray(res.data)) {
+          this.bodegaOrigenStock = res.data
+            .map((item) => ({
+              ...item,
+              stockDisponible: Number(item.cantidadTotal ?? item.cantidadTotalBodega ?? item.stockDisponible ?? 0)
+            }))
+            .filter((item) => Number(item.stockDisponible) > 0)
         }
       } catch (err) {
         this.showSnackbar('Error al obtener el stock de la bodega seleccionada.', 'error')
