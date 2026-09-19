@@ -24,6 +24,15 @@
         </template>
         <template v-slot:append>
           <v-btn
+            color="indigo-darken-4"
+            variant="tonal"
+            class="mr-2"
+            prepend-icon="mdi-shape-outline"
+            @click="openCategoriasDialog"
+          >
+            Gestionar Categorías
+          </v-btn>
+          <v-btn
             v-if="hasAccessToFunct('122')"
             color="indigo-darken-4"
             @click="openDialog('create')"
@@ -2580,6 +2589,37 @@
       @deleteItem="deleteAction"
     />
 
+    <!-- Dialog Gestionar Categorías y Subcategorías -->
+    <v-dialog
+      v-model="categoriasDialog.show"
+      max-width="1200"
+      scrollable
+      persistent
+    >
+      <v-card class="rounded-lg">
+        <v-card-title class="bg-indigo-darken-4 text-white d-flex align-center justify-space-between py-2 px-4">
+          <div class="d-flex align-center">
+            <v-avatar size="32" color="white" class="me-2">
+              <v-icon color="indigo-darken-4" size="20">mdi-shape-outline</v-icon>
+            </v-avatar>
+            <span class="text-subtitle-1 font-weight-bold">Gestión de Categorías y Subcategorías</span>
+          </div>
+          <v-btn
+            icon
+            size="small"
+            variant="text"
+            color="white"
+            @click="closeCategoriasDialog"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text class="pa-0">
+          <CategoriasProductos />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <v-dialog
       v-model="data.showDiagUM"
       max-width="400"
@@ -2794,6 +2834,7 @@ import ExcelJS from 'exceljs'
 import axios from 'axios'
 import NewCategoria from '@/components/inventario/Categorias/modalsCategorias/NewCategoria.vue'
 import NewSubCategoria from '@/components/inventario/Categorias/modalsCategorias/NewSubCat.vue'
+import CategoriasProductos from '@/components/inventario/Categorias/CategoriasProductos.vue'
 import { time } from 'echarts'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 import { useSnackbar } from '@/composables/use-snackbar.js'
@@ -2809,7 +2850,8 @@ export default {
     NewSubCategoria,
     DetallesProducto,
     AsignarBodegasProducto,
-    AlertComp
+    AlertComp,
+    CategoriasProductos
   },
 
   setup() {
@@ -3037,6 +3079,10 @@ export default {
 
   data() {
     return {
+      categoriasDialog: {
+        show: false
+      },
+
       asignarBodegaDisplay: {
         show: false,
         producto: null
@@ -4319,6 +4365,16 @@ export default {
     closeAsignarBodegas() {
       this.asignarBodegaDisplay.show = false
       this.asignarBodegaDisplay.producto = null
+    },
+
+    openCategoriasDialog() {
+      this.categoriasDialog.show = true
+    },
+
+    async closeCategoriasDialog() {
+      this.categoriasDialog.show = false
+      await this.loadCmbCategoria()
+      await this.getProductos()
     },
 
     async onProductoAsignado() {

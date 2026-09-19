@@ -224,8 +224,8 @@ const routes = createRouter({
       }
     },
     {
-      path: '/movimientos-facturacion',
-      name: 'Movimientos',
+      path: '/control-stock',
+      name: 'Control Stock',
       component: () =>
         import(
           '@/components/inventario/Movimientos/MovimientosComp.vue'
@@ -234,7 +234,21 @@ const routes = createRouter({
         protected: true,
         keepAlive: true,
         requiredAuth: true,
-        title: 'Movimientos | DevoDigital'
+        title: 'Control Stock | DevoDigital'
+      }
+    },
+    {
+      path: '/kardex',
+      name: 'Kardex',
+      component: () =>
+        import(
+          '@/components/inventario/Kardex/KardexComp.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Kardex | DevoDigital'
       }
     },
     {
@@ -389,6 +403,20 @@ const routes = createRouter({
         keepAlive: true,
         requiredAuth: true,
         title: 'Cierre de Caja | DevoDigital'
+      }
+    },
+    {
+      path: '/caja/estados-cuenta',
+      name: 'Estados Cuenta',
+      component: () =>
+        import(
+          '@/views/caja/estados-cuenta.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Estados de Cuenta de Caja | DevoDigital'
       }
     }
   ]

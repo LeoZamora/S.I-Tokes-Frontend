@@ -402,8 +402,20 @@
             </div>
           </template>
 
+          <template v-slot:item.subtotal="{ item }">
+            <div class="text-right text-body-2 font-weight-medium text-grey-darken-3">
+              {{ formatedCurrency(item.subtotal) }}
+            </div>
+          </template>
+
+          <template v-slot:item.iva="{ item }">
+            <div class="text-right text-body-2 font-weight-medium" :class="Number(item.iva) > 0 ? 'text-indigo-darken-3' : 'text-grey'">
+              {{ formatedCurrency(item.iva) }}
+            </div>
+          </template>
+
           <template v-slot:item.total="{ item }">
-            <div>
+            <div class="text-right text-body-2 font-weight-bold text-green-darken-3">
               {{ formatedCurrency(item.total) }}
             </div>
           </template>
@@ -718,7 +730,7 @@ import introJs from 'intro.js'
 import tourOptions from '@/helpers/utilFunctions'
 
 export default {
-  beforeRouteEnter(from, to, next) {
+  beforeRouteEnter(to, from, next) {
     next((vm) => {
       vm.getVentas()
       vm.loadCmbClientes()
@@ -995,9 +1007,40 @@ export default {
         },
 
         {
+          title: 'Subtotal',
+          key: 'subtotal',
+          align: 'end',
+          sortable: true,
+          headerProps: {
+            class: 'pa-1'
+          },
+          cellProps: {
+            class: 'pa-1'
+          }
+        },
+        {
+          title: 'IVA',
+          key: 'iva',
+          align: 'end',
+          sortable: true,
+          headerProps: {
+            class: 'pa-1'
+          },
+          cellProps: {
+            class: 'pa-1'
+          }
+        },
+        {
           title: 'Total',
           key: 'total',
-          align: 'center'
+          align: 'end',
+          sortable: true,
+          headerProps: {
+            class: 'pa-1'
+          },
+          cellProps: {
+            class: 'pa-1'
+          }
         } /*
         {
           title: 'Dirección',
@@ -1171,13 +1214,6 @@ export default {
       isMobile,
       store
     }
-  },
-
-  mounted() {
-    this.loadCmbClientes()
-    this.loadCmbRutas()
-    this.loadCmbBodegas()
-    this.loadCmbCajas()
   },
 
   methods: {

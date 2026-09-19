@@ -692,6 +692,11 @@ export default {
           title: 'Cierre',
           route: 'Cierre',
           idVentana: '3'
+        },
+        {
+          title: 'Estados Cuenta',
+          route: 'Estados Cuenta',
+          idVentana: '3'
         }
       ],
       ventas: [
@@ -737,18 +742,18 @@ export default {
       ],
       inventario: [
         {
-          title: 'Categorías Productos',
-          route: 'Categorías Productos',
-          idVentana: '12'
-        },
-        {
           title: 'Catálogo Productos',
           route: 'Productos',
           idVentana: '12'
         },
         {
-          title: 'Movimientos',
-          route: 'Movimientos',
+          title: 'Control Stock',
+          route: 'Control Stock',
+          idVentana: '12'
+        },
+        {
+          title: 'Kardex',
+          route: 'Kardex',
           idVentana: '12'
         },
         {
@@ -795,7 +800,7 @@ export default {
       managerStock: [
         ['Categorías  Productos', 'Categorias'],
         ['Productos', 'Productos'],
-        ['Movimientos', 'Movimientos_Facturacion']
+        ['Control Stock', 'Control_Stock']
       ],
       accesos: [['Roles'], ['Usuarios']],
       views: {

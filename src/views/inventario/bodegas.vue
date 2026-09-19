@@ -246,8 +246,19 @@
             cols="12"
             sm="6"
             md="8"
-            class="d-flex justify-end align-center"
+            class="d-flex justify-end align-center ga-2"
           >
+            <v-btn
+              color="teal-darken-3"
+              variant="tonal"
+              density="comfortable"
+              prepend-icon="mdi-file-chart-outline"
+              class="rounded font-weight-bold text-none"
+              @click="openDialogConsolidadoSucursales()"
+            >
+              Ver Inventario Consolidado
+            </v-btn>
+
             <!-- Alternancia de Vistas -->
             <v-btn-toggle
               v-model="viewModeSucursales"
@@ -437,6 +448,79 @@
                     </span>
                   </v-list-item>
                 </v-list>
+
+                <!-- Métricas Operativas Clave de Inventario -->
+                <v-card
+                  variant="flat"
+                  color="grey-lighten-4"
+                  class="pa-2 rounded mb-2 mt-2"
+                >
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <span class="text-caption text-grey-darken-2 font-weight-medium">
+                      <v-icon size="x-small" color="indigo" class="mr-1">mdi-package-variant</v-icon>
+                      Mercadería en Sucursal:
+                    </span>
+                    <span class="text-caption font-weight-bold text-indigo-darken-4">
+                      {{ formatCurrency(item.valorMercaderiaTotal || 0) }}
+                    </span>
+                  </div>
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <span class="text-caption text-grey-darken-2 font-weight-medium">
+                      <v-icon size="x-small" color="blue-grey" class="mr-1">mdi-counter</v-icon>
+                      Inventario Actual:
+                    </span>
+                    <span class="text-caption font-weight-bold text-grey-darken-4">
+                      {{ item.totalUnidades || 0 }} uds ({{ item.totalProductos || 0 }} prod.)
+                    </span>
+                  </div>
+                  <div class="d-flex align-center justify-space-between">
+                    <span class="text-caption text-grey-darken-2 font-weight-medium">
+                      <v-icon size="x-small" color="grey-darken-1" class="mr-1">mdi-clock-outline</v-icon>
+                      Última Carga / Traslado:
+                    </span>
+                    <span class="text-caption font-weight-medium text-grey-darken-3">
+                      {{ item.fechaUltimaCarga ? formatDateTime(item.fechaUltimaCarga) : 'Sin registros' }}
+                    </span>
+                  </div>
+                </v-card>
+
+                <!-- Botón Principal: Trasladar Inventario -->
+                <v-btn
+                  block
+                  color="indigo-darken-4"
+                  variant="flat"
+                  density="comfortable"
+                  prepend-icon="mdi-dolly"
+                  class="rounded font-weight-bold mb-2 text-caption"
+                  :disabled="!item.estado"
+                  @click="openDialogTrasladoSucursal(item)"
+                >
+                  Trasladar Inventario
+                </v-btn>
+
+                <!-- Botones Secundarios: Ver Inventario & Historial -->
+                <div class="d-flex ga-2">
+                  <v-btn
+                    variant="tonal"
+                    color="indigo"
+                    size="small"
+                    prepend-icon="mdi-package-variant-closed"
+                    class="flex-grow-1 rounded font-weight-bold text-caption"
+                    @click="openDialogInventarioSucursal(item)"
+                  >
+                    Ver Inventario
+                  </v-btn>
+                  <v-btn
+                    variant="tonal"
+                    color="blue-grey-darken-2"
+                    size="small"
+                    prepend-icon="mdi-history"
+                    class="flex-grow-1 rounded font-weight-bold text-caption"
+                    @click="openDialogHistorialSucursal(item)"
+                  >
+                    Historial
+                  </v-btn>
+                </div>
               </div>
 
               <v-divider></v-divider>
@@ -548,14 +632,14 @@
                   Ubicación
                 </th>
                 <th
-                  class="text-left text-white font-weight-bold py-1"
+                  class="text-right text-white font-weight-bold py-1"
                 >
-                  Dirección
+                  Mercadería
                 </th>
                 <th
-                  class="text-left text-white font-weight-bold py-1"
+                  class="text-center text-white font-weight-bold py-1"
                 >
-                  Contacto
+                  Última Carga
                 </th>
                 <th
                   class="text-center text-white font-weight-bold py-1"
@@ -603,34 +687,16 @@
                 >
                   {{ item.municipio }}
                 </td>
-                <td
-                  class="text-truncate py-1"
-                  style="max-width: 180px"
-                >
-                  {{ item.direccion || '---' }}
-                </td>
-                <td class="py-1">
-                  <div
-                    class="text-caption"
-                    style="line-height: 1.2"
-                  >
-                    <div>
-                      <v-icon
-                        size="x-small"
-                        class="mr-1"
-                        >mdi-phone</v-icon
-                      >
-                      {{ item.telefono || '---' }}
-                    </div>
-                    <div>
-                      <v-icon
-                        size="x-small"
-                        class="mr-1"
-                        >mdi-email</v-icon
-                      >
-                      {{ item.email || '---' }}
-                    </div>
+                <td class="text-right py-1">
+                  <div class="font-weight-bold text-indigo-darken-4 text-caption">
+                    {{ formatCurrency(item.valorMercaderiaTotal || 0) }}
                   </div>
+                  <div class="text-caption text-grey-darken-1" style="font-size: 10px;">
+                    {{ item.totalUnidades || 0 }} uds ({{ item.totalProductos || 0 }} prod.)
+                  </div>
+                </td>
+                <td class="text-center py-1 text-caption text-grey-darken-2">
+                  {{ item.fechaUltimaCarga ? formatDateTime(item.fechaUltimaCarga) : '---' }}
                 </td>
                 <td class="text-center py-1">
                   <v-icon
@@ -665,13 +731,39 @@
                 </td>
                 <td class="text-center py-1">
                   <div
-                    class="d-flex justify-center align-center"
+                    class="d-flex justify-center align-center ga-1"
                   >
+                    <v-btn
+                      icon="mdi-dolly"
+                      variant="text"
+                      color="indigo-darken-4"
+                      size="small"
+                      title="Trasladar Inventario"
+                      :disabled="!item.estado"
+                      @click="openDialogTrasladoSucursal(item)"
+                    ></v-btn>
+                    <v-btn
+                      icon="mdi-package-variant-closed"
+                      variant="text"
+                      color="indigo"
+                      size="small"
+                      title="Ver Inventario"
+                      @click="openDialogInventarioSucursal(item)"
+                    ></v-btn>
+                    <v-btn
+                      icon="mdi-history"
+                      variant="text"
+                      color="blue-grey-darken-2"
+                      size="small"
+                      title="Historial de Traslados"
+                      @click="openDialogHistorialSucursal(item)"
+                    ></v-btn>
                     <v-btn
                       icon="mdi-pencil"
                       variant="text"
                       color="indigo"
                       size="small"
+                      title="Editar Sucursal"
                       @click="
                         openDialogSucursal(item)
                       "
@@ -684,7 +776,7 @@
                       color="success"
                       hide-details
                       density="compact"
-                      class="ml-2"
+                      class="ml-1"
                     ></v-switch>
                   </div>
                 </td>
@@ -2235,6 +2327,890 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- ================= DIÁLOGO TRASLADAR / CARGAR INVENTARIO A SUCURSAL ================= -->
+    <v-dialog
+      v-model="dialogTrasladoSucursal.show"
+      max-width="950"
+      persistent
+      scrollable
+    >
+      <v-card class="rounded overflow-hidden">
+        <v-card-title
+          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
+        >
+          <div class="d-flex align-center">
+            <v-icon start class="mr-2">mdi-dolly</v-icon>
+            <span class="text-subtitle-1 font-weight-bold">
+              Trasladar Inventario a Sucursal: {{ dialogTrasladoSucursal.sucursal?.nombre }}
+            </span>
+          </div>
+          <v-chip size="small" color="white" variant="outlined" class="font-weight-bold">
+            Bodega Destino: {{ dialogTrasladoSucursal.sucursal?.bodegaNombre || dialogTrasladoSucursal.sucursal?.nombre }}
+          </v-chip>
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4" style="max-height: 75vh;">
+          <!-- Selección de Bodega Origen -->
+          <v-row dense class="mb-2">
+            <v-col cols="12" sm="6">
+              <v-select
+                v-model="dialogTrasladoSucursal.idBodegaOrigen"
+                :items="bodegasOrigenSucursalOptions"
+                item-title="nombre"
+                item-value="idBodega"
+                label="Bodega / Sucursal de Origen (Desde donde se traslada)*"
+                prepend-inner-icon="mdi-warehouse"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                :loading="dialogTrasladoSucursal.loadingStock"
+                @update:model-value="onBodegaOrigenSucursalChange"
+              >
+                <template v-slot:item="{ props, item }">
+                  <v-list-item v-bind="props" :subtitle="item.raw.codigo ? `Código: ${item.raw.codigo}` : ''">
+                    <template v-slot:append v-if="item.raw.esPrincipal">
+                      <v-chip size="x-small" color="amber-darken-3" variant="flat">Principal</v-chip>
+                    </template>
+                  </v-list-item>
+                </template>
+              </v-select>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-text-field
+                :model-value="dialogTrasladoSucursal.sucursal?.bodegaNombre || dialogTrasladoSucursal.sucursal?.nombre"
+                label="Bodega de Destino (Sucursal)"
+                prepend-inner-icon="mdi-storefront"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                readonly
+                disabled
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- Sección para Seleccionar y Agregar Producto -->
+          <v-card variant="flat" color="indigo-lighten-5" class="pa-3 rounded mb-3 border border-indigo-lighten-4">
+            <div class="text-caption font-weight-bold text-indigo-darken-4 mb-2">
+              <v-icon size="small" color="indigo-darken-4" class="mr-1">mdi-plus-box</v-icon>
+              AGREGAR PRODUCTO AL TRASLADO
+            </div>
+            <v-row dense class="align-center">
+              <v-col cols="12" sm="6" md="7">
+                <v-autocomplete
+                  v-model="dialogTrasladoSucursal.selectedProducto"
+                  :items="bodegaOrigenSucursalStock"
+                  item-title="nombre"
+                  return-object
+                  :custom-filter="(itemTitle, queryText, item) => {
+                    const q = (queryText || '').toLowerCase().trim()
+                    if (!q) return true
+                    const nombre = (item.raw?.nombre || '').toLowerCase()
+                    const codigo = (item.raw?.codigo || '').toLowerCase()
+                    return nombre.includes(q) || codigo.includes(q)
+                  }"
+                  label="Buscar producto por nombre o código..."
+                  placeholder="Escribe para buscar..."
+                  prepend-inner-icon="mdi-magnify"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  bg-color="white"
+                  hide-details
+                  :disabled="!dialogTrasladoSucursal.idBodegaOrigen || dialogTrasladoSucursal.loadingStock"
+                  @update:model-value="onProductoSelectedSucursal"
+                >
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template v-slot:title>
+                        <span class="font-weight-bold">[{{ item.raw.codigo }}]</span> {{ item.raw.nombre }}
+                      </template>
+                      <template v-slot:subtitle>
+                        <div class="d-flex ga-2 text-caption">
+                          <span>Cat: {{ item.raw.categoria || 'N/A' }}</span>
+                          <span>|</span>
+                          <span class="text-success font-weight-bold">Disp: {{ item.raw.stockDisponible }}</span>
+                          <span>|</span>
+                          <span>Costo: {{ formatCurrency(item.raw.costo) }}</span>
+                        </div>
+                      </template>
+                    </v-list-item>
+                  </template>
+                </v-autocomplete>
+              </v-col>
+
+              <v-col cols="6" sm="3" md="3">
+                <v-text-field
+                  v-model.number="dialogTrasladoSucursal.selectedCantidad"
+                  type="number"
+                  min="1"
+                  :max="dialogTrasladoSucursal.selectedProducto ? dialogTrasladoSucursal.selectedProducto.stockDisponible : 9999"
+                  label="Cantidad"
+                  prepend-inner-icon="mdi-counter"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  bg-color="white"
+                  hide-details
+                  :disabled="!dialogTrasladoSucursal.selectedProducto"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6" sm="3" md="2">
+                <v-btn
+                  block
+                  color="indigo-darken-4"
+                  variant="flat"
+                  density="comfortable"
+                  prepend-icon="mdi-plus"
+                  class="rounded font-weight-bold text-caption"
+                  :disabled="!dialogTrasladoSucursal.selectedProducto || !dialogTrasladoSucursal.selectedCantidad || dialogTrasladoSucursal.selectedCantidad <= 0"
+                  @click="agregarProductoATrasladoSucursal"
+                >
+                  Agregar
+                </v-btn>
+              </v-col>
+            </v-row>
+
+            <!-- Info resumen del producto seleccionado -->
+            <div v-if="dialogTrasladoSucursal.selectedProducto" class="d-flex flex-wrap ga-3 mt-2 text-caption text-indigo-darken-4 font-weight-medium">
+              <span><strong>Código:</strong> {{ dialogTrasladoSucursal.selectedProducto.codigo }}</span>
+              <span><strong>Stock Disponible:</strong> <span class="text-success font-weight-bold">{{ dialogTrasladoSucursal.selectedProducto.stockDisponible }}</span></span>
+              <span><strong>Costo Unit.:</strong> {{ formatCurrency(dialogTrasladoSucursal.selectedProducto.costo) }}</span>
+              <span><strong>Precio Venta:</strong> {{ formatCurrency(dialogTrasladoSucursal.selectedProducto.precio) }}</span>
+            </div>
+          </v-card>
+
+          <!-- Tabla de Productos a Trasladar -->
+          <v-card variant="flat" class="border rounded overflow-hidden mb-3">
+            <div class="pa-2 bg-grey-lighten-3 font-weight-bold text-caption text-grey-darken-3 d-flex justify-space-between align-center">
+              <span>Detalle de Productos para Trasladar ({{ dialogTrasladoSucursal.detalles.length }})</span>
+              <span v-if="dialogTrasladoSucursal.detalles.length > 0" class="text-indigo-darken-4 font-weight-bold">
+                Total Unidades: {{ totalUnidadesTrasladoSucursal }} | Inversión: {{ formatCurrency(totalValorTrasladoSucursal) }}
+              </span>
+            </div>
+
+            <v-table density="compact">
+              <thead class="bg-grey-lighten-4">
+                <tr>
+                  <th class="text-left py-2">Código</th>
+                  <th class="text-left py-2">Producto</th>
+                  <th class="text-center py-2">Cantidad</th>
+                  <th class="text-right py-2">Costo Unit.</th>
+                  <th class="text-right py-2">Subtotal Costo</th>
+                  <th class="text-center py-2" style="width: 60px;">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, idx) in dialogTrasladoSucursal.detalles" :key="item.idProducto">
+                  <td class="font-weight-medium text-caption">{{ item.codigo }}</td>
+                  <td class="font-weight-bold text-caption text-indigo-darken-4">{{ item.nombre }}</td>
+                  <td class="text-center font-weight-bold text-caption">
+                    <v-text-field
+                      v-model.number="item.cantidad"
+                      type="number"
+                      min="1"
+                      :max="item.stockDisponible"
+                      density="compact"
+                      variant="plain"
+                      hide-details
+                      class="text-center font-weight-bold"
+                      style="max-width: 80px; margin: 0 auto;"
+                    ></v-text-field>
+                  </td>
+                  <td class="text-right text-caption">{{ formatCurrency(item.costo) }}</td>
+                  <td class="text-right font-weight-bold text-caption text-indigo-darken-4">
+                    {{ formatCurrency((Number(item.cantidad) || 0) * (Number(item.costo) || 0)) }}
+                  </td>
+                  <td class="text-center">
+                    <v-btn
+                      icon="mdi-delete-outline"
+                      variant="text"
+                      color="error"
+                      size="x-small"
+                      @click="eliminarDetalleTrasladoSucursal(idx)"
+                    ></v-btn>
+                  </td>
+                </tr>
+                <tr v-if="dialogTrasladoSucursal.detalles.length === 0">
+                  <td colspan="6" class="text-center py-6 text-grey text-caption">
+                    No se han agregado productos a la lista de traslado.
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-card>
+
+          <!-- Resumen y Observaciones -->
+          <v-row dense>
+            <v-col cols="12" sm="4">
+              <v-card variant="flat" color="indigo-lighten-5" class="pa-2 rounded border border-indigo-lighten-4 h-100 d-flex flex-column justify-center">
+                <div class="d-flex justify-space-between mb-1">
+                  <span class="text-caption text-grey-darken-2">Ítems a trasladar:</span>
+                  <span class="text-subtitle-2 font-weight-bold text-grey-darken-4">{{ dialogTrasladoSucursal.detalles.length }}</span>
+                </div>
+                <div class="d-flex justify-space-between mb-1">
+                  <span class="text-caption text-grey-darken-2">Total Unidades:</span>
+                  <span class="text-subtitle-2 font-weight-bold text-indigo-darken-4">{{ totalUnidadesTrasladoSucursal }}</span>
+                </div>
+                <div class="d-flex justify-space-between">
+                  <span class="text-caption text-grey-darken-2">Total Inversión:</span>
+                  <span class="text-subtitle-2 font-weight-bold text-teal-darken-4">{{ formatCurrency(totalValorTrasladoSucursal) }}</span>
+                </div>
+              </v-card>
+            </v-col>
+
+            <v-col cols="12" sm="8">
+              <v-textarea
+                v-model="dialogTrasladoSucursal.observaciones"
+                label="Observaciones del Traslado (Opcional)"
+                prepend-inner-icon="mdi-comment-text-outline"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                rows="3"
+                hide-details
+                placeholder="Ej. Reabastecimiento semanal para venta de sucursal..."
+              ></v-textarea>
+            </v-col>
+          </v-row>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="grey-darken-1"
+            variant="text"
+            density="comfortable"
+            class="rounded font-weight-bold px-4 text-caption mr-2"
+            @click="dialogTrasladoSucursal.show = false"
+          >
+            Cancelar
+          </v-btn>
+          <v-btn
+            color="indigo-darken-4"
+            variant="flat"
+            density="comfortable"
+            prepend-icon="mdi-check-circle-outline"
+            class="rounded font-weight-bold px-4 text-caption"
+            :loading="dialogTrasladoSucursal.saving"
+            :disabled="dialogTrasladoSucursal.detalles.length === 0"
+            @click="saveTrasladoSucursal"
+          >
+            Realizar Traslado
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ================= DIÁLOGO INVENTARIO EN SUCURSAL ================= -->
+    <v-dialog
+      v-model="dialogInventarioSucursal.show"
+      max-width="950"
+      persistent
+      scrollable
+    >
+      <v-card class="rounded overflow-hidden">
+        <v-card-title
+          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
+        >
+          <div class="d-flex align-center">
+            <v-icon start class="mr-2">mdi-package-variant-closed</v-icon>
+            <span class="text-subtitle-1 font-weight-bold">
+              Inventario en Sucursal: {{ dialogInventarioSucursal.sucursal?.nombre }}
+            </span>
+          </div>
+          <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="dialogInventarioSucursal.show = false"></v-btn>
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4" style="max-height: 75vh;">
+          <!-- Tarjetas Resumen de Mercadería en Sucursal -->
+          <v-row dense class="mb-3">
+            <v-col cols="12" sm="4">
+              <v-card variant="flat" color="indigo-lighten-5" class="pa-3 rounded border border-indigo-lighten-4">
+                <div class="text-caption text-grey-darken-2">Productos Diferentes</div>
+                <div class="text-h6 font-weight-bold text-indigo-darken-4">{{ dialogInventarioSucursal.items.length }}</div>
+              </v-card>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-card variant="flat" color="blue-lighten-5" class="pa-3 rounded border border-blue-lighten-4">
+                <div class="text-caption text-grey-darken-2">Total Unidades en Sucursal</div>
+                <div class="text-h6 font-weight-bold text-blue-darken-4">{{ totalUnidadesInventarioSucursal }}</div>
+              </v-card>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-card variant="flat" color="teal-lighten-5" class="pa-3 rounded border border-teal-lighten-4">
+                <div class="text-caption text-grey-darken-2">Valor Mercadería (Costo)</div>
+                <div class="text-h6 font-weight-bold text-teal-darken-4">{{ formatCurrency(totalCostoInventarioSucursal) }}</div>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <!-- Búsqueda -->
+          <v-row dense class="mb-2">
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="dialogInventarioSucursal.search"
+                label="Buscar en inventario de sucursal..."
+                prepend-inner-icon="mdi-magnify"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- Loader -->
+          <div v-if="dialogInventarioSucursal.loading" class="d-flex justify-center my-6">
+            <v-progress-circular indeterminate color="indigo-darken-4" size="40"></v-progress-circular>
+          </div>
+
+          <!-- Tabla de Inventario en Sucursal -->
+          <v-table v-else density="compact" class="border rounded">
+            <thead class="bg-grey-lighten-4 font-weight-bold">
+              <tr>
+                <th class="text-left py-2">Código</th>
+                <th class="text-left py-2">Producto</th>
+                <th class="text-left py-2">Categoría</th>
+                <th class="text-center py-2">Cantidad Sucursal</th>
+                <th class="text-right py-2">Costo Unit.</th>
+                <th class="text-right py-2">Precio Venta</th>
+                <th class="text-right py-2">Total Costo</th>
+                <th class="text-right py-2">Total Venta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in filteredInventarioSucursal" :key="item.idProducto">
+                <td class="font-weight-medium text-caption">{{ item.codigo }}</td>
+                <td class="font-weight-bold text-caption text-indigo-darken-4">{{ item.nombre }}</td>
+                <td class="text-caption text-grey-darken-2">{{ item.categoria || 'N/A' }}</td>
+                <td class="text-center font-weight-bold text-caption text-indigo-darken-4">{{ item.cantidadTotal }}</td>
+                <td class="text-right text-caption">{{ formatCurrency(item.costoUnitario) }}</td>
+                <td class="text-right text-caption">{{ formatCurrency(item.precioUnitario) }}</td>
+                <td class="text-right font-weight-bold text-caption text-teal-darken-4">{{ formatCurrency(item.totalCosto) }}</td>
+                <td class="text-right font-weight-bold text-caption text-blue-darken-4">{{ formatCurrency(item.totalVenta) }}</td>
+              </tr>
+              <tr v-if="filteredInventarioSucursal.length === 0">
+                <td colspan="8" class="text-center py-6 text-grey text-caption">
+                  Esta sucursal no tiene mercadería registrada actualmente.
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="indigo-darken-4"
+            variant="flat"
+            density="comfortable"
+            class="rounded font-weight-bold px-4 text-caption"
+            @click="dialogInventarioSucursal.show = false"
+          >
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ================= DIÁLOGO HISTORIAL DE TRASLADOS / CARGAS SUCURSAL ================= -->
+    <v-dialog
+      v-model="dialogHistorialSucursal.show"
+      max-width="950"
+      persistent
+      scrollable
+    >
+      <v-card class="rounded overflow-hidden">
+        <v-card-title
+          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
+        >
+          <div class="d-flex align-center">
+            <v-icon start class="mr-2">mdi-history</v-icon>
+            <span class="text-subtitle-1 font-weight-bold">
+              Historial de Traslados: Sucursal {{ dialogHistorialSucursal.sucursal?.nombre }}
+            </span>
+          </div>
+          <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="dialogHistorialSucursal.show = false"></v-btn>
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4" style="max-height: 75vh;">
+          <!-- Búsqueda -->
+          <v-row dense class="mb-2">
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="dialogHistorialSucursal.search"
+                label="Buscar en historial (referencia, bodega origen, usuario)..."
+                prepend-inner-icon="mdi-magnify"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <!-- Loader -->
+          <div v-if="dialogHistorialSucursal.loading" class="d-flex justify-center my-6">
+            <v-progress-circular indeterminate color="indigo-darken-4" size="40"></v-progress-circular>
+          </div>
+
+          <!-- Tabla de Historial -->
+          <v-table v-else density="compact" class="border rounded">
+            <thead class="bg-grey-lighten-4 font-weight-bold">
+              <tr>
+                <th class="text-left py-2">Fecha / Hora</th>
+                <th class="text-left py-2">Referencia</th>
+                <th class="text-left py-2">Bodega Origen</th>
+                <th class="text-center py-2">Ítems</th>
+                <th class="text-right py-2">Valor Total</th>
+                <th class="text-left py-2">Responsable</th>
+                <th class="text-left py-2">Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in filteredHistorialSucursal" :key="item.idMovInventario">
+                <td class="font-weight-medium text-caption">{{ formatDateTime(item.fechaRegistro) }}</td>
+                <td class="font-weight-bold text-caption text-indigo-darken-4">{{ item.referencia || '---' }}</td>
+                <td class="text-caption">{{ item.bodegaOrigenNombre || '---' }}</td>
+                <td class="text-center font-weight-bold text-caption">{{ item.totalItems || 0 }}</td>
+                <td class="text-right font-weight-bold text-caption text-teal-darken-4">{{ formatCurrency(item.totalValor) }}</td>
+                <td class="text-caption text-grey-darken-3">{{ item.usuarioRegistro || 'Sistema' }}</td>
+                <td class="text-caption text-grey-darken-2">{{ item.observaciones || '---' }}</td>
+              </tr>
+              <tr v-if="filteredHistorialSucursal.length === 0">
+                <td colspan="7" class="text-center py-6 text-grey text-caption">
+                  No hay registros de traslados anteriores para esta sucursal.
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="indigo-darken-4"
+            variant="flat"
+            density="comfortable"
+            class="rounded font-weight-bold px-4 text-caption"
+            @click="dialogHistorialSucursal.show = false"
+          >
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ================= DIÁLOGO INVENTARIO CONSOLIDADO DE SUCURSALES ================= -->
+    <v-dialog
+      v-model="dialogConsolidadoSucursales.show"
+      max-width="1250"
+      persistent
+      scrollable
+    >
+      <v-card class="rounded overflow-hidden">
+        <!-- Header del Diálogo -->
+        <v-card-title
+          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
+        >
+          <div class="d-flex align-center">
+            <v-avatar size="36" color="white" class="mr-3" variant="flat">
+              <v-icon color="indigo-darken-4" size="22">mdi-storefront</v-icon>
+            </v-avatar>
+            <div>
+              <div class="text-subtitle-1 font-weight-bold lh-1">
+                Inventario Consolidado de Sucursales
+              </div>
+              <div class="text-indigo-lighten-4 text-caption">
+                Informe de existencias, productos y valorización agrupado por sucursal
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-center ga-2 flex-wrap mt-2 mt-sm-0">
+            <v-chip
+              v-if="dialogConsolidadoSucursales.data?.fechaGeneracion"
+              size="small"
+              color="indigo-lighten-4"
+              variant="flat"
+              class="text-indigo-darken-4 font-weight-bold"
+            >
+              <v-icon start size="14">mdi-clock-outline</v-icon>
+              {{ formatDateTime(dialogConsolidadoSucursales.data.fechaGeneracion) }}
+            </v-chip>
+            <v-btn
+              icon
+              variant="text"
+              size="small"
+              color="white"
+              @click="toggleExpandAllConsolidadoSucursales()"
+            >
+              <v-icon size="20">mdi-arrow-expand-vertical</v-icon>
+              <v-tooltip activator="parent" location="top" text="Expandir / Contraer Todo" />
+            </v-btn>
+            <v-btn
+              icon
+              variant="text"
+              size="small"
+              color="white"
+              :loading="dialogConsolidadoSucursales.loading"
+              @click="fetchInformeConsolidadoSucursales()"
+            >
+              <v-icon size="20">mdi-refresh</v-icon>
+              <v-tooltip activator="parent" location="top" text="Actualizar Datos" />
+            </v-btn>
+            <v-btn
+              icon
+              variant="text"
+              size="small"
+              color="white"
+              @click="imprimirInformeConsolidadoSucursales()"
+            >
+              <v-icon size="20">mdi-printer</v-icon>
+              <v-tooltip activator="parent" location="top" text="Imprimir Informe" />
+            </v-btn>
+            <v-btn
+              icon
+              variant="text"
+              size="small"
+              color="white"
+              @click="dialogConsolidadoSucursales.show = false"
+            >
+              <v-icon size="20">mdi-close</v-icon>
+              <v-tooltip activator="parent" location="top" text="Cerrar" />
+            </v-btn>
+          </div>
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4 bg-grey-lighten-4" style="max-height: 80vh;" id="printable-consolidado-sucursales-content">
+          <!-- Barra de Filtros y Búsqueda -->
+          <v-card variant="flat" class="pa-3 mb-3 rounded border bg-white">
+            <v-row dense align="center">
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  v-model="dialogConsolidadoSucursales.search"
+                  label="Buscar producto, sucursal o categoría..."
+                  prepend-inner-icon="mdi-magnify"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  hide-details
+                  clearable
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-autocomplete
+                  v-model="dialogConsolidadoSucursales.filterIdSucursal"
+                  :items="sucursalesOptionsInforme"
+                  item-title="title"
+                  item-value="value"
+                  label="Filtrar por Sucursal"
+                  prepend-inner-icon="mdi-storefront"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  hide-details
+                  @update:model-value="fetchInformeConsolidadoSucursales()"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" md="4" sm="12" class="d-flex align-center justify-md-end">
+                <v-switch
+                  v-model="dialogConsolidadoSucursales.soloConStock"
+                  label="Solo con Stock Activo (> 0)"
+                  color="indigo"
+                  density="compact"
+                  hide-details
+                  @update:model-value="fetchInformeConsolidadoSucursales()"
+                ></v-switch>
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <!-- Loader -->
+          <div v-if="dialogConsolidadoSucursales.loading" class="d-flex flex-column align-center justify-center my-10">
+            <v-progress-circular indeterminate color="indigo-darken-4" size="50" width="4"></v-progress-circular>
+            <span class="text-caption font-weight-bold text-indigo-darken-4 mt-3">Generando informe consolidado de sucursales...</span>
+          </div>
+
+          <!-- Resumen de Métricas Globales (KPI Cards) -->
+          <template v-else-if="filteredInformeSucursales.length > 0">
+            <v-row dense class="mb-3">
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="indigo-lighten-5" class="pa-2 rounded border border-indigo-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Sucursales</div>
+                  <div class="text-h6 font-weight-bold text-indigo-darken-4">{{ resumenInformeConsolidadoSucursales.totalSucursales }}</div>
+                  <div class="text-caption text-indigo-darken-2 font-weight-bold" style="font-size: 10px;">Puntos de venta</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="deep-purple-lighten-5" class="pa-2 rounded border border-deep-purple-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Productos Distintos</div>
+                  <div class="text-h6 font-weight-bold text-deep-purple-darken-4">{{ resumenInformeConsolidadoSucursales.totalProductosDistintos }}</div>
+                  <div class="text-caption text-deep-purple-darken-2 font-weight-bold" style="font-size: 10px;">Variedad global</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="blue-lighten-5" class="pa-2 rounded border border-blue-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Total Unidades</div>
+                  <div class="text-h6 font-weight-bold text-blue-darken-4">{{ resumenInformeConsolidadoSucursales.totalUnidades }}</div>
+                  <div class="text-caption text-blue-darken-2 font-weight-bold" style="font-size: 10px;">Existencias totales</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="teal-lighten-5" class="pa-2 rounded border border-teal-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Valor Total Costo</div>
+                  <div class="text-subtitle-1 font-weight-bold text-teal-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalCosto) }}</div>
+                  <div class="text-caption text-teal-darken-2 font-weight-bold" style="font-size: 10px;">Inversión total</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="blue-grey-lighten-5" class="pa-2 rounded border border-blue-grey-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Valor Total Venta</div>
+                  <div class="text-subtitle-1 font-weight-bold text-blue-grey-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalVenta) }}</div>
+                  <div class="text-caption text-blue-grey-darken-2 font-weight-bold" style="font-size: 10px;">Proyección venta</div>
+                </v-card>
+              </v-col>
+              <v-col cols="6" sm="4" md="2">
+                <v-card variant="flat" color="green-lighten-5" class="pa-2 rounded border border-green-lighten-4 h-100">
+                  <div class="text-caption text-grey-darken-2 font-weight-medium">Ganancia Estimada</div>
+                  <div class="text-subtitle-1 font-weight-bold text-green-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidadoSucursales.ganancia) }}</div>
+                  <div class="text-caption text-green-darken-3 font-weight-bold" style="font-size: 10px;">
+                    Margen: {{ resumenInformeConsolidadoSucursales.margen }}%
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Agrupación por Sucursal (Expansion Panels) -->
+            <v-expansion-panels
+              v-model="dialogConsolidadoSucursales.expandedPanels"
+              multiple
+              variant="popout"
+              class="mb-3"
+            >
+              <v-expansion-panel
+                v-for="(sucursal, idx) in filteredInformeSucursales"
+                :key="sucursal.idSucursal || idx"
+                class="mb-2 border rounded-lg overflow-hidden bg-white"
+                elevation="1"
+              >
+                <v-expansion-panel-title class="py-2 px-3 bg-grey-lighten-4">
+                  <template v-slot:default="{ expanded }">
+                    <div class="d-flex align-center justify-space-between w-100 pr-2 flex-wrap ga-2">
+                      <div class="d-flex align-center">
+                        <v-avatar size="28" color="indigo-darken-4" class="text-white mr-2">
+                          <v-icon size="16">mdi-storefront</v-icon>
+                        </v-avatar>
+                        <div>
+                          <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4 d-flex align-center">
+                            {{ sucursal.nombre }}
+                            <v-chip
+                              v-if="sucursal.codigo"
+                              size="x-small"
+                              color="indigo"
+                              variant="flat"
+                              class="ml-2 font-weight-bold"
+                            >
+                              {{ sucursal.codigo }}
+                            </v-chip>
+                            <v-chip
+                              v-if="sucursal.esPrincipal"
+                              size="x-small"
+                              color="amber-darken-3"
+                              variant="flat"
+                              class="ml-1 font-weight-bold"
+                            >
+                              Principal
+                            </v-chip>
+                          </div>
+                          <div class="text-caption text-grey-darken-2" style="font-size: 11px;">
+                            Bodega: <strong>{{ sucursal.bodegaNombre || sucursal.codigoBodega || 'Bodega Sucursal' }}</strong>
+                            <span v-if="sucursal.fechaUltimaCarga"> | Última Carga: {{ formatDateTime(sucursal.fechaUltimaCarga) }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-center ga-3 flex-wrap">
+                        <div class="text-right">
+                          <div class="text-caption text-grey-darken-1" style="font-size: 10px;">Existencias</div>
+                          <div class="text-caption font-weight-bold text-grey-darken-4">
+                            {{ sucursal.totalUnidades }} uds ({{ sucursal.totalProductos }} prod.)
+                          </div>
+                        </div>
+                        <div class="text-right">
+                          <div class="text-caption text-grey-darken-1" style="font-size: 10px;">Inversión Costo</div>
+                          <div class="text-caption font-weight-bold text-teal-darken-4">
+                            {{ formatCurrency(sucursal.valorTotalCosto) }}
+                          </div>
+                        </div>
+                        <div class="text-right">
+                          <div class="text-caption text-grey-darken-1" style="font-size: 10px;">Valor Venta</div>
+                          <div class="text-caption font-weight-bold text-blue-darken-4">
+                            {{ formatCurrency(sucursal.valorTotalVenta) }}
+                          </div>
+                        </div>
+                        <div class="text-right">
+                          <div class="text-caption text-grey-darken-1" style="font-size: 10px;">Ganancia Est.</div>
+                          <div class="text-caption font-weight-bold text-green-darken-4">
+                            {{ formatCurrency(sucursal.gananciaEstimada) }} ({{ sucursal.margenPorcentaje }}%)
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </v-expansion-panel-title>
+
+                <v-expansion-panel-text class="pa-0">
+                  <div class="pa-3">
+                    <v-table density="compact" class="border rounded table-consolidado-camion">
+                      <thead class="bg-indigo-lighten-5">
+                        <tr>
+                          <th class="text-left py-1 text-indigo-darken-4 font-weight-bold">Código</th>
+                          <th class="text-left py-1 text-indigo-darken-4 font-weight-bold">Producto</th>
+                          <th class="text-left py-1 text-indigo-darken-4 font-weight-bold">Categoría</th>
+                          <th class="text-center py-1 text-indigo-darken-4 font-weight-bold">Existencias</th>
+                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Costo Unit.</th>
+                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Precio Unit.</th>
+                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Total Costo</th>
+                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Total Venta</th>
+                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Ganancia Est.</th>
+                          <th class="text-center py-1 text-indigo-darken-4 font-weight-bold">Margen</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="prod in sucursal.productos"
+                          :key="prod.idProducto"
+                          class="hover-row"
+                        >
+                          <td class="font-weight-medium text-caption">{{ prod.codigo || '---' }}</td>
+                          <td class="font-weight-bold text-caption text-indigo-darken-4">
+                            {{ prod.nombre }}
+                            <span v-if="prod.unidadMedida" class="text-caption text-grey font-weight-regular" style="font-size: 10px;">
+                              ({{ prod.unidadMedida }})
+                            </span>
+                          </td>
+                          <td class="text-caption text-grey-darken-2">{{ prod.categoria || '---' }}</td>
+                          <td class="text-center font-weight-bold text-caption text-indigo-darken-4 bg-indigo-lighten-5">
+                            {{ prod.cantidad }}
+                          </td>
+                          <td class="text-right text-caption">{{ formatCurrency(prod.costoUnitario) }}</td>
+                          <td class="text-right text-caption">{{ formatCurrency(prod.precioUnitario) }}</td>
+                          <td class="text-right font-weight-bold text-caption text-teal-darken-4">{{ formatCurrency(prod.totalCosto) }}</td>
+                          <td class="text-right font-weight-bold text-caption text-blue-darken-4">{{ formatCurrency(prod.totalVenta) }}</td>
+                          <td class="text-right font-weight-bold text-caption text-green-darken-4">{{ formatCurrency(prod.gananciaEstimada) }}</td>
+                          <td class="text-center text-caption font-weight-bold" :class="prod.margenPorcentaje >= 20 ? 'text-green-darken-3' : 'text-amber-darken-3'">
+                            {{ prod.margenPorcentaje }}%
+                          </td>
+                        </tr>
+                        <tr v-if="!sucursal.productos || sucursal.productos.length === 0">
+                          <td colspan="10" class="text-center py-4 text-grey text-caption">
+                            No hay existencias registradas en esta sucursal.
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot class="bg-grey-lighten-4 font-weight-bold border-top-2">
+                        <tr>
+                          <td colspan="3" class="text-right py-2 text-indigo-darken-4">Subtotal {{ sucursal.nombre }}:</td>
+                          <td class="text-center py-2 text-indigo-darken-4">{{ sucursal.totalUnidades }}</td>
+                          <td colspan="2"></td>
+                          <td class="text-right py-2 text-teal-darken-4">{{ formatCurrency(sucursal.valorTotalCosto) }}</td>
+                          <td class="text-right py-2 text-blue-darken-4">{{ formatCurrency(sucursal.valorTotalVenta) }}</td>
+                          <td class="text-right py-2 text-green-darken-4">{{ formatCurrency(sucursal.gananciaEstimada) }}</td>
+                          <td class="text-center py-2 text-indigo-darken-4">{{ sucursal.margenPorcentaje }}%</td>
+                        </tr>
+                      </tfoot>
+                    </v-table>
+                  </div>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <!-- Resumen Total al Pie del Informe -->
+            <v-card variant="flat" color="indigo-darken-4" class="pa-3 rounded text-white mt-3">
+              <div class="d-flex justify-space-between align-center flex-wrap ga-2">
+                <div class="d-flex align-center">
+                  <v-icon color="white" class="mr-2">mdi-sigma</v-icon>
+                  <div>
+                    <div class="text-subtitle-2 font-weight-bold text-white">TOTAL CONSOLIDADO SUCURSALES</div>
+                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">
+                      {{ resumenInformeConsolidadoSucursales.totalSucursales }} sucursales | {{ resumenInformeConsolidadoSucursales.totalProductosDistintos }} productos | {{ resumenInformeConsolidadoSucursales.totalUnidades }} unidades
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex align-center ga-4 flex-wrap">
+                  <div class="text-right">
+                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">Inversión Total Costo</div>
+                    <div class="text-subtitle-2 font-weight-bold text-teal-accent-2">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalCosto) }}</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">Total Venta Estimada</div>
+                    <div class="text-subtitle-2 font-weight-bold text-white">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalVenta) }}</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-caption text-green-lighten-3" style="font-size: 11px;">Ganancia Global ({{ resumenInformeConsolidadoSucursales.margen }}%)</div>
+                    <div class="text-subtitle-2 font-weight-bold text-green-accent-2">{{ formatCurrency(resumenInformeConsolidadoSucursales.ganancia) }}</div>
+                  </div>
+                </div>
+              </div>
+            </v-card>
+          </template>
+
+          <!-- No Data View -->
+          <v-sheet
+            v-else
+            class="text-center py-10 rounded border bg-white"
+          >
+            <v-avatar color="indigo-lighten-5" size="64" class="mb-3">
+              <v-icon size="36" color="indigo-darken-3">mdi-storefront-outline</v-icon>
+            </v-avatar>
+            <h4 class="text-subtitle-1 font-weight-bold text-grey-darken-3">
+              No se encontraron datos para el informe
+            </h4>
+            <p class="text-caption text-grey-darken-1 mt-1">
+              Verifique los filtros seleccionados o asegúrese de que las sucursales cuenten con existencias registradas.
+            </p>
+          </v-sheet>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4 d-flex justify-space-between align-center">
+          <div class="text-caption text-grey-darken-2 font-weight-medium">
+            Mostrando {{ filteredInformeSucursales.length }} de {{ dialogConsolidadoSucursales.data?.totalSucursales || 0 }} sucursales
+          </div>
+          <div class="d-flex ga-2">
+            <v-btn
+              color="indigo-darken-4"
+              variant="tonal"
+              density="comfortable"
+              prepend-icon="mdi-printer"
+              class="rounded font-weight-bold px-4 text-caption"
+              @click="imprimirInformeConsolidadoSucursales()"
+            >
+              Imprimir
+            </v-btn>
+            <v-btn
+              color="indigo-darken-4"
+              variant="flat"
+              density="comfortable"
+              class="rounded font-weight-bold px-4 text-caption"
+              @click="dialogConsolidadoSucursales.show = false"
+            >
+              Cerrar
+            </v-btn>
+          </div>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -2345,6 +3321,49 @@ export default {
         show: false,
         loading: false,
         filterIdCamion: null,
+        soloConStock: true,
+        search: '',
+        data: null,
+        expandedPanels: []
+      },
+
+      // Diálogo de Traslado a Sucursal
+      dialogTrasladoSucursal: {
+        show: false,
+        loadingStock: false,
+        saving: false,
+        sucursal: null,
+        idBodegaOrigen: null,
+        observaciones: '',
+        detalles: [],
+        selectedProducto: null,
+        selectedCantidad: 1
+      },
+      bodegaOrigenSucursalStock: [],
+
+      // Diálogo de Inventario en Sucursal
+      dialogInventarioSucursal: {
+        show: false,
+        loading: false,
+        sucursal: null,
+        search: '',
+        items: []
+      },
+
+      // Diálogo de Historial de Traslados Sucursal
+      dialogHistorialSucursal: {
+        show: false,
+        loading: false,
+        sucursal: null,
+        search: '',
+        items: []
+      },
+
+      // Diálogo de Inventario Consolidado de Sucursales
+      dialogConsolidadoSucursales: {
+        show: false,
+        loading: false,
+        filterIdSucursal: null,
         soloConStock: true,
         search: '',
         data: null,
@@ -2559,6 +3578,169 @@ export default {
 
       return {
         totalCamiones,
+        totalProductosDistintos: allProdIds.size,
+        totalUnidades,
+        totalCosto,
+        totalVenta,
+        ganancia,
+        margen
+      }
+    },
+
+    // ================= COMPUTED SUCURSALES =================
+    bodegasOrigenSucursalOptions() {
+      const destId = this.dialogTrasladoSucursal.sucursal?.idBodega
+      return this.bodegas.filter((b) => b.estado && b.idBodega !== destId)
+    },
+
+    totalUnidadesTrasladoSucursal() {
+      return this.dialogTrasladoSucursal.detalles.reduce((acc, item) => acc + (Number(item.cantidad) || 0), 0)
+    },
+
+    totalValorTrasladoSucursal() {
+      return this.dialogTrasladoSucursal.detalles.reduce((acc, item) => acc + ((Number(item.cantidad) || 0) * (Number(item.costo) || 0)), 0)
+    },
+
+    filteredInventarioSucursal() {
+      let list = [...this.dialogInventarioSucursal.items]
+      if (this.dialogInventarioSucursal.search) {
+        const s = this.dialogInventarioSucursal.search.toLowerCase().trim()
+        list = list.filter((i) =>
+          (i.codigo && i.codigo.toLowerCase().includes(s)) ||
+          (i.nombre && i.nombre.toLowerCase().includes(s)) ||
+          (i.categoria && i.categoria.toLowerCase().includes(s))
+        )
+      }
+      return list
+    },
+
+    totalUnidadesInventarioSucursal() {
+      return this.dialogInventarioSucursal.items.reduce((acc, i) => acc + (Number(i.cantidadTotal) || 0), 0)
+    },
+
+    totalCostoInventarioSucursal() {
+      return this.dialogInventarioSucursal.items.reduce((acc, i) => acc + (Number(i.totalCosto) || 0), 0)
+    },
+
+    totalVentaInventarioSucursal() {
+      return this.dialogInventarioSucursal.items.reduce((acc, i) => acc + (Number(i.totalVenta) || 0), 0)
+    },
+
+    filteredHistorialSucursal() {
+      let list = [...this.dialogHistorialSucursal.items]
+      if (this.dialogHistorialSucursal.search) {
+        const s = this.dialogHistorialSucursal.search.toLowerCase().trim()
+        list = list.filter((h) =>
+          (h.referencia && h.referencia.toLowerCase().includes(s)) ||
+          (h.bodegaOrigenNombre && h.bodegaOrigenNombre.toLowerCase().includes(s)) ||
+          (h.usuarioRegistro && h.usuarioRegistro.toLowerCase().includes(s)) ||
+          (h.observaciones && h.observaciones.toLowerCase().includes(s))
+        )
+      }
+      return list
+    },
+
+    sucursalesOptionsInforme() {
+      const options = [{ title: 'Todas las Sucursales', value: null }]
+      if (this.sucursales && this.sucursales.length > 0) {
+        this.sucursales.forEach((s) => {
+          options.push({
+            title: `Sucursal ${s.nombre}${s.codigo ? ' (' + s.codigo + ')' : ''}`,
+            value: s.idSucursal
+          })
+        })
+      }
+      return options
+    },
+
+    filteredInformeSucursales() {
+      if (!this.dialogConsolidadoSucursales.data?.sucursales) return []
+      let list = this.dialogConsolidadoSucursales.data.sucursales
+
+      if (this.dialogConsolidadoSucursales.search) {
+        const s = this.dialogConsolidadoSucursales.search.toLowerCase().trim()
+        list = list
+          .map((c) => {
+            const nombreMatch = c.nombre?.toLowerCase().includes(s)
+            const codigoMatch = c.codigo?.toLowerCase().includes(s)
+            const bodegaMatch =
+              c.bodegaNombre?.toLowerCase().includes(s) ||
+              c.codigoBodega?.toLowerCase().includes(s)
+            const productosFiltrados = (c.productos || []).filter(
+              (p) =>
+                p.nombre?.toLowerCase().includes(s) ||
+                p.codigo?.toLowerCase().includes(s) ||
+                p.categoria?.toLowerCase().includes(s)
+            )
+            if (nombreMatch || codigoMatch || bodegaMatch) {
+              return c
+            } else if (productosFiltrados.length > 0) {
+              const valorCosto = productosFiltrados.reduce(
+                (sum, p) => sum + (Number(p.totalCosto) || 0),
+                0
+              )
+              const valorVenta = productosFiltrados.reduce(
+                (sum, p) => sum + (Number(p.totalVenta) || 0),
+                0
+              )
+              const ganancia = valorVenta - valorCosto
+              const margen =
+                valorCosto > 0
+                  ? Math.round((ganancia / valorCosto) * 100 * 100) / 100
+                  : valorVenta > 0
+                  ? 100
+                  : 0
+              return {
+                ...c,
+                productos: productosFiltrados,
+                totalProductos: productosFiltrados.length,
+                totalUnidades: productosFiltrados.reduce(
+                  (sum, p) => sum + (Number(p.cantidad) || 0),
+                  0
+                ),
+                valorTotalCosto: valorCosto,
+                valorTotalVenta: valorVenta,
+                gananciaEstimada: ganancia,
+                margenPorcentaje: margen
+              }
+            }
+            return null
+          })
+          .filter(Boolean)
+      }
+      return list
+    },
+
+    resumenInformeConsolidadoSucursales() {
+      const sucursales = this.filteredInformeSucursales
+      const totalSucursales = sucursales.length
+      const totalUnidades = sucursales.reduce(
+        (sum, c) => sum + (Number(c.totalUnidades) || 0),
+        0
+      )
+      const totalCosto = sucursales.reduce(
+        (sum, c) => sum + (Number(c.valorTotalCosto) || 0),
+        0
+      )
+      const totalVenta = sucursales.reduce(
+        (sum, c) => sum + (Number(c.valorTotalVenta) || 0),
+        0
+      )
+      const ganancia = totalVenta - totalCosto
+      const margen =
+        totalCosto > 0
+          ? ((ganancia / totalCosto) * 100).toFixed(2)
+          : totalVenta > 0
+          ? '100.00'
+          : '0.00'
+
+      const allProdIds = new Set()
+      sucursales.forEach((c) => {
+        ;(c.productos || []).forEach((p) => allProdIds.add(p.idProducto))
+      })
+
+      return {
+        totalSucursales,
         totalProductosDistintos: allProdIds.size,
         totalUnidades,
         totalCosto,
@@ -3179,6 +4361,249 @@ export default {
 
     imprimirInformeConsolidado() {
       window.print()
+    },
+
+    // ================= MÉTODOS TRASLADO / CARGA A SUCURSAL =================
+    async openDialogTrasladoSucursal(sucursal) {
+      this.dialogTrasladoSucursal.sucursal = sucursal
+      this.dialogTrasladoSucursal.idBodegaOrigen = null
+      this.dialogTrasladoSucursal.observaciones = ''
+      this.dialogTrasladoSucursal.detalles = []
+      this.dialogTrasladoSucursal.selectedProducto = null
+      this.dialogTrasladoSucursal.selectedCantidad = 1
+      this.bodegaOrigenSucursalStock = []
+
+      // Auto-seleccionar bodega principal si está disponible o la primera bodega activa diferente a la sucursal
+      const principal = this.bodegas.find((b) => b.esPrincipal && b.idBodega !== sucursal.idBodega)
+      if (principal) {
+        this.dialogTrasladoSucursal.idBodegaOrigen = principal.idBodega
+        await this.onBodegaOrigenSucursalChange(principal.idBodega)
+      } else {
+        const first = this.bodegas.find((b) => b.estado && b.idBodega !== sucursal.idBodega)
+        if (first) {
+          this.dialogTrasladoSucursal.idBodegaOrigen = first.idBodega
+          await this.onBodegaOrigenSucursalChange(first.idBodega)
+        }
+      }
+
+      this.dialogTrasladoSucursal.show = true
+    },
+
+    async onBodegaOrigenSucursalChange(idBodega) {
+      this.dialogTrasladoSucursal.detalles = []
+      this.dialogTrasladoSucursal.selectedProducto = null
+      this.dialogTrasladoSucursal.selectedCantidad = 1
+      this.bodegaOrigenSucursalStock = []
+
+      if (!idBodega) return
+
+      this.dialogTrasladoSucursal.loadingStock = true
+      try {
+        const res = await this.requestHttp.getBodegaStock(idBodega)
+        if (res && res.code === 200 && Array.isArray(res.data)) {
+          this.bodegaOrigenSucursalStock = res.data
+            .map((item) => ({
+              ...item,
+              stockDisponible: Number(item.cantidadTotal ?? item.cantidadTotalBodega ?? item.stockDisponible ?? 0)
+            }))
+            .filter((item) => Number(item.stockDisponible) > 0)
+        }
+      } catch (err) {
+        this.showSnackbar('Error al obtener el stock de la bodega seleccionada.', 'error')
+      } finally {
+        this.dialogTrasladoSucursal.loadingStock = false
+      }
+    },
+
+    onProductoSelectedSucursal(prod) {
+      if (prod) {
+        this.dialogTrasladoSucursal.selectedCantidad = 1
+      }
+    },
+
+    agregarProductoATrasladoSucursal() {
+      const prod = this.dialogTrasladoSucursal.selectedProducto
+      const cant = Number(this.dialogTrasladoSucursal.selectedCantidad)
+
+      if (!prod) {
+        this.showSnackbar('Por favor selecciona un producto.', 'warning')
+        return
+      }
+      if (!cant || cant <= 0) {
+        this.showSnackbar('La cantidad a trasladar debe ser mayor a 0.', 'warning')
+        return
+      }
+      if (cant > prod.stockDisponible) {
+        this.showSnackbar(`La cantidad (${cant}) excede el stock disponible (${prod.stockDisponible}).`, 'error')
+        return
+      }
+
+      const existingIndex = this.dialogTrasladoSucursal.detalles.findIndex((d) => d.idProducto === prod.idProducto)
+      if (existingIndex >= 0) {
+        const newTotalCant = Number(this.dialogTrasladoSucursal.detalles[existingIndex].cantidad) + cant
+        if (newTotalCant > prod.stockDisponible) {
+          this.showSnackbar(`El acumulado (${newTotalCant}) excede el stock disponible (${prod.stockDisponible}).`, 'error')
+          return
+        }
+        this.dialogTrasladoSucursal.detalles[existingIndex].cantidad = newTotalCant
+        this.dialogTrasladoSucursal.detalles[existingIndex].subtotalCosto = newTotalCant * Number(prod.costo || 0)
+      } else {
+        this.dialogTrasladoSucursal.detalles.push({
+          idProducto: prod.idProducto,
+          codigo: prod.codigo,
+          nombre: prod.nombre,
+          categoria: prod.categoria,
+          cantidad: cant,
+          stockDisponible: prod.stockDisponible,
+          costo: Number(prod.costo || 0),
+          precio: Number(prod.precio || 0),
+          subtotalCosto: cant * Number(prod.costo || 0),
+          observaciones: null
+        })
+      }
+
+      this.dialogTrasladoSucursal.selectedProducto = null
+      this.dialogTrasladoSucursal.selectedCantidad = 1
+    },
+
+    eliminarDetalleTrasladoSucursal(index) {
+      this.dialogTrasladoSucursal.detalles.splice(index, 1)
+    },
+
+    async saveTrasladoSucursal() {
+      if (!this.dialogTrasladoSucursal.idBodegaOrigen) {
+        this.showSnackbar('Debe seleccionar una bodega de origen.', 'warning')
+        return
+      }
+      if (!this.dialogTrasladoSucursal.sucursal?.idBodega && !this.dialogTrasladoSucursal.sucursal?.idSucursal) {
+        this.showSnackbar('La sucursal de destino no es válida.', 'error')
+        return
+      }
+      if (this.dialogTrasladoSucursal.detalles.length === 0) {
+        this.showSnackbar('Debe agregar al menos un producto al traslado.', 'warning')
+        return
+      }
+
+      this.dialogTrasladoSucursal.saving = true
+      const payload = {
+        idBodegaOrigen: this.dialogTrasladoSucursal.idBodegaOrigen,
+        idSucursalDestino: this.dialogTrasladoSucursal.sucursal.idSucursal,
+        idBodegaDestino: this.dialogTrasladoSucursal.sucursal.idBodega || null,
+        observaciones: this.dialogTrasladoSucursal.observaciones || null,
+        usuarioRegistro: this.usuarioLogueado,
+        detalles: this.dialogTrasladoSucursal.detalles.map((d) => ({
+          idProducto: d.idProducto,
+          cantidad: Number(d.cantidad),
+          observaciones: d.observaciones || null
+        }))
+      }
+
+      try {
+        const res = await this.requestHttp.postTrasladoSucursal(payload)
+        if (res.code === 200) {
+          this.showSnackbar('Inventario trasladado exitosamente a la sucursal.')
+          this.dialogTrasladoSucursal.show = false
+          await this.loadAllData()
+        } else {
+          this.showSnackbar(res.data?.msg || res.data || 'Error al procesar el traslado.', 'error')
+        }
+      } catch (err) {
+        this.showSnackbar('Error de conexión al procesar el traslado.', 'error')
+      } finally {
+        this.dialogTrasladoSucursal.saving = false
+      }
+    },
+
+    // ================= MÉTODOS INVENTARIO DE SUCURSAL =================
+    async openDialogInventarioSucursal(sucursal) {
+      this.dialogInventarioSucursal.sucursal = sucursal
+      this.dialogInventarioSucursal.search = ''
+      this.dialogInventarioSucursal.items = []
+      this.dialogInventarioSucursal.show = true
+      this.dialogInventarioSucursal.loading = true
+
+      try {
+        const res = await this.requestHttp.getSucursalInventario(sucursal.idSucursal)
+        if (res.code === 200 && Array.isArray(res.data)) {
+          this.dialogInventarioSucursal.items = res.data
+        }
+      } catch (err) {
+        this.showSnackbar('Error al cargar inventario de la sucursal.', 'error')
+      } finally {
+        this.dialogInventarioSucursal.loading = false
+      }
+    },
+
+    // ================= MÉTODOS HISTORIAL DE TRASLADOS SUCURSAL =================
+    async openDialogHistorialSucursal(sucursal) {
+      this.dialogHistorialSucursal.sucursal = sucursal
+      this.dialogHistorialSucursal.search = ''
+      this.dialogHistorialSucursal.items = []
+      this.dialogHistorialSucursal.show = true
+      this.dialogHistorialSucursal.loading = true
+
+      try {
+        const res = await this.requestHttp.getSucursalHistorialCargas(sucursal.idSucursal)
+        if (res.code === 200 && Array.isArray(res.data)) {
+          this.dialogHistorialSucursal.items = res.data
+        }
+      } catch (err) {
+        this.showSnackbar('Error al cargar historial de traslados de la sucursal.', 'error')
+      } finally {
+        this.dialogHistorialSucursal.loading = false
+      }
+    },
+
+    // ================= MÉTODOS INFORME CONSOLIDADO SUCURSALES =================
+    async openDialogConsolidadoSucursales(idSucursal = null) {
+      this.dialogConsolidadoSucursales.filterIdSucursal = idSucursal
+      this.dialogConsolidadoSucursales.search = ''
+      this.dialogConsolidadoSucursales.show = true
+      await this.fetchInformeConsolidadoSucursales()
+    },
+
+    async fetchInformeConsolidadoSucursales() {
+      try {
+        this.dialogConsolidadoSucursales.loading = true
+        const params = {
+          soloConStock: this.dialogConsolidadoSucursales.soloConStock
+        }
+        if (this.dialogConsolidadoSucursales.filterIdSucursal) {
+          params.idSucursal = this.dialogConsolidadoSucursales.filterIdSucursal
+        }
+        const res = await this.requestHttp.getInformeStockSucursales(params)
+        if (res.code === 200 && res.data) {
+          this.dialogConsolidadoSucursales.data = res.data
+          this.dialogConsolidadoSucursales.expandedPanels = (res.data.sucursales || []).map(
+            (_, i) => i
+          )
+        } else {
+          this.showSnackbar(
+            res.data?.msg || 'Error al cargar informe consolidado de sucursales',
+            'error'
+          )
+        }
+      } catch (err) {
+        console.error('Error al obtener informe consolidado de sucursales:', err)
+        this.showSnackbar('Error de conexión al cargar el informe', 'error')
+      } finally {
+        this.dialogConsolidadoSucursales.loading = false
+      }
+    },
+
+    toggleExpandAllConsolidadoSucursales() {
+      const total = this.filteredInformeSucursales.length
+      if (this.dialogConsolidadoSucursales.expandedPanels.length === total) {
+        this.dialogConsolidadoSucursales.expandedPanels = []
+      } else {
+        this.dialogConsolidadoSucursales.expandedPanels = this.filteredInformeSucursales.map(
+          (_, i) => i
+        )
+      }
+    },
+
+    imprimirInformeConsolidadoSucursales() {
+      window.print()
     }
   },
 
@@ -3311,10 +4736,13 @@ export default {
     visibility: hidden;
   }
   #printable-consolidado-content,
-  #printable-consolidado-content * {
+  #printable-consolidado-content *,
+  #printable-consolidado-sucursales-content,
+  #printable-consolidado-sucursales-content * {
     visibility: visible;
   }
-  #printable-consolidado-content {
+  #printable-consolidado-content,
+  #printable-consolidado-sucursales-content {
     position: absolute;
     left: 0;
     top: 0;

@@ -12,6 +12,7 @@ const endPoints = {
 
     getProducto: 'api/Producto',
     getProductosDetalleVenta: 'api/Producto/detalle-venta',
+    getProductosSesionCaja: 'api/Producto/sesion-caja/listado',
     postProducto: 'api/Producto',
     putProducto: 'api/Producto',
     deleteProducto: 'api/Producto',
@@ -111,7 +112,13 @@ const endPoints = {
     postAperturaCaja: 'api/aperturas-caja',
     getArqueosCaja: 'api/arqueos-caja',
     postArqueoCaja: 'api/arqueos-caja',
+    getRetirosCaja: 'api/retiros-caja',
+    postRetiroCaja: 'api/retiros-caja',
     postCierreCaja: 'api/cierres-caja',
+    postCierreMercaderia: 'api/aperturas-caja/cierre-mercaderia',
+    postEstadoCuentaCaja: 'api/cierres-caja/estado-cuenta',
+    getCajaStockMercaderia: 'api/cajas',
+    getVentasLista: 'api/Venta/lista',
 
     // IMPORTACIONES
     getExpedienteImportacion: 'api/ExpedienteImportacion',
@@ -134,7 +141,19 @@ const endPoints = {
 
     // BODEGAS COMBOBOX
     getBodegasCombobox: 'api/bodegas/combobox',
-    getStockBodegas: 'api/bodegas/stock-bodegas'
+    getStockBodegas: 'api/bodegas/stock-bodegas',
+
+    // KARDEX / MOVIMIENTOS INVENTARIO
+    getKardex: 'api/kardex',
+    getKardexById: 'api/kardex',
+    getKardexResumen: 'api/kardex/resumen',
+    getKardexTiposMov: 'api/kardex/tipos-movimiento',
+
+    // SUCURSALES INVENTARIO Y TRASLADOS
+    getSucursalInventario: 'api/sucursales/{id}/inventario',
+    getSucursalHistorialCargas: 'api/sucursales/{id}/historial-cargas',
+    getSucursalesInformeStock: 'api/sucursales/informe-stock',
+    postTrasladoSucursal: 'api/sucursales/traslado'
 }
 
 export default endPoints

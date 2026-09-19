@@ -1482,7 +1482,7 @@ export default {
     })
 
     const calcularFactura = () => {
-      let subtotal = 0
+      let subtotalNeto = 0
       let totalImpuestos = 0
       data.factura.subTotal = 0.0
       data.factura.totalImpuestos = 0.0
@@ -1490,20 +1490,17 @@ export default {
       data.factura.usdTotal = 0.0
 
       data.items.forEach((item) => {
-        item.subTotal =
-          item.costoUnitario * item.cantidad
-        subtotal += item.subTotal
-        if (item.montoImpuesto) {
-          totalImpuestos += item.montoImpuesto
-        }
+        const base = (Number(item.costoUnitario) || 0) * (Number(item.cantidad) || 0)
+        const impuesto = Number(item.montoImpuesto) || 0
+        item.subTotal = base + impuesto
+        subtotalNeto += base
+        totalImpuestos += impuesto
       })
 
-      data.factura.subTotal = subtotal
+      data.factura.subTotal = subtotalNeto
       data.factura.totalImpuestos = totalImpuestos
-      data.factura.total =
-        subtotal + totalImpuestos
-      data.factura.usdTotal =
-        data.factura.total / 36.6243
+      data.factura.total = subtotalNeto + totalImpuestos
+      data.factura.usdTotal = data.factura.total / 36.6243
     }
 
     const cargarSesionCajaActiva = async () => {
@@ -1646,7 +1643,7 @@ export default {
 
             // Asegurar que el catálogo de productos con impuestos y precios mayoristas esté cargado
             if (!data.productos || data.productos.length === 0) {
-              const prodResult = await data.requestHttp.getProductosDetalleVenta()
+              const prodResult = await data.requestHttp.getProductosSesionCaja()
               if (prodResult.code === 200 && Array.isArray(prodResult.data)) {
                 data.productos = prodResult.data.map((item) => ({
                   idProducto: item.idProducto,
@@ -1656,6 +1653,8 @@ export default {
                   precio: item.precio,
                   costo: item.costo,
                   cantidadTotal: item.cantidadTotal,
+                  cantidadTotalBodega: item.cantidadTotalBodega,
+                  cantidadTotalGeneral: item.cantidadTotalGeneral,
                   esMayorista: item.esMayorista,
                   esFacturarSinInventario: item.esFacturarSinInventario,
                   minimoVenta: item.minimoVenta,
@@ -1716,7 +1715,7 @@ export default {
                   impuestos: impuestosVenta,
                   porcentajeImpuesto: porcentajeImpuestoTotal,
                   montoImpuesto: montoImpuesto,
-                  subTotal: subtotalBase,
+                  subTotal: subtotalBase + montoImpuesto,
                   observaciones: item.observaciones,
                   idProductoNavigation: item.idProductoNavigation,
                   idVentaNavigation: item.idVentaNavigation
@@ -1797,7 +1796,7 @@ export default {
       this.data.productos = []
       this.data.loading = true
       const result =
-        await this.data.requestHttp.getProductosDetalleVenta()
+        await this.data.requestHttp.getProductosSesionCaja()
       this.data.loading = false
       if (
         result.code === 200 &&
@@ -1812,6 +1811,8 @@ export default {
             precio: item.precio,
             costo: item.costo,
             cantidadTotal: item.cantidadTotal,
+            cantidadTotalBodega: item.cantidadTotalBodega,
+            cantidadTotalGeneral: item.cantidadTotalGeneral,
             esMayorista: item.esMayorista,
             esFacturarSinInventario:
               item.esFacturarSinInventario,
@@ -1821,6 +1822,8 @@ export default {
             impuestos: item.impuestos || []
           })
         )
+      } else if (result.data?.msg) {
+        this.showAlert(1, result.data.msg, 'warning')
       }
     },
 
@@ -1949,7 +1952,7 @@ export default {
         porcentajeImpuesto:
           porcentajeImpuestoTotal,
         montoImpuesto: montoImpuesto,
-        subTotal: subtotalBase,
+        subTotal: subtotalBase + montoImpuesto,
         observaciones: mergedObservaciones
       }
 
@@ -2026,10 +2029,10 @@ export default {
         item.rangoMayorista = rangoMayoristaText
         item.porcentajeImpuesto = porcentajeImpuestoTotal
         item.montoImpuesto = montoImpuesto
-        item.subTotal = subtotalBase
+        item.subTotal = subtotalBase + montoImpuesto
       } else {
         item.cantidad = qty
-        item.subTotal = item.costoUnitario * qty
+        item.subTotal = item.costoUnitario * qty + (item.montoImpuesto || 0)
       }
 
       this.calcularFactura()

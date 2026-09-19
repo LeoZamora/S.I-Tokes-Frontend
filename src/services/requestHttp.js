@@ -184,6 +184,21 @@ class RequestHttp {
             }
         }
     }
+    async getProductosSesionCaja(idSubCategoria = null) {
+        try {
+            const params = idSubCategoria ? { idSubCategoria } : {}
+            const result = await axios.get(endPoints.getProductosSesionCaja, { params })
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
     async getProductos(type = null) {
         try {
             var url = endPoints.getProducto
@@ -1269,6 +1284,38 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async getSucursalInventario(idSucursal) {
+        try {
+            const result = await axios.get(`api/sucursales/${idSucursal}/inventario`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getSucursalHistorialCargas(idSucursal) {
+        try {
+            const result = await axios.get(`api/sucursales/${idSucursal}/historial-cargas`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getInformeStockSucursales(params = {}) {
+        try {
+            const result = await axios.get('api/sucursales/informe-stock', { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postTrasladoSucursal(data) {
+        try {
+            const result = await axios.post('api/sucursales/traslado', data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
 
     // CAMIONES
     async getCamiones() {
@@ -1576,9 +1623,57 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async getRetirosCaja(params = {}) {
+        try {
+            const result = await axios.get(endPoints.getRetirosCaja, { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postRetiroCaja(data) {
+        try {
+            const result = await axios.post(endPoints.postRetiroCaja, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getVentasLista(data = {}) {
+        try {
+            const result = await axios.post(endPoints.getVentasLista, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
     async postCierreCaja(data) {
         try {
             const result = await axios.post(endPoints.postCierreCaja, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getCajaStockMercaderia(idCaja) {
+        try {
+            const result = await axios.get(`${endPoints.getCajaStockMercaderia}/${idCaja}/stock-mercaderia`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postCierreMercaderia(data) {
+        try {
+            const result = await axios.post(endPoints.postCierreMercaderia, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async postEstadoCuentaCaja(data = {}) {
+        try {
+            const result = await axios.post(endPoints.postEstadoCuentaCaja, data)
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }
@@ -1703,6 +1798,43 @@ class RequestHttp {
     async getTiposDocumentoCombobox() {
         try {
             const result = await axios.get(endPoints.getTipoDocumentoImportacionCombobox)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    // KARDEX / MOVIMIENTOS INVENTARIO
+    async getKardex(params = {}) {
+        try {
+            const result = await axios.get(endPoints.getKardex, { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    async getKardexById(id) {
+        try {
+            const result = await axios.get(`${endPoints.getKardexById}/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    async getKardexResumen(params = {}) {
+        try {
+            const result = await axios.get(endPoints.getKardexResumen, { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    async getKardexTiposMov() {
+        try {
+            const result = await axios.get(endPoints.getKardexTiposMov)
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }
