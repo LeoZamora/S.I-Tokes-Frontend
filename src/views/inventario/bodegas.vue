@@ -1898,385 +1898,271 @@
       </v-card>
     </v-dialog>
 
-    <!-- ================= DIÁLOGO INVENTARIO CONSOLIDADO DE CAMIONES ================= -->
+    <!-- ================= DIÁLOGO INVENTARIO CONSOLIDADO DE CAMIONES (MINIMALISTA) ================= -->
     <v-dialog
       v-model="dialogConsolidado.show"
-      max-width="1250"
+      max-width="1100"
       persistent
       scrollable
     >
-      <v-card class="rounded overflow-hidden">
-        <!-- Header del Diálogo -->
-        <v-card-title
-          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
-        >
+      <v-card class="rounded-xl overflow-hidden border bg-white">
+        <!-- Header Minimalista y Limpio -->
+        <div class="pa-4 bg-white border-b d-flex align-center justify-space-between flex-wrap ga-2">
           <div class="d-flex align-center">
-            <v-avatar size="36" color="white" class="mr-3" variant="flat">
-              <v-icon color="indigo-darken-4" size="22">mdi-truck-cargo-container</v-icon>
-            </v-avatar>
+            <v-icon color="indigo-darken-3" size="24" class="mr-2">mdi-truck-cargo-container</v-icon>
             <div>
-              <div class="text-subtitle-1 font-weight-bold lh-1">
-                Inventario Consolidado de Carga en Camiones
+              <div class="text-subtitle-1 font-weight-bold text-grey-darken-4 lh-1">
+                Inventario Consolidado de Camiones
               </div>
-              <div class="text-indigo-lighten-4 text-caption">
-                Informe de existencias, productos y valorización agrupado por unidad de transporte
-              </div>
+              <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">
+                Valor del inventario por unidad de transporte y desglose de productos con existencias
+              </span>
             </div>
           </div>
-          <div class="d-flex align-center ga-2 flex-wrap mt-2 mt-sm-0">
+          <div class="d-flex align-center ga-2 flex-wrap">
             <v-chip
               v-if="dialogConsolidado.data?.fechaGeneracion"
-              size="small"
-              color="indigo-lighten-4"
+              size="x-small"
+              color="grey-lighten-2"
               variant="flat"
-              class="text-indigo-darken-4 font-weight-bold"
+              class="text-grey-darken-3 font-weight-medium"
             >
-              <v-icon start size="14">mdi-clock-outline</v-icon>
+              <v-icon start size="12">mdi-clock-outline</v-icon>
               {{ formatDateTime(dialogConsolidado.data.fechaGeneracion) }}
             </v-chip>
             <v-btn
-              icon
-              variant="text"
+              variant="outlined"
               size="small"
-              color="white"
+              color="grey-darken-2"
+              class="text-none rounded-lg font-weight-medium"
               @click="toggleExpandAllConsolidado()"
             >
-              <v-icon size="20">mdi-arrow-expand-vertical</v-icon>
-              <v-tooltip activator="parent" location="top" text="Expandir / Contraer Todo" />
+              <v-icon size="16" class="mr-1">mdi-arrow-expand-vertical</v-icon>
+              Expandir / Contraer
             </v-btn>
             <v-btn
-              icon
+              icon="mdi-refresh"
               variant="text"
               size="small"
-              color="white"
+              color="grey-darken-2"
               :loading="dialogConsolidado.loading"
+              title="Actualizar datos"
               @click="fetchInformeConsolidado()"
+            />
+            <!--<v-btn
+              prepend-icon="mdi-file-excel"
+              color="green-darken-3"
+              variant="flat"
+              size="small"
+              class="text-white font-weight-bold text-none rounded-lg"
+              :disabled="dialogConsolidado.loading || filteredInformeCamiones.length === 0"
+              @click="exportarExcelConsolidado()"
             >
-              <v-icon size="20">mdi-refresh</v-icon>
-              <v-tooltip activator="parent" location="top" text="Actualizar Datos" />
+              Excel
             </v-btn>
             <v-btn
-              icon
-              variant="text"
+              prepend-icon="mdi-printer"
+              color="indigo-darken-4"
+              variant="flat"
               size="small"
-              color="white"
+              class="text-white font-weight-bold text-none rounded-lg"
+              :disabled="dialogConsolidado.loading || filteredInformeCamiones.length === 0"
               @click="imprimirInformeConsolidado()"
             >
-              <v-icon size="20">mdi-printer</v-icon>
-              <v-tooltip activator="parent" location="top" text="Imprimir Informe" />
-            </v-btn>
+              PDF
+            </v-btn>-->
             <v-btn
-              icon
+              icon="mdi-close"
               variant="text"
               size="small"
-              color="white"
+              color="grey-darken-2"
               @click="dialogConsolidado.show = false"
-            >
-              <v-icon size="20">mdi-close</v-icon>
-              <v-tooltip activator="parent" location="top" text="Cerrar" />
-            </v-btn>
+            />
           </div>
-        </v-card-title>
-        <v-divider></v-divider>
+        </div>
 
-        <v-card-text class="pa-4 bg-grey-lighten-4" style="max-height: 80vh;" id="printable-consolidado-content">
-          <!-- Barra de Filtros y Búsqueda -->
-          <v-card variant="flat" class="pa-3 mb-3 rounded border bg-white">
+        <v-card-text class="pa-4 bg-grey-lighten-5" style="max-height: 80vh;" id="printable-consolidado-content">
+          <!-- Barra de Filtros y Resumen Minimalista -->
+          <v-card variant="flat" class="pa-3 mb-3 rounded-lg border bg-white">
             <v-row dense align="center">
-              <v-col cols="12" md="4" sm="6">
+              <v-col cols="12" sm="5" md="4">
                 <v-text-field
                   v-model="dialogConsolidado.search"
-                  label="Buscar producto, placa o categoría..."
+                  placeholder="Buscar producto, placa o categoría..."
                   prepend-inner-icon="mdi-magnify"
                   variant="outlined"
                   density="compact"
                   color="indigo"
                   hide-details
                   clearable
-                ></v-text-field>
+                />
               </v-col>
-              <v-col cols="12" md="4" sm="6">
+              <v-col cols="12" sm="4" md="3">
                 <v-autocomplete
                   v-model="dialogConsolidado.filterIdCamion"
                   :items="camionesOptionsInforme"
                   item-title="title"
                   item-value="value"
-                  label="Filtrar por Camión"
+                  placeholder="Todos los Camiones"
                   prepend-inner-icon="mdi-truck"
                   variant="outlined"
                   density="compact"
                   color="indigo"
                   hide-details
                   @update:model-value="fetchInformeConsolidado()"
-                ></v-autocomplete>
+                />
               </v-col>
-              <v-col cols="12" md="4" sm="12" class="d-flex align-center justify-md-end">
-                <v-switch
-                  v-model="dialogConsolidado.soloConStock"
-                  label="Solo con Stock Activo (> 0)"
-                  color="indigo"
-                  density="compact"
-                  hide-details
-                  @update:model-value="fetchInformeConsolidado()"
-                ></v-switch>
+              <v-col cols="12" sm="3" md="5" class="d-flex align-center justify-sm-end ga-3 flex-wrap">
+                <div class="text-right">
+                  <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">Camiones</span>
+                  <span class="text-body-2 font-weight-bold text-grey-darken-4">{{ resumenInformeConsolidado.totalCamiones }}</span>
+                </div>
+                <v-divider vertical class="my-1" />
+                <div class="text-right">
+                  <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">Stock Total</span>
+                  <span class="text-body-2 font-weight-bold text-indigo-darken-3">{{ resumenInformeConsolidado.totalUnidades }} uds</span>
+                </div>
+                <v-divider vertical class="my-1" />
+                <div class="text-right">
+                  <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">Valor Inventario</span>
+                  <span class="text-subtitle-2 font-weight-bold text-teal-darken-3">{{ formatCurrency(resumenInformeConsolidado.totalCosto) }}</span>
+                </div>
               </v-col>
             </v-row>
           </v-card>
 
           <!-- Loader -->
           <div v-if="dialogConsolidado.loading" class="d-flex flex-column align-center justify-center my-10">
-            <v-progress-circular indeterminate color="indigo-darken-4" size="50" width="4"></v-progress-circular>
-            <span class="text-caption font-weight-bold text-indigo-darken-4 mt-3">Generando informe consolidado...</span>
+            <v-progress-circular indeterminate color="indigo-darken-4" size="40" width="3"></v-progress-circular>
+            <span class="text-caption font-weight-medium text-grey-darken-2 mt-3">Cargando existencias en camiones...</span>
           </div>
 
-          <!-- Resumen de Métricas Globales (KPI Cards) -->
+          <!-- Listado de Camiones (Expansion Panels) -->
           <template v-else-if="filteredInformeCamiones.length > 0">
-            <v-row dense class="mb-3">
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="indigo-lighten-5" class="pa-2 rounded border border-indigo-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Camiones</div>
-                  <div class="text-h6 font-weight-bold text-indigo-darken-4">{{ resumenInformeConsolidado.totalCamiones }}</div>
-                  <div class="text-caption text-indigo-darken-2 font-weight-bold" style="font-size: 10px;">Unidades de reparto</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="deep-purple-lighten-5" class="pa-2 rounded border border-deep-purple-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Productos Distintos</div>
-                  <div class="text-h6 font-weight-bold text-deep-purple-darken-4">{{ resumenInformeConsolidado.totalProductosDistintos }}</div>
-                  <div class="text-caption text-deep-purple-darken-2 font-weight-bold" style="font-size: 10px;">Variedad en carga</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="blue-lighten-5" class="pa-2 rounded border border-blue-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Total Unidades</div>
-                  <div class="text-h6 font-weight-bold text-blue-darken-4">{{ resumenInformeConsolidado.totalUnidades }}</div>
-                  <div class="text-caption text-blue-darken-2 font-weight-bold" style="font-size: 10px;">Carga total a bordo</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="teal-lighten-5" class="pa-2 rounded border border-teal-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Valor Total Costo</div>
-                  <div class="text-subtitle-1 font-weight-bold text-teal-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidado.totalCosto) }}</div>
-                  <div class="text-caption text-teal-darken-2 font-weight-bold" style="font-size: 10px;">Inversión en carga</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="blue-grey-lighten-5" class="pa-2 rounded border border-blue-grey-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Valor Total Venta</div>
-                  <div class="text-subtitle-1 font-weight-bold text-blue-grey-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidado.totalVenta) }}</div>
-                  <div class="text-caption text-blue-grey-darken-2 font-weight-bold" style="font-size: 10px;">Proyección venta</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="green-lighten-5" class="pa-2 rounded border border-green-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Ganancia Estimada</div>
-                  <div class="text-subtitle-1 font-weight-bold text-green-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidado.ganancia) }}</div>
-                  <div class="text-caption text-green-darken-3 font-weight-bold" style="font-size: 10px;">
-                    Margen: {{ resumenInformeConsolidado.margen }}%
-                  </div>
-                </v-card>
-              </v-col>
-            </v-row>
-
-            <!-- Agrupación por Camión (Expansion Panels de Informe) -->
             <v-expansion-panels
               v-model="dialogConsolidado.expandedPanels"
               multiple
-              variant="popout"
+              variant="accordion"
               class="mb-3"
             >
               <v-expansion-panel
                 v-for="(camion, idx) in filteredInformeCamiones"
                 :key="camion.idCamion || idx"
                 class="mb-2 border rounded-lg overflow-hidden bg-white"
-                elevation="1"
+                elevation="0"
               >
                 <!-- Cabecera del Camión -->
-                <v-expansion-panel-title class="py-2 px-3 bg-grey-lighten-4">
-                  <div class="d-flex align-center justify-space-between flex-wrap w-100 pr-2 ga-2">
-                    <div class="d-flex align-center">
-                      <v-chip
-                        size="small"
-                        color="indigo-darken-4"
-                        variant="flat"
-                        class="font-weight-bold mr-2 text-white"
-                      >
-                        <v-icon start size="16">mdi-truck</v-icon>
-                        {{ camion.placa }}
-                      </v-chip>
-                      <div class="mr-3">
-                        <div class="text-subtitle-2 font-weight-bold text-grey-darken-4 lh-1">
-                          {{ camion.bodegaNombre || ('Camión ' + camion.placa) }}
+                <v-expansion-panel-title class="py-2 px-3 bg-white">
+                  <template v-slot:default="{ expanded }">
+                    <div class="d-flex align-center justify-space-between w-100 pr-2 flex-wrap ga-2">
+                      <div class="d-flex align-center">
+                        <v-chip
+                          size="small"
+                          color="indigo-darken-4"
+                          variant="flat"
+                          class="font-weight-bold mr-2 text-white"
+                        >
+                          <v-icon start size="16">mdi-truck</v-icon>
+                          {{ camion.placa }}
+                        </v-chip>
+                        <div>
+                          <div class="text-subtitle-2 font-weight-bold text-grey-darken-4 lh-1">
+                            {{ camion.bodegaNombre || ('Camión ' + camion.placa) }}
+                          </div>
+                          <div class="text-caption text-grey-darken-1" style="font-size: 11px;">
+                            {{ camion.codigoBodega ? 'Código: ' + camion.codigoBodega : 'Bodega Móvil' }}
+                          </div>
                         </div>
-                        <div class="text-caption text-grey-darken-1" style="font-size: 11px;">
-                          {{ camion.codigoBodega ? 'Código: ' + camion.codigoBodega + ' | ' : '' }}
-                          <span v-if="camion.fechaUltimaCarga">
-                            Última Carga: {{ formatDateTime(camion.fechaUltimaCarga) }}
-                            <span v-if="camion.usuarioUltimaCarga">({{ camion.usuarioUltimaCarga }})</span>
-                          </span>
-                          <span v-else>Sin registro de carga previa</span>
+                      </div>
+
+                      <div class="d-flex align-center ga-4 flex-wrap">
+                        <div class="text-right">
+                          <span class="text-caption text-grey-darken-1" style="font-size: 10px;">Stock Positivo</span>
+                          <div class="text-caption font-weight-bold text-grey-darken-4">
+                            {{ camion.totalUnidades }} uds ({{ camion.productos.length }} prod.)
+                          </div>
+                        </div>
+                        <div class="text-right">
+                          <span class="text-caption text-grey-darken-1" style="font-size: 10px;">Valor Inventario</span>
+                          <div class="text-caption font-weight-bold text-teal-darken-4" style="font-size: 13px;">
+                            {{ formatCurrency(camion.valorTotalCosto) }}
+                          </div>
                         </div>
                       </div>
                     </div>
-
-                    <!-- Badges Resumen del Camión (Subtotales) -->
-                    <div class="d-flex align-center flex-wrap ga-1">
-                      <v-chip size="x-small" color="indigo" variant="tonal" class="font-weight-bold">
-                        {{ camion.totalProductos }} ítems
-                      </v-chip>
-                      <v-chip size="x-small" color="blue-darken-3" variant="tonal" class="font-weight-bold">
-                        {{ camion.totalUnidades }} unids.
-                      </v-chip>
-                      <v-chip size="x-small" color="teal-darken-3" variant="tonal" class="font-weight-bold">
-                        Costo: {{ formatCurrency(camion.valorTotalCosto) }}
-                      </v-chip>
-                      <v-chip size="x-small" color="blue-grey-darken-3" variant="tonal" class="font-weight-bold">
-                        Venta: {{ formatCurrency(camion.valorTotalVenta) }}
-                      </v-chip>
-                      <v-chip size="x-small" color="green-darken-3" variant="flat" class="font-weight-bold text-white">
-                        Ganancia: {{ formatCurrency(camion.gananciaEstimada) }} ({{ camion.margenPorcentaje }}%)
-                      </v-chip>
-                    </div>
-                  </div>
+                  </template>
                 </v-expansion-panel-title>
 
                 <!-- Tabla de Productos del Camión -->
-                <v-expansion-panel-text class="pa-0">
-                  <v-table density="compact" class="table-consolidado-camion">
-                    <thead class="bg-indigo-lighten-5 font-weight-bold">
-                      <tr>
-                        <th class="text-center py-2" style="width: 40px;">#</th>
-                        <th class="text-left py-2" style="width: 90px;">Código</th>
-                        <th class="text-left py-2">Producto</th>
-                        <th class="text-left py-2">Categoría</th>
-                        <th class="text-center py-2">U.M.</th>
-                        <th class="text-center py-2" style="width: 80px;">Carga</th>
-                        <th class="text-right py-2">Costo Unit.</th>
-                        <th class="text-right py-2">Precio Venta</th>
-                        <th class="text-right py-2 font-weight-bold text-teal-darken-4">Subtotal Costo</th>
-                        <th class="text-right py-2 font-weight-bold text-blue-darken-4">Subtotal Venta</th>
-                        <th class="text-right py-2 font-weight-bold text-green-darken-4">Ganancia Est.</th>
-                        <th class="text-center py-2" style="width: 70px;">Margen</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr
-                        v-for="(prod, pIdx) in camion.productos"
-                        :key="prod.idStockBodega || prod.idProducto || pIdx"
-                        class="hover-row"
-                      >
-                        <td class="text-center text-caption text-grey font-weight-bold">{{ pIdx + 1 }}</td>
-                        <td class="text-caption font-weight-medium">
-                          <v-chip size="x-small" variant="flat" color="grey-lighten-3" class="font-weight-bold">
-                            {{ prod.codigo || '---' }}
-                          </v-chip>
-                        </td>
-                        <td class="text-caption font-weight-bold text-indigo-darken-4">
-                          {{ prod.nombre }}
-                        </td>
-                        <td class="text-caption text-grey-darken-2">
-                          {{ prod.categoria || '---' }}
-                        </td>
-                        <td class="text-center text-caption text-grey-darken-3">
-                          {{ prod.unidadMedida || 'Und' }}
-                        </td>
-                        <td class="text-center font-weight-bold text-caption text-indigo-darken-4">
-                          <v-chip size="x-small" color="indigo-lighten-5" class="text-indigo-darken-4 font-weight-bold">
+                <v-expansion-panel-text class="pa-0 border-t">
+                  <div class="pa-3">
+                    <v-table density="compact" class="border rounded table-consolidado-camion">
+                      <thead class="bg-grey-lighten-4">
+                        <tr>
+                          <th class="text-left py-2 text-grey-darken-3 font-weight-bold">Código</th>
+                          <th class="text-left py-2 text-grey-darken-3 font-weight-bold">Producto</th>
+                          <th class="text-left py-2 text-grey-darken-3 font-weight-bold">Categoría</th>
+                          <th class="text-center py-2 text-grey-darken-3 font-weight-bold">Stock</th>
+                          <th class="text-right py-2 text-grey-darken-3 font-weight-bold">Costo Unit.</th>
+                          <th class="text-right py-2 text-grey-darken-3 font-weight-bold">Valor Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="prod in camion.productos"
+                          :key="prod.idStockBodega || prod.idProducto"
+                          class="hover-row"
+                        >
+                          <td class="text-caption text-grey-darken-2">{{ prod.codigo || '---' }}</td>
+                          <td class="font-weight-medium text-caption text-grey-darken-4">
+                            {{ prod.nombre }}
+                            <span v-if="prod.unidadMedida" class="text-caption text-grey" style="font-size: 10px;">
+                              ({{ prod.unidadMedida }})
+                            </span>
+                          </td>
+                          <td class="text-caption text-grey-darken-2">{{ prod.categoria || '---' }}</td>
+                          <td class="text-center font-weight-bold text-caption text-indigo-darken-4">
                             {{ prod.cantidad }}
-                          </v-chip>
-                        </td>
-                        <td class="text-right text-caption">
-                          {{ formatCurrency(prod.costoUnitario) }}
-                        </td>
-                        <td class="text-right text-caption">
-                          {{ formatCurrency(prod.precioUnitario) }}
-                        </td>
-                        <td class="text-right font-weight-bold text-caption text-teal-darken-4">
-                          {{ formatCurrency(prod.totalCosto) }}
-                        </td>
-                        <td class="text-right font-weight-bold text-caption text-blue-darken-4">
-                          {{ formatCurrency(prod.totalVenta) }}
-                        </td>
-                        <td class="text-right font-weight-bold text-caption text-green-darken-4">
-                          {{ formatCurrency(prod.gananciaEstimada) }}
-                        </td>
-                        <td class="text-center text-caption">
-                          <v-chip
-                            size="x-small"
-                            :color="prod.margenPorcentaje >= 30 ? 'green-darken-3' : (prod.margenPorcentaje > 0 ? 'amber-darken-4' : 'grey')"
-                            variant="tonal"
-                            class="font-weight-bold"
-                          >
-                            {{ prod.margenPorcentaje }}%
-                          </v-chip>
-                        </td>
-                      </tr>
-                      <tr v-if="!camion.productos || camion.productos.length === 0">
-                        <td colspan="12" class="text-center py-4 text-grey text-caption">
-                          No hay productos registrados en la carga de este camión.
-                        </td>
-                      </tr>
-                    </tbody>
-                    <!-- Fila de Subtotales del Camión -->
-                    <tfoot class="bg-indigo-lighten-5 font-weight-bold">
-                      <tr class="border-top-2">
-                        <td colspan="5" class="text-right py-2 text-caption text-indigo-darken-4">
-                          <strong>Subtotal Camión {{ camion.placa }}:</strong>
-                          <span class="text-caption text-grey-darken-2 ml-1">({{ camion.totalProductos }} productos)</span>
-                        </td>
-                        <td class="text-center py-2 text-caption text-indigo-darken-4">
-                          <strong>{{ camion.totalUnidades }}</strong>
-                        </td>
-                        <td colspan="2" class="text-right py-2 text-caption text-grey-darken-2">
-                          Totales Camión:
-                        </td>
-                        <td class="text-right py-2 text-caption text-teal-darken-4">
-                          <strong>{{ formatCurrency(camion.valorTotalCosto) }}</strong>
-                        </td>
-                        <td class="text-right py-2 text-caption text-blue-darken-4">
-                          <strong>{{ formatCurrency(camion.valorTotalVenta) }}</strong>
-                        </td>
-                        <td class="text-right py-2 text-caption text-green-darken-4">
-                          <strong>{{ formatCurrency(camion.gananciaEstimada) }}</strong>
-                        </td>
-                        <td class="text-center py-2 text-caption font-weight-bold text-indigo-darken-4">
-                          <strong>{{ camion.margenPorcentaje }}%</strong>
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </v-table>
+                          </td>
+                          <td class="text-right text-caption">{{ formatCurrency(prod.costoUnitario) }}</td>
+                          <td class="text-right font-weight-bold text-caption text-teal-darken-4">
+                            {{ formatCurrency(prod.totalCosto) }}
+                          </td>
+                        </tr>
+                        <tr v-if="!camion.productos || camion.productos.length === 0">
+                          <td colspan="6" class="text-center py-4 text-grey text-caption">
+                            No hay productos con stock positivo en este camión.
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot class="bg-grey-lighten-4 font-weight-bold border-top">
+                        <tr>
+                          <td colspan="3" class="text-right py-2 text-grey-darken-4">Total Camión {{ camion.placa }}:</td>
+                          <td class="text-center py-2 text-indigo-darken-4">{{ camion.totalUnidades }}</td>
+                          <td></td>
+                          <td class="text-right py-2 text-teal-darken-4">{{ formatCurrency(camion.valorTotalCosto) }}</td>
+                        </tr>
+                      </tfoot>
+                    </v-table>
+                  </div>
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
 
-            <!-- Card de Gran Total Consolidado Final -->
-            <v-card variant="flat" class="pa-3 border rounded-lg bg-indigo-darken-4 text-white">
-              <div class="d-flex align-center justify-space-between flex-wrap ga-3">
-                <div class="d-flex align-center">
-                  <v-icon size="24" class="mr-2" color="white">mdi-sigma</v-icon>
-                  <div>
-                    <div class="text-subtitle-1 font-weight-bold lh-1 text-white">
-                      Gran Total Consolidado (Todos los Camiones)
-                    </div>
-                    <div class="text-caption text-indigo-lighten-3">
-                      Total {{ resumenInformeConsolidado.totalCamiones }} camiones | {{ resumenInformeConsolidado.totalProductosDistintos }} productos distintos | {{ resumenInformeConsolidado.totalUnidades }} unidades en ruta
-                    </div>
+            <!-- Card de Gran Total Consolidado Final Minimalista -->
+            <v-card variant="flat" class="pa-3 rounded-lg border bg-white mt-3 d-flex justify-space-between align-center flex-wrap ga-2">
+              <div class="d-flex align-center">
+                <v-icon color="indigo-darken-3" class="mr-2" size="20">mdi-sigma</v-icon>
+                <div>
+                  <div class="text-subtitle-2 font-weight-bold text-grey-darken-4">TOTAL INVENTARIO CONSOLIDADO (CAMIONES)</div>
+                  <div class="text-caption text-grey-darken-1" style="font-size: 11px;">
+                    {{ resumenInformeConsolidado.totalCamiones }} camiones | {{ resumenInformeConsolidado.totalProductosDistintos }} productos | {{ resumenInformeConsolidado.totalUnidades }} unidades en ruta
                   </div>
                 </div>
-                <div class="d-flex align-center flex-wrap ga-3">
-                  <div class="text-right">
-                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">Total Costo</div>
-                    <div class="text-subtitle-2 font-weight-bold text-white">{{ formatCurrency(resumenInformeConsolidado.totalCosto) }}</div>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">Total Venta Estimada</div>
-                    <div class="text-subtitle-2 font-weight-bold text-white">{{ formatCurrency(resumenInformeConsolidado.totalVenta) }}</div>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-caption text-green-lighten-3" style="font-size: 11px;">Ganancia Global ({{ resumenInformeConsolidado.margen }}%)</div>
-                    <div class="text-subtitle-2 font-weight-bold text-green-accent-2">{{ formatCurrency(resumenInformeConsolidado.ganancia) }}</div>
-                  </div>
-                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">Valor Total del Inventario</span>
+                <span class="text-subtitle-1 font-weight-bold text-teal-darken-4">{{ formatCurrency(resumenInformeConsolidado.totalCosto) }}</span>
               </div>
             </v-card>
           </template>
@@ -2284,47 +2170,59 @@
           <!-- No Data View -->
           <v-sheet
             v-else
-            class="text-center py-10 rounded border bg-white"
+            class="text-center py-10 rounded-lg border bg-white"
           >
-            <v-avatar color="indigo-lighten-5" size="64" class="mb-3">
-              <v-icon size="36" color="indigo-darken-3">mdi-truck-outline</v-icon>
+            <v-avatar color="indigo-lighten-5" size="56" class="mb-3">
+              <v-icon size="30" color="indigo-darken-3">mdi-truck-outline</v-icon>
             </v-avatar>
-            <h4 class="text-subtitle-1 font-weight-bold text-grey-darken-3">
-              No se encontraron datos para el informe
+            <h4 class="text-subtitle-2 font-weight-bold text-grey-darken-3">
+              No se encontraron datos con existencias activas en camiones
             </h4>
             <p class="text-caption text-grey-darken-1 mt-1">
-              Verifique los filtros seleccionados o asegúrese de que los camiones cuenten con cargas de inventario registradas.
+              Verifique los filtros seleccionados o la existencia de productos con stock en las cargas de los camiones.
             </p>
           </v-sheet>
         </v-card-text>
 
         <v-divider></v-divider>
-        <v-card-actions class="pa-3 bg-grey-lighten-4 d-flex justify-space-between align-center">
-          <div class="text-caption text-grey-darken-2 font-weight-medium">
-            Mostrando {{ filteredInformeCamiones.length }} de {{ dialogConsolidado.data?.totalCamiones || 0 }} camiones
-          </div>
+        <div class="pa-3 bg-white d-flex justify-space-between align-center flex-wrap ga-2">
+          <span class="text-caption text-grey-darken-1">
+            Mostrando {{ filteredInformeCamiones.length }} de {{ dialogConsolidado.data?.totalCamiones || 0 }} camiones con existencias
+          </span>
           <div class="d-flex ga-2">
             <v-btn
+              prepend-icon="mdi-file-excel"
+              color="green-darken-3"
+              variant="tonal"
+              density="comfortable"
+              class="rounded-lg font-weight-bold px-3 text-caption text-none"
+              :disabled="dialogConsolidado.loading || filteredInformeCamiones.length === 0"
+              @click="exportarExcelConsolidado()"
+            >
+              Exportar Excel
+            </v-btn>
+            <v-btn
+              prepend-icon="mdi-printer"
               color="indigo-darken-4"
               variant="tonal"
               density="comfortable"
-              prepend-icon="mdi-printer"
-              class="rounded font-weight-bold px-4 text-caption"
+              class="rounded-lg font-weight-bold px-3 text-caption text-none"
+              :disabled="dialogConsolidado.loading || filteredInformeCamiones.length === 0"
               @click="imprimirInformeConsolidado()"
             >
-              Imprimir
+              Imprimir PDF
             </v-btn>
             <v-btn
-              color="indigo-darken-4"
-              variant="flat"
+              color="grey-darken-2"
+              variant="outlined"
               density="comfortable"
-              class="rounded font-weight-bold px-4 text-caption"
+              class="rounded-lg font-weight-medium px-4 text-caption text-none"
               @click="dialogConsolidado.show = false"
             >
               Cerrar
             </v-btn>
           </div>
-        </v-card-actions>
+        </div>
       </v-card>
     </v-dialog>
 
@@ -2810,258 +2708,203 @@
       </v-card>
     </v-dialog>
 
-    <!-- ================= DIÁLOGO INVENTARIO CONSOLIDADO DE SUCURSALES ================= -->
+    <!-- ================= DIÁLOGO INVENTARIO CONSOLIDADO DE SUCURSALES (MINIMALISTA) ================= -->
     <v-dialog
       v-model="dialogConsolidadoSucursales.show"
-      max-width="1250"
+      max-width="1100"
       persistent
       scrollable
     >
-      <v-card class="rounded overflow-hidden">
-        <!-- Header del Diálogo -->
-        <v-card-title
-          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
-        >
+      <v-card class="rounded-xl overflow-hidden border bg-white">
+        <!-- Header Minimalista y Limpio -->
+        <div class="pa-4 bg-white border-b d-flex align-center justify-space-between flex-wrap ga-2">
           <div class="d-flex align-center">
-            <v-avatar size="36" color="white" class="mr-3" variant="flat">
-              <v-icon color="indigo-darken-4" size="22">mdi-storefront</v-icon>
-            </v-avatar>
+            <v-icon color="indigo-darken-3" size="24" class="mr-2">mdi-storefront</v-icon>
             <div>
-              <div class="text-subtitle-1 font-weight-bold lh-1">
+              <div class="text-subtitle-1 font-weight-bold text-grey-darken-4 lh-1">
                 Inventario Consolidado de Sucursales
               </div>
-              <div class="text-indigo-lighten-4 text-caption">
-                Informe de existencias, productos y valorización agrupado por sucursal
-              </div>
+              <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">
+                Valor del inventario por bodega de sucursal y desglose de productos con existencias
+              </span>
             </div>
           </div>
-          <div class="d-flex align-center ga-2 flex-wrap mt-2 mt-sm-0">
+          <div class="d-flex align-center ga-2 flex-wrap">
             <v-chip
               v-if="dialogConsolidadoSucursales.data?.fechaGeneracion"
-              size="small"
-              color="indigo-lighten-4"
+              size="x-small"
+              color="grey-lighten-2"
               variant="flat"
-              class="text-indigo-darken-4 font-weight-bold"
+              class="text-grey-darken-3 font-weight-medium"
             >
-              <v-icon start size="14">mdi-clock-outline</v-icon>
+              <v-icon start size="12">mdi-clock-outline</v-icon>
               {{ formatDateTime(dialogConsolidadoSucursales.data.fechaGeneracion) }}
             </v-chip>
             <v-btn
-              icon
-              variant="text"
+              variant="outlined"
               size="small"
-              color="white"
+              color="grey-darken-2"
+              class="text-none rounded-lg font-weight-medium"
               @click="toggleExpandAllConsolidadoSucursales()"
             >
-              <v-icon size="20">mdi-arrow-expand-vertical</v-icon>
-              <v-tooltip activator="parent" location="top" text="Expandir / Contraer Todo" />
+              <v-icon size="16" class="mr-1">mdi-arrow-expand-vertical</v-icon>
+              Expandir / Contraer
             </v-btn>
             <v-btn
-              icon
+              icon="mdi-refresh"
               variant="text"
               size="small"
-              color="white"
+              color="grey-darken-2"
               :loading="dialogConsolidadoSucursales.loading"
+              title="Actualizar datos"
               @click="fetchInformeConsolidadoSucursales()"
-            >
-              <v-icon size="20">mdi-refresh</v-icon>
-              <v-tooltip activator="parent" location="top" text="Actualizar Datos" />
-            </v-btn>
-            <v-btn
-              icon
-              variant="text"
+            />
+            <!--<v-btn
+              prepend-icon="mdi-file-excel"
+              color="green-darken-3"
+              variant="flat"
               size="small"
-              color="white"
+              class="text-white font-weight-bold text-none rounded-lg"
+              :disabled="dialogConsolidadoSucursales.loading || filteredInformeSucursales.length === 0"
+              @click="exportarExcelConsolidadoSucursales()"
+            >
+              Excel
+            </v-btn>-->
+            <!--<v-btn
+              prepend-icon="mdi-printer"
+              color="indigo-darken-4"
+              variant="flat"
+              size="small"
+              class="text-white font-weight-bold text-none rounded-lg"
+              :disabled="dialogConsolidadoSucursales.loading || filteredInformeSucursales.length === 0"
               @click="imprimirInformeConsolidadoSucursales()"
             >
-              <v-icon size="20">mdi-printer</v-icon>
-              <v-tooltip activator="parent" location="top" text="Imprimir Informe" />
-            </v-btn>
+              PDF
+            </v-btn>-->
             <v-btn
-              icon
+              icon="mdi-close"
               variant="text"
               size="small"
-              color="white"
+              color="grey-darken-2"
               @click="dialogConsolidadoSucursales.show = false"
-            >
-              <v-icon size="20">mdi-close</v-icon>
-              <v-tooltip activator="parent" location="top" text="Cerrar" />
-            </v-btn>
+            />
           </div>
-        </v-card-title>
-        <v-divider></v-divider>
+        </div>
 
-        <v-card-text class="pa-4 bg-grey-lighten-4" style="max-height: 80vh;" id="printable-consolidado-sucursales-content">
-          <!-- Barra de Filtros y Búsqueda -->
-          <v-card variant="flat" class="pa-3 mb-3 rounded border bg-white">
+        <v-card-text class="pa-4 bg-grey-lighten-5" style="max-height: 80vh;" id="printable-consolidado-sucursales-content">
+          <!-- Barra de Filtros y Resumen Minimalista -->
+          <v-card variant="flat" class="pa-3 mb-3 rounded-lg border bg-white">
             <v-row dense align="center">
-              <v-col cols="12" md="4" sm="6">
+              <v-col cols="12" sm="5" md="4">
                 <v-text-field
                   v-model="dialogConsolidadoSucursales.search"
-                  label="Buscar producto, sucursal o categoría..."
+                  placeholder="Buscar producto, código o categoría..."
                   prepend-inner-icon="mdi-magnify"
                   variant="outlined"
                   density="compact"
                   color="indigo"
                   hide-details
                   clearable
-                ></v-text-field>
+                />
               </v-col>
-              <v-col cols="12" md="4" sm="6">
+              <v-col cols="12" sm="4" md="3">
                 <v-autocomplete
                   v-model="dialogConsolidadoSucursales.filterIdSucursal"
                   :items="sucursalesOptionsInforme"
                   item-title="title"
                   item-value="value"
-                  label="Filtrar por Sucursal"
+                  placeholder="Todas las Sucursales"
                   prepend-inner-icon="mdi-storefront"
                   variant="outlined"
                   density="compact"
                   color="indigo"
                   hide-details
                   @update:model-value="fetchInformeConsolidadoSucursales()"
-                ></v-autocomplete>
+                />
               </v-col>
-              <v-col cols="12" md="4" sm="12" class="d-flex align-center justify-md-end">
-                <v-switch
-                  v-model="dialogConsolidadoSucursales.soloConStock"
-                  label="Solo con Stock Activo (> 0)"
-                  color="indigo"
-                  density="compact"
-                  hide-details
-                  @update:model-value="fetchInformeConsolidadoSucursales()"
-                ></v-switch>
+              <v-col cols="12" sm="3" md="5" class="d-flex align-center justify-sm-end ga-3 flex-wrap">
+                <div class="text-right">
+                  <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">Sucursales</span>
+                  <span class="text-body-2 font-weight-bold text-grey-darken-4">{{ resumenInformeConsolidadoSucursales.totalSucursales }}</span>
+                </div>
+                <v-divider vertical class="my-1" />
+                <div class="text-right">
+                  <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">Stock Total</span>
+                  <span class="text-body-2 font-weight-bold text-indigo-darken-3">{{ resumenInformeConsolidadoSucursales.totalUnidades }} uds</span>
+                </div>
+                <v-divider vertical class="my-1" />
+                <div class="text-right">
+                  <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">Valor Inventario</span>
+                  <span class="text-subtitle-2 font-weight-bold text-teal-darken-3">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalCosto) }}</span>
+                </div>
               </v-col>
             </v-row>
           </v-card>
 
           <!-- Loader -->
           <div v-if="dialogConsolidadoSucursales.loading" class="d-flex flex-column align-center justify-center my-10">
-            <v-progress-circular indeterminate color="indigo-darken-4" size="50" width="4"></v-progress-circular>
-            <span class="text-caption font-weight-bold text-indigo-darken-4 mt-3">Generando informe consolidado de sucursales...</span>
+            <v-progress-circular indeterminate color="indigo-darken-4" size="40" width="3"></v-progress-circular>
+            <span class="text-caption font-weight-medium text-grey-darken-2 mt-3">Cargando existencias consolidadas...</span>
           </div>
 
-          <!-- Resumen de Métricas Globales (KPI Cards) -->
+          <!-- Listado de Bodegas de Sucursales -->
           <template v-else-if="filteredInformeSucursales.length > 0">
-            <v-row dense class="mb-3">
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="indigo-lighten-5" class="pa-2 rounded border border-indigo-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Sucursales</div>
-                  <div class="text-h6 font-weight-bold text-indigo-darken-4">{{ resumenInformeConsolidadoSucursales.totalSucursales }}</div>
-                  <div class="text-caption text-indigo-darken-2 font-weight-bold" style="font-size: 10px;">Puntos de venta</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="deep-purple-lighten-5" class="pa-2 rounded border border-deep-purple-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Productos Distintos</div>
-                  <div class="text-h6 font-weight-bold text-deep-purple-darken-4">{{ resumenInformeConsolidadoSucursales.totalProductosDistintos }}</div>
-                  <div class="text-caption text-deep-purple-darken-2 font-weight-bold" style="font-size: 10px;">Variedad global</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="blue-lighten-5" class="pa-2 rounded border border-blue-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Total Unidades</div>
-                  <div class="text-h6 font-weight-bold text-blue-darken-4">{{ resumenInformeConsolidadoSucursales.totalUnidades }}</div>
-                  <div class="text-caption text-blue-darken-2 font-weight-bold" style="font-size: 10px;">Existencias totales</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="teal-lighten-5" class="pa-2 rounded border border-teal-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Valor Total Costo</div>
-                  <div class="text-subtitle-1 font-weight-bold text-teal-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalCosto) }}</div>
-                  <div class="text-caption text-teal-darken-2 font-weight-bold" style="font-size: 10px;">Inversión total</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="blue-grey-lighten-5" class="pa-2 rounded border border-blue-grey-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Valor Total Venta</div>
-                  <div class="text-subtitle-1 font-weight-bold text-blue-grey-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalVenta) }}</div>
-                  <div class="text-caption text-blue-grey-darken-2 font-weight-bold" style="font-size: 10px;">Proyección venta</div>
-                </v-card>
-              </v-col>
-              <v-col cols="6" sm="4" md="2">
-                <v-card variant="flat" color="green-lighten-5" class="pa-2 rounded border border-green-lighten-4 h-100">
-                  <div class="text-caption text-grey-darken-2 font-weight-medium">Ganancia Estimada</div>
-                  <div class="text-subtitle-1 font-weight-bold text-green-darken-4 text-truncate">{{ formatCurrency(resumenInformeConsolidadoSucursales.ganancia) }}</div>
-                  <div class="text-caption text-green-darken-3 font-weight-bold" style="font-size: 10px;">
-                    Margen: {{ resumenInformeConsolidadoSucursales.margen }}%
-                  </div>
-                </v-card>
-              </v-col>
-            </v-row>
-
-            <!-- Agrupación por Sucursal (Expansion Panels) -->
             <v-expansion-panels
               v-model="dialogConsolidadoSucursales.expandedPanels"
               multiple
-              variant="popout"
+              variant="accordion"
               class="mb-3"
             >
               <v-expansion-panel
                 v-for="(sucursal, idx) in filteredInformeSucursales"
                 :key="sucursal.idSucursal || idx"
                 class="mb-2 border rounded-lg overflow-hidden bg-white"
-                elevation="1"
+                elevation="0"
               >
-                <v-expansion-panel-title class="py-2 px-3 bg-grey-lighten-4">
+                <v-expansion-panel-title class="py-2 px-3 bg-white">
                   <template v-slot:default="{ expanded }">
                     <div class="d-flex align-center justify-space-between w-100 pr-2 flex-wrap ga-2">
                       <div class="d-flex align-center">
-                        <v-avatar size="28" color="indigo-darken-4" class="text-white mr-2">
-                          <v-icon size="16">mdi-storefront</v-icon>
-                        </v-avatar>
+                        <v-icon color="indigo-darken-3" size="20" class="mr-2">mdi-storefront</v-icon>
                         <div>
-                          <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4 d-flex align-center">
+                          <div class="text-subtitle-2 font-weight-bold text-grey-darken-4 d-flex align-center">
                             {{ sucursal.nombre }}
                             <v-chip
                               v-if="sucursal.codigo"
                               size="x-small"
-                              color="indigo"
+                              color="grey-lighten-3"
                               variant="flat"
-                              class="ml-2 font-weight-bold"
+                              class="ml-2 text-grey-darken-4 font-weight-medium"
                             >
                               {{ sucursal.codigo }}
                             </v-chip>
                             <v-chip
                               v-if="sucursal.esPrincipal"
                               size="x-small"
-                              color="amber-darken-3"
-                              variant="flat"
+                              color="amber-darken-4"
+                              variant="tonal"
                               class="ml-1 font-weight-bold"
                             >
                               Principal
                             </v-chip>
                           </div>
-                          <div class="text-caption text-grey-darken-2" style="font-size: 11px;">
+                          <div class="text-caption text-grey-darken-1" style="font-size: 11px;">
                             Bodega: <strong>{{ sucursal.bodegaNombre || sucursal.codigoBodega || 'Bodega Sucursal' }}</strong>
-                            <span v-if="sucursal.fechaUltimaCarga"> | Última Carga: {{ formatDateTime(sucursal.fechaUltimaCarga) }}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div class="d-flex align-center ga-3 flex-wrap">
+                      <div class="d-flex align-center ga-4 flex-wrap">
                         <div class="text-right">
-                          <div class="text-caption text-grey-darken-1" style="font-size: 10px;">Existencias</div>
+                          <span class="text-caption text-grey-darken-1" style="font-size: 10px;">Stock Positivo</span>
                           <div class="text-caption font-weight-bold text-grey-darken-4">
-                            {{ sucursal.totalUnidades }} uds ({{ sucursal.totalProductos }} prod.)
+                            {{ sucursal.totalUnidades }} uds ({{ sucursal.productos.length }} prod.)
                           </div>
                         </div>
                         <div class="text-right">
-                          <div class="text-caption text-grey-darken-1" style="font-size: 10px;">Inversión Costo</div>
-                          <div class="text-caption font-weight-bold text-teal-darken-4">
+                          <span class="text-caption text-grey-darken-1" style="font-size: 10px;">Valor Inventario</span>
+                          <div class="text-caption font-weight-bold text-teal-darken-4" style="font-size: 13px;">
                             {{ formatCurrency(sucursal.valorTotalCosto) }}
-                          </div>
-                        </div>
-                        <div class="text-right">
-                          <div class="text-caption text-grey-darken-1" style="font-size: 10px;">Valor Venta</div>
-                          <div class="text-caption font-weight-bold text-blue-darken-4">
-                            {{ formatCurrency(sucursal.valorTotalVenta) }}
-                          </div>
-                        </div>
-                        <div class="text-right">
-                          <div class="text-caption text-grey-darken-1" style="font-size: 10px;">Ganancia Est.</div>
-                          <div class="text-caption font-weight-bold text-green-darken-4">
-                            {{ formatCurrency(sucursal.gananciaEstimada) }} ({{ sucursal.margenPorcentaje }}%)
                           </div>
                         </div>
                       </div>
@@ -3069,21 +2912,17 @@
                   </template>
                 </v-expansion-panel-title>
 
-                <v-expansion-panel-text class="pa-0">
+                <v-expansion-panel-text class="pa-0 border-t">
                   <div class="pa-3">
                     <v-table density="compact" class="border rounded table-consolidado-camion">
-                      <thead class="bg-indigo-lighten-5">
+                      <thead class="bg-grey-lighten-4">
                         <tr>
-                          <th class="text-left py-1 text-indigo-darken-4 font-weight-bold">Código</th>
-                          <th class="text-left py-1 text-indigo-darken-4 font-weight-bold">Producto</th>
-                          <th class="text-left py-1 text-indigo-darken-4 font-weight-bold">Categoría</th>
-                          <th class="text-center py-1 text-indigo-darken-4 font-weight-bold">Existencias</th>
-                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Costo Unit.</th>
-                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Precio Unit.</th>
-                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Total Costo</th>
-                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Total Venta</th>
-                          <th class="text-right py-1 text-indigo-darken-4 font-weight-bold">Ganancia Est.</th>
-                          <th class="text-center py-1 text-indigo-darken-4 font-weight-bold">Margen</th>
+                          <th class="text-left py-2 text-grey-darken-3 font-weight-bold">Código</th>
+                          <th class="text-left py-2 text-grey-darken-3 font-weight-bold">Producto</th>
+                          <th class="text-left py-2 text-grey-darken-3 font-weight-bold">Categoría</th>
+                          <th class="text-center py-2 text-grey-darken-3 font-weight-bold">Stock</th>
+                          <th class="text-right py-2 text-grey-darken-3 font-weight-bold">Costo Unit.</th>
+                          <th class="text-right py-2 text-grey-darken-3 font-weight-bold">Valor Total</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -3092,41 +2931,34 @@
                           :key="prod.idProducto"
                           class="hover-row"
                         >
-                          <td class="font-weight-medium text-caption">{{ prod.codigo || '---' }}</td>
-                          <td class="font-weight-bold text-caption text-indigo-darken-4">
+                          <td class="text-caption text-grey-darken-2">{{ prod.codigo || '---' }}</td>
+                          <td class="font-weight-medium text-caption text-grey-darken-4">
                             {{ prod.nombre }}
-                            <span v-if="prod.unidadMedida" class="text-caption text-grey font-weight-regular" style="font-size: 10px;">
+                            <span v-if="prod.unidadMedida" class="text-caption text-grey" style="font-size: 10px;">
                               ({{ prod.unidadMedida }})
                             </span>
                           </td>
                           <td class="text-caption text-grey-darken-2">{{ prod.categoria || '---' }}</td>
-                          <td class="text-center font-weight-bold text-caption text-indigo-darken-4 bg-indigo-lighten-5">
+                          <td class="text-center font-weight-bold text-caption text-indigo-darken-4">
                             {{ prod.cantidad }}
                           </td>
                           <td class="text-right text-caption">{{ formatCurrency(prod.costoUnitario) }}</td>
-                          <td class="text-right text-caption">{{ formatCurrency(prod.precioUnitario) }}</td>
-                          <td class="text-right font-weight-bold text-caption text-teal-darken-4">{{ formatCurrency(prod.totalCosto) }}</td>
-                          <td class="text-right font-weight-bold text-caption text-blue-darken-4">{{ formatCurrency(prod.totalVenta) }}</td>
-                          <td class="text-right font-weight-bold text-caption text-green-darken-4">{{ formatCurrency(prod.gananciaEstimada) }}</td>
-                          <td class="text-center text-caption font-weight-bold" :class="prod.margenPorcentaje >= 20 ? 'text-green-darken-3' : 'text-amber-darken-3'">
-                            {{ prod.margenPorcentaje }}%
+                          <td class="text-right font-weight-bold text-caption text-teal-darken-4">
+                            {{ formatCurrency(prod.totalCosto) }}
                           </td>
                         </tr>
                         <tr v-if="!sucursal.productos || sucursal.productos.length === 0">
-                          <td colspan="10" class="text-center py-4 text-grey text-caption">
-                            No hay existencias registradas en esta sucursal.
+                          <td colspan="6" class="text-center py-4 text-grey text-caption">
+                            No hay productos con stock positivo en esta sucursal.
                           </td>
                         </tr>
                       </tbody>
-                      <tfoot class="bg-grey-lighten-4 font-weight-bold border-top-2">
+                      <tfoot class="bg-grey-lighten-4 font-weight-bold border-top">
                         <tr>
-                          <td colspan="3" class="text-right py-2 text-indigo-darken-4">Subtotal {{ sucursal.nombre }}:</td>
+                          <td colspan="3" class="text-right py-2 text-grey-darken-4">Total {{ sucursal.nombre }}:</td>
                           <td class="text-center py-2 text-indigo-darken-4">{{ sucursal.totalUnidades }}</td>
-                          <td colspan="2"></td>
+                          <td></td>
                           <td class="text-right py-2 text-teal-darken-4">{{ formatCurrency(sucursal.valorTotalCosto) }}</td>
-                          <td class="text-right py-2 text-blue-darken-4">{{ formatCurrency(sucursal.valorTotalVenta) }}</td>
-                          <td class="text-right py-2 text-green-darken-4">{{ formatCurrency(sucursal.gananciaEstimada) }}</td>
-                          <td class="text-center py-2 text-indigo-darken-4">{{ sucursal.margenPorcentaje }}%</td>
                         </tr>
                       </tfoot>
                     </v-table>
@@ -3135,32 +2967,20 @@
               </v-expansion-panel>
             </v-expansion-panels>
 
-            <!-- Resumen Total al Pie del Informe -->
-            <v-card variant="flat" color="indigo-darken-4" class="pa-3 rounded text-white mt-3">
-              <div class="d-flex justify-space-between align-center flex-wrap ga-2">
-                <div class="d-flex align-center">
-                  <v-icon color="white" class="mr-2">mdi-sigma</v-icon>
-                  <div>
-                    <div class="text-subtitle-2 font-weight-bold text-white">TOTAL CONSOLIDADO SUCURSALES</div>
-                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">
-                      {{ resumenInformeConsolidadoSucursales.totalSucursales }} sucursales | {{ resumenInformeConsolidadoSucursales.totalProductosDistintos }} productos | {{ resumenInformeConsolidadoSucursales.totalUnidades }} unidades
-                    </div>
+            <!-- Resumen Total al Pie del Informe Minimalista -->
+            <v-card variant="flat" class="pa-3 rounded-lg border bg-white mt-3 d-flex justify-space-between align-center flex-wrap ga-2">
+              <div class="d-flex align-center">
+                <v-icon color="indigo-darken-3" class="mr-2" size="20">mdi-sigma</v-icon>
+                <div>
+                  <div class="text-subtitle-2 font-weight-bold text-grey-darken-4">TOTAL INVENTARIO CONSOLIDADO</div>
+                  <div class="text-caption text-grey-darken-1" style="font-size: 11px;">
+                    {{ resumenInformeConsolidadoSucursales.totalSucursales }} sucursales | {{ resumenInformeConsolidadoSucursales.totalProductosDistintos }} productos | {{ resumenInformeConsolidadoSucursales.totalUnidades }} unidades
                   </div>
                 </div>
-                <div class="d-flex align-center ga-4 flex-wrap">
-                  <div class="text-right">
-                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">Inversión Total Costo</div>
-                    <div class="text-subtitle-2 font-weight-bold text-teal-accent-2">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalCosto) }}</div>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-caption text-indigo-lighten-3" style="font-size: 11px;">Total Venta Estimada</div>
-                    <div class="text-subtitle-2 font-weight-bold text-white">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalVenta) }}</div>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-caption text-green-lighten-3" style="font-size: 11px;">Ganancia Global ({{ resumenInformeConsolidadoSucursales.margen }}%)</div>
-                    <div class="text-subtitle-2 font-weight-bold text-green-accent-2">{{ formatCurrency(resumenInformeConsolidadoSucursales.ganancia) }}</div>
-                  </div>
-                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">Valor Total del Inventario</span>
+                <span class="text-subtitle-1 font-weight-bold text-teal-darken-4">{{ formatCurrency(resumenInformeConsolidadoSucursales.totalCosto) }}</span>
               </div>
             </v-card>
           </template>
@@ -3168,47 +2988,59 @@
           <!-- No Data View -->
           <v-sheet
             v-else
-            class="text-center py-10 rounded border bg-white"
+            class="text-center py-10 rounded-lg border bg-white"
           >
-            <v-avatar color="indigo-lighten-5" size="64" class="mb-3">
-              <v-icon size="36" color="indigo-darken-3">mdi-storefront-outline</v-icon>
+            <v-avatar color="indigo-lighten-5" size="56" class="mb-3">
+              <v-icon size="30" color="indigo-darken-3">mdi-storefront-outline</v-icon>
             </v-avatar>
-            <h4 class="text-subtitle-1 font-weight-bold text-grey-darken-3">
-              No se encontraron datos para el informe
+            <h4 class="text-subtitle-2 font-weight-bold text-grey-darken-3">
+              No se encontraron datos con existencias activas
             </h4>
             <p class="text-caption text-grey-darken-1 mt-1">
-              Verifique los filtros seleccionados o asegúrese de que las sucursales cuenten con existencias registradas.
+              Verifique los filtros seleccionados o la existencia de productos con stock en las bodegas de sucursal.
             </p>
           </v-sheet>
         </v-card-text>
 
         <v-divider></v-divider>
-        <v-card-actions class="pa-3 bg-grey-lighten-4 d-flex justify-space-between align-center">
-          <div class="text-caption text-grey-darken-2 font-weight-medium">
-            Mostrando {{ filteredInformeSucursales.length }} de {{ dialogConsolidadoSucursales.data?.totalSucursales || 0 }} sucursales
-          </div>
+        <div class="pa-3 bg-white d-flex justify-space-between align-center flex-wrap ga-2">
+          <span class="text-caption text-grey-darken-1">
+            Mostrando {{ filteredInformeSucursales.length }} de {{ dialogConsolidadoSucursales.data?.totalSucursales || 0 }} sucursales con existencias
+          </span>
           <div class="d-flex ga-2">
             <v-btn
+              prepend-icon="mdi-file-excel"
+              color="green-darken-3"
+              variant="tonal"
+              density="comfortable"
+              class="rounded-lg font-weight-bold px-3 text-caption text-none"
+              :disabled="dialogConsolidadoSucursales.loading || filteredInformeSucursales.length === 0"
+              @click="exportarExcelConsolidadoSucursales()"
+            >
+              Exportar Excel
+            </v-btn>
+            <v-btn
+              prepend-icon="mdi-printer"
               color="indigo-darken-4"
               variant="tonal"
               density="comfortable"
-              prepend-icon="mdi-printer"
-              class="rounded font-weight-bold px-4 text-caption"
+              class="rounded-lg font-weight-bold px-3 text-caption text-none"
+              :disabled="dialogConsolidadoSucursales.loading || filteredInformeSucursales.length === 0"
               @click="imprimirInformeConsolidadoSucursales()"
             >
-              Imprimir
+              Imprimir PDF
             </v-btn>
             <v-btn
-              color="indigo-darken-4"
-              variant="flat"
+              color="grey-darken-2"
+              variant="outlined"
               density="comfortable"
-              class="rounded font-weight-bold px-4 text-caption"
+              class="rounded-lg font-weight-medium px-4 text-caption text-none"
               @click="dialogConsolidadoSucursales.show = false"
             >
               Cerrar
             </v-btn>
           </div>
-        </v-card-actions>
+        </div>
       </v-card>
     </v-dialog>
   </div>
@@ -3217,6 +3049,9 @@
 <script>
 import RequestHttp from '@/services/requestHttp'
 import { formatters } from '@/helpers/formatters'
+import ExcelJS from 'exceljs'
+import { jsPDF } from 'jspdf'
+import 'jspdf-autotable'
 
 export default {
   name: 'BodegasManagement',
@@ -3495,57 +3330,54 @@ export default {
       if (!this.dialogConsolidado.data?.camiones) return []
       let list = this.dialogConsolidado.data.camiones
 
-      if (this.dialogConsolidado.search) {
-        const s = this.dialogConsolidado.search.toLowerCase().trim()
-        list = list
-          .map((c) => {
+      return list
+        .map((c) => {
+          let productos = (c.productos || []).filter(
+            (p) => Number(p.cantidad) > 0
+          )
+
+          if (this.dialogConsolidado.search) {
+            const s = this.dialogConsolidado.search.toLowerCase().trim()
             const placaMatch = c.placa?.toLowerCase().includes(s)
             const bodegaMatch =
               c.bodegaNombre?.toLowerCase().includes(s) ||
               c.codigoBodega?.toLowerCase().includes(s)
-            const productosFiltrados = (c.productos || []).filter(
-              (p) =>
-                p.nombre?.toLowerCase().includes(s) ||
-                p.codigo?.toLowerCase().includes(s) ||
-                p.categoria?.toLowerCase().includes(s)
-            )
-            if (placaMatch || bodegaMatch) {
-              return c
-            } else if (productosFiltrados.length > 0) {
-              const valorCosto = productosFiltrados.reduce(
-                (sum, p) => sum + (Number(p.totalCosto) || 0),
-                0
+
+            if (!placaMatch && !bodegaMatch) {
+              productos = productos.filter(
+                (p) =>
+                  p.nombre?.toLowerCase().includes(s) ||
+                  p.codigo?.toLowerCase().includes(s) ||
+                  p.categoria?.toLowerCase().includes(s)
               )
-              const valorVenta = productosFiltrados.reduce(
-                (sum, p) => sum + (Number(p.totalVenta) || 0),
-                0
-              )
-              const ganancia = valorVenta - valorCosto
-              const margen =
-                valorCosto > 0
-                  ? Math.round((ganancia / valorCosto) * 100 * 100) / 100
-                  : valorVenta > 0
-                  ? 100
-                  : 0
-              return {
-                ...c,
-                productos: productosFiltrados,
-                totalProductos: productosFiltrados.length,
-                totalUnidades: productosFiltrados.reduce(
-                  (sum, p) => sum + (Number(p.cantidad) || 0),
-                  0
-                ),
-                valorTotalCosto: valorCosto,
-                valorTotalVenta: valorVenta,
-                gananciaEstimada: ganancia,
-                margenPorcentaje: margen
-              }
             }
-            return null
-          })
-          .filter(Boolean)
-      }
-      return list
+          }
+
+          if (productos.length === 0) return null
+
+          const valorCosto = productos.reduce(
+            (sum, p) => sum + (Number(p.totalCosto) || 0),
+            0
+          )
+          const valorVenta = productos.reduce(
+            (sum, p) => sum + (Number(p.totalVenta) || 0),
+            0
+          )
+          const totalUnidades = productos.reduce(
+            (sum, p) => sum + (Number(p.cantidad) || 0),
+            0
+          )
+
+          return {
+            ...c,
+            productos,
+            totalProductos: productos.length,
+            totalUnidades,
+            valorTotalCosto: valorCosto,
+            valorTotalVenta: valorVenta
+          }
+        })
+        .filter(Boolean)
     },
 
     resumenInformeConsolidado() {
@@ -3563,13 +3395,6 @@ export default {
         (sum, c) => sum + (Number(c.valorTotalVenta) || 0),
         0
       )
-      const ganancia = totalVenta - totalCosto
-      const margen =
-        totalCosto > 0
-          ? ((ganancia / totalCosto) * 100).toFixed(2)
-          : totalVenta > 0
-          ? '100.00'
-          : '0.00'
 
       const allProdIds = new Set()
       camiones.forEach((c) => {
@@ -3581,9 +3406,7 @@ export default {
         totalProductosDistintos: allProdIds.size,
         totalUnidades,
         totalCosto,
-        totalVenta,
-        ganancia,
-        margen
+        totalVenta
       }
     },
 
@@ -3657,58 +3480,55 @@ export default {
       if (!this.dialogConsolidadoSucursales.data?.sucursales) return []
       let list = this.dialogConsolidadoSucursales.data.sucursales
 
-      if (this.dialogConsolidadoSucursales.search) {
-        const s = this.dialogConsolidadoSucursales.search.toLowerCase().trim()
-        list = list
-          .map((c) => {
-            const nombreMatch = c.nombre?.toLowerCase().includes(s)
-            const codigoMatch = c.codigo?.toLowerCase().includes(s)
-            const bodegaMatch =
-              c.bodegaNombre?.toLowerCase().includes(s) ||
-              c.codigoBodega?.toLowerCase().includes(s)
-            const productosFiltrados = (c.productos || []).filter(
-              (p) =>
-                p.nombre?.toLowerCase().includes(s) ||
-                p.codigo?.toLowerCase().includes(s) ||
-                p.categoria?.toLowerCase().includes(s)
-            )
-            if (nombreMatch || codigoMatch || bodegaMatch) {
-              return c
-            } else if (productosFiltrados.length > 0) {
-              const valorCosto = productosFiltrados.reduce(
-                (sum, p) => sum + (Number(p.totalCosto) || 0),
-                0
-              )
-              const valorVenta = productosFiltrados.reduce(
-                (sum, p) => sum + (Number(p.totalVenta) || 0),
-                0
-              )
-              const ganancia = valorVenta - valorCosto
-              const margen =
-                valorCosto > 0
-                  ? Math.round((ganancia / valorCosto) * 100 * 100) / 100
-                  : valorVenta > 0
-                  ? 100
-                  : 0
-              return {
-                ...c,
-                productos: productosFiltrados,
-                totalProductos: productosFiltrados.length,
-                totalUnidades: productosFiltrados.reduce(
-                  (sum, p) => sum + (Number(p.cantidad) || 0),
-                  0
-                ),
-                valorTotalCosto: valorCosto,
-                valorTotalVenta: valorVenta,
-                gananciaEstimada: ganancia,
-                margenPorcentaje: margen
-              }
-            }
-            return null
-          })
-          .filter(Boolean)
-      }
       return list
+        .map((suc) => {
+          let productos = (suc.productos || []).filter(
+            (p) => Number(p.cantidad) > 0
+          )
+
+          if (this.dialogConsolidadoSucursales.search) {
+            const s = this.dialogConsolidadoSucursales.search.toLowerCase().trim()
+            const nombreMatch = suc.nombre?.toLowerCase().includes(s)
+            const codigoMatch = suc.codigo?.toLowerCase().includes(s)
+            const bodegaMatch =
+              suc.bodegaNombre?.toLowerCase().includes(s) ||
+              suc.codigoBodega?.toLowerCase().includes(s)
+
+            if (!nombreMatch && !codigoMatch && !bodegaMatch) {
+              productos = productos.filter(
+                (p) =>
+                  p.nombre?.toLowerCase().includes(s) ||
+                  p.codigo?.toLowerCase().includes(s) ||
+                  p.categoria?.toLowerCase().includes(s)
+              )
+            }
+          }
+
+          if (productos.length === 0) return null
+
+          const valorCosto = productos.reduce(
+            (sum, p) => sum + (Number(p.totalCosto) || 0),
+            0
+          )
+          const valorVenta = productos.reduce(
+            (sum, p) => sum + (Number(p.totalVenta) || 0),
+            0
+          )
+          const totalUnidades = productos.reduce(
+            (sum, p) => sum + (Number(p.cantidad) || 0),
+            0
+          )
+
+          return {
+            ...suc,
+            productos,
+            totalProductos: productos.length,
+            totalUnidades,
+            valorTotalCosto: valorCosto,
+            valorTotalVenta: valorVenta
+          }
+        })
+        .filter(Boolean)
     },
 
     resumenInformeConsolidadoSucursales() {
@@ -3726,13 +3546,6 @@ export default {
         (sum, c) => sum + (Number(c.valorTotalVenta) || 0),
         0
       )
-      const ganancia = totalVenta - totalCosto
-      const margen =
-        totalCosto > 0
-          ? ((ganancia / totalCosto) * 100).toFixed(2)
-          : totalVenta > 0
-          ? '100.00'
-          : '0.00'
 
       const allProdIds = new Set()
       sucursales.forEach((c) => {
@@ -3744,9 +3557,7 @@ export default {
         totalProductosDistintos: allProdIds.size,
         totalUnidades,
         totalCosto,
-        totalVenta,
-        ganancia,
-        margen
+        totalVenta
       }
     }
   },
@@ -4360,7 +4171,367 @@ export default {
     },
 
     imprimirInformeConsolidado() {
-      window.print()
+      const camiones = this.filteredInformeCamiones
+      if (!camiones || camiones.length === 0) {
+        this.showSnackbar('No hay datos disponibles para generar el PDF.', 'warning')
+        return
+      }
+
+      try {
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+        const pageWidth = doc.internal.pageSize.getWidth()
+        const pageHeight = doc.internal.pageSize.getHeight()
+
+        const primaryColor = [26, 35, 126] // Indigo #1A237E
+        const darkColor = [30, 41, 59] // Slate #1E293B
+        const tealColor = [0, 105, 92] // Teal #00695C
+        const lightBg = [248, 250, 252] // #F8FAFC
+        const borderGray = [226, 232, 240] // #E2E8F0
+
+        // Header Top Line
+        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2])
+        doc.rect(0, 0, pageWidth, 4, 'F')
+
+        // Title Header Minimalista
+        doc.setFontSize(14)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+        doc.text('INVENTARIO CONSOLIDADO DE CAMIONES', 14, 13)
+
+        doc.setFontSize(8)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100, 116, 139)
+        doc.text('S.I. TOKES — REPORTE DE CARGA Y VALORIZACIÓN POR CAMIÓN', 14, 18)
+
+        // Right Info Header
+        doc.setFontSize(8)
+        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2])
+        const fechaGen = this.dialogConsolidado.data?.fechaGeneracion
+          ? this.formatDateTime(this.dialogConsolidado.data.fechaGeneracion)
+          : new Date().toLocaleString('es-NI')
+        doc.text(`Generado: ${fechaGen}`, pageWidth - 14, 13, { align: 'right' })
+
+        const filtroCamion = this.dialogConsolidado.filterIdCamion
+          ? this.camiones.find((c) => c.idCamion === this.dialogConsolidado.filterIdCamion)?.placa || 'Filtrado'
+          : 'Todos los camiones'
+        doc.text(`Filtro: ${filtroCamion}`, pageWidth - 14, 18, { align: 'right' })
+
+        // Horizontal divider
+        doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2])
+        doc.setLineWidth(0.4)
+        doc.line(14, 21, pageWidth - 14, 21)
+
+        // KPI Summary Box
+        let currentY = 24
+        doc.setFillColor(lightBg[0], lightBg[1], lightBg[2])
+        doc.roundedRect(14, currentY, pageWidth - 28, 14, 1.5, 1.5, 'F')
+        doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2])
+        doc.setLineWidth(0.3)
+        doc.roundedRect(14, currentY, pageWidth - 28, 14, 1.5, 1.5, 'S')
+
+        const totalCamiones = this.resumenInformeConsolidado.totalCamiones
+        const totalUnidades = this.resumenInformeConsolidado.totalUnidades
+        const totalValor = this.formatCurrency(this.resumenInformeConsolidado.totalCosto)
+
+        doc.setFontSize(8)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100, 116, 139)
+        doc.text('Camiones con Carga:', 20, currentY + 6)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2])
+        doc.text(`${totalCamiones}`, 20, currentY + 11)
+
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100, 116, 139)
+        doc.text('Stock Total en Ruta:', 75, currentY + 6)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+        doc.text(`${totalUnidades} unidades`, 75, currentY + 11)
+
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100, 116, 139)
+        doc.text('VALOR TOTAL INVENTARIO:', pageWidth - 80, currentY + 6)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(tealColor[0], tealColor[1], tealColor[2])
+        doc.setFontSize(10)
+        doc.text(totalValor, pageWidth - 20, currentY + 11, { align: 'right' })
+
+        currentY += 19
+
+        // Iterar sobre cada camión y crear su tabla
+        camiones.forEach((camion) => {
+          if (currentY > pageHeight - 35) {
+            doc.addPage()
+            currentY = 15
+          }
+
+          // Camion Header Title Box
+          doc.setFillColor(241, 245, 249)
+          doc.roundedRect(14, currentY, pageWidth - 28, 7.5, 1, 1, 'F')
+
+          doc.setFontSize(9)
+          doc.setFont('helvetica', 'bold')
+          doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+          const camTitle = `Camión Placa: ${camion.placa} — ${camion.bodegaNombre || camion.codigoBodega || 'Bodega Móvil'}`
+          doc.text(camTitle, 17, currentY + 5)
+
+          doc.setFontSize(8)
+          doc.setFont('helvetica', 'bold')
+          doc.setTextColor(tealColor[0], tealColor[1], tealColor[2])
+          const camTotalText = `Stock: ${camion.totalUnidades} uds  |  Valor: ${this.formatCurrency(camion.valorTotalCosto)}`
+          doc.text(camTotalText, pageWidth - 17, currentY + 5, { align: 'right' })
+
+          currentY += 9
+
+          // Table Rows
+          const headers = [['#', 'Código', 'Producto', 'Categoría', 'Stock', 'Costo Unit.', 'Valor Total']]
+          const rows = (camion.productos || []).map((p, pIdx) => [
+            (pIdx + 1).toString(),
+            p.codigo || '—',
+            `${p.nombre}${p.unidadMedida ? ' (' + p.unidadMedida + ')' : ''}`,
+            p.categoria || '—',
+            p.cantidad.toString(),
+            this.formatCurrency(p.costoUnitario),
+            this.formatCurrency(p.totalCosto)
+          ])
+
+          const footRows = [[
+            '',
+            '',
+            `Total Camión ${camion.placa}:`,
+            '',
+            camion.totalUnidades.toString(),
+            '',
+            this.formatCurrency(camion.valorTotalCosto)
+          ]]
+
+          doc.autoTable({
+            startY: currentY,
+            head: headers,
+            body: rows,
+            foot: footRows,
+            theme: 'plain',
+            styles: {
+              fontSize: 7.5,
+              cellPadding: 1.8,
+              textColor: darkColor,
+              lineColor: borderGray,
+              lineWidth: 0.2
+            },
+            headStyles: {
+              fillColor: [241, 245, 249],
+              textColor: [15, 23, 42],
+              fontStyle: 'bold',
+              fontSize: 7.5
+            },
+            footStyles: {
+              fillColor: [248, 250, 252],
+              textColor: primaryColor,
+              fontStyle: 'bold',
+              fontSize: 7.5
+            },
+            columnStyles: {
+              0: { halign: 'center', cellWidth: 8 },
+              1: { halign: 'left', cellWidth: 22 },
+              2: { halign: 'left' },
+              3: { halign: 'left', cellWidth: 32 },
+              4: { halign: 'center', cellWidth: 16, fontStyle: 'bold' },
+              5: { halign: 'right', cellWidth: 22 },
+              6: { halign: 'right', cellWidth: 26, fontStyle: 'bold', textColor: tealColor }
+            },
+            margin: { left: 14, right: 14 }
+          })
+
+          currentY = doc.lastAutoTable.finalY + 7
+        })
+
+        // Global Summary Box at the end
+        if (currentY > pageHeight - 30) {
+          doc.addPage()
+          currentY = 15
+        }
+
+        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2])
+        doc.roundedRect(14, currentY, pageWidth - 28, 10, 1, 1, 'F')
+        doc.setFontSize(9)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(255, 255, 255)
+        doc.text('TOTAL GENERAL CONSOLIDADO CAMIONES', 18, currentY + 6.5)
+        doc.text(
+          `Unidades: ${totalUnidades}   |   Valor Total: ${totalValor}`,
+          pageWidth - 18,
+          currentY + 6.5,
+          { align: 'right' }
+        )
+
+        // Number pages
+        const totalPages = doc.internal.getNumberOfPages()
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i)
+          doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2])
+          doc.setLineWidth(0.3)
+          doc.line(14, pageHeight - 10, pageWidth - 14, pageHeight - 10)
+
+          doc.setFontSize(7)
+          doc.setFont('helvetica', 'normal')
+          doc.setTextColor(140, 150, 165)
+          doc.text('Inventario Consolidado de Camiones — S.I. Tokes', 14, pageHeight - 6)
+          doc.text(`Página ${i} de ${totalPages}`, pageWidth - 14, pageHeight - 6, { align: 'right' })
+        }
+
+        const blobUrl = doc.output('bloburl')
+        window.open(blobUrl, '_blank')
+        this.showSnackbar('PDF de inventario consolidado de camiones generado con éxito', 'success')
+      } catch (err) {
+        console.error('Error generando PDF de inventario consolidado de camiones:', err)
+        this.showSnackbar('Error al generar el PDF del inventario', 'error')
+      }
+    },
+
+    async exportarExcelConsolidado() {
+      const camiones = this.filteredInformeCamiones
+      if (!camiones || camiones.length === 0) {
+        this.showSnackbar('No hay datos disponibles para exportar a Excel.', 'warning')
+        return
+      }
+
+      try {
+        const workbook = new ExcelJS.Workbook()
+        workbook.creator = 'S.I. Tokes'
+        workbook.created = new Date()
+
+        // ----------------------------------------------------
+        // HOJA 1: RESUMEN POR CAMIÓN
+        // ----------------------------------------------------
+        const wsResumen = workbook.addWorksheet('Resumen Camiones')
+        wsResumen.columns = [
+          { header: 'Placa Camión', key: 'placa', width: 16 },
+          { header: 'Bodega Móvil', key: 'bodega', width: 25 },
+          { header: 'Total Productos', key: 'totalProductos', width: 18 },
+          { header: 'Stock Total (Uds)', key: 'totalUnidades', width: 18 },
+          { header: 'Valor Inventario (C$)', key: 'valorTotalCosto', width: 22 }
+        ]
+
+        // Header style Hoja 1
+        wsResumen.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
+        wsResumen.getRow(1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF1A237E' } // Indigo
+        }
+        wsResumen.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' }
+
+        camiones.forEach((c) => {
+          const row = wsResumen.addRow({
+            placa: c.placa,
+            bodega: c.bodegaNombre || c.codigoBodega || 'Bodega Móvil',
+            totalProductos: c.totalProductos,
+            totalUnidades: c.totalUnidades,
+            valorTotalCosto: c.valorTotalCosto
+          })
+          row.getCell('placa').alignment = { horizontal: 'center' }
+          row.getCell('totalProductos').alignment = { horizontal: 'center' }
+          row.getCell('totalUnidades').alignment = { horizontal: 'center' }
+          row.getCell('valorTotalCosto').numFmt = '"C$"#,##0.00'
+        })
+
+        // Fila de Total Consolidado Hoja 1
+        const totalUnidades = this.resumenInformeConsolidado.totalUnidades
+        const totalCosto = this.resumenInformeConsolidado.totalCosto
+        const totalProdDistintos = this.resumenInformeConsolidado.totalProductosDistintos
+
+        const totalRow1 = wsResumen.addRow({
+          placa: 'TOTAL GENERAL',
+          bodega: `${camiones.length} camiones`,
+          totalProductos: totalProdDistintos,
+          totalUnidades: totalUnidades,
+          valorTotalCosto: totalCosto
+        })
+        totalRow1.font = { bold: true, color: { argb: 'FF1A237E' } }
+        totalRow1.getCell('placa').alignment = { horizontal: 'center' }
+        totalRow1.getCell('totalProductos').alignment = { horizontal: 'center' }
+        totalRow1.getCell('totalUnidades').alignment = { horizontal: 'center' }
+        totalRow1.getCell('valorTotalCosto').numFmt = '"C$"#,##0.00'
+
+        // ----------------------------------------------------
+        // HOJA 2: DETALLE DE PRODUCTOS EN RUTA
+        // ----------------------------------------------------
+        const wsDetalle = workbook.addWorksheet('Detalle de Carga')
+        wsDetalle.columns = [
+          { header: 'Placa', key: 'placa', width: 14 },
+          { header: 'Bodega Móvil', key: 'bodega', width: 22 },
+          { header: 'Código', key: 'codigo', width: 15 },
+          { header: 'Producto', key: 'producto', width: 35 },
+          { header: 'Unidad', key: 'unidad', width: 14 },
+          { header: 'Categoría', key: 'categoria', width: 20 },
+          { header: 'Stock en Ruta', key: 'stock', width: 16 },
+          { header: 'Costo Unitario (C$)', key: 'costoUnitario', width: 20 },
+          { header: 'Valor Total (C$)', key: 'valorTotal', width: 20 }
+        ]
+
+        // Header style Hoja 2
+        wsDetalle.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
+        wsDetalle.getRow(1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF00695C' } // Teal
+        }
+        wsDetalle.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' }
+
+        camiones.forEach((c) => {
+          (c.productos || []).forEach((p) => {
+            const row = wsDetalle.addRow({
+              placa: c.placa,
+              bodega: c.bodegaNombre || c.codigoBodega || 'Bodega Móvil',
+              codigo: p.codigo || '—',
+              producto: p.nombre,
+              unidad: p.unidadMedida || 'Unidad',
+              categoria: p.categoria || '—',
+              stock: Number(p.cantidad) || 0,
+              costoUnitario: Number(p.costoUnitario) || 0,
+              valorTotal: Number(p.totalCosto) || 0
+            })
+            row.getCell('placa').alignment = { horizontal: 'center' }
+            row.getCell('stock').alignment = { horizontal: 'center' }
+            row.getCell('costoUnitario').numFmt = '"C$"#,##0.00'
+            row.getCell('valorTotal').numFmt = '"C$"#,##0.00'
+          })
+        })
+
+        // Fila de Total Hoja 2
+        const totalRow2 = wsDetalle.addRow({
+          placa: 'TOTAL CONSOLIDADO',
+          bodega: '',
+          codigo: '',
+          producto: '',
+          unidad: '',
+          categoria: '',
+          stock: totalUnidades,
+          costoUnitario: '',
+          valorTotal: totalCosto
+        })
+        totalRow2.font = { bold: true, color: { argb: 'FF00695C' } }
+        totalRow2.getCell('stock').alignment = { horizontal: 'center' }
+        totalRow2.getCell('valorTotal').numFmt = '"C$"#,##0.00'
+
+        // Generar y descargar archivo
+        const buffer = await workbook.xlsx.writeBuffer()
+        const blob = new Blob([buffer], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        const fechaStr = new Date().toISOString().slice(0, 10)
+        a.download = `Inventario_Consolidado_Camiones_${fechaStr}.xlsx`
+        a.click()
+        window.URL.revokeObjectURL(url)
+
+        this.showSnackbar('Archivo Excel de camiones generado y descargado con éxito', 'success')
+      } catch (err) {
+        console.error('Error exportando Excel de consolidado de camiones:', err)
+        this.showSnackbar('Error al generar el archivo Excel', 'error')
+      }
     },
 
     // ================= MÉTODOS TRASLADO / CARGA A SUCURSAL =================
@@ -4603,7 +4774,368 @@ export default {
     },
 
     imprimirInformeConsolidadoSucursales() {
-      window.print()
+      const sucursales = this.filteredInformeSucursales
+      if (!sucursales || sucursales.length === 0) {
+        this.showSnackbar('No hay datos disponibles para generar el PDF.', 'warning')
+        return
+      }
+
+      try {
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+        const pageWidth = doc.internal.pageSize.getWidth()
+        const pageHeight = doc.internal.pageSize.getHeight()
+
+        const primaryColor = [26, 35, 126] // Indigo #1A237E
+        const darkColor = [30, 41, 59] // Slate #1E293B
+        const tealColor = [0, 105, 92] // Teal #00695C
+        const lightBg = [248, 250, 252] // #F8FAFC
+        const borderGray = [226, 232, 240] // #E2E8F0
+
+        // Header Top Line
+        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2])
+        doc.rect(0, 0, pageWidth, 4, 'F')
+
+        // Title Header Minimalista
+        doc.setFontSize(14)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+        doc.text('INVENTARIO CONSOLIDADO DE SUCURSALES', 14, 13)
+
+        doc.setFontSize(8)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100, 116, 139)
+        doc.text('S.I. TOKES — REPORTE DE EXISTENCIAS Y VALORIZACIÓN POR BODEGA', 14, 18)
+
+        // Right Info Header
+        doc.setFontSize(8)
+        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2])
+        const fechaGen = this.dialogConsolidadoSucursales.data?.fechaGeneracion
+          ? this.formatDateTime(this.dialogConsolidadoSucursales.data.fechaGeneracion)
+          : new Date().toLocaleString('es-NI')
+        doc.text(`Generado: ${fechaGen}`, pageWidth - 14, 13, { align: 'right' })
+
+        const filtroSucursal = this.dialogConsolidadoSucursales.filterIdSucursal
+          ? this.sucursales.find((s) => s.idSucursal === this.dialogConsolidadoSucursales.filterIdSucursal)?.nombre || 'Filtrada'
+          : 'Todas las sucursales'
+        doc.text(`Filtro: ${filtroSucursal}`, pageWidth - 14, 18, { align: 'right' })
+
+        // Horizontal divider
+        doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2])
+        doc.setLineWidth(0.4)
+        doc.line(14, 21, pageWidth - 14, 21)
+
+        // KPI Summary Box
+        let currentY = 24
+        doc.setFillColor(lightBg[0], lightBg[1], lightBg[2])
+        doc.roundedRect(14, currentY, pageWidth - 28, 14, 1.5, 1.5, 'F')
+        doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2])
+        doc.setLineWidth(0.3)
+        doc.roundedRect(14, currentY, pageWidth - 28, 14, 1.5, 1.5, 'S')
+
+        const totalSucursales = this.resumenInformeConsolidadoSucursales.totalSucursales
+        const totalUnidades = this.resumenInformeConsolidadoSucursales.totalUnidades
+        const totalValor = this.formatCurrency(this.resumenInformeConsolidadoSucursales.totalCosto)
+
+        doc.setFontSize(8)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100, 116, 139)
+        doc.text('Sucursales Activas:', 20, currentY + 6)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2])
+        doc.text(`${totalSucursales}`, 20, currentY + 11)
+
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100, 116, 139)
+        doc.text('Stock Total Positivo:', 75, currentY + 6)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+        doc.text(`${totalUnidades} unidades`, 75, currentY + 11)
+
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100, 116, 139)
+        doc.text('VALOR TOTAL INVENTARIO:', pageWidth - 80, currentY + 6)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(tealColor[0], tealColor[1], tealColor[2])
+        doc.setFontSize(10)
+        doc.text(totalValor, pageWidth - 20, currentY + 11, { align: 'right' })
+
+        currentY += 19
+
+        // Iterar sobre cada sucursal y crear su tabla
+        sucursales.forEach((suc) => {
+          // Si el espacio restante no alcanza para título + cabecera, pasar a nueva página
+          if (currentY > pageHeight - 35) {
+            doc.addPage()
+            currentY = 15
+          }
+
+          // Sucursal Header Title Box
+          doc.setFillColor(241, 245, 249)
+          doc.roundedRect(14, currentY, pageWidth - 28, 7.5, 1, 1, 'F')
+
+          doc.setFontSize(9)
+          doc.setFont('helvetica', 'bold')
+          doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+          const sucTitle = `${suc.nombre}${suc.codigo ? ' (' + suc.codigo + ')' : ''} — ${suc.bodegaNombre || suc.codigoBodega || 'Bodega Sucursal'}`
+          doc.text(sucTitle, 17, currentY + 5)
+
+          doc.setFontSize(8)
+          doc.setFont('helvetica', 'bold')
+          doc.setTextColor(tealColor[0], tealColor[1], tealColor[2])
+          const sucTotalText = `Stock: ${suc.totalUnidades} uds  |  Valor: ${this.formatCurrency(suc.valorTotalCosto)}`
+          doc.text(sucTotalText, pageWidth - 17, currentY + 5, { align: 'right' })
+
+          currentY += 9
+
+          // Table Rows
+          const headers = [['#', 'Código', 'Producto', 'Categoría', 'Stock', 'Costo Unit.', 'Valor Total']]
+          const rows = (suc.productos || []).map((p, pIdx) => [
+            (pIdx + 1).toString(),
+            p.codigo || '—',
+            `${p.nombre}${p.unidadMedida ? ' (' + p.unidadMedida + ')' : ''}`,
+            p.categoria || '—',
+            p.cantidad.toString(),
+            this.formatCurrency(p.costoUnitario),
+            this.formatCurrency(p.totalCosto)
+          ])
+
+          const footRows = [[
+            '',
+            '',
+            `Total ${suc.nombre}:`,
+            '',
+            suc.totalUnidades.toString(),
+            '',
+            this.formatCurrency(suc.valorTotalCosto)
+          ]]
+
+          doc.autoTable({
+            startY: currentY,
+            head: headers,
+            body: rows,
+            foot: footRows,
+            theme: 'plain',
+            styles: {
+              fontSize: 7.5,
+              cellPadding: 1.8,
+              textColor: darkColor,
+              lineColor: borderGray,
+              lineWidth: 0.2
+            },
+            headStyles: {
+              fillColor: [241, 245, 249],
+              textColor: [15, 23, 42],
+              fontStyle: 'bold',
+              fontSize: 7.5
+            },
+            footStyles: {
+              fillColor: [248, 250, 252],
+              textColor: primaryColor,
+              fontStyle: 'bold',
+              fontSize: 7.5
+            },
+            columnStyles: {
+              0: { halign: 'center', cellWidth: 8 },
+              1: { halign: 'left', cellWidth: 22 },
+              2: { halign: 'left' },
+              3: { halign: 'left', cellWidth: 32 },
+              4: { halign: 'center', cellWidth: 16, fontStyle: 'bold' },
+              5: { halign: 'right', cellWidth: 22 },
+              6: { halign: 'right', cellWidth: 26, fontStyle: 'bold', textColor: tealColor }
+            },
+            margin: { left: 14, right: 14 }
+          })
+
+          currentY = doc.lastAutoTable.finalY + 7
+        })
+
+        // Global Summary Box at the end
+        if (currentY > pageHeight - 30) {
+          doc.addPage()
+          currentY = 15
+        }
+
+        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2])
+        doc.roundedRect(14, currentY, pageWidth - 28, 10, 1, 1, 'F')
+        doc.setFontSize(9)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(255, 255, 255)
+        doc.text('TOTAL GENERAL CONSOLIDADO SUCURSALES', 18, currentY + 6.5)
+        doc.text(
+          `Unidades: ${totalUnidades}   |   Valor Total: ${totalValor}`,
+          pageWidth - 18,
+          currentY + 6.5,
+          { align: 'right' }
+        )
+
+        // Number pages
+        const totalPages = doc.internal.getNumberOfPages()
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i)
+          doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2])
+          doc.setLineWidth(0.3)
+          doc.line(14, pageHeight - 10, pageWidth - 14, pageHeight - 10)
+
+          doc.setFontSize(7)
+          doc.setFont('helvetica', 'normal')
+          doc.setTextColor(140, 150, 165)
+          doc.text('Inventario Consolidado de Sucursales — S.I. Tokes', 14, pageHeight - 6)
+          doc.text(`Página ${i} de ${totalPages}`, pageWidth - 14, pageHeight - 6, { align: 'right' })
+        }
+
+        const blobUrl = doc.output('bloburl')
+        window.open(blobUrl, '_blank')
+        this.showSnackbar('PDF de inventario consolidado generado con éxito', 'success')
+      } catch (err) {
+        console.error('Error generando PDF de inventario consolidado de sucursales:', err)
+        this.showSnackbar('Error al generar el PDF del inventario', 'error')
+      }
+    },
+
+    async exportarExcelConsolidadoSucursales() {
+      const sucursales = this.filteredInformeSucursales
+      if (!sucursales || sucursales.length === 0) {
+        this.showSnackbar('No hay datos disponibles para exportar a Excel.', 'warning')
+        return
+      }
+
+      try {
+        const workbook = new ExcelJS.Workbook()
+        workbook.creator = 'S.I. Tokes'
+        workbook.created = new Date()
+
+        // ----------------------------------------------------
+        // HOJA 1: RESUMEN POR BODEGA / SUCURSAL
+        // ----------------------------------------------------
+        const wsResumen = workbook.addWorksheet('Resumen Sucursales')
+        wsResumen.columns = [
+          { header: 'Sucursal', key: 'sucursal', width: 25 },
+          { header: 'Código', key: 'codigo', width: 12 },
+          { header: 'Bodega Asociada', key: 'bodega', width: 25 },
+          { header: 'Total Productos', key: 'totalProductos', width: 18 },
+          { header: 'Stock Total (Uds)', key: 'totalUnidades', width: 18 },
+          { header: 'Valor Inventario (C$)', key: 'valorTotalCosto', width: 22 }
+        ]
+
+        // Header style Hoja 1
+        wsResumen.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
+        wsResumen.getRow(1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF1A237E' } // Indigo
+        }
+        wsResumen.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' }
+
+        sucursales.forEach((s) => {
+          const row = wsResumen.addRow({
+            sucursal: s.nombre,
+            codigo: s.codigo || '—',
+            bodega: s.bodegaNombre || s.codigoBodega || 'Bodega Sucursal',
+            totalProductos: s.totalProductos,
+            totalUnidades: s.totalUnidades,
+            valorTotalCosto: s.valorTotalCosto
+          })
+          row.getCell('totalProductos').alignment = { horizontal: 'center' }
+          row.getCell('totalUnidades').alignment = { horizontal: 'center' }
+          row.getCell('valorTotalCosto').numFmt = '"C$"#,##0.00'
+        })
+
+        // Fila de Total Consolidado Hoja 1
+        const totalUnidades = this.resumenInformeConsolidadoSucursales.totalUnidades
+        const totalCosto = this.resumenInformeConsolidadoSucursales.totalCosto
+        const totalProdDistintos = this.resumenInformeConsolidadoSucursales.totalProductosDistintos
+
+        const totalRow1 = wsResumen.addRow({
+          sucursal: 'TOTAL GENERAL',
+          codigo: '',
+          bodega: `${sucursales.length} sucursales`,
+          totalProductos: totalProdDistintos,
+          totalUnidades: totalUnidades,
+          valorTotalCosto: totalCosto
+        })
+        totalRow1.font = { bold: true, color: { argb: 'FF1A237E' } }
+        totalRow1.getCell('totalProductos').alignment = { horizontal: 'center' }
+        totalRow1.getCell('totalUnidades').alignment = { horizontal: 'center' }
+        totalRow1.getCell('valorTotalCosto').numFmt = '"C$"#,##0.00'
+
+        // ----------------------------------------------------
+        // HOJA 2: DETALLE DE PRODUCTOS CON STOCK
+        // ----------------------------------------------------
+        const wsDetalle = workbook.addWorksheet('Detalle de Productos')
+        wsDetalle.columns = [
+          { header: 'Sucursal', key: 'sucursal', width: 22 },
+          { header: 'Bodega', key: 'bodega', width: 22 },
+          { header: 'Código', key: 'codigo', width: 15 },
+          { header: 'Producto', key: 'producto', width: 35 },
+          { header: 'Unidad', key: 'unidad', width: 14 },
+          { header: 'Categoría', key: 'categoria', width: 20 },
+          { header: 'Stock Positivo', key: 'stock', width: 16 },
+          { header: 'Costo Unitario (C$)', key: 'costoUnitario', width: 20 },
+          { header: 'Valor Total (C$)', key: 'valorTotal', width: 20 }
+        ]
+
+        // Header style Hoja 2
+        wsDetalle.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
+        wsDetalle.getRow(1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF00695C' } // Teal
+        }
+        wsDetalle.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' }
+
+        sucursales.forEach((s) => {
+          (s.productos || []).forEach((p) => {
+            const row = wsDetalle.addRow({
+              sucursal: s.nombre,
+              bodega: s.bodegaNombre || s.codigoBodega || 'Bodega Sucursal',
+              codigo: p.codigo || '—',
+              producto: p.nombre,
+              unidad: p.unidadMedida || 'Unidad',
+              categoria: p.categoria || '—',
+              stock: Number(p.cantidad) || 0,
+              costoUnitario: Number(p.costoUnitario) || 0,
+              valorTotal: Number(p.totalCosto) || 0
+            })
+            row.getCell('stock').alignment = { horizontal: 'center' }
+            row.getCell('costoUnitario').numFmt = '"C$"#,##0.00'
+            row.getCell('valorTotal').numFmt = '"C$"#,##0.00'
+          })
+        })
+
+        // Fila de Total Hoja 2
+        const totalRow2 = wsDetalle.addRow({
+          sucursal: 'TOTAL CONSOLIDADO',
+          bodega: '',
+          codigo: '',
+          producto: '',
+          unidad: '',
+          categoria: '',
+          stock: totalUnidades,
+          costoUnitario: '',
+          valorTotal: totalCosto
+        })
+        totalRow2.font = { bold: true, color: { argb: 'FF00695C' } }
+        totalRow2.getCell('stock').alignment = { horizontal: 'center' }
+        totalRow2.getCell('valorTotal').numFmt = '"C$"#,##0.00'
+
+        // Generar y descargar archivo
+        const buffer = await workbook.xlsx.writeBuffer()
+        const blob = new Blob([buffer], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        const fechaStr = new Date().toISOString().slice(0, 10)
+        a.download = `Inventario_Consolidado_Sucursales_${fechaStr}.xlsx`
+        a.click()
+        window.URL.revokeObjectURL(url)
+
+        this.showSnackbar('Archivo Excel generado y descargado con éxito', 'success')
+      } catch (err) {
+        console.error('Error exportando Excel de consolidado de sucursales:', err)
+        this.showSnackbar('Error al generar el archivo Excel', 'error')
+      }
     }
   },
 

@@ -114,31 +114,16 @@
 
     <!-- Barra de Filtros -->
     <v-row class="mb-4 align-center" dense>
-      <v-col cols="12" sm="6" md="4">
+      <v-col cols="12" sm="8" md="6">
         <v-text-field
           v-model="searchQuery"
-          label="Buscar caja por nombre, código o bodega..."
+          label="Buscar caja arqueada por nombre, código o bodega..."
           prepend-inner-icon="mdi-magnify"
           density="compact"
           variant="outlined"
           color="indigo"
           hide-details
           clearable
-        />
-      </v-col>
-      <v-col cols="12" sm="6" md="4">
-        <v-select
-          v-model="filterEstado"
-          :items="[
-            { title: 'Todas las cajas activas', value: 'ALL' },
-            { title: 'Solo Arqueadas (Listas para cerrar)', value: 'Arqueada' },
-            { title: 'Solo Aperturadas (Requieren arqueo)', value: 'Aperturada' }
-          ]"
-          label="Filtrar por estado"
-          density="compact"
-          variant="outlined"
-          color="indigo"
-          hide-details
         />
       </v-col>
     </v-row>
@@ -154,8 +139,9 @@
       type="info"
       variant="tonal"
       class="rounded-lg"
+      icon="mdi-clipboard-check-outline"
     >
-      No se encontraron cajas registradas o que coincidan con la búsqueda.
+      No hay cajas en estado <strong>Arqueada</strong> listas para cierre. Para cerrar una caja, primero debe realizarse el arqueo de valores correspondiente en el módulo de <strong>Arqueo</strong>.
     </v-alert>
 
     <!-- VISTA GRID (CARDS LAYOUT) -->
@@ -253,6 +239,10 @@
                   <span class="text-caption text-grey">Pedidos Realizados:</span>
                   <span class="text-caption font-weight-bold text-indigo">{{ formatCurrency(caja.resumen.totalPedidos) }}</span>
                 </div>
+                <div v-if="Number(caja.resumen.totalRetiros) > 0" class="d-flex justify-space-between py-0.5">
+                  <span class="text-caption text-grey">Retiros Realizados:</span>
+                  <span class="text-caption font-weight-bold text-orange-darken-4">-{{ formatCurrency(caja.resumen.totalRetiros) }}</span>
+                </div>
                 <div class="d-flex justify-space-between py-0.5 align-center">
                   <span class="text-caption text-grey">Mercadería en Caja:</span>
                   <div class="d-flex align-center ga-1">
@@ -276,7 +266,7 @@
                 <div class="d-flex justify-space-between py-0.5">
                   <span class="text-caption text-grey-darken-3 font-weight-bold">Estimado en Caja (Efectivo):</span>
                   <span class="text-body-2 font-weight-black text-indigo">
-                    {{ formatCurrency(Number(caja.resumen.efectivoApertura) + Number(caja.resumen.totalVentas)) }}
+                    {{ formatCurrency(caja.resumen.totalEnCaja !== undefined ? caja.resumen.totalEnCaja : (Number(caja.resumen.efectivoApertura) + Number(caja.resumen.totalVentas) - Number(caja.resumen.totalRetiros || 0))) }}
                   </span>
                 </div>
               </div>
@@ -418,7 +408,7 @@
         </template>
         <template v-slot:item.totalEnCaja="{ item }">
           <span v-if="item.isOpen && item.resumen" class="font-weight-bold text-indigo">
-            {{ formatCurrency(Number(item.resumen.efectivoApertura) + Number(item.resumen.totalVentas)) }}
+            {{ formatCurrency(item.resumen.totalEnCaja !== undefined ? item.resumen.totalEnCaja : (Number(item.resumen.efectivoApertura) + Number(item.resumen.totalVentas) - Number(item.resumen.totalRetiros || 0))) }}
           </span>
           <span v-else-if="item.isOpen">
             <v-progress-circular indeterminate size="16" color="indigo" />
@@ -711,7 +701,7 @@
     <!-- ======================================================== -->
     <!-- DIÁLOGO DE CIERRE DE CAJA (EFECTIVO)                     -->
     <!-- ======================================================== -->
-    <v-dialog v-model="dialogs.cierre" max-width="1100" persistent>
+    <v-dialog v-model="dialogs.cierre" max-width="1100" height="800" persistent>
       <v-card v-if="activeCaja" class="rounded-lg elevation-12 bg-grey-lighten-4">
         <!-- Header del Diálogo -->
         <v-card-title class="bg-indigo-darken-4 text-white d-flex align-center py-2 px-4">
@@ -736,7 +726,7 @@
         </v-card-title>
 
         <!-- BANNER DE REFERENCIA DE ARQUEO -->
-        <div class="pa-3 bg-indigo-lighten-5 border-b">
+        <div class="px-3 py-1 bg-indigo-lighten-5 border-b">
           <v-card variant="outlined" color="indigo" class="bg-white pa-3 rounded-lg" elevation="0">
             <div class="d-flex align-center justify-space-between flex-wrap ga-2">
               <div class="d-flex align-center">
@@ -816,7 +806,7 @@
         </v-tabs>
 
         <!-- CONTENIDO DE LAS TABS -->
-        <v-card-text class="pa-4" style="max-height: 70vh; overflow-y: auto;">
+        <v-card-text class="px-2 py-1" style="max-height: 61vh; overflow-y: auto;">
           <v-window v-model="tabCierre">
             <!-- TAB 0: SALDOS Y DESGLOSE -->
             <v-window-item :value="0">
@@ -871,7 +861,7 @@
                     <!-- Retiros / Gastos -->
                     <div class="mt-3">
                       <div class="d-flex align-center justify-space-between mb-1">
-                        <span class="text-caption font-weight-bold text-grey-darken-2">Retiros / Gastos:</span>
+                        <span class="text-caption font-weight-bold text-grey-darken-2">Retiros / Egresos (Deducción):</span>
                         <v-chip
                           size="x-small"
                           color="orange-darken-4"
@@ -893,6 +883,9 @@
                         hide-details
                         prepend-inner-icon="mdi-cash-minus"
                       />
+                      <span class="text-caption text-grey-darken-1 d-block mt-1" style="font-size: 11px;">
+                        * Los retiros se deducen del efectivo esperado que el cajero debe tener en caja.
+                      </span>
                     </div>
 
                     <v-textarea
@@ -912,11 +905,11 @@
                     <!-- COMPARATIVA GENERAL -->
                     <div class="bg-indigo-lighten-5 pa-3 rounded border border-indigo">
                       <div class="d-flex justify-space-between mb-1">
-                        <span class="text-caption font-weight-bold text-indigo-darken-3">Total Esperado:</span>
+                        <span class="text-caption font-weight-bold text-indigo-darken-3">Total Esperado en Caja:</span>
                         <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(totalEsperado) }}</span>
                       </div>
                       <div class="d-flex justify-space-between mb-1">
-                        <span class="text-caption font-weight-bold text-indigo-darken-3">Total Contado:</span>
+                        <span class="text-caption font-weight-bold text-indigo-darken-3">Total Contado Físico:</span>
                         <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(totalContado) }}</span>
                       </div>
                       <v-divider class="my-1.5" />
@@ -1273,7 +1266,7 @@
         </v-card-text>
 
         <!-- Acciones del Diálogo -->
-        <v-card-actions class="bg-grey-lighten-4 pa-3 border-t">
+        <v-card-actions class="bg-grey-lighten-4 px-3 py-0 border-t">
           <v-spacer />
           <v-btn color="grey-darken-1" variant="outlined" @click="closeCierreDialog()" :disabled="saving">
             Cancelar
@@ -1450,11 +1443,7 @@ export default {
   
   computed: {
     filteredCajas() {
-      let result = this.data.cajas;
-      
-      if (this.filterEstado !== 'ALL') {
-        result = result.filter(c => c.estadoNombre === this.filterEstado);
-      }
+      let result = (this.data.cajas || []).filter(c => c.estadoNombre === 'Arqueada');
       
       if (!this.searchQuery) return result;
       const query = this.searchQuery.toLowerCase();
@@ -1521,7 +1510,12 @@ export default {
     totalEfectivoEnCajas() {
       return this.data.cajas
         .filter(c => c.isOpen && c.resumen)
-        .reduce((sum, c) => sum + (Number(c.resumen.efectivoApertura || 0) + Number(c.resumen.totalVentas || 0)), 0);
+        .reduce((sum, c) => {
+          const enCaja = c.resumen.totalEnCaja !== undefined
+            ? Number(c.resumen.totalEnCaja)
+            : (Number(c.resumen.efectivoApertura || 0) + Number(c.resumen.totalVentas || 0) - Number(c.resumen.totalRetiros || 0));
+          return sum + enCaja;
+        }, 0);
     },
 
     totalMercaderiaEnCajas() {
@@ -1540,12 +1534,13 @@ export default {
     totalEsperado() {
       if (!this.activeCaja || !this.activeCaja.resumen) return 0;
       const res = this.activeCaja.resumen;
-      const expected = Number(res.efectivoApertura) + Number(res.totalVentas);
+      const retiros = Number(this.form.montoCierreRetiros || 0);
+      const expected = (Number(res.efectivoApertura || 0) + Number(res.totalVentas || 0)) - retiros;
       return expected;
     },
     
     diferencia() {
-      return this.totalContado - this.totalEsperado - Number(this.form.montoCierreRetiros || 0);
+      return this.totalContado - this.totalEsperado;
     },
 
     filteredMercaderiaVendida() {
@@ -1625,8 +1620,8 @@ export default {
           this.stats.aperturadas = mapped.filter(c => c.estadoNombre === 'Aperturada').length;
           this.stats.cerradas = mapped.filter(c => !c.isOpen).length;
 
-          // Show boxes with an active open session
-          this.data.cajas = mapped.filter(c => c.isOpen);
+          // Show only boxes that are already Arqueadas and ready for closure
+          this.data.cajas = mapped.filter(c => c.estadoNombre === 'Arqueada');
           
           await Promise.all(this.data.cajas.map(async (caja) => {
             await this.loadBoxDetails(caja, arqueosList);
