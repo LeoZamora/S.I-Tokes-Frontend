@@ -286,7 +286,7 @@
           <v-card-actions class="bg-grey-lighten-4 border-t pa-2 d-flex justify-space-between align-center flex-wrap ga-1">
             <!-- Botón Cierre de Mercadería (Siempre disponible si la caja está activa) -->
             <v-btn
-              v-if="caja.isOpen"
+              v-if="caja.isOpen && hasAccessToFunct('192')"
               color="blue-grey-darken-3"
               variant="tonal"
               size="small"
@@ -300,7 +300,7 @@
 
             <!-- Botón Cierre de Caja (Solo Arqueada) -->
             <v-btn
-              v-if="caja.estadoNombre === 'Arqueada'"
+              v-if="caja.estadoNombre === 'Arqueada' && hasAccessToFunct('192')"
               color="indigo"
               variant="flat"
               size="small"
@@ -418,7 +418,7 @@
         <template v-slot:item.opc="{ item }">
           <div class="d-flex align-center justify-center ga-1">
             <v-btn
-              v-if="item.isOpen"
+              v-if="item.isOpen && hasAccessToFunct('192')"
               icon="mdi-package-variant-closed"
               color="blue-grey-darken-2"
               variant="tonal"
@@ -427,7 +427,7 @@
               @click="openCierreMercaderiaDialog(item)"
             />
             <v-btn
-              v-if="item.estadoNombre === 'Arqueada'"
+              v-if="item.estadoNombre === 'Arqueada' && hasAccessToFunct('192')"
               color="indigo"
               variant="flat"
               size="small"
@@ -1291,6 +1291,7 @@
 <script>
 import RequestHttp from '@/services/requestHttp';
 import ViewVenta from '@/components/movimientos/Ventas/ViewVenta.vue';
+import { hasAccessToFunct } from '@/scripts/Seguridad.js';
 
 export default {
   name: 'CierreCajaView',
@@ -1576,6 +1577,7 @@ export default {
   },
   
   methods: {
+    hasAccessToFunct,
     showAlert(msg, type = 'success') {
       this.alert.message = msg;
       this.alert.type = type;

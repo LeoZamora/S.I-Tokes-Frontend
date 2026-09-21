@@ -2,17 +2,19 @@
   <div>
     <v-dialog
       v-model="localShow"
-      max-width="1150"
+      max-width="1250"
       persistent
+      scrollable
     >
       <v-card
         elevation="12"
         rounded="xl"
-        class="bg-grey-lighten-4 "
+        class="bg-grey-lighten-4 d-flex flex-column"
+        style="max-height: 92vh"
       >
         <!-- Header del Diálogo -->
         <v-card-title
-          class="bg-indigo-darken-4 d-flex align-center py-3 px-4"
+          class="bg-indigo-darken-4 d-flex align-center py-3 px-4 flex-shrink-0"
         >
           <v-avatar
             size="36"
@@ -68,7 +70,9 @@
           </v-btn>
         </v-card-title>
 
-        <v-card-text class="pa-4">
+        <v-card-text
+          class="pa-4 overflow-y-auto flex-grow-1"
+        >
           <v-form
             validate-on="invalid-input"
             ref="form"
@@ -99,7 +103,12 @@
 
                   <!-- Alerta si NO tiene caja activa -->
                   <v-alert
-                    v-if="!data.sesionCaja.loading && !data.sesionCaja.tieneAperturaActiva && !localEdit"
+                    v-if="
+                      !data.sesionCaja.loading &&
+                      !data.sesionCaja
+                        .tieneAperturaActiva &&
+                      !localEdit
+                    "
                     type="warning"
                     variant="tonal"
                     density="comfortable"
@@ -107,28 +116,72 @@
                     class="mb-3 border border-warning"
                   >
                     <template v-slot:prepend>
-                      <v-avatar color="warning-lighten-4" size="34" class="mr-2">
-                        <v-icon color="warning-darken-3" size="20">mdi-cash-register</v-icon>
+                      <v-avatar
+                        color="warning-lighten-4"
+                        size="34"
+                        class="mr-2"
+                      >
+                        <v-icon
+                          color="warning-darken-3"
+                          size="20"
+                          >mdi-cash-register</v-icon
+                        >
                       </v-avatar>
                     </template>
-                    <div class="font-weight-bold text-caption text-warning-darken-4">
+                    <div
+                      class="font-weight-bold text-caption text-warning-darken-4"
+                    >
                       Sin Apertura de Caja Activa
                     </div>
-                    <div class="text-caption text-grey-darken-3" style="font-size: 11px !important; line-height: 1.3;">
-                      El usuario <strong>@{{ data.sesionCaja.usuario }}</strong> no posee una apertura de caja activa. No es posible registrar facturas sin una sesión de caja.
+                    <div
+                      class="text-caption text-grey-darken-3"
+                      style="
+                        font-size: 11px !important;
+                        line-height: 1.3;
+                      "
+                    >
+                      El usuario
+                      <strong
+                        >@{{
+                          data.sesionCaja.usuario
+                        }}</strong
+                      >
+                      no posee una apertura de
+                      caja activa. No es posible
+                      registrar facturas sin una
+                      sesión de caja.
                     </div>
                   </v-alert>
 
                   <!-- Visualización de Cajero y Bodega en Sesión Activa -->
                   <v-card
-                    v-else-if="data.sesionCaja.tieneAperturaActiva"
+                    v-else-if="
+                      data.sesionCaja
+                        .tieneAperturaActiva
+                    "
                     variant="flat"
                     class="pa-3 mb-3 border rounded-lg bg-indigo-lighten-5"
                   >
-                    <div class="d-flex align-center justify-space-between mb-2">
-                      <div class="text-caption font-weight-bold text-indigo-darken-4 d-flex align-center">
-                        <v-icon size="16" class="mr-1" color="indigo-darken-3">mdi-cash-register</v-icon>
-                        Sesión: {{ data.sesionCaja.cajaNombre || data.sesionCaja.cajaCodigo || 'Caja' }}
+                    <div
+                      class="d-flex align-center justify-space-between mb-2"
+                    >
+                      <div
+                        class="text-caption font-weight-bold text-indigo-darken-4 d-flex align-center"
+                      >
+                        <v-icon
+                          size="16"
+                          class="mr-1"
+                          color="indigo-darken-3"
+                          >mdi-cash-register</v-icon
+                        >
+                        Sesión:
+                        {{
+                          data.sesionCaja
+                            .cajaNombre ||
+                          data.sesionCaja
+                            .cajaCodigo ||
+                          'Caja'
+                        }}
                       </div>
                       <v-chip
                         size="x-small"
@@ -136,38 +189,73 @@
                         variant="flat"
                         class="font-weight-bold"
                       >
-                        <v-icon start size="10">mdi-circle</v-icon>
+                        <v-icon start size="10"
+                          >mdi-circle</v-icon
+                        >
                         Activa
                       </v-chip>
                     </div>
 
-                    <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+                    <div
+                      class="d-flex align-center justify-space-between flex-wrap ga-2"
+                    >
                       <!-- Cajero con Avatar, Nombre y @username -->
-                      <div class="d-flex align-center">
+                      <div
+                        class="d-flex align-center"
+                      >
                         <v-avatar
                           size="38"
                           color="indigo-darken-4"
                           class="text-white font-weight-bold mr-2 elevation-1"
                         >
-                          <span v-if="data.sesionCaja.nombre">{{ data.sesionCaja.nombre.charAt(0).toUpperCase() }}</span>
-                          <v-icon v-else size="20">mdi-account</v-icon>
+                          <span
+                            v-if="
+                              data.sesionCaja
+                                .nombre
+                            "
+                            >{{
+                              data.sesionCaja.nombre
+                                .charAt(0)
+                                .toUpperCase()
+                            }}</span
+                          >
+                          <v-icon v-else size="20"
+                            >mdi-account</v-icon
+                          >
                         </v-avatar>
                         <div>
-                          <div class="text-subtitle-2 font-weight-bold text-grey-darken-4 lh-1">
-                            {{ data.sesionCaja.nombre || data.sesionCaja.usuario || 'Cajero' }}
+                          <div
+                            class="text-subtitle-2 font-weight-bold text-grey-darken-4 lh-1"
+                          >
+                            {{
+                              data.sesionCaja
+                                .nombre ||
+                              data.sesionCaja
+                                .usuario ||
+                              'Cajero'
+                            }}
                           </div>
                           <div
                             class="text-caption text-grey-darken-1 font-weight-medium"
-                            style="font-size: 11px !important; line-height: 1.2;"
+                            style="
+                              font-size: 11px !important;
+                              line-height: 1.2;
+                            "
                           >
-                            @{{ data.sesionCaja.usuario || '—' }}
+                            @{{
+                              data.sesionCaja
+                                .usuario || '—'
+                            }}
                           </div>
                         </div>
                       </div>
 
                       <!-- Bodega Asociada -->
                       <div class="text-right">
-                        <div class="text-caption text-grey-darken-2 font-weight-medium" style="font-size: 10px;">
+                        <div
+                          class="text-caption text-grey-darken-2 font-weight-medium"
+                          style="font-size: 10px"
+                        >
                           Bodega
                         </div>
                         <v-chip
@@ -176,8 +264,14 @@
                           variant="tonal"
                           class="font-weight-bold"
                         >
-                          <v-icon start size="14">mdi-store-outline</v-icon>
-                          {{ data.sesionCaja.bodegaNombre || 'Sin Bodega' }}
+                          <v-icon start size="14"
+                            >mdi-store-outline</v-icon
+                          >
+                          {{
+                            data.sesionCaja
+                              .bodegaNombre ||
+                            'Sin Bodega'
+                          }}
                         </v-chip>
                       </div>
                     </div>
@@ -221,7 +315,9 @@
                         variant="outlined"
                         hide-details
                         single-line
-                        :menu-props="{ closeOnContentClick: true }"
+                        :menu-props="{
+                          closeOnContentClick: true
+                        }"
                         placeholder="Seleccione tipo de venta..."
                         color="indigo"
                         class="fixed-autocomplete"
@@ -229,7 +325,7 @@
                     </v-col>
 
                     <!-- Cliente -->
-                    <v-col cols="12" class="mt-2">
+                    <v-col cols="12">
                       <label
                         class="text-caption font-weight-bold text-grey-darken-2 d-block mb-1"
                       >
@@ -244,41 +340,192 @@
                         variant="outlined"
                         hide-details
                         single-line
-                        :menu-props="{ closeOnContentClick: true }"
+                        :menu-props="{
+                          closeOnContentClick: true
+                        }"
                         :items="data.clientes"
                         clearable
                         color="indigo"
                         class="fixed-autocomplete"
                       >
-                        <!-- Item en la lista desplegable con indicador de crédito -->
-                        <template v-slot:item="{ props, item }">
-                          <v-list-item v-bind="props" class="py-2">
-                            <template v-slot:title>
-                              <div class="d-flex align-center justify-space-between">
-                                <span class="font-weight-medium text-body-2">
-                                  {{ item.raw.title || ((item.raw.codigo ? item.raw.codigo + ' - ' : '') + item.raw.nombre) }}
-                                </span>
-                                <v-chip
-                                  size="x-small"
-                                  :color="(item.raw.esTieneCredito || item.raw.EsTieneCredito || item.raw.creditoPermitido || item.raw.esCredito || item.raw.tieneCredito || item.raw.credito) ? 'success' : 'grey-lighten-2'"
-                                  variant="flat"
-                                  :class="(item.raw.esTieneCredito || item.raw.EsTieneCredito || item.raw.creditoPermitido || item.raw.esCredito || item.raw.tieneCredito || item.raw.credito) ? 'font-weight-bold ml-2' : 'text-grey-darken-2 font-weight-medium ml-2'"
+                        <!-- Item en la lista desplegable con indicador de crédito y descuento -->
+                        <template
+                          v-slot:item="{
+                            props,
+                            item
+                          }"
+                        >
+                          <v-list-item
+                            v-bind="props"
+                            class="py-2"
+                          >
+                            <template
+                              v-slot:title
+                            >
+                              <div
+                                class="d-flex align-center justify-space-between flex-wrap ga-1"
+                              >
+                                <span
+                                  class="font-weight-medium text-body-2"
                                 >
-                                  <v-icon start size="12" :color="(item.raw.esTieneCredito || item.raw.EsTieneCredito || item.raw.creditoPermitido || item.raw.esCredito || item.raw.tieneCredito || item.raw.credito) ? 'white' : 'grey-darken-2'">
-                                    {{ (item.raw.esTieneCredito || item.raw.EsTieneCredito || item.raw.creditoPermitido || item.raw.esCredito || item.raw.tieneCredito || item.raw.credito) ? 'mdi-check-circle' : 'mdi-cash' }}
-                                  </v-icon>
-                                  {{ (item.raw.esTieneCredito || item.raw.EsTieneCredito || item.raw.creditoPermitido || item.raw.esCredito || item.raw.tieneCredito || item.raw.credito) ? 'Crédito Autorizado' : 'Solo Contado' }}
-                                </v-chip>
+                                  {{
+                                    item.raw
+                                      .title ||
+                                    (item.raw
+                                      .codigo
+                                      ? item.raw
+                                          .codigo +
+                                        ' - '
+                                      : '') +
+                                      item.raw
+                                        .nombre
+                                  }}
+                                </span>
+                                <div
+                                  class="d-flex align-center ga-1"
+                                >
+                                  <v-chip
+                                    v-if="
+                                      item.raw
+                                        .esTieneDescuento ||
+                                      item.raw
+                                        .EsTieneDescuento
+                                    "
+                                    size="x-small"
+                                    color="purple-darken-3"
+                                    variant="flat"
+                                    class="font-weight-bold"
+                                  >
+                                    <v-icon
+                                      start
+                                      size="11"
+                                      >mdi-tag-check</v-icon
+                                    >
+                                    Desc.
+                                    Autorizado
+                                  </v-chip>
+                                  <v-chip
+                                    size="x-small"
+                                    :color="
+                                      item.raw
+                                        .esTieneCredito ||
+                                      item.raw
+                                        .EsTieneCredito ||
+                                      item.raw
+                                        .creditoPermitido ||
+                                      item.raw
+                                        .esCredito ||
+                                      item.raw
+                                        .tieneCredito ||
+                                      item.raw
+                                        .credito
+                                        ? 'success'
+                                        : 'grey-lighten-2'
+                                    "
+                                    variant="flat"
+                                    :class="
+                                      item.raw
+                                        .esTieneCredito ||
+                                      item.raw
+                                        .EsTieneCredito ||
+                                      item.raw
+                                        .creditoPermitido ||
+                                      item.raw
+                                        .esCredito ||
+                                      item.raw
+                                        .tieneCredito ||
+                                      item.raw
+                                        .credito
+                                        ? 'font-weight-bold'
+                                        : 'text-grey-darken-2 font-weight-medium'
+                                    "
+                                  >
+                                    <v-icon
+                                      start
+                                      size="12"
+                                      :color="
+                                        item.raw
+                                          .esTieneCredito ||
+                                        item.raw
+                                          .EsTieneCredito ||
+                                        item.raw
+                                          .creditoPermitido ||
+                                        item.raw
+                                          .esCredito ||
+                                        item.raw
+                                          .tieneCredito ||
+                                        item.raw
+                                          .credito
+                                          ? 'white'
+                                          : 'grey-darken-2'
+                                      "
+                                    >
+                                      {{
+                                        item.raw
+                                          .esTieneCredito ||
+                                        item.raw
+                                          .EsTieneCredito ||
+                                        item.raw
+                                          .creditoPermitido ||
+                                        item.raw
+                                          .esCredito ||
+                                        item.raw
+                                          .tieneCredito ||
+                                        item.raw
+                                          .credito
+                                          ? 'mdi-check-circle'
+                                          : 'mdi-cash'
+                                      }}
+                                    </v-icon>
+                                    {{
+                                      item.raw
+                                        .esTieneCredito ||
+                                      item.raw
+                                        .EsTieneCredito ||
+                                      item.raw
+                                        .creditoPermitido ||
+                                      item.raw
+                                        .esCredito ||
+                                      item.raw
+                                        .tieneCredito ||
+                                      item.raw
+                                        .credito
+                                        ? 'Crédito'
+                                        : 'Solo Contado'
+                                    }}
+                                  </v-chip>
+                                </div>
                               </div>
                             </template>
                           </v-list-item>
                         </template>
 
                         <!-- Item seleccionado con truncamiento estricto -->
-                        <template v-slot:selection="{ item }">
-                          <div class="d-flex align-center overflow-hidden w-100" style="min-width: 0;">
-                            <span class="font-weight-medium text-truncate mr-2" style="min-width: 0; flex: 1 1 auto;">
-                              {{ item.raw.title || ((item.raw.codigo ? item.raw.codigo + ' - ' : '') + item.raw.nombre) }}
+                        <template
+                          v-slot:selection="{
+                            item
+                          }"
+                        >
+                          <div
+                            class="d-flex align-center overflow-hidden w-100"
+                            style="min-width: 0"
+                          >
+                            <span
+                              class="font-weight-medium text-truncate mr-2"
+                              style="
+                                min-width: 0;
+                                flex: 1 1 auto;
+                              "
+                            >
+                              {{
+                                item.raw.title ||
+                                (item.raw.codigo
+                                  ? item.raw
+                                      .codigo +
+                                    ' - '
+                                  : '') +
+                                  item.raw.nombre
+                              }}
                             </span>
                           </div>
                         </template>
@@ -308,22 +555,75 @@
                         </template>
                       </v-autocomplete>
 
-                      <!-- Barra rápida de estado de crédito y acción para ver detalle -->
-                      <div v-if="data.venta.idCliente" class="d-flex align-center justify-space-between mt-1 px-1">
-                        <div class="d-flex align-center text-caption" :class="clienteTieneCredito ? 'text-green-darken-3 font-weight-medium' : 'text-amber-darken-4 font-weight-medium'">
-                          <v-icon size="14" class="mr-1">
-                            {{ clienteTieneCredito ? 'mdi-check-circle-outline' : 'mdi-alert-circle-outline' }}
-                          </v-icon>
-                          <span>{{ clienteTieneCredito ? 'Crédito habilitado' : 'Cliente sin crédito' }}</span>
+                      <!-- Barra rápida de estado de crédito, descuento y acción para ver detalle -->
+                      <div
+                        v-if="
+                          data.venta.idCliente
+                        "
+                        class="d-flex align-center justify-space-between flex-wrap ga-1"
+                      >
+                        <div
+                          class="d-flex align-center flex-wrap ga-2"
+                        >
+                          <div
+                            class="d-flex align-center text-caption"
+                            :class="
+                              clienteTieneCredito
+                                ? 'text-green-darken-3 font-weight-medium'
+                                : 'text-amber-darken-4 font-weight-medium'
+                            "
+                          >
+                            <v-icon size="14">
+                              {{
+                                clienteTieneCredito
+                                  ? 'mdi-check-circle-outline'
+                                  : 'mdi-alert-circle-outline'
+                              }}
+                            </v-icon>
+                            <span>{{
+                              clienteTieneCredito
+                                ? 'Crédito'
+                                : 'Sin crédito'
+                            }}</span>
+                          </div>
+                          <span
+                            class="text-grey-lighten-1"
+                            >|</span
+                          >
+                          <div
+                            class="d-flex align-center text-caption"
+                            :class="
+                              clienteTieneDescuento
+                                ? 'text-purple-darken-3 font-weight-bold'
+                                : 'text-grey font-weight-medium'
+                            "
+                          >
+                            <v-icon size="14">
+                              {{
+                                clienteTieneDescuento
+                                  ? 'mdi-tag-check-outline'
+                                  : 'mdi-tag-off-outline'
+                              }}
+                            </v-icon>
+                            <span>{{
+                              clienteTieneDescuento
+                                ? 'Desc. autorizado'
+                                : 'Sin descuento'
+                            }}</span>
+                          </div>
                         </div>
-                        
+
                         <v-btn
                           size="x-small"
                           variant="tonal"
                           color="indigo-darken-3"
                           prepend-icon="mdi-card-account-details-outline"
-                          class="text-none font-weight-bold px-2 py-0"
-                          @click="verDetalleCredito(data.venta.idCliente)"
+                          class="text-none font-weight-bold py-0"
+                          @click="
+                            verDetalleCredito(
+                              data.venta.idCliente
+                            )
+                          "
                         >
                           Ver detalle crédito
                         </v-btn>
@@ -367,10 +667,15 @@
                             active:
                               data.isCredito ===
                               'credito',
-                            disabled: !clienteTieneCredito
+                            disabled:
+                              !clienteTieneCredito
                           }"
-                          :disabled="!clienteTieneCredito"
-                          @click="seleccionarCredito()"
+                          :disabled="
+                            !clienteTieneCredito
+                          "
+                          @click="
+                            seleccionarCredito()
+                          "
                         >
                           <v-icon
                             size="18"
@@ -378,8 +683,16 @@
                             >mdi-credit-card-clock-outline</v-icon
                           >
                           <span>Crédito</span>
-                          <v-tooltip v-if="!clienteTieneCredito" activator="parent" location="top">
-                            El cliente seleccionado no tiene crédito permitido
+                          <v-tooltip
+                            v-if="
+                              !clienteTieneCredito
+                            "
+                            activator="parent"
+                            location="top"
+                          >
+                            El cliente
+                            seleccionado no tiene
+                            crédito permitido
                           </v-tooltip>
                         </button>
                       </div>
@@ -446,12 +759,12 @@
                     </span>
                   </div>
 
-                  <!-- Fila de Selección y Adición Rápida de Producto con Previsualización de Stock -->
+                  <!-- Fila de Selección y Adición Rápida de Producto con Previsualización de Stock y Descuento -->
                   <div
                     class="bg-grey-lighten-4 pa-3 rounded-lg border mb-3"
                   >
                     <v-row dense align="center">
-                      <v-col cols="12" sm="8">
+                      <v-col cols="12" sm="7">
                         <v-autocomplete
                           v-model="
                             data.producto
@@ -465,7 +778,9 @@
                           variant="outlined"
                           hide-details
                           single-line
-                          :menu-props="{ closeOnContentClick: true }"
+                          :menu-props="{
+                            closeOnContentClick: true
+                          }"
                           clearable
                           label="Producto"
                           placeholder="Buscar por código o nombre..."
@@ -574,11 +889,14 @@
                           >
                             <div
                               class="d-flex align-center overflow-hidden w-100"
-                              style="min-width: 0;"
+                              style="min-width: 0"
                             >
                               <span
                                 class="font-weight-medium text-truncate"
-                                style="min-width: 0; flex: 1 1 auto;"
+                                style="
+                                  min-width: 0;
+                                  flex: 1 1 auto;
+                                "
                               >
                                 {{
                                   item.raw.codigo
@@ -594,7 +912,7 @@
                           </template>
                         </v-autocomplete>
                       </v-col>
-                      <v-col cols="7" sm="2">
+                      <v-col cols="6" sm="2">
                         <v-text-field
                           v-model="
                             data.producto.cantidad
@@ -605,7 +923,6 @@
                           hide-details
                           label="Cant."
                           type="number"
-                          step="0.0001"
                           min="0.0001"
                           color="indigo"
                           bg-color="white"
@@ -614,9 +931,46 @@
                           "
                         />
                       </v-col>
+                      <v-col cols="6" sm="3">
+                        <v-text-field
+                          v-model="
+                            data.producto
+                              .descuento
+                          "
+                          :disabled="
+                            !clienteTieneDescuento
+                          "
+                          prefix="C$"
+                          prepend-inner-icon="mdi-tag-outline"
+                          density="compact"
+                          variant="outlined"
+                          hide-details
+                          label="Descuento"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          color="indigo"
+                          bg-color="white"
+                          @keyup.enter="
+                            addProducts()
+                          "
+                        >
+                          <v-tooltip
+                            v-if="
+                              !clienteTieneDescuento
+                            "
+                            activator="parent"
+                            location="top"
+                          >
+                            Cliente sin
+                            autorización de
+                            descuento
+                          </v-tooltip>
+                        </v-text-field>
+                      </v-col>
                       <v-col
-                        cols="5"
-                        sm="2"
+                        cols="12"
+                        sm="12"
                         class="d-flex align-center justify-end"
                       >
                         <v-btn
@@ -646,7 +1000,7 @@
                     </transition>
                   </div>
 
-                  <!-- Tabla de Productos en Factura con Precios Mayoristas e Impuestos -->
+                  <!-- Tabla de Productos en Factura con Precios Mayoristas, Descuentos e Impuestos -->
                   <div
                     class="table-container mb-3 flex-grow-1 border rounded-lg overflow-hidden"
                   >
@@ -729,25 +1083,48 @@
                           item
                         }"
                       >
-                        <div class="d-flex align-center justify-center quantity-stepper">
+                        <div
+                          class="d-flex align-center justify-center quantity-stepper"
+                        >
                           <v-btn
                             icon
                             size="x-small"
                             variant="flat"
                             color="grey-lighten-3"
                             class="quantity-btn"
-                            :disabled="Number(item.cantidad) <= 0.0001"
-                            @click.stop="decrementarCantidad(item)"
+                            :disabled="
+                              Number(
+                                item.cantidad
+                              ) <= 0.0001
+                            "
+                            @click.stop="
+                              decrementarCantidad(
+                                item
+                              )
+                            "
                           >
-                            <v-icon size="12" color="grey-darken-3">mdi-minus</v-icon>
-                            <v-tooltip activator="parent" location="top">Disminuir</v-tooltip>
+                            <v-icon
+                              size="10"
+                              color="grey-darken-3"
+                              >mdi-minus</v-icon
+                            >
+                            <v-tooltip
+                              activator="parent"
+                              location="top"
+                              >Disminuir</v-tooltip
+                            >
                           </v-btn>
                           <input
                             type="number"
                             step="0.0001"
                             min="0.0001"
                             :value="item.cantidad"
-                            @change="onCantidadInputChange(item, $event)"
+                            @change="
+                              onCantidadInputChange(
+                                item,
+                                $event
+                              )
+                            "
                             @click.stop
                             class="quantity-input mx-1 text-center font-weight-bold"
                           />
@@ -757,10 +1134,22 @@
                             variant="flat"
                             color="grey-lighten-3"
                             class="quantity-btn"
-                            @click.stop="incrementarCantidad(item)"
+                            @click.stop="
+                              incrementarCantidad(
+                                item
+                              )
+                            "
                           >
-                            <v-icon size="12" color="grey-darken-3">mdi-plus</v-icon>
-                            <v-tooltip activator="parent" location="top">Aumentar</v-tooltip>
+                            <v-icon
+                              size="10"
+                              color="grey-darken-3"
+                              >mdi-plus</v-icon
+                            >
+                            <v-tooltip
+                              activator="parent"
+                              location="top"
+                              >Aumentar</v-tooltip
+                            >
                           </v-btn>
                         </div>
                       </template>
@@ -779,6 +1168,53 @@
                             )
                           }}
                         </span>
+                      </template>
+                      <template
+                        v-slot:item.descuento="{
+                          item
+                        }"
+                      >
+                        <div
+                          class="d-flex align-center justify-end"
+                        >
+                          <template
+                            v-if="
+                              clienteTieneDescuento
+                            "
+                          >
+                            <span
+                              class="text-caption text-purple-darken-3 font-weight-bold mr-1"
+                              >C$</span
+                            >
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              :max="
+                                item.costoUnitario *
+                                item.cantidad
+                              "
+                              :value="
+                                item.descuento ||
+                                0
+                              "
+                              @change="
+                                onDescuentoInputChange(
+                                  item,
+                                  $event
+                                )
+                              "
+                              @click.stop
+                              class="discount-input text-right font-weight-bold"
+                            />
+                          </template>
+                          <span
+                            v-else
+                            class="text-caption text-grey"
+                          >
+                            C$ 0.00
+                          </span>
+                        </div>
                       </template>
                       <template
                         v-slot:item.impuesto="{
@@ -852,7 +1288,7 @@
                     </v-data-table>
                   </div>
 
-                  <!-- Resumen Financiero Completo: Subtotal, Impuestos y Total -->
+                  <!-- Resumen Financiero Completo: Subtotal, Descuentos, Impuestos y Total -->
                   <div
                     class="bg-indigo-lighten-5 pa-3 rounded-lg border border-indigo-lighten-4 mt-auto"
                   >
@@ -861,7 +1297,7 @@
                     >
                       <span
                         class="text-caption text-grey-darken-2 font-weight-medium"
-                        >Sub Total (Neto):</span
+                        >Sub Total (Bruto):</span
                       >
                       <span
                         class="text-body-2 font-weight-bold text-grey-darken-3"
@@ -869,6 +1305,30 @@
                         {{
                           formatedCurrency(
                             data.factura.subTotal,
+                            data.fornates.nio
+                          )
+                        }}
+                      </span>
+                    </div>
+                    <div
+                      class="d-flex justify-space-between align-center mb-1 text-orange-darken-4"
+                      v-if="
+                        data.factura
+                          .totalDescuento > 0
+                      "
+                    >
+                      <span
+                        class="text-caption font-weight-medium"
+                        >Descuento Total:</span
+                      >
+                      <span
+                        class="text-body-2 font-weight-bold"
+                      >
+                        -
+                        {{
+                          formatedCurrency(
+                            data.factura
+                              .totalDescuento,
                             data.fornates.nio
                           )
                         }}
@@ -940,7 +1400,7 @@
         <!-- Footer de Acciones -->
         <v-divider />
         <v-card-actions
-          class="px-4 py-3 bg-white justify-end"
+          class="px-4 py-3 bg-white justify-end flex-shrink-0"
         >
           <v-btn
             color="grey-darken-1"
@@ -956,7 +1416,12 @@
             variant="flat"
             size="small"
             @click="guardarFactura()"
-            :disabled="data.contDisableBtn || (!localEdit && !data.sesionCaja.tieneAperturaActiva)"
+            :disabled="
+              data.contDisableBtn ||
+              (!localEdit &&
+                !data.sesionCaja
+                  .tieneAperturaActiva)
+            "
             prepend-icon="mdi-content-save-outline"
             class="text-none px-6 font-weight-bold"
             elevation="2"
@@ -989,14 +1454,29 @@
         persistent
         scrollable
       >
-        <v-card class="rounded-xl overflow-hidden shadow-2xl border">
+        <v-card
+          class="rounded-xl overflow-hidden shadow-2xl border"
+        >
           <!-- Header -->
-          <v-card-title class="bg-indigo-darken-3 text-white px-4 py-3 d-flex align-center justify-space-between">
+          <v-card-title
+            class="bg-indigo-darken-3 text-white px-4 py-3 d-flex align-center justify-space-between"
+          >
             <div class="d-flex align-center">
-              <v-icon size="22" class="mr-2">mdi-card-account-details-outline</v-icon>
+              <v-icon size="22" class="mr-2"
+                >mdi-card-account-details-outline</v-icon
+              >
               <div>
-                <div class="text-subtitle-1 font-weight-bold leading-tight">Estado y Detalle de Crédito</div>
-                <div class="text-caption text-indigo-lighten-4">Consulta en tiempo real del cliente</div>
+                <div
+                  class="text-subtitle-1 font-weight-bold leading-tight"
+                >
+                  Estado y Detalle de Crédito
+                </div>
+                <div
+                  class="text-caption text-indigo-lighten-4"
+                >
+                  Consulta en tiempo real del
+                  cliente
+                </div>
               </div>
             </div>
             <v-btn
@@ -1004,18 +1484,34 @@
               variant="text"
               color="white"
               size="small"
-              @click="data.dialogCredito.show = false"
+              @click="
+                data.dialogCredito.show = false
+              "
             >
               <v-icon size="20">mdi-close</v-icon>
             </v-btn>
           </v-card-title>
 
           <!-- Content -->
-          <v-card-text class="pa-4 bg-grey-lighten-5">
+          <v-card-text
+            class="pa-4 bg-grey-lighten-5"
+          >
             <!-- Loading -->
-            <div v-if="data.dialogCredito.loading" class="text-center py-8">
-              <v-progress-circular indeterminate color="indigo-darken-3" size="48" class="mb-3" />
-              <div class="text-body-2 font-weight-medium text-grey-darken-2">Consultando detalle de crédito...</div>
+            <div
+              v-if="data.dialogCredito.loading"
+              class="text-center py-8"
+            >
+              <v-progress-circular
+                indeterminate
+                color="indigo-darken-3"
+                size="48"
+                class="mb-3"
+              />
+              <div
+                class="text-body-2 font-weight-medium text-grey-darken-2"
+              >
+                Consultando detalle de crédito...
+              </div>
             </div>
 
             <!-- Error -->
@@ -1030,15 +1526,46 @@
             </v-alert>
 
             <!-- Datos de Crédito -->
-            <div v-else-if="data.dialogCredito.data" class="d-flex flex-column gap-3">
+            <div
+              v-else-if="data.dialogCredito.data"
+              class="d-flex flex-column gap-3"
+            >
               <!-- Nombre del Cliente -->
-              <v-card class="pa-3 bg-white border rounded-lg" elevation="0">
-                <div class="text-caption text-grey font-weight-bold text-uppercase">Cliente</div>
-                <div class="text-body-1 font-weight-bold text-indigo-darken-4">
-                  {{ data.dialogCredito.data.nombre || (clienteSeleccionado ? clienteSeleccionado.title : 'Cliente') }}
+              <v-card
+                class="pa-3 bg-white border rounded-lg"
+                elevation="0"
+              >
+                <div
+                  class="text-caption text-grey font-weight-bold text-uppercase"
+                >
+                  Cliente
                 </div>
-                <div v-if="data.dialogCredito.data.codigo || (clienteSeleccionado && clienteSeleccionado.codigo)" class="text-caption text-grey-darken-1">
-                  Código: {{ data.dialogCredito.data.codigo || clienteSeleccionado.codigo }}
+                <div
+                  class="text-body-1 font-weight-bold text-indigo-darken-4"
+                >
+                  {{
+                    data.dialogCredito.data
+                      .nombre ||
+                    (clienteSeleccionado
+                      ? clienteSeleccionado.title
+                      : 'Cliente')
+                  }}
+                </div>
+                <div
+                  v-if="
+                    data.dialogCredito.data
+                      .codigo ||
+                    (clienteSeleccionado &&
+                      clienteSeleccionado.codigo)
+                  "
+                  class="text-caption text-grey-darken-1"
+                >
+                  Código:
+                  {{
+                    data.dialogCredito.data
+                      .codigo ||
+                    clienteSeleccionado.codigo
+                  }}
                 </div>
               </v-card>
 
@@ -1046,17 +1573,48 @@
               <v-row dense class="mt-1">
                 <!-- Límite de Crédito -->
                 <v-col cols="6">
-                  <v-card class="pa-3 bg-white border rounded-lg h-100" elevation="0">
-                    <div class="d-flex align-center text-caption text-grey-darken-1 mb-1">
-                      <v-icon size="16" color="indigo" class="mr-1">mdi-credit-card-outline</v-icon>
+                  <v-card
+                    class="pa-3 bg-white border rounded-lg h-100"
+                    elevation="0"
+                  >
+                    <div
+                      class="d-flex align-center text-caption text-grey-darken-1 mb-1"
+                    >
+                      <v-icon
+                        size="16"
+                        color="indigo"
+                        class="mr-1"
+                        >mdi-credit-card-outline</v-icon
+                      >
                       <span>Límite Crédito</span>
                     </div>
-                    <div class="text-subtitle-1 font-weight-bold text-grey-darken-3">
-                      <span v-if="data.dialogCredito.data.esCreditoIlimitado || data.dialogCredito.data.EsCreditoIlimitado" class="text-indigo">
+                    <div
+                      class="text-subtitle-1 font-weight-bold text-grey-darken-3"
+                    >
+                      <span
+                        v-if="
+                          data.dialogCredito.data
+                            .esCreditoIlimitado ||
+                          data.dialogCredito.data
+                            .EsCreditoIlimitado
+                        "
+                        class="text-indigo"
+                      >
                         Ilimitado
                       </span>
                       <span v-else>
-                        {{ formatedCurrency(data.dialogCredito.data.limiteCredito ?? data.dialogCredito.data.LimiteCredito ?? 0, data.fornates.nio) }}
+                        {{
+                          formatedCurrency(
+                            data.dialogCredito
+                              .data
+                              .limiteCredito ??
+                              data.dialogCredito
+                                .data
+                                .LimiteCredito ??
+                              0,
+                            data.fornates.nio
+                          )
+                        }}
                       </span>
                     </div>
                   </v-card>
@@ -1064,45 +1622,133 @@
 
                 <!-- Saldo Utilizado / Deuda -->
                 <v-col cols="6">
-                  <v-card class="pa-3 bg-white border rounded-lg h-100" elevation="0">
-                    <div class="d-flex align-center text-caption text-grey-darken-1 mb-1">
-                      <v-icon size="16" color="orange-darken-3" class="mr-1">mdi-clock-alert-outline</v-icon>
+                  <v-card
+                    class="pa-3 bg-white border rounded-lg h-100"
+                    elevation="0"
+                  >
+                    <div
+                      class="d-flex align-center text-caption text-grey-darken-1 mb-1"
+                    >
+                      <v-icon
+                        size="16"
+                        color="orange-darken-3"
+                        class="mr-1"
+                        >mdi-clock-alert-outline</v-icon
+                      >
                       <span>Crédito Usado</span>
                     </div>
-                    <div class="text-subtitle-1 font-weight-bold text-orange-darken-4">
-                      {{ formatedCurrency(data.dialogCredito.data.creditoUsado ?? data.dialogCredito.data.CreditoUsado ?? data.dialogCredito.data.saldoUtilizado ?? data.dialogCredito.data.SaldoUtilizado ?? 0, data.fornates.nio) }}
+                    <div
+                      class="text-subtitle-1 font-weight-bold text-orange-darken-4"
+                    >
+                      {{
+                        formatedCurrency(
+                          data.dialogCredito.data
+                            .creditoUsado ??
+                            data.dialogCredito
+                              .data
+                              .CreditoUsado ??
+                            data.dialogCredito
+                              .data
+                              .saldoUtilizado ??
+                            data.dialogCredito
+                              .data
+                              .SaldoUtilizado ??
+                            0,
+                          data.fornates.nio
+                        )
+                      }}
                     </div>
                   </v-card>
                 </v-col>
 
                 <!-- Saldo Disponible -->
                 <v-col cols="12" class="mt-1">
-                  <v-card 
-                    class="pa-3 border rounded-lg" 
-                    :class="(getSaldoDisponibleCredito(data.dialogCredito.data) > 0) ? 'bg-green-lighten-5 border-green' : 'bg-red-lighten-5 border-red'"
+                  <v-card
+                    class="pa-3 border rounded-lg"
+                    :class="
+                      getSaldoDisponibleCredito(
+                        data.dialogCredito.data
+                      ) > 0
+                        ? 'bg-green-lighten-5 border-green'
+                        : 'bg-red-lighten-5 border-red'
+                    "
                     elevation="0"
                   >
-                    <div class="d-flex align-center justify-space-between">
+                    <div
+                      class="d-flex align-center justify-space-between"
+                    >
                       <div>
-                        <div class="text-caption font-weight-bold" :class="(getSaldoDisponibleCredito(data.dialogCredito.data) > 0) ? 'text-green-darken-4' : 'text-red-darken-4'">
+                        <div
+                          class="text-caption font-weight-bold"
+                          :class="
+                            getSaldoDisponibleCredito(
+                              data.dialogCredito
+                                .data
+                            ) > 0
+                              ? 'text-green-darken-4'
+                              : 'text-red-darken-4'
+                          "
+                        >
                           Crédito Disponible
                         </div>
-                        <div class="text-h6 font-weight-black" :class="(getSaldoDisponibleCredito(data.dialogCredito.data) > 0) ? 'text-green-darken-3' : 'text-red-darken-3'">
-                          <span v-if="data.dialogCredito.data.esCreditoIlimitado || data.dialogCredito.data.EsCreditoIlimitado">
+                        <div
+                          class="text-h6 font-weight-black"
+                          :class="
+                            getSaldoDisponibleCredito(
+                              data.dialogCredito
+                                .data
+                            ) > 0
+                              ? 'text-green-darken-3'
+                              : 'text-red-darken-3'
+                          "
+                        >
+                          <span
+                            v-if="
+                              data.dialogCredito
+                                .data
+                                .esCreditoIlimitado ||
+                              data.dialogCredito
+                                .data
+                                .EsCreditoIlimitado
+                            "
+                          >
                             Ilimitado
                           </span>
                           <span v-else>
-                            {{ formatedCurrency(getSaldoDisponibleCredito(data.dialogCredito.data), data.fornates.nio) }}
+                            {{
+                              formatedCurrency(
+                                getSaldoDisponibleCredito(
+                                  data
+                                    .dialogCredito
+                                    .data
+                                ),
+                                data.fornates.nio
+                              )
+                            }}
                           </span>
                         </div>
                       </div>
-                      <v-chip 
-                        size="small" 
-                        :color="(getSaldoDisponibleCredito(data.dialogCredito.data) > 0) ? 'success' : 'error'"
+                      <v-chip
+                        size="small"
+                        :color="
+                          getSaldoDisponibleCredito(
+                            data.dialogCredito
+                              .data
+                          ) > 0
+                            ? 'success'
+                            : 'error'
+                        "
                         variant="flat"
                         class="font-weight-bold"
                       >
-                        {{ (getSaldoDisponibleCredito(data.dialogCredito.data) > 0) ? 'Línea Disponible' : 'Límite Excedido' }}
+                        {{
+                          getSaldoDisponibleCredito(
+                            data.dialogCredito
+                              .data
+                          ) > 0
+                            ? 'Línea Disponible'
+                            : 'Límite Excedido'
+                        }}
                       </v-chip>
                     </div>
                   </v-card>
@@ -1110,63 +1756,184 @@
               </v-row>
 
               <!-- Detalles de Plazo y Facturas Pendientes -->
-              <v-card class="pa-3 bg-white border rounded-lg mt-1" elevation="0">
-                <div class="d-flex align-center justify-space-between py-1 border-b">
-                  <span class="text-caption text-grey-darken-1">Tipo de Crédito:</span>
-                  <span class="text-caption font-weight-bold text-grey-darken-3">
-                    {{ (data.dialogCredito.data.esCreditoMensual || data.dialogCredito.data.EsCreditoMensual) ? 'Crédito Mensual' : 'Por Días' }}
+              <v-card
+                class="pa-3 bg-white border rounded-lg mt-1"
+                elevation="0"
+              >
+                <div
+                  class="d-flex align-center justify-space-between py-1 border-b"
+                >
+                  <span
+                    class="text-caption text-grey-darken-1"
+                    >Tipo de Crédito:</span
+                  >
+                  <span
+                    class="text-caption font-weight-bold text-grey-darken-3"
+                  >
+                    {{
+                      data.dialogCredito.data
+                        .esCreditoMensual ||
+                      data.dialogCredito.data
+                        .EsCreditoMensual
+                        ? 'Crédito Mensual'
+                        : 'Por Días'
+                    }}
                   </span>
                 </div>
-                <div class="d-flex align-center justify-space-between py-1 border-b">
-                  <span class="text-caption text-grey-darken-1">Días de Crédito Autorizados:</span>
-                  <span class="text-caption font-weight-bold text-grey-darken-3">
-                    {{ data.dialogCredito.data.diasCredito ?? data.dialogCredito.data.DiasCredito ?? '—' }} días
+                <div
+                  class="d-flex align-center justify-space-between py-1 border-b"
+                >
+                  <span
+                    class="text-caption text-grey-darken-1"
+                    >Días de Crédito
+                    Autorizados:</span
+                  >
+                  <span
+                    class="text-caption font-weight-bold text-grey-darken-3"
+                  >
+                    {{
+                      data.dialogCredito.data
+                        .diasCredito ??
+                      data.dialogCredito.data
+                        .DiasCredito ??
+                      '—'
+                    }}
+                    días
                   </span>
                 </div>
-                <div class="d-flex align-center justify-space-between py-1">
-                  <span class="text-caption text-grey-darken-1">Cuentas por Cobrar Pendientes:</span>
-                  <span class="text-caption font-weight-bold text-grey-darken-3">
-                    {{ data.dialogCredito.data.cuentasPorCobrarPendientes ?? data.dialogCredito.data.CuentasPorCobrarPendientes ?? 0 }} pendientes
+                <div
+                  class="d-flex align-center justify-space-between py-1"
+                >
+                  <span
+                    class="text-caption text-grey-darken-1"
+                    >Cuentas por Cobrar
+                    Pendientes:</span
+                  >
+                  <span
+                    class="text-caption font-weight-bold text-grey-darken-3"
+                  >
+                    {{
+                      data.dialogCredito.data
+                        .cuentasPorCobrarPendientes ??
+                      data.dialogCredito.data
+                        .CuentasPorCobrarPendientes ??
+                      0
+                    }}
+                    pendientes
                   </span>
                 </div>
               </v-card>
 
               <!-- Alerta de Comparativa y Bloqueo de Sobregiro -->
-              <div v-if="data.factura.total > 0" class="mt-1">
+              <div
+                v-if="data.factura.total > 0"
+                class="mt-1"
+              >
                 <v-card
-                  v-if="data.factura.total > getSaldoDisponibleCredito(data.dialogCredito.data)"
+                  v-if="
+                    data.factura.total >
+                    getSaldoDisponibleCredito(
+                      data.dialogCredito.data
+                    )
+                  "
                   class="pa-3 bg-red-lighten-5 border border-red-lighten-2 rounded-lg"
                   elevation="0"
                 >
-                  <div class="d-flex align-center text-red-darken-4 font-weight-bold mb-2">
-                    <v-icon color="red-darken-3" size="20" class="mr-1">mdi-alert-octagon</v-icon>
-                    <span>Venta Bloqueada: Límite de Crédito Excedido</span>
+                  <div
+                    class="d-flex align-center text-red-darken-4 font-weight-bold mb-2"
+                  >
+                    <v-icon
+                      color="red-darken-3"
+                      size="20"
+                      class="mr-1"
+                      >mdi-alert-octagon</v-icon
+                    >
+                    <span
+                      >Venta Bloqueada: Límite de
+                      Crédito Excedido</span
+                    >
                   </div>
 
-                  <div class="d-flex align-center justify-space-between py-1 border-b border-red-lighten-4">
-                    <span class="text-caption text-grey-darken-2">Total de esta Venta:</span>
-                    <span class="text-caption font-weight-bold text-grey-darken-3">
-                      {{ formatedCurrency(data.factura.total, data.fornates.nio) }}
+                  <div
+                    class="d-flex align-center justify-space-between py-1 border-b border-red-lighten-4"
+                  >
+                    <span
+                      class="text-caption text-grey-darken-2"
+                      >Total de esta Venta:</span
+                    >
+                    <span
+                      class="text-caption font-weight-bold text-grey-darken-3"
+                    >
+                      {{
+                        formatedCurrency(
+                          data.factura.total,
+                          data.fornates.nio
+                        )
+                      }}
                     </span>
                   </div>
 
-                  <div class="d-flex align-center justify-space-between py-1 border-b border-red-lighten-4">
-                    <span class="text-caption text-grey-darken-2">Crédito Disponible:</span>
-                    <span class="text-caption font-weight-bold text-grey-darken-3">
-                      {{ formatedCurrency(getSaldoDisponibleCredito(data.dialogCredito.data), data.fornates.nio) }}
+                  <div
+                    class="d-flex align-center justify-space-between py-1 border-b border-red-lighten-4"
+                  >
+                    <span
+                      class="text-caption text-grey-darken-2"
+                      >Crédito Disponible:</span
+                    >
+                    <span
+                      class="text-caption font-weight-bold text-grey-darken-3"
+                    >
+                      {{
+                        formatedCurrency(
+                          getSaldoDisponibleCredito(
+                            data.dialogCredito
+                              .data
+                          ),
+                          data.fornates.nio
+                        )
+                      }}
                     </span>
                   </div>
 
-                  <div class="d-flex align-center justify-space-between py-1 pt-2">
-                    <span class="text-caption font-weight-bold text-red-darken-4">Monto Excedente (Sobregiro):</span>
-                    <span class="text-subtitle-2 font-weight-black text-red-darken-4">
-                      + {{ formatedCurrency(data.factura.total - getSaldoDisponibleCredito(data.dialogCredito.data), data.fornates.nio) }}
+                  <div
+                    class="d-flex align-center justify-space-between py-1 pt-2"
+                  >
+                    <span
+                      class="text-caption font-weight-bold text-red-darken-4"
+                      >Monto Excedente
+                      (Sobregiro):</span
+                    >
+                    <span
+                      class="text-subtitle-2 font-weight-black text-red-darken-4"
+                    >
+                      +
+                      {{
+                        formatedCurrency(
+                          data.factura.total -
+                            getSaldoDisponibleCredito(
+                              data.dialogCredito
+                                .data
+                            ),
+                          data.fornates.nio
+                        )
+                      }}
                     </span>
                   </div>
 
-                  <div class="text-caption text-red-darken-4 mt-2 bg-white pa-2 rounded border border-red-lighten-3">
-                    <v-icon size="14" color="red" class="mr-1">mdi-information</v-icon>
-                    No se puede registrar esta factura a crédito. Debe reducir productos o cambiar la condición de pago a <strong>Contado</strong>.
+                  <div
+                    class="text-caption text-red-darken-4 mt-2 bg-white pa-2 rounded border border-red-lighten-3"
+                  >
+                    <v-icon
+                      size="14"
+                      color="red"
+                      class="mr-1"
+                      >mdi-information</v-icon
+                    >
+                    No se puede registrar esta
+                    factura a crédito. Debe
+                    reducir productos o cambiar la
+                    condición de pago a
+                    <strong>Contado</strong>.
                   </div>
                 </v-card>
 
@@ -1175,20 +1942,58 @@
                   class="pa-3 bg-green-lighten-5 border border-green-lighten-2 rounded-lg"
                   elevation="0"
                 >
-                  <div class="d-flex align-center text-green-darken-4 font-weight-bold mb-1">
-                    <v-icon color="green-darken-3" size="20" class="mr-1">mdi-check-circle</v-icon>
-                    <span>Crédito Suficiente para la Venta</span>
+                  <div
+                    class="d-flex align-center text-green-darken-4 font-weight-bold mb-1"
+                  >
+                    <v-icon
+                      color="green-darken-3"
+                      size="20"
+                      class="mr-1"
+                      >mdi-check-circle</v-icon
+                    >
+                    <span
+                      >Crédito Suficiente para la
+                      Venta</span
+                    >
                   </div>
-                  <div class="d-flex align-center justify-space-between py-1 border-b border-green-lighten-4">
-                    <span class="text-caption text-grey-darken-2">Total de la Venta:</span>
-                    <span class="text-caption font-weight-bold text-grey-darken-3">
-                      {{ formatedCurrency(data.factura.total, data.fornates.nio) }}
+                  <div
+                    class="d-flex align-center justify-space-between py-1 border-b border-green-lighten-4"
+                  >
+                    <span
+                      class="text-caption text-grey-darken-2"
+                      >Total de la Venta:</span
+                    >
+                    <span
+                      class="text-caption font-weight-bold text-grey-darken-3"
+                    >
+                      {{
+                        formatedCurrency(
+                          data.factura.total,
+                          data.fornates.nio
+                        )
+                      }}
                     </span>
                   </div>
-                  <div class="d-flex align-center justify-space-between py-1">
-                    <span class="text-caption text-grey-darken-2">Restante tras la Venta:</span>
-                    <span class="text-caption font-weight-bold text-green-darken-4">
-                      {{ formatedCurrency(getSaldoDisponibleCredito(data.dialogCredito.data) - data.factura.total, data.fornates.nio) }}
+                  <div
+                    class="d-flex align-center justify-space-between py-1"
+                  >
+                    <span
+                      class="text-caption text-grey-darken-2"
+                      >Restante tras la
+                      Venta:</span
+                    >
+                    <span
+                      class="text-caption font-weight-bold text-green-darken-4"
+                    >
+                      {{
+                        formatedCurrency(
+                          getSaldoDisponibleCredito(
+                            data.dialogCredito
+                              .data
+                          ) - data.factura.total,
+                          data.fornates.nio
+                        )
+                      }}
                     </span>
                   </div>
                 </v-card>
@@ -1197,17 +2002,265 @@
           </v-card-text>
 
           <!-- Footer -->
-          <v-card-actions class="pa-3 bg-white border-t justify-end">
+          <v-card-actions
+            class="pa-3 bg-white border-t justify-end"
+          >
             <v-btn
               color="indigo-darken-3"
               variant="flat"
               class="text-none font-weight-bold px-4"
               size="small"
-              @click="data.dialogCredito.show = false"
+              @click="
+                data.dialogCredito.show = false
+              "
             >
               Entendido
             </v-btn>
           </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- Modal de Cobro y Cambio para Cajero (Minimalista) -->
+      <v-dialog
+        v-model="data.dialogCobro.show"
+        max-width="420px"
+        persistent
+      >
+        <v-card
+          class="rounded-xl border bg-white"
+          elevation="6"
+        >
+          <!-- Header Minimalista -->
+          <div
+            class="px-5 pt-4 pb-2 d-flex align-center justify-space-between"
+          >
+            <div class="d-flex align-center">
+              <v-icon
+                color="indigo-darken-3"
+                size="20"
+                class="mr-2"
+                >mdi-cash-register</v-icon
+              >
+              <span
+                class="text-subtitle-1 font-weight-bold text-grey-darken-4"
+                >Cobro en Efectivo</span
+              >
+            </div>
+            <v-btn
+              icon
+              size="x-small"
+              variant="text"
+              color="grey-darken-1"
+              @click="cerrarDialogCobro()"
+              :disabled="data.contDisableBtn"
+            >
+              <v-icon size="18">mdi-close</v-icon>
+            </v-btn>
+          </div>
+
+          <v-card-text class="px-5 py-2">
+            <!-- Total a Cobrar -->
+            <div
+              class="pa-3 rounded-lg bg-grey-lighten-4 border d-flex align-center justify-space-between mb-3"
+            >
+              <span
+                class="text-caption font-weight-bold text-grey-darken-2 text-uppercase"
+                >Total Factura:</span
+              >
+              <span
+                class="text-h5 font-weight-black text-indigo-darken-4"
+              >
+                {{
+                  formatedCurrency(
+                    data.factura.total,
+                    data.fornates.nio
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- Input Efectivo Recibido -->
+            <div class="mb-2">
+              <div
+                class="d-flex align-center justify-space-between mb-1"
+              >
+                <span
+                  class="text-caption font-weight-bold text-grey-darken-2"
+                  >Paga con:</span
+                >
+              </div>
+
+              <v-text-field
+                v-model="
+                  data.dialogCobro.montoRecibido
+                "
+                prefix="C$"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                variant="outlined"
+                density="compact"
+                color="indigo"
+                hide-details
+                autofocus
+                class="cashier-pago-input-minimal"
+                @keyup.enter="
+                  confirmarCobroYGuardar()
+                "
+              />
+            </div>
+
+            <!-- Denominaciones Rápidas -->
+            <div
+              class="d-flex flex-wrap gap-1 mb-3"
+            >
+              <v-chip
+                v-for="billete in [
+                  50, 100, 200, 500, 1000
+                ]"
+                :key="billete"
+                size="small"
+                variant="tonal"
+                color="grey-darken-3"
+                class="font-weight-bold cursor-pointer"
+                @click="
+                  agregarDenominacion(billete)
+                "
+              >
+                +{{ billete }}
+              </v-chip>
+              <v-chip
+                v-if="
+                  data.dialogCobro.montoRecibido
+                "
+                size="small"
+                variant="text"
+                color="error"
+                class="font-weight-bold cursor-pointer"
+                @click="
+                  data.dialogCobro.montoRecibido =
+                    null
+                "
+              >
+                Borrar
+              </v-chip>
+            </div>
+
+            <!-- Estado del Cambio / Vuelto -->
+            <div
+              v-if="
+                cobroMontoRecibidoNumber >=
+                data.factura.total
+              "
+              class="pa-3 rounded-lg d-flex align-center justify-space-between"
+              style="
+                background-color: #f0fdf4;
+                border: 1px solid #86efac;
+              "
+            >
+              <span
+                class="text-caption font-weight-bold text-green-darken-4 text-uppercase"
+                >Cambio:</span
+              >
+              <span
+                class="text-h5 font-weight-black text-green-darken-4"
+              >
+                {{
+                  formatedCurrency(
+                    cobroCambioCalculado,
+                    data.fornates.nio
+                  )
+                }}
+              </span>
+            </div>
+
+            <div
+              v-else-if="
+                cobroMontoRecibidoNumber > 0
+              "
+              class="pa-3 rounded-lg d-flex align-center justify-space-between"
+              style="
+                background-color: #fff7ed;
+                border: 1px solid #fed7aa;
+              "
+            >
+              <span
+                class="text-caption font-weight-bold text-orange-darken-4 text-uppercase"
+                >Faltan:</span
+              >
+              <span
+                class="text-subtitle-1 font-weight-bold text-orange-darken-4"
+              >
+                {{
+                  formatedCurrency(
+                    cobroMontoFaltante,
+                    data.fornates.nio
+                  )
+                }}
+              </span>
+            </div>
+
+            <div
+              v-else
+              class="py-2 text-center text-caption text-grey"
+            >
+              <v-btn
+                size="x-small"
+                color="indigo-darken-3"
+                class="font-weight-bold"
+                @click="setMontoRecibidoExacto()"
+              >
+                Paga completo
+              </v-btn>
+            </div>
+          </v-card-text>
+
+          <!-- Botones de Acción -->
+          <v-divider class="mt-2" />
+          <div
+            class="px-5 py-3 d-flex align-center justify-end gap-2 bg-grey-lighten-5"
+          >
+            <v-btn
+              color="grey-darken-1"
+              variant="text"
+              size="small"
+              @click="cerrarDialogCobro()"
+              :disabled="data.contDisableBtn"
+              class="text-none"
+            >
+              Cancelar
+            </v-btn>
+
+            <v-btn
+              color="indigo-darken-4"
+              variant="flat"
+              size="small"
+              @click="confirmarCobroYGuardar()"
+              :disabled="
+                data.contDisableBtn ||
+                cobroMontoRecibidoNumber <
+                  data.factura.total
+              "
+              class="text-none px-5 font-weight-bold"
+            >
+              <template
+                v-if="data.contDisableBtn"
+              >
+                <v-progress-circular
+                  color="white"
+                  indeterminate
+                  size="16"
+                  width="2"
+                  class="mr-1"
+                />
+                <span>Guardando...</span>
+              </template>
+              <template v-else>
+                <span>Cobrar y Facturar</span>
+              </template>
+            </v-btn>
+          </div>
         </v-card>
       </v-dialog>
 
@@ -1225,8 +2278,17 @@
 <script>
 import { formatters } from '@/helpers/formatters'
 import RequestHttp from '@/services/requestHttp'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { getItemsCombobox, httpGet } from '@/scripts/api.js'
+import {
+  computed,
+  onMounted,
+  reactive,
+  ref,
+  watch
+} from 'vue'
+import {
+  getItemsCombobox,
+  httpGet
+} from '@/scripts/api.js'
 import { useStore } from '@/store'
 import AlertComp from '@/components/reutilizable/AlertComp.vue'
 import SuccessAlert from '@/components/widgets/SuccessAlert.vue'
@@ -1302,13 +2364,19 @@ export default {
           title: 'Cant.',
           key: 'cantidad',
           align: 'center',
-          width: '120px'
+          width: '85px'
         },
         {
           title: 'Precio Unit.',
           key: 'costoUnitario',
           align: 'end',
-          width: '100px'
+          width: '95px'
+        },
+        {
+          title: 'Desc. (C$)',
+          key: 'descuento',
+          align: 'end',
+          width: '110px'
         },
         {
           title: 'Impuesto',
@@ -1350,6 +2418,7 @@ export default {
         idProducto: null,
         cantidad: null,
         costoUnitario: null,
+        descuento: null,
         observaciones: null
       },
       condicionFactura: [
@@ -1358,6 +2427,7 @@ export default {
       ],
       factura: {
         subTotal: 0.0,
+        totalDescuento: 0.0,
         totalImpuestos: 0.0,
         total: 0.0,
         usdTotal: 0.0
@@ -1387,6 +2457,13 @@ export default {
         data: null,
         error: null,
         idClienteConsultado: null
+      },
+
+      // Modal de Cobro y Cambio para el Cajero
+      dialogCobro: {
+        show: false,
+        montoRecibido: null,
+        loading: false
       },
 
       // ALERTS
@@ -1459,7 +2536,10 @@ export default {
     const clienteTieneCredito = computed(() => {
       if (!data.venta.idCliente) return false
       const cli = data.clientes.find(
-        (c) => c.value === data.venta.idCliente || c.id === data.venta.idCliente
+        (c) =>
+          c.value === data.venta.idCliente ||
+          c.id === data.venta.idCliente ||
+          c.idCliente === data.venta.idCliente
       )
       if (!cli) return false
       return !!(
@@ -1472,35 +2552,136 @@ export default {
       )
     })
 
+    const clienteTieneDescuento = computed(() => {
+      if (!data.venta.idCliente) return false
+      const cli = data.clientes.find(
+        (c) =>
+          c.value === data.venta.idCliente ||
+          c.id === data.venta.idCliente ||
+          c.idCliente === data.venta.idCliente
+      )
+      if (!cli) return false
+      return !!(
+        cli.esTieneDescuento ||
+        cli.EsTieneDescuento
+      )
+    })
+
     const clienteSeleccionado = computed(() => {
       if (!data.venta.idCliente) return null
       return (
         data.clientes.find(
-          (c) => c.value === data.venta.idCliente || c.id === data.venta.idCliente
+          (c) =>
+            c.value === data.venta.idCliente ||
+            c.id === data.venta.idCliente ||
+            c.idCliente === data.venta.idCliente
         ) || null
       )
     })
 
+    const cobroMontoRecibidoNumber = computed(
+      () => {
+        const val = parseFloat(
+          data.dialogCobro.montoRecibido
+        )
+        return isNaN(val) ? 0 : val
+      }
+    )
+
+    const cobroCambioCalculado = computed(() => {
+      const total =
+        Number(data.factura.total) || 0
+      const recibido =
+        cobroMontoRecibidoNumber.value
+      return Math.max(
+        0,
+        parseFloat((recibido - total).toFixed(2))
+      )
+    })
+
+    const cobroMontoFaltante = computed(() => {
+      const total =
+        Number(data.factura.total) || 0
+      const recibido =
+        cobroMontoRecibidoNumber.value
+      return Math.max(
+        0,
+        parseFloat((total - recibido).toFixed(2))
+      )
+    })
+
+    const setMontoRecibidoExacto = () => {
+      data.dialogCobro.montoRecibido = parseFloat(
+        Number(data.factura.total).toFixed(2)
+      )
+    }
+
+    const agregarDenominacion = (monto) => {
+      const actual =
+        cobroMontoRecibidoNumber.value
+      data.dialogCobro.montoRecibido = parseFloat(
+        (actual + monto).toFixed(2)
+      )
+    }
+
+    const cerrarDialogCobro = () => {
+      data.dialogCobro.show = false
+      data.dialogCobro.montoRecibido = null
+    }
+
     const calcularFactura = () => {
       let subtotalNeto = 0
+      let totalDescuento = 0
       let totalImpuestos = 0
       data.factura.subTotal = 0.0
+      data.factura.totalDescuento = 0.0
       data.factura.totalImpuestos = 0.0
       data.factura.total = 0.0
       data.factura.usdTotal = 0.0
 
       data.items.forEach((item) => {
-        const base = (Number(item.costoUnitario) || 0) * (Number(item.cantidad) || 0)
-        const impuesto = Number(item.montoImpuesto) || 0
-        item.subTotal = base + impuesto
+        const base =
+          (Number(item.costoUnitario) || 0) *
+          (Number(item.cantidad) || 0)
+        const descuento =
+          clienteTieneDescuento.value
+            ? Math.min(
+                base,
+                Math.max(
+                  0,
+                  Number(item.descuento) || 0
+                )
+              )
+            : 0
+        item.descuento = descuento
+        const baseGravable = Math.max(
+          0,
+          base - descuento
+        )
+        const montoImpuesto =
+          baseGravable *
+          ((Number(item.porcentajeImpuesto) ||
+            0) /
+            100)
+        item.montoImpuesto = montoImpuesto
+        item.subTotal =
+          baseGravable + montoImpuesto
         subtotalNeto += base
-        totalImpuestos += impuesto
+        totalDescuento += descuento
+        totalImpuestos += montoImpuesto
       })
 
       data.factura.subTotal = subtotalNeto
+      data.factura.totalDescuento = totalDescuento
       data.factura.totalImpuestos = totalImpuestos
-      data.factura.total = subtotalNeto + totalImpuestos
-      data.factura.usdTotal = data.factura.total / 36.6243
+      data.factura.total = Math.max(
+        0,
+        subtotalNeto -
+          totalDescuento +
+          totalImpuestos
+      )
+      data.factura.usdTotal =
+        data.factura.total / 36.6243
     }
 
     const cargarSesionCajaActiva = async () => {
@@ -1517,34 +2698,66 @@ export default {
         const token = store.getInfoUser()
         if (!token || !token.idusuario) return
 
-        const idUsuario = parseInt(token.idusuario)
+        const idUsuario = parseInt(
+          token.idusuario
+        )
         data.sesionCaja.idUsuario = idUsuario
-        data.sesionCaja.usuario = token.usuario || ''
-        data.sesionCaja.nombre = localStorage.getItem('name') || token.usuario || ''
+        data.sesionCaja.usuario =
+          token.usuario || ''
+        data.sesionCaja.nombre =
+          localStorage.getItem('name') ||
+          token.usuario ||
+          ''
 
         // 1. Obtener apertura activa del usuario
-        const resApertura = await httpGet(`api/usuarios/${idUsuario}/caja-activa`)
-        if (resApertura && resApertura.tieneAperturaActiva === true && resApertura.apertura) {
+        const resApertura = await httpGet(
+          `api/usuarios/${idUsuario}/caja-activa`
+        )
+        if (
+          resApertura &&
+          resApertura.tieneAperturaActiva ===
+            true &&
+          resApertura.apertura
+        ) {
           const ap = resApertura.apertura
           data.sesionCaja.tieneAperturaActiva = true
-          data.sesionCaja.idAperturaCaja = ap.idAperturaCaja
+          data.sesionCaja.idAperturaCaja =
+            ap.idAperturaCaja
           data.sesionCaja.idCaja = ap.idCaja
-          data.sesionCaja.cajaCodigo = ap.cajaCodigo || ''
-          data.sesionCaja.cajaNombre = ap.cajaNombre || ''
+          data.sesionCaja.cajaCodigo =
+            ap.cajaCodigo || ''
+          data.sesionCaja.cajaNombre =
+            ap.cajaNombre || ''
           if (ap.usuarioAperturaNombre) {
-            data.sesionCaja.usuario = ap.usuarioAperturaNombre
+            data.sesionCaja.usuario =
+              ap.usuarioAperturaNombre
           }
 
           // 2. Obtener datos de la caja (bodega y cajero si está disponible)
-          const resCajas = await httpGet('api/cajas')
-          const cajas = Array.isArray(resCajas) ? resCajas : (Array.isArray(resCajas?.data) ? resCajas.data : [])
-          if (data.sesionCaja.idCaja && cajas.length > 0) {
-            const caja = cajas.find((c) => c.idCaja === data.sesionCaja.idCaja)
+          const resCajas =
+            await httpGet('api/cajas')
+          const cajas = Array.isArray(resCajas)
+            ? resCajas
+            : Array.isArray(resCajas?.data)
+              ? resCajas.data
+              : []
+          if (
+            data.sesionCaja.idCaja &&
+            cajas.length > 0
+          ) {
+            const caja = cajas.find(
+              (c) =>
+                c.idCaja ===
+                data.sesionCaja.idCaja
+            )
             if (caja) {
-              data.sesionCaja.bodegaNombre = caja.bodegaNombre || ''
-              data.sesionCaja.idBodega = caja.idBodega || null
+              data.sesionCaja.bodegaNombre =
+                caja.bodegaNombre || ''
+              data.sesionCaja.idBodega =
+                caja.idBodega || null
               if (caja.cajeroUltimaSesionNombre) {
-                data.sesionCaja.nombre = caja.cajeroUltimaSesionNombre
+                data.sesionCaja.nombre =
+                  caja.cajeroUltimaSesionNombre
               }
             }
           }
@@ -1553,18 +2766,38 @@ export default {
         }
 
         // 3. Obtener nombre completo del usuario si aún no está definido o es igual al username
-        if (!data.sesionCaja.nombre || data.sesionCaja.nombre === data.sesionCaja.usuario) {
-          const resUsuarios = await httpGet('api/usuario/listar')
-          const usuarios = Array.isArray(resUsuarios) ? resUsuarios : (Array.isArray(resUsuarios?.data) ? resUsuarios.data : [])
+        if (
+          !data.sesionCaja.nombre ||
+          data.sesionCaja.nombre ===
+            data.sesionCaja.usuario
+        ) {
+          const resUsuarios = await httpGet(
+            'api/usuario/listar'
+          )
+          const usuarios = Array.isArray(
+            resUsuarios
+          )
+            ? resUsuarios
+            : Array.isArray(resUsuarios?.data)
+              ? resUsuarios.data
+              : []
           if (usuarios.length > 0) {
-            const u = usuarios.find((x) => (x.idusuario || x.idUsuario) === idUsuario || x.username === token.usuario)
+            const u = usuarios.find(
+              (x) =>
+                (x.idusuario || x.idUsuario) ===
+                  idUsuario ||
+                x.username === token.usuario
+            )
             if (u && u.nombre) {
               data.sesionCaja.nombre = u.nombre
             }
           }
         }
       } catch (err) {
-        console.error('Error cargando sesión activa de caja:', err)
+        console.error(
+          'Error cargando sesión activa de caja:',
+          err
+        )
         data.sesionCaja.tieneAperturaActiva = false
       } finally {
         data.sesionCaja.loading = false
@@ -1616,7 +2849,10 @@ export default {
           return
         }
         const cli = data.clientes.find(
-          (c) => c.value === newId || c.id === newId
+          (c) =>
+            c.value === newId ||
+            c.id === newId ||
+            c.idCliente === newId
         )
         const hasCred = !!(
           cli?.esTieneCredito ||
@@ -1626,8 +2862,25 @@ export default {
           cli?.tieneCredito ||
           cli?.credito
         )
-        if (!hasCred && data.isCredito === 'credito') {
+        if (
+          !hasCred &&
+          data.isCredito === 'credito'
+        ) {
           data.isCredito = 'contado'
+        }
+
+        const hasDesc = !!(
+          cli?.esTieneDescuento ||
+          cli?.EsTieneDescuento
+        )
+        if (!hasDesc) {
+          data.items.forEach((it) => {
+            it.descuento = 0
+          })
+          if (data.producto.descuento) {
+            data.producto.descuento = null
+          }
+          calcularFactura()
         }
       }
     )
@@ -1642,85 +2895,171 @@ export default {
             data.items = []
 
             // Asegurar que el catálogo de productos con impuestos y precios mayoristas esté cargado
-            if (!data.productos || data.productos.length === 0) {
-              const prodResult = await data.requestHttp.getProductosSesionCaja()
-              if (prodResult.code === 200 && Array.isArray(prodResult.data)) {
-                data.productos = prodResult.data.map((item) => ({
-                  idProducto: item.idProducto,
-                  codigo: item.codigo || '',
-                  nombre: item.nombre,
-                  title: `${item.codigo ? item.codigo + ' - ' : ''}${item.nombre}`,
-                  precio: item.precio,
-                  costo: item.costo,
-                  cantidadTotal: item.cantidadTotal,
-                  cantidadTotalBodega: item.cantidadTotalBodega,
-                  cantidadTotalGeneral: item.cantidadTotalGeneral,
-                  esMayorista: item.esMayorista,
-                  esFacturarSinInventario: item.esFacturarSinInventario,
-                  minimoVenta: item.minimoVenta,
-                  preciosMayoristas: item.preciosMayoristas || [],
-                  impuestos: item.impuestos || []
-                }))
+            if (
+              !data.productos ||
+              data.productos.length === 0
+            ) {
+              const prodResult =
+                await data.requestHttp.getProductosSesionCaja()
+              if (
+                prodResult.code === 200 &&
+                Array.isArray(prodResult.data)
+              ) {
+                data.productos =
+                  prodResult.data.map((item) => ({
+                    idProducto: item.idProducto,
+                    codigo: item.codigo || '',
+                    nombre: item.nombre,
+                    title: `${item.codigo ? item.codigo + ' - ' : ''}${item.nombre}`,
+                    precio: item.precio,
+                    costo: item.costo,
+                    cantidadTotal:
+                      item.cantidadTotal,
+                    cantidadTotalBodega:
+                      item.cantidadTotalBodega,
+                    cantidadTotalGeneral:
+                      item.cantidadTotalGeneral,
+                    esMayorista: item.esMayorista,
+                    esFacturarSinInventario:
+                      item.esFacturarSinInventario,
+                    minimoVenta: item.minimoVenta,
+                    preciosMayoristas:
+                      item.preciosMayoristas ||
+                      [],
+                    impuestos:
+                      item.impuestos || []
+                  }))
               }
             }
 
-            const result = await getVenta(props.idFact)
+            const result = await getVenta(
+              props.idFact
+            )
             if (result.code === 200) {
               data.venta = result.data
-              data.editVenta.estado = result.data.estado
-              data.editVenta.fechaRegistro = result.data.fechaRegistro
-              data.editVenta.idVenta = result.data.idVenta
-              data.editVenta.idClienteNavigation = result.data.idClienteNavigation
-              data.isCredito = result.data.credito ? 'credito' : 'contado'
+              data.editVenta.estado =
+                result.data.estado
+              data.editVenta.fechaRegistro =
+                result.data.fechaRegistro
+              data.editVenta.idVenta =
+                result.data.idVenta
+              data.editVenta.idClienteNavigation =
+                result.data.idClienteNavigation
+              data.isCredito = result.data.credito
+                ? 'credito'
+                : 'contado'
 
-              const detalles = result.data.detalleVenta || []
-              const mappedItems = detalles.map((item) => {
-                const prod = data.productos.find((p) => p.idProducto === item.idProducto)
-                const qty = Number(item.cantidad) || 0
-                const unitPrice = Number(item.precioUnitario) || 0
-                const subtotalBase = qty * unitPrice
-
-                // Evaluación de Precios Mayoristas
-                let esMayoristaAplicado = false
-                let rangoMayoristaText = ''
-                if (prod?.esMayorista && prod?.preciosMayoristas && prod.preciosMayoristas.length > 0) {
-                  const matchingRange = prod.preciosMayoristas.find(
-                    (pm) => qty >= pm.minimo && (pm.rangoIndefinido || qty <= pm.maximo)
+              const detalles =
+                result.data.detalleVenta || []
+              const mappedItems = detalles.map(
+                (item) => {
+                  const prod =
+                    data.productos.find(
+                      (p) =>
+                        p.idProducto ===
+                        item.idProducto
+                    )
+                  const qty =
+                    Number(item.cantidad) || 0
+                  const unitPrice =
+                    Number(item.precioUnitario) ||
+                    0
+                  const subtotalBase =
+                    qty * unitPrice
+                  const desc = Number(
+                    item.descuento ||
+                      item.Descuento ||
+                      0
                   )
-                  if (matchingRange) {
-                    esMayoristaAplicado = true
-                    rangoMayoristaText = `(${matchingRange.minimo}${matchingRange.maximo ? ' - ' + matchingRange.maximo : ' o más'})`
+
+                  // Evaluación de Precios Mayoristas
+                  let esMayoristaAplicado = false
+                  let rangoMayoristaText = ''
+                  if (
+                    prod?.esMayorista &&
+                    prod?.preciosMayoristas &&
+                    prod.preciosMayoristas
+                      .length > 0
+                  ) {
+                    const matchingRange =
+                      prod.preciosMayoristas.find(
+                        (pm) =>
+                          qty >= pm.minimo &&
+                          (pm.rangoIndefinido ||
+                            qty <= pm.maximo)
+                      )
+                    if (matchingRange) {
+                      esMayoristaAplicado = true
+                      rangoMayoristaText = `(${matchingRange.minimo}${matchingRange.maximo ? ' - ' + matchingRange.maximo : ' o más'})`
+                    }
+                  }
+
+                  // Evaluación y Cálculo de Impuestos aplicables a la venta
+                  const impuestosVenta = (
+                    prod?.impuestos ||
+                    item.impuestos ||
+                    []
+                  ).filter(
+                    (i) => i.esAplicadoVenta
+                  )
+                  const porcentajeImpuestoTotal =
+                    impuestosVenta.reduce(
+                      (acc, imp) =>
+                        acc +
+                        (Number(
+                          imp.valorPorcentual
+                        ) || 0),
+                      0
+                    )
+                  const baseGravable = Math.max(
+                    0,
+                    subtotalBase - desc
+                  )
+                  const montoImpuesto =
+                    baseGravable *
+                    (porcentajeImpuestoTotal /
+                      100)
+
+                  return {
+                    idDetalleVenta:
+                      item.idDetalleVenta,
+                    idVenta: item.idVenta,
+                    idProducto: item.idProducto,
+                    codigo:
+                      prod?.codigo ||
+                      item.codigo ||
+                      '',
+                    producto:
+                      prod?.nombre ||
+                      item.producto ||
+                      `Producto #${item.idProducto}`,
+                    cantidad: qty,
+                    costoUnitario: unitPrice,
+                    descuento: desc,
+                    precioRegular:
+                      prod?.precio || unitPrice,
+                    esMayorista:
+                      esMayoristaAplicado,
+                    rangoMayorista:
+                      rangoMayoristaText,
+                    impuestos: impuestosVenta,
+                    porcentajeImpuesto:
+                      porcentajeImpuestoTotal,
+                    montoImpuesto: montoImpuesto,
+                    subTotal:
+                      Math.max(
+                        0,
+                        subtotalBase - desc
+                      ) + montoImpuesto,
+                    observaciones:
+                      item.observaciones,
+                    idProductoNavigation:
+                      item.idProductoNavigation,
+                    idVentaNavigation:
+                      item.idVentaNavigation
                   }
                 }
-
-                // Evaluación y Cálculo de Impuestos aplicables a la venta
-                const impuestosVenta = (prod?.impuestos || item.impuestos || []).filter((i) => i.esAplicadoVenta)
-                const porcentajeImpuestoTotal = impuestosVenta.reduce(
-                  (acc, imp) => acc + (Number(imp.valorPorcentual) || 0),
-                  0
-                )
-                const montoImpuesto = subtotalBase * (porcentajeImpuestoTotal / 100)
-
-                return {
-                  idDetalleVenta: item.idDetalleVenta,
-                  idVenta: item.idVenta,
-                  idProducto: item.idProducto,
-                  codigo: prod?.codigo || item.codigo || '',
-                  producto: prod?.nombre || item.producto || `Producto #${item.idProducto}`,
-                  cantidad: qty,
-                  costoUnitario: unitPrice,
-                  precioRegular: prod?.precio || unitPrice,
-                  esMayorista: esMayoristaAplicado,
-                  rangoMayorista: rangoMayoristaText,
-                  impuestos: impuestosVenta,
-                  porcentajeImpuesto: porcentajeImpuestoTotal,
-                  montoImpuesto: montoImpuesto,
-                  subTotal: subtotalBase + montoImpuesto,
-                  observaciones: item.observaciones,
-                  idProductoNavigation: item.idProductoNavigation,
-                  idVentaNavigation: item.idVentaNavigation
-                }
-              })
+              )
 
               data.items = mappedItems
               calcularFactura()
@@ -1728,7 +3067,11 @@ export default {
             data.overlay.show = false
           } catch (error) {
             data.overlay.show = false
-            showAlert(1, 'No se pudo cargar la factura', 'error')
+            showAlert(
+              1,
+              'No se pudo cargar la factura',
+              'error'
+            )
           }
         }
       },
@@ -1749,6 +3092,173 @@ export default {
       }
     )
 
+    const NEGOCIO = {
+      nombre: 'Migdalia\'s Market',
+      direccion: 'Mercado Mayoreo Modulo #4',
+      telefono: '2263-2783'
+    }
+
+    const ANCHO_TICKET = 48
+
+    function formatedCurrency(key, currency) {
+      return formatters.formatCurrency(key, currency || 'NIO')
+    }
+
+    function formateDate(dateString) {
+      if (!dateString) return 'N/A'
+      return formatters.formatDate(dateString)
+    }
+
+    function formatQty(qty) {
+      const num = Number(qty) || 0
+      return num % 1 === 0 ? num.toString() : num.toFixed(4).replace(/0+$/, '')
+    }
+
+    function adaptarDatosRegistro(data, respuestaGuardado = {}) {
+      const clienteObj = data.clientes.find((c) => c.idCliente === data.venta.idCliente || c.value === data.venta.idCliente)
+      const tipoVentaObj = data.tipoVenta.find((t) => t.idTipoVenta === data.venta.idTipoVenta || t.value === data.venta.idTipoVenta)
+    
+      return {
+        venta: {
+          noVenta: respuestaGuardado.noVenta ?? data.venta.noVenta ?? 'N/A',
+          cliente: clienteObj?.title || clienteObj?.nombre || 'Consumidor Final',
+          usuarioRegistro: respuestaGuardado.usuarioRegistro ?? data.sesionCaja?.nombre ?? data.sesionCaja?.usuario ?? 'N/A',
+          tipoVenta: tipoVentaObj?.title || tipoVentaObj?.nombre || 'Venta General',
+          credito: data.isCredito === 'credito',
+          observaciones: data.venta.observaciones
+        },
+        editVenta: {
+          estado: true,
+          fechaRegistro: respuestaGuardado.fechaRegistro ?? new Date()
+        },
+        items: data.items,
+        factura: data.factura,
+        fomates: data.fornates // ojo: esta pantalla usa "fornates", no "fomates"
+      }
+    }
+ 
+// ---------------------------------------------------------
+// HELPERS DE FORMATO DE LÍNEA
+// ---------------------------------------------------------
+    function truncarOAjustar(texto, largo) {
+      texto = String(texto ?? '')
+      return texto.length > largo ? texto.slice(0, largo) : texto.padEnd(largo)
+    }
+    
+    function lineaDosColumnas(izquierda, derecha, ancho = ANCHO_TICKET) {
+      const espacio = ancho - izquierda.length - derecha.length
+      return espacio > 0
+        ? izquierda + ' '.repeat(espacio) + derecha + '\n'
+        : izquierda.slice(0, ancho - derecha.length - 1) + ' ' + derecha + '\n'
+    }
+    
+    // Cada ítem puede ocupar 2 líneas: nombre completo arriba,
+    // cantidad/precio/subtotal abajo — así no se corta el nombre del producto.
+    function lineasItem(item, fomatoNio) {
+      const nombre = item.producto || 'Producto'
+      const cant = this.formatQty ? this.formatQty(item.cantidad) : item.cantidad
+      const precioUnit = this.formatedCurrency ? this.formatedCurrency(item.costoUnitario, fomatoNio) : item.costoUnitario
+      const subtotal = this.formatedCurrency ? this.formatedCurrency(item.subTotal, fomatoNio) : item.subTotal
+    
+      let salida = `${nombre}\n`
+      salida += lineaDosColumnas(`  ${cant} x ${precioUnit}`, subtotal)
+    
+      if (item.esMayorista) {
+        salida += `  (Mayorista ${item.rangoMayorista})\n`
+      }
+      if (item.montoImpuesto > 0) {
+        const impuesto = this.formatedCurrency ? this.formatedCurrency(item.montoImpuesto, fomatoNio) : item.montoImpuesto
+        salida += `  IVA (${item.porcentajeImpuesto}%): ${impuesto}\n`
+      }
+    
+      return salida
+    }
+ 
+// ---------------------------------------------------------
+// FUNCIÓN PRINCIPAL DE IMPRESIÓN
+// Llamala con el mismo objeto `data` que ya usa tu template:
+//   await imprimirFactura(this.data)
+// Si tus helpers (formatedCurrency, formatQty, formateDate) son
+// métodos del componente, llamala con .call(this, data) para que
+// mantengan acceso a `this`. Ver nota al final del archivo.
+// ---------------------------------------------------------
+    async function imprimirFactura(data) {
+      try {
+        const qz = window.qz
+    
+        if (!qz.websocket.isActive()) {
+          await qz.websocket.connect()
+        }
+    
+        const nombreImpresora = await qz.printers.find('POS-80C')
+        const config = qz.configs.create(nombreImpresora)
+    
+        const { venta, editVenta, items, factura, fornates, dialogCobro, sesionCaja, clientes } = data
+        const separador = '-'.repeat(ANCHO_TICKET) + '\n'
+        const separadorBlank = ' '.repeat(ANCHO_TICKET) + '\n'
+    
+        const cuerpoItems = items.length
+          ? items.map((item) => lineasItem.call(this, item, fornates.nio)).join(separador === '\n' ? '' : '')
+          : 'Sin productos registrados\n'
+    
+        const ticket = [
+          '\x1B\x40',                                    // init
+          '\x1B\x61\x01',                                // centrar
+          '\x1B\x21\x10',                                // doble altura
+          '\x1B\x45\x01',                                // negrita ON
+          `${NEGOCIO.nombre}\n`,
+          '\x1B\x45\x00',                                // negrita OFF
+          '\x1B\x21\x00',                                // fuente normal
+          `${NEGOCIO.direccion}\n`,
+          `Tel: ${NEGOCIO.telefono}\n`,
+          separador,
+    
+          '\x1B\x61\x00',                                // alinear izquierda
+          `Factura N°: ${venta.noVenta || 'N/A'}\n`,
+          `Fecha: ${this.formateDate ? this.formateDate(editVenta.fechaRegistro) : editVenta.fechaRegistro}\n`,
+          `Cliente: ${clientes.find((c) => c.id === venta.idCliente)?.nombre || 'Consumidor Final'}\n`,
+          `Atendido por: ${sesionCaja.usuario || 'N/A'}\n`,
+          `Tipo: ${venta.tipoVenta || 'Venta General'} | ${venta.credito ? 'Crédito' : 'Contado'}\n`,
+    
+          separadorBlank,
+
+          lineaDosColumnas('PRODUCTOS', ''),
+          separador,
+
+          ...items.map((item) => lineasItem.call(this, item, fornates.nio)),
+          
+          separadorBlank,
+          lineaDosColumnas('RESUMEN', ''),
+          separador,
+    
+          lineaDosColumnas('Sub Total:', this.formatedCurrency ? this.formatedCurrency(factura.subTotal, fornates.nio) : factura.subTotal),
+          factura.totalImpuestos > 0
+            ? lineaDosColumnas('Impuestos:', this.formatedCurrency ? this.formatedCurrency(factura.totalImpuestos, fornates.nio) : factura.totalImpuestos)
+            : '',
+          '\x1B\x45\x01',                                // negrita ON (Emphasized mode, no descuadra el interlineado)
+          lineaDosColumnas('TOTAL:', this.formatedCurrency ? this.formatedCurrency(factura.total, fornates.nio) : factura.total),
+          '\x1B\x45\x00',                                // negrita OFF
+          `Paga Con: ${this.formatedCurrency ? this.formatedCurrency(dialogCobro.montoRecibido, fornates.nio) : factura.usdTotal}\n`,
+          `Cambio: ${this.formatedCurrency ? this.formatedCurrency(cobroCambioCalculado.value, fornates.nio) : cobroCambioCalculado.value}\n`,
+    
+          venta.observaciones ? `\nObs: ${venta.observaciones}\n` : '',
+    
+          separadorBlank,
+          separadorBlank,
+          '\x1B\x61\x01',                                // centrar
+          '\n¡Gracias por su compra!\n\n\n',
+          separadorBlank,
+          separadorBlank,
+          '\x1D\x56\x00'                                  // corte de papel
+        ]
+    
+        await qz.print(config, ticket)
+        console.log('Factura enviada a imprimir ✅')
+      } catch (err) {
+        console.error('Error al imprimir:', err)
+      }
+    }
+
     return {
       data,
       localShow,
@@ -1756,12 +3266,24 @@ export default {
       localFact,
       localTitle,
       clienteTieneCredito,
+      clienteTieneDescuento,
       clienteSeleccionado,
+      cobroMontoRecibidoNumber,
+      cobroCambioCalculado,
+      cobroMontoFaltante,
+      setMontoRecibidoExacto,
+      agregarDenominacion,
+      cerrarDialogCobro,
       showSuccesAlert,
       showAlert,
       getVenta,
       calcularFactura,
-      cargarSesionCajaActiva
+      cargarSesionCajaActiva,
+      formatedCurrency,
+      formateDate,
+      formatQty,
+      imprimirFactura,
+      adaptarDatosRegistro
     }
   },
 
@@ -1811,8 +3333,10 @@ export default {
             precio: item.precio,
             costo: item.costo,
             cantidadTotal: item.cantidadTotal,
-            cantidadTotalBodega: item.cantidadTotalBodega,
-            cantidadTotalGeneral: item.cantidadTotalGeneral,
+            cantidadTotalBodega:
+              item.cantidadTotalBodega,
+            cantidadTotalGeneral:
+              item.cantidadTotalGeneral,
             esMayorista: item.esMayorista,
             esFacturarSinInventario:
               item.esFacturarSinInventario,
@@ -1823,7 +3347,11 @@ export default {
           })
         )
       } else if (result.data?.msg) {
-        this.showAlert(1, result.data.msg, 'warning')
+        this.showAlert(
+          1,
+          result.data.msg,
+          'warning'
+        )
       }
     },
 
@@ -1840,7 +3368,11 @@ export default {
         return
       }
 
-      const inputQty = parseFloat(Number(this.data.producto.cantidad).toFixed(4))
+      const inputQty = parseFloat(
+        Number(
+          this.data.producto.cantidad
+        ).toFixed(4)
+      )
       if (isNaN(inputQty) || inputQty <= 0) {
         this.showAlert(
           1,
@@ -1873,11 +3405,33 @@ export default {
       let totalQty = inputQty
       let mergedObservaciones =
         this.data.producto.observaciones
+      let inputDescuento = this
+        .clienteTieneDescuento
+        ? Math.max(
+            0,
+            parseFloat(
+              Number(
+                this.data.producto.descuento || 0
+              ).toFixed(2)
+            )
+          )
+        : 0
 
       if (existingItemIndex !== -1) {
         const existingItem =
           this.data.items[existingItemIndex]
-        totalQty = parseFloat((totalQty + Number(existingItem.cantidad)).toFixed(4))
+        totalQty = parseFloat(
+          (
+            totalQty +
+            Number(existingItem.cantidad)
+          ).toFixed(4)
+        )
+        inputDescuento = parseFloat(
+          (
+            inputDescuento +
+            Number(existingItem.descuento || 0)
+          ).toFixed(2)
+        )
         mergedObservaciones = [
           existingItem.observaciones,
           this.data.producto.observaciones
@@ -1935,8 +3489,16 @@ export default {
         )
       const subtotalBase =
         totalQty * precioUnitario
+      const totalDescuentoLinea = this
+        .clienteTieneDescuento
+        ? Math.min(subtotalBase, inputDescuento)
+        : 0
+      const baseGravable = Math.max(
+        0,
+        subtotalBase - totalDescuentoLinea
+      )
       const montoImpuesto =
-        subtotalBase *
+        baseGravable *
         (porcentajeImpuestoTotal / 100)
 
       const itemData = {
@@ -1945,6 +3507,7 @@ export default {
         producto: prod.nombre,
         cantidad: totalQty,
         costoUnitario: precioUnitario,
+        descuento: totalDescuentoLinea,
         precioRegular: prod.precio,
         esMayorista: esMayoristaAplicado,
         rangoMayorista: rangoMayoristaText,
@@ -1952,7 +3515,11 @@ export default {
         porcentajeImpuesto:
           porcentajeImpuestoTotal,
         montoImpuesto: montoImpuesto,
-        subTotal: subtotalBase + montoImpuesto,
+        subTotal:
+          Math.max(
+            0,
+            subtotalBase - totalDescuentoLinea
+          ) + montoImpuesto,
         observaciones: mergedObservaciones
       }
 
@@ -1966,12 +3533,15 @@ export default {
       this.calcularFactura()
       this.data.producto.idProducto = null
       this.data.producto.cantidad = null
+      this.data.producto.descuento = null
       this.data.producto.observaciones = null
     },
 
     recalcularItem(item, nuevaCantidad) {
       if (!item) return
-      let qty = parseFloat(Number(nuevaCantidad).toFixed(4))
+      let qty = parseFloat(
+        Number(nuevaCantidad).toFixed(4)
+      )
       if (isNaN(qty) || qty <= 0) {
         qty = 1
       }
@@ -1983,13 +3553,23 @@ export default {
 
       if (prod) {
         // Validar stock si no es facturar sin inventario
-        if (!prod.esFacturarSinInventario && prod.cantidadTotal < qty) {
+        if (
+          !prod.esFacturarSinInventario &&
+          prod.cantidadTotal < qty
+        ) {
           this.showAlert(
             1,
             `Stock insuficiente para ${prod.nombre}. Stock disponible: ${prod.cantidadTotal}`,
             'warning'
           )
-          qty = Math.max(0.0001, parseFloat(Number(prod.cantidadTotal).toFixed(4)))
+          qty = Math.max(
+            0.0001,
+            parseFloat(
+              Number(prod.cantidadTotal).toFixed(
+                4
+              )
+            )
+          )
         }
 
         // Evaluación de Precio (Regular vs Mayorista)
@@ -2002,11 +3582,13 @@ export default {
           prod.preciosMayoristas &&
           prod.preciosMayoristas.length > 0
         ) {
-          const matchingRange = prod.preciosMayoristas.find(
-            (pm) =>
-              qty >= pm.minimo &&
-              (pm.rangoIndefinido || qty <= pm.maximo)
-          )
+          const matchingRange =
+            prod.preciosMayoristas.find(
+              (pm) =>
+                qty >= pm.minimo &&
+                (pm.rangoIndefinido ||
+                  qty <= pm.maximo)
+            )
           if (matchingRange) {
             precioUnitario = matchingRange.precio
             esMayoristaAplicado = true
@@ -2015,46 +3597,131 @@ export default {
         }
 
         // Evaluación de Impuestos aplicables a la venta
-        const impuestosVenta = (prod.impuestos || []).filter((i) => i.esAplicadoVenta)
-        const porcentajeImpuestoTotal = impuestosVenta.reduce(
-          (acc, imp) => acc + (imp.valorPorcentual || 0),
-          0
-        )
+        const impuestosVenta = (
+          prod.impuestos || []
+        ).filter((i) => i.esAplicadoVenta)
+        const porcentajeImpuestoTotal =
+          impuestosVenta.reduce(
+            (acc, imp) =>
+              acc + (imp.valorPorcentual || 0),
+            0
+          )
         const subtotalBase = qty * precioUnitario
-        const montoImpuesto = subtotalBase * (porcentajeImpuestoTotal / 100)
+        const desc = this.clienteTieneDescuento
+          ? Math.min(
+              subtotalBase,
+              Math.max(
+                0,
+                Number(item.descuento) || 0
+              )
+            )
+          : 0
+        const baseGravable = Math.max(
+          0,
+          subtotalBase - desc
+        )
+        const montoImpuesto =
+          baseGravable *
+          (porcentajeImpuestoTotal / 100)
 
         item.cantidad = qty
         item.costoUnitario = precioUnitario
+        item.descuento = desc
         item.esMayorista = esMayoristaAplicado
         item.rangoMayorista = rangoMayoristaText
-        item.porcentajeImpuesto = porcentajeImpuestoTotal
+        item.porcentajeImpuesto =
+          porcentajeImpuestoTotal
         item.montoImpuesto = montoImpuesto
-        item.subTotal = subtotalBase + montoImpuesto
+        item.subTotal =
+          baseGravable + montoImpuesto
       } else {
+        const subtotalBase =
+          (Number(item.costoUnitario) || 0) * qty
+        const desc = this.clienteTieneDescuento
+          ? Math.min(
+              subtotalBase,
+              Math.max(
+                0,
+                Number(item.descuento) || 0
+              )
+            )
+          : 0
+        const baseGravable = Math.max(
+          0,
+          subtotalBase - desc
+        )
+        const montoImpuesto =
+          baseGravable *
+          ((Number(item.porcentajeImpuesto) ||
+            0) /
+            100)
         item.cantidad = qty
-        item.subTotal = item.costoUnitario * qty + (item.montoImpuesto || 0)
+        item.descuento = desc
+        item.montoImpuesto = montoImpuesto
+        item.subTotal =
+          baseGravable + montoImpuesto
       }
 
       this.calcularFactura()
     },
 
+    onDescuentoInputChange(item, event) {
+      if (!this.clienteTieneDescuento) {
+        item.descuento = 0
+        this.recalcularItem(item, item.cantidad)
+        return
+      }
+      let val = parseFloat(event.target.value)
+      if (isNaN(val) || val < 0) val = 0
+      const subtotalBase =
+        (Number(item.costoUnitario) || 0) *
+        (Number(item.cantidad) || 0)
+      if (val > subtotalBase) {
+        val = subtotalBase
+        this.showAlert(
+          1,
+          `El descuento no puede superar el subtotal (${this.formatedCurrency(subtotalBase, this.data.fornates.nio)})`,
+          'warning'
+        )
+      }
+      item.descuento = parseFloat(val.toFixed(2))
+      this.recalcularItem(item, item.cantidad)
+    },
+
     incrementarCantidad(item) {
       const current = Number(item.cantidad) || 0
-      this.recalcularItem(item, parseFloat((current + 1).toFixed(4)))
+      this.recalcularItem(
+        item,
+        parseFloat((current + 1).toFixed(4))
+      )
     },
 
     decrementarCantidad(item) {
       const current = Number(item.cantidad) || 0
       if (current > 1) {
-        this.recalcularItem(item, parseFloat((current - 1).toFixed(4)))
+        this.recalcularItem(
+          item,
+          parseFloat((current - 1).toFixed(4))
+        )
       } else if (current > 0.0001) {
-        this.recalcularItem(item, Math.max(0.0001, parseFloat((current - 0.1).toFixed(4))))
+        this.recalcularItem(
+          item,
+          Math.max(
+            0.0001,
+            parseFloat((current - 0.1).toFixed(4))
+          )
+        )
       }
     },
 
     onCantidadInputChange(item, event) {
       const val = parseFloat(event.target.value)
-      this.recalcularItem(item, isNaN(val) ? 1 : parseFloat(val.toFixed(4)))
+      this.recalcularItem(
+        item,
+        isNaN(val)
+          ? 1
+          : parseFloat(val.toFixed(4))
+      )
     },
 
     deleteProduct(itemSelected) {
@@ -2072,7 +3739,10 @@ export default {
 
       try {
         if (!this.localEdit) {
-          if (!this.data.sesionCaja.tieneAperturaActiva) {
+          if (
+            !this.data.sesionCaja
+              .tieneAperturaActiva
+          ) {
             this.showAlert(
               2,
               'No cuenta con una apertura de caja activa para registrar ventas. Realice una apertura de caja primero.',
@@ -2115,15 +3785,30 @@ export default {
             // Consultar detalle de crédito en tiempo real para validar saldo disponible
             this.data.overlay.show = true
             try {
-              const resCredito = await this.data.requestHttp.getDetalleCreditoCliente(this.data.venta.idCliente)
+              const resCredito =
+                await this.data.requestHttp.getDetalleCreditoCliente(
+                  this.data.venta.idCliente
+                )
               this.data.overlay.show = false
 
-              if (resCredito.code === 200 && resCredito.data) {
-                this.data.dialogCredito.data = resCredito.data
-                const disponible = this.getSaldoDisponibleCredito(resCredito.data)
+              if (
+                resCredito.code === 200 &&
+                resCredito.data
+              ) {
+                this.data.dialogCredito.data =
+                  resCredito.data
+                const disponible =
+                  this.getSaldoDisponibleCredito(
+                    resCredito.data
+                  )
 
-                if (this.data.factura.total > disponible) {
-                  const excedente = this.data.factura.total - disponible
+                if (
+                  this.data.factura.total >
+                  disponible
+                ) {
+                  const excedente =
+                    this.data.factura.total -
+                    disponible
                   // Abrir modal de detalle mostrando el excedente y bloquear la venta
                   this.data.dialogCredito.show = true
                   this.showAlert(
@@ -2137,67 +3822,14 @@ export default {
             } catch (err) {
               this.data.overlay.show = false
             }
-          }
 
-          const payload = {
-            idCliente: this.data.venta.idCliente,
-            idTipoVenta:
-              this.data.venta.idTipoVenta,
-            credito:
-              this.data.venta.credito || false,
-            observaciones:
-              this.data.venta.observaciones,
-            enviarA: null,
-            ubicacion: this.data.venta.ubicacion,
-            detalleVenta: this.data.items.map(
-              (item) => ({
-                idProducto: item.idProducto,
-                cantidad: item.cantidad,
-                precioUnitario:
-                  item.costoUnitario,
-                observaciones: item.observaciones
-              })
-            )
-          }
-
-          this.data.contDisableBtn = true
-          this.data.overlay.show = true
-          const result =
-            await this.data.requestHttp.postVenta(
-              payload
-            )
-          this.data.overlay.show = false
-
-          if (result.code === 200) {
-            this.showSuccesAlert(
-              '¡Venta registrada con éxito!',
-              true
-            )
-            setTimeout(() => {
-              this.data.contDisableBtn = false
-              this.closeDialog()
-            }, 1500)
+            // Venta a crédito autorizada: proceder a guardar directamente
+            await this.ejecutarGuardadoFactura()
           } else {
-            this.data.contDisableBtn = false
-            // Refrescar lista de productos y stock por posibles ventas en concurrencia
-            await this.getProductos()
-
-            let errorMsg =
-              result.data?.msg ||
-              result.data?.message ||
-              '¡Venta no registrada. Verifique los datos!'
-
-            if (result.data?.code === 400.1 || result.data?.code === 400.2 || result.code === 404 || result.code === 401) {
-              if (result.data?.msg) {
-                errorMsg = result.data.msg
-              }
-            }
-
-            this.showSuccesAlert(
-              `¡${errorMsg}!`,
-              false
-            )
-            return
+            // Venta de Contado: abrir diálogo de cobro y cálculo de cambio para el cajero
+            this.data.dialogCobro.montoRecibido =
+              null
+            this.data.dialogCobro.show = true
           }
         } else {
           if (!this.data.venta.idCliente) {
@@ -2222,16 +3854,30 @@ export default {
             // Consultar detalle de crédito en tiempo real para validar saldo disponible
             this.data.overlay.show = true
             try {
-              const resCredito = await this.data.requestHttp.getDetalleCreditoCliente(this.data.venta.idCliente)
+              const resCredito =
+                await this.data.requestHttp.getDetalleCreditoCliente(
+                  this.data.venta.idCliente
+                )
               this.data.overlay.show = false
 
-              if (resCredito.code === 200 && resCredito.data) {
-                this.data.dialogCredito.data = resCredito.data
-                const disponible = this.getSaldoDisponibleCredito(resCredito.data)
+              if (
+                resCredito.code === 200 &&
+                resCredito.data
+              ) {
+                this.data.dialogCredito.data =
+                  resCredito.data
+                const disponible =
+                  this.getSaldoDisponibleCredito(
+                    resCredito.data
+                  )
 
-                if (this.data.factura.total > disponible) {
-                  const excedente = this.data.factura.total - disponible
-                  // Abrir modal de detalle mostrando el excedente y bloquear la venta
+                if (
+                  this.data.factura.total >
+                  disponible
+                ) {
+                  const excedente =
+                    this.data.factura.total -
+                    disponible
                   this.data.dialogCredito.show = true
                   this.showAlert(
                     2,
@@ -2246,12 +3892,113 @@ export default {
             }
           }
 
+          await this.ejecutarGuardadoFactura()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
+    async confirmarCobroYGuardar() {
+      if (
+        this.cobroMontoRecibidoNumber <
+        this.data.factura.total
+      ) {
+        this.showAlert(
+          2,
+          `El monto recibido (${this.formatedCurrency(this.cobroMontoRecibidoNumber, this.data.fornates.nio)}) es insuficiente para cubrir el total (${this.formatedCurrency(this.data.factura.total, this.data.fornates.nio)}).`,
+          'warning'
+        )
+        return
+      }
+      this.data.dialogCobro.show = false
+      await this.ejecutarGuardadoFactura()
+    },
+
+    async ejecutarGuardadoFactura() {
+      try {
+        if (!this.localEdit) {
+          const payload = {
+            idCliente: this.data.venta.idCliente,
+            idTipoVenta:
+              this.data.venta.idTipoVenta,
+            credito:
+              this.data.venta.credito || false,
+            observaciones:
+              this.data.venta.observaciones,
+            enviarA: null,
+            ubicacion: this.data.venta.ubicacion,
+            detalleVenta: this.data.items.map(
+              (item) => ({
+                idProducto: item.idProducto,
+                cantidad: item.cantidad,
+                precioUnitario:
+                  item.costoUnitario,
+                descuento: this
+                  .clienteTieneDescuento
+                  ? Number(item.descuento || 0)
+                  : 0,
+                observaciones: item.observaciones
+              })
+            )
+          }
+
+          this.data.contDisableBtn = true
+          this.data.overlay.show = true
+          const result =
+            await this.data.requestHttp.postVenta(
+              payload
+            )
+          this.data.overlay.show = false
+
+          if (result.code === 200) {
+            this.showSuccesAlert(
+              '¡Venta registrada con éxito!',
+              true
+            )
+            this.imprimirFactura.call(this, this.data)
+            setTimeout(() => {
+              this.data.contDisableBtn = false
+              this.closeDialog()
+            }, 1500)
+          } else {
+            this.data.contDisableBtn = false
+            // Refrescar lista de productos y stock por posibles ventas en concurrencia
+            await this.getProductos()
+
+            let errorMsg =
+              result.data?.msg ||
+              result.data?.message ||
+              '¡Venta no registrada. Verifique los datos!'
+
+            if (
+              result.data?.code === 400.1 ||
+              result.data?.code === 400.2 ||
+              result.code === 404 ||
+              result.code === 401
+            ) {
+              if (result.data?.msg) {
+                errorMsg = result.data.msg
+              }
+            }
+
+            this.showSuccesAlert(
+              `¡${errorMsg}!`,
+              false
+            )
+            return
+          }
+        } else {
           this.data.venta.detalleVenta =
             this.data.items.map((item) => ({
               idVenta: item.idVenta,
               idProducto: item.idProducto,
               cantidad: item.cantidad,
               precioUnitario: item.costoUnitario,
+              descuento: this
+                .clienteTieneDescuento
+                ? Number(item.descuento || 0)
+                : 0,
               observaciones: item.observaciones
             }))
 
@@ -2281,6 +4028,8 @@ export default {
           }
         }
       } catch (error) {
+        this.data.contDisableBtn = false
+        this.data.overlay.show = false
         await this.getProductos()
         this.showSuccesAlert(
           'Ha ocurrido un problema al guardar la factura',
@@ -2309,17 +4058,24 @@ export default {
       this.data.dialogCredito.show = true
       this.data.dialogCredito.loading = true
       this.data.dialogCredito.error = null
-      this.data.dialogCredito.idClienteConsultado = idCliente
+      this.data.dialogCredito.idClienteConsultado =
+        idCliente
 
       try {
-        const result = await this.data.requestHttp.getDetalleCreditoCliente(idCliente)
+        const result =
+          await this.data.requestHttp.getDetalleCreditoCliente(
+            idCliente
+          )
         if (result.code === 200 && result.data) {
-          this.data.dialogCredito.data = result.data
+          this.data.dialogCredito.data =
+            result.data
         } else {
-          this.data.dialogCredito.error = 'No se pudo obtener el detalle de crédito del cliente.'
+          this.data.dialogCredito.error =
+            'No se pudo obtener el detalle de crédito del cliente.'
         }
       } catch (e) {
-        this.data.dialogCredito.error = 'Error de conexión al consultar el detalle de crédito.'
+        this.data.dialogCredito.error =
+          'Error de conexión al consultar el detalle de crédito.'
       } finally {
         this.data.dialogCredito.loading = false
       }
@@ -2327,44 +4083,73 @@ export default {
 
     getSaldoDisponibleCredito(creditoData) {
       if (!creditoData) return 0
-      if (creditoData.esCreditoIlimitado || creditoData.EsCreditoIlimitado) {
+      if (
+        creditoData.esCreditoIlimitado ||
+        creditoData.EsCreditoIlimitado
+      ) {
         return Infinity
       }
-      if (creditoData.creditoDisponible !== undefined && creditoData.creditoDisponible !== null) {
-        return Number(creditoData.creditoDisponible)
+      if (
+        creditoData.creditoDisponible !==
+          undefined &&
+        creditoData.creditoDisponible !== null
+      ) {
+        return Number(
+          creditoData.creditoDisponible
+        )
       }
-      if (creditoData.CreditoDisponible !== undefined && creditoData.CreditoDisponible !== null) {
-        return Number(creditoData.CreditoDisponible)
+      if (
+        creditoData.CreditoDisponible !==
+          undefined &&
+        creditoData.CreditoDisponible !== null
+      ) {
+        return Number(
+          creditoData.CreditoDisponible
+        )
       }
-      if (creditoData.saldoDisponible !== undefined && creditoData.saldoDisponible !== null) {
+      if (
+        creditoData.saldoDisponible !==
+          undefined &&
+        creditoData.saldoDisponible !== null
+      ) {
         return Number(creditoData.saldoDisponible)
       }
-      if (creditoData.SaldoDisponible !== undefined && creditoData.SaldoDisponible !== null) {
+      if (
+        creditoData.SaldoDisponible !==
+          undefined &&
+        creditoData.SaldoDisponible !== null
+      ) {
         return Number(creditoData.SaldoDisponible)
       }
-      const lim = Number(creditoData.limiteCredito ?? creditoData.LimiteCredito ?? 0)
+      const lim = Number(
+        creditoData.limiteCredito ??
+          creditoData.LimiteCredito ??
+          0
+      )
       const util = Number(
         creditoData.creditoUsado ??
-        creditoData.CreditoUsado ??
-        creditoData.saldoUtilizado ??
-        creditoData.SaldoUtilizado ??
-        0
+          creditoData.CreditoUsado ??
+          creditoData.saldoUtilizado ??
+          creditoData.SaldoUtilizado ??
+          0
       )
       return Math.max(0, lim - util)
     },
 
-    formatedCurrency(key, currency) {
-      return formatters.formatCurrency(
-        key,
-        currency
-      )
-    },
+    // formatedCurrency(key, currency) {
+    //   return formatters.formatCurrency(
+    //     key,
+    //     currency
+    //   )
+    // },
 
-    formatedDate(dataString) {
-      return formatters.formatDate(dataString)
-    },
+    // formatedDate(dataString) {
+    //   return formatters.formatDate(dataString)
+    // },
 
     closeDialog() {
+      this.data.dialogCobro.show = false
+      this.data.dialogCobro.montoRecibido = null
       this.$emit('closeDialog', false)
     }
   }
@@ -2423,7 +4208,9 @@ export default {
   user-select: none;
 }
 
-.condition-tab-btn:hover:not(:disabled):not(.disabled) {
+.condition-tab-btn:hover:not(:disabled):not(
+    .disabled
+  ) {
   background-color: #fff3e0;
   border-color: #fb8c00;
   color: #e65100;
@@ -2450,28 +4237,29 @@ export default {
   display: inline-flex;
   align-items: center;
   background: #f1f5f9;
-  border-radius: 6px;
-  padding: 2px 3px;
+  border-radius: 4px;
+  padding: 1px 2px;
   border: 1px solid #e2e8f0;
 }
 
 .quantity-btn {
-  width: 22px !important;
-  height: 22px !important;
-  min-width: 22px !important;
-  border-radius: 4px;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  border-radius: 3px;
 }
 
 .quantity-input {
-  width: 72px;
-  height: 24px;
+  width: 40px;
+  height: 20px;
   border: 1px solid transparent;
   background: #ffffff;
-  border-radius: 4px;
-  font-size: 0.8125rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
   font-weight: 700;
   color: #1e293b;
   outline: none;
+  padding: 0 2px;
   transition: all 0.2s ease;
   appearance: textfield;
 }
@@ -2485,6 +4273,32 @@ export default {
 .quantity-input:focus {
   border-color: #e65100;
   box-shadow: 0 0 0 2px rgba(230, 81, 0, 0.15);
+}
+
+.discount-input {
+  width: 64px;
+  height: 22px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7e22ce;
+  padding: 0 4px;
+  outline: none;
+  transition: all 0.2s ease;
+  appearance: textfield;
+}
+
+.discount-input::-webkit-outer-spin-button,
+.discount-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.discount-input:focus {
+  border-color: #7e22ce;
+  box-shadow: 0 0 0 2px rgba(126, 34, 206, 0.15);
 }
 
 :deep(.fixed-autocomplete) {
@@ -2525,5 +4339,22 @@ export default {
   min-width: 0 !important;
   flex: 0 1 auto !important;
   height: 100% !important;
+}
+
+:deep(.cashier-pago-input-minimal input),
+:deep(.cashier-pago-input input) {
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  color: #1e1b4b !important;
+  text-align: right !important;
+}
+
+:deep(
+  .cashier-pago-input-minimal .v-field__prefix
+),
+:deep(.cashier-pago-input .v-field__prefix) {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #4338ca !important;
 }
 </style>

@@ -82,7 +82,7 @@
                 <v-card variant="flat" class="rounded-lg overflow-hidden mb-3 border" elevation="0">
                     <v-card-title class="px-4 py-2" style="background-color: #e8eaf6;">
                         <v-icon color="indigo-darken-3" class="mr-2">mdi-cart</v-icon>
-                        <span class="text-subtitle-2 font-weight-bold text-indigo-darken-4">DETALLE DE PRODUCTOS E IMPUESTOS</span>
+                        <span class="text-subtitle-2 font-weight-bold text-indigo-darken-4">DETALLE DE PRODUCTOS</span>
                     </v-card-title>
 
                     <v-data-table hide-default-footer 
@@ -96,13 +96,8 @@
                         <template v-slot:item.costoUnitario="{ item }">
                             <div class="text-right font-weight-medium">{{ formatedCurrency(item.costoUnitario, data.fomates.nio) }}</div>
                         </template>
-                        <template v-slot:item.montoImpuesto="{ item }">
-                            <div class="text-right font-weight-bold text-indigo-darken-3">
-                                {{ formatedCurrency(item.montoImpuesto, data.fomates.nio) }}
-                            </div>
-                        </template>
                         <template v-slot:item.subTotal="{ item }">
-                            <div class="text-right font-weight-bold text-indigo-darken-3">{{ formatedCurrency(item.totalConIva, data.fomates.nio) }}</div>
+                            <div class="text-right font-weight-bold text-indigo-darken-3">{{ formatedCurrency(item.subTotal, data.fomates.nio) }}</div>
                         </template>
                     </v-data-table>
                 </v-card>
@@ -124,19 +119,9 @@
                             <div class="text-caption text-indigo-darken-3 font-weight-bold mb-3">RESUMEN DE PAGO</div>
 
                             <div class="d-flex justify-space-between align-center mb-2">
-                                <span class="text-caption text-grey-darken-1 font-weight-medium">Sub Total (Neto):</span>
+                                <span class="text-caption text-grey-darken-1 font-weight-medium">Sub Total:</span>
                                 <span class="text-subtitle-2 font-weight-bold text-grey-darken-3">
                                     {{ formatedCurrency(data.factura.subTotal, data.fomates.nio) }}
-                                </span>
-                            </div>
-
-                            <div class="d-flex justify-space-between align-center mb-2">
-                                <span class="text-caption text-indigo-darken-3 font-weight-bold d-flex align-center">
-                                    <v-icon size="14" color="indigo-darken-3" class="mr-1">mdi-receipt-text-outline</v-icon>
-                                    Impuestos (IVA 15%):
-                                </span>
-                                <span class="text-subtitle-2 font-weight-bold text-indigo-darken-3">
-                                    {{ formatedCurrency(data.factura.totalImpuestos, data.fomates.nio) }}
                                 </span>
                             </div>
 
@@ -213,7 +198,6 @@ export default {
 
         const calcularTotals = () => {
             let subTotal = 0
-            let totalImpuestos = 0
             data.factura.subTotal = 0
             data.factura.totalImpuestos = 0
             data.factura.total = 0
@@ -221,12 +205,11 @@ export default {
 
             data.items.forEach(item => {
                 subTotal += Number(item.subTotal || 0)
-                totalImpuestos += Number(item.montoImpuesto || 0)
             })
 
             data.factura.subTotal = Number(subTotal.toFixed(2))
-            data.factura.totalImpuestos = Number(totalImpuestos.toFixed(2))
-            data.factura.total = Number((subTotal + totalImpuestos).toFixed(2))
+            data.factura.totalImpuestos = 0
+            data.factura.total = Number(subTotal.toFixed(2))
             data.factura.usdTotal = Number((data.factura.total / 36.6243).toFixed(2))
         }
 
@@ -252,17 +235,13 @@ export default {
                     const costoUnit = Number(item.costoUnitario || 0)
                     const cant = Number(item.cantidad || 0)
                     const sub = Number((cant * costoUnit).toFixed(2))
-                    const imp = Number((sub * 0.15).toFixed(2))
                     data.items.push({
                         idCompra: item.idCompra,
                         idProducto: item.idProducto, 
                         cantidad: cant,
                         costoUnitario: costoUnit,
-                        costoConIva: Number((costoUnit * 1.15).toFixed(2)),
-                        montoImpuesto: imp,
                         observaciones: item.observaciones,
                         subTotal: sub,
-                        totalConIva: sub + imp,
                         producto: product.nombre
                     })
                 }))
@@ -284,7 +263,6 @@ export default {
                 { title: 'Producto', key: 'producto', align: 'start' },
                 { title: 'Cantidad', key: 'cantidad', align: 'center', width: '90px' },
                 { title: 'Costo Unitario', key: 'costoUnitario', align: 'end', width: '135px' },
-                { title: 'IVA (15%)', key: 'montoImpuesto', align: 'end', width: '110px' },
                 { title: 'SubTotal', key: 'subTotal', align: 'end', width: '130px' },
             ],
             items: [],
@@ -298,24 +276,19 @@ export default {
                 usuarioRegistro: null,
                 fechaRegistro: null,
                 estado: null,
-                detalle: []
-            },
-            // Overlay
-            overlay: {
-                show: false
             },
             factura: {
                 subTotal: 0.00,
                 totalImpuestos: 0.00,
                 total: 0.00,
-                usdTotal: 0.00
+                usdTotal: 0.00,
             },
-            nio: true,
-            usd: false,
-            idOrden: null,
             fomates: {
-                nio: 'NIO', 
-                usd: 'USD'
+                nio: "NIO",
+                usd: "USD",
+            },
+            overlay: {
+                show: false
             },
             requestHttp: new RequestHttp()
         })
@@ -329,174 +302,166 @@ export default {
     },
 
     methods: {
-        formatedCurrency(key, currency) {
-            const value = formatters.formatCurrency(key, currency)
-            return value
-        },
-
-        formateDate(dateString) {
-            const value = formatters.formatDate(dateString)
-            return value
-        },
-
         closeDialog() {
-            this.$emit('closeDialog', false)
             this.localShow = false
+            this.$emit('closeDialog')
         },
-
+        formatedCurrency(val, cur) {
+            return formatters.formatCurrency(val, cur);
+        },
+        formateDate(val) {
+            return formatters.formatedDate(val);
+        },
         exportDialogToPDF() {
-            if (!this.data.items || this.data.items.length === 0) {
-                alert("No hay datos para exportar.");
-                return;
-            }
+            const doc = new jsPDF({
+                orientation: "p",
+                unit: "mm",
+                format: "a4",
+            });
 
-            const doc = new jsPDF("p", "mm", "a4");
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
+            const M = 12;
 
-            // ===== Helpers UI =====
             const COLORS = {
-                blue: [18, 42, 120],        // barra superior
-                blueSoft: [235, 240, 255],  // fondos suaves
-                border: [220, 225, 235],
-                text: [25, 35, 55],
-                muted: [120, 130, 150],
-                grayHeader: [236, 239, 245],
-                green: [40, 140, 70],
-                greenSoft: [224, 245, 232],
+                headerBg: [26, 35, 126],
+                headerSub: [197, 202, 233],
+                white: [255, 255, 255],
+                bgPage: [245, 245, 245],
+                cardBg: [255, 255, 255],
+                border: [224, 224, 224],
+                text: [33, 33, 33],
+                muted: [117, 117, 117],
+                blue: [40, 53, 147],
+                green: [46, 125, 50],
+                orange: [239, 108, 0],
+                grayHeader: [232, 234, 246],
             };
 
-            const M = 12;                 // margen general
-            const R = 4;                  // "radio" visual (simulado)
-            const lineH = 5;
-
-            const setText = (size = 10, style = "normal", rgb = COLORS.text) => {
+            const setText = (size = 10, style = "normal", color = COLORS.text) => {
                 doc.setFont("helvetica", style);
                 doc.setFontSize(size);
-                doc.setTextColor(...rgb);
+                doc.setTextColor(...color);
             };
 
-            const rect = (x, y, w, h, fillRgb = null, borderRgb = COLORS.border, lw = 0.3) => {
-                doc.setLineWidth(lw);
-                doc.setDrawColor(...borderRgb);
-                if (fillRgb) doc.setFillColor(...fillRgb);
-                doc.roundedRect(x, y, w, h, R, R, fillRgb ? "FD" : "S");
-            };
-
-            const labelValue = (label, value, x, y, w, opts = {}) => {
-                const {
-                    labelSize = 8,
-                    valueSize = 10,
-                    labelColor = COLORS.muted,
-                    valueColor = COLORS.text,
-                    valueStyle = "bold",
-                    maxLines = 1,
-                } = opts;
-
-                setText(labelSize, "normal", labelColor);
-                doc.text(label, x, y);
-
-                setText(valueSize, valueStyle, valueColor);
-                const v = value ?? "";
-                const lines = doc.splitTextToSize(String(v), w);
-                const sliced = lines.slice(0, maxLines);
-                doc.text(sliced, x, y + 4);
-
-                return y + 4 + (sliced.length - 1) * lineH;
-            };
-
-            const chip = (text, x, y, opts = {}) => {
-                const { fill = COLORS.greenSoft, color = COLORS.green } = opts;
-                setText(9, "bold", color);
-                const paddingX = 3;
-                const paddingY = 2.5;
-                const textW = doc.getTextWidth(text);
-                const w = textW + paddingX * 2;
-                const h = 7;
+            const rect = (x, y, w, h, fill = COLORS.white, stroke = COLORS.border, r = 2.5) => {
                 doc.setFillColor(...fill);
-                doc.setDrawColor(...fill);
-                doc.roundedRect(x, y, w, h, 3, 3, "F");
-                doc.text(text, x + paddingX, y + paddingY + 1.5);
-                return { w, h };
+                doc.setDrawColor(...stroke);
+                doc.roundedRect(x, y, w, h, r, r, "FD");
             };
 
-            // ===== Datos =====
-            const noOrden = this.data.orden?.noOrden ?? "";
-            const proveedor = this.data.orden?.proveedor ?? "";
-            const bodegaNombre = this.data.orden?.bodegaNombre ?? "Sin asignar";
-            const usuarioRegistro = this.data.orden?.usuarioRegistro ?? "";
-            const aprobada = this.data.orden?.aprobada ? "SI" : "NO";
-            const estado = this.data.orden?.estado ? "Activa" : "Inactiva";
-            const fechaRegistro = this.formateDate?.(this.data.orden?.fechaRegistro) ?? "";
-            const observaciones = this.data.orden?.observaciones || "Ninguna";
+            // Background general
+            doc.setFillColor(...COLORS.bgPage);
+            doc.rect(0, 0, pageWidth, pageHeight, "F");
 
-            // Totales
-            const subTotal = this.data.factura?.subTotal ?? 0;
-            const totalImpuestos = this.data.factura?.totalImpuestos ?? 0;
-            const total = this.data.factura?.total ?? 0;
+            let y = M;
 
-            // ===== Layout =====
-            let y = 0;
+            // ===== Header principal =====
+            const headerH = 22;
+            doc.setFillColor(...COLORS.headerBg);
+            doc.roundedRect(M, y, pageWidth - M * 2, headerH, 3, 3, "F");
 
-            // ===== Header azul =====
-            const headerH = 18;
-            doc.setFillColor(...COLORS.blue);
-            doc.rect(0, 0, pageWidth, headerH, "F");
+            // Icon circle
+            const circleR = 7;
+            const circleX = M + 8 + circleR;
+            const circleY = y + headerH / 2;
+            doc.setFillColor(...COLORS.white);
+            doc.circle(circleX, circleY, circleR, "F");
 
-            setText(11, "bold", [255, 255, 255]);
-            doc.text("ÓRDEN DE COMPRA", M, 7);
+            // Icon text inside circle
+            setText(11, "bold", COLORS.blue);
+            doc.text("🧾", circleX, circleY + 3.5, { align: "center" });
 
-            setText(10, "normal", [255, 255, 255]);
-            doc.text(`Documento No. ${noOrden}`, M, 13);
+            // Títulos
+            const textLeft = circleX + circleR + 6;
+            setText(13, "bold", COLORS.white);
+            doc.text("ÓRDEN DE COMPRA", textLeft, y + 9);
 
-            setText(14, "bold", [255, 255, 255]);
-            doc.text("DevoDigital", pageWidth - M, 11, { align: "right" });
+            const noOrden = this.data.orden?.noOrden || `COMP-${this.data.idOrden || ""}`;
+            setText(9.5, "normal", COLORS.headerSub);
+            doc.text(`Documento No. ${noOrden}`, textLeft, y + 15.5);
 
-            y = headerH + 6;
+            y += headerH + 6;
 
-            // ===== Card Información del Proveedor y Bodega =====
-            const card1H = 26;
-            rect(M, y, pageWidth - M * 2, card1H, [255, 255, 255]);
+            // ===== Card Info General =====
+            const infoH = 34;
+            rect(M, y, pageWidth - M * 2, infoH, [255, 255, 255]);
 
-            setText(8.5, "normal", COLORS.muted);
-            doc.text("INFORMACIÓN DE LA COMPRA / PROVEEDOR", M + 4, y + 6);
+            setText(9, "bold", COLORS.blue);
+            doc.text("INFORMACIÓN DE LA COMPRA / PROVEEDOR", M + 4, y + 6.5);
 
-            // Línea suave
             doc.setDrawColor(...COLORS.border);
             doc.setLineWidth(0.3);
             doc.line(M + 4, y + 8.5, pageWidth - M - 4, y + 8.5);
 
-            // Columnas
-            const innerX = M + 4;
-            const innerY = y + 12;
-            const innerW = pageWidth - M * 2 - 8;
+            const proveedor = this.data.orden?.proveedor || "---";
+            const bodega = this.data.orden?.bodegaNombre || "Sin asignar";
+            const usuario = this.data.orden?.usuarioRegistro || "Sistema";
+            const aprobada = this.data.orden?.aprobada ? "SÍ" : "NO";
+            const fechaReg = this.formateDate(this.data.orden?.fechaRegistro);
+            const estado = this.data.orden?.estado ? "Activa" : "Inactiva";
 
-            const colGap = 6;
-            const colW = (innerW - colGap * 4) / 5;
+            const colW = (pageWidth - M * 2 - 8) / 5;
+            let cx = M + 4;
 
-            // Columnas
-            labelValue("PROVEEDOR:", proveedor, innerX + (colW + colGap) * 0, innerY, colW);
-            labelValue("BODEGA DESTINO:", bodegaNombre, innerX + (colW + colGap) * 1, innerY, colW);
-            labelValue("REGISTRADO POR:", usuarioRegistro, innerX + (colW + colGap) * 2, innerY, colW);
-            labelValue("APROBADA:", aprobada, innerX + (colW + colGap) * 3, innerY, colW);
+            // Col 1: Proveedor
+            setText(8, "normal", COLORS.muted);
+            doc.text("PROVEEDOR:", cx, y + 14);
+            setText(8.8, "bold", COLORS.text);
+            const provLines = doc.splitTextToSize(proveedor, colW - 3);
+            doc.text(provLines.slice(0, 2), cx, y + 19);
 
-            // Fecha registro alineada a la derecha (con chip estado)
-            labelValue("FECHA REGISTRO", fechaRegistro, innerX + (colW + colGap) * 4, innerY, colW, {
-                valueStyle: "bold",
-                maxLines: 1,
-            });
+            cx += colW;
+            // Col 2: Bodega
+            setText(8, "normal", COLORS.muted);
+            doc.text("BODEGA DESTINO:", cx, y + 14);
+            setText(8.8, "bold", COLORS.blue);
+            const bodegaLines = doc.splitTextToSize(bodega, colW - 3);
+            doc.text(bodegaLines.slice(0, 2), cx, y + 19);
 
-            const chipX = innerX + (colW + colGap) * 4;
-            const chipY = innerY + 9;
-            chip(estado, chipX, chipY);
+            cx += colW;
+            // Col 3: Registrado por
+            setText(8, "normal", COLORS.muted);
+            doc.text("REGISTRADO POR:", cx, y + 14);
+            setText(8.8, "normal", COLORS.text);
+            const userLines = doc.splitTextToSize(usuario, colW - 3);
+            doc.text(userLines.slice(0, 2), cx, y + 19);
 
-            y += card1H + 8;
+            cx += colW;
+            // Col 4: Aprobada
+            setText(8, "normal", COLORS.muted);
+            doc.text("APROBADA:", cx, y + 14);
+            setText(8.8, "bold", this.data.orden?.aprobada ? COLORS.green : COLORS.muted);
+            doc.text(aprobada, cx, y + 19);
 
-            // ===== Sección Detalle de productos =====
+            cx += colW;
+            // Col 5: Fecha y Estado
+            setText(8, "normal", COLORS.muted);
+            doc.text("FECHA REGISTRO:", cx, y + 14);
+            setText(8.8, "bold", COLORS.text);
+            doc.text(fechaReg || "---", cx, y + 19);
+
+            // Chip estado
+            const chipW = 20;
+            const chipH = 5.5;
+            const chipX = cx;
+            const chipY = y + 23;
+            const isActiva = !!this.data.orden?.estado;
+
+            doc.setFillColor(...(isActiva ? [232, 245, 233] : [255, 243, 224]));
+            doc.setDrawColor(...(isActiva ? [76, 175, 80] : [255, 152, 0]));
+            doc.roundedRect(chipX, chipY, chipW, chipH, 1.5, 1.5, "FD");
+
+            setText(7.5, "bold", isActiva ? COLORS.green : COLORS.orange);
+            doc.text(estado, chipX + chipW / 2, chipY + 3.8, { align: "center" });
+
+            y += infoH + 6;
+
+            // ===== Sección Detalle Productos =====
             const sectionH = 10;
-            rect(M, y, pageWidth - M * 2, sectionH, COLORS.grayHeader);
+            rect(M, y, pageWidth - M * 2, sectionH, COLORS.grayHeader, COLORS.grayHeader);
 
-            setText(11, "bold", COLORS.text);
+            setText(9.5, "bold", COLORS.blue);
             doc.text("DETALLE DE PRODUCTOS", M + 10, y + 6.8);
 
             setText(12, "bold", COLORS.blue);
@@ -509,13 +474,12 @@ export default {
             const tableCardH = 70;
             rect(M, tableCardY, pageWidth - M * 2, tableCardH, [255, 255, 255]);
 
-            const headers = ["Producto", "Cantidad", "Costo", "IVA (15%)", "SubTotal"];
+            const headers = ["Producto", "Cantidad", "Costo", "SubTotal"];
             const filas = this.data.items.map(item => [
                 String(item.producto || ''),
                 String(item.cantidad || ''),
                 this.formatedCurrency(item.costoUnitario, this.data.fomates.nio),
-                this.formatedCurrency(item.montoImpuesto, this.data.fomates.nio),
-                this.formatedCurrency(item.totalConIva, this.data.fomates.nio),
+                this.formatedCurrency(item.subTotal, this.data.fomates.nio),
             ]);
 
             doc.autoTable({
@@ -544,7 +508,6 @@ export default {
                 didDrawPage: () => {},
             });
 
-            // y después de tabla (cursor real)
             const afterTableY = doc.lastAutoTable.finalY ?? (tableCardY + 25);
             y = afterTableY + 8;
 
@@ -553,6 +516,11 @@ export default {
             const leftW = (pageWidth - M * 2 - bottomGap) * 0.58;
             const rightW = (pageWidth - M * 2 - bottomGap) * 0.42;
             const bottomH = 50;
+
+            const observaciones = this.data.orden?.observaciones || "Sin observaciones registradas en la orden...";
+            const subTotal = this.data.factura?.subTotal || 0;
+            const total = this.data.factura?.total || 0;
+            const totalUsd = this.data.factura?.usdTotal || 0;
 
             // Observaciones (izq)
             rect(M, y, leftW, bottomH, [255, 255, 255]);
@@ -574,42 +542,42 @@ export default {
 
             // Subtotal
             setText(9.5, "normal", COLORS.text);
-            doc.text("Sub Total (Neto)", rx + 4, y + 16);
+            doc.text("Sub Total", rx + 4, y + 18);
 
             setText(9.5, "bold", COLORS.text);
             doc.text(
                 this.formatedCurrency(subTotal, this.data.fomates.nio),
                 rx + rightW - 4,
-                y + 16,
-                { align: "right" }
-            );
-
-            // IVA
-            setText(9.5, "normal", COLORS.blue);
-            doc.text("Impuestos (IVA 15%)", rx + 4, y + 23);
-
-            setText(9.5, "bold", COLORS.blue);
-            doc.text(
-                this.formatedCurrency(totalImpuestos, this.data.fomates.nio),
-                rx + rightW - 4,
-                y + 23,
+                y + 18,
                 { align: "right" }
             );
 
             // Línea
             doc.setDrawColor(...COLORS.border);
             doc.setLineWidth(0.3);
-            doc.line(rx + 4, y + 28, rx + rightW - 4, y + 28);
+            doc.line(rx + 4, y + 25, rx + rightW - 4, y + 25);
 
             // Total general destacado
             setText(11, "bold", COLORS.text);
-            doc.text("TOTAL GENERAL", rx + 4, y + 37);
+            doc.text("TOTAL GENERAL", rx + 4, y + 34);
 
             setText(12, "bold", COLORS.blue);
             doc.text(
                 this.formatedCurrency(total, this.data.fomates.nio),
                 rx + rightW - 4,
-                y + 37,
+                y + 34,
+                { align: "right" }
+            );
+
+            // Equivalente USD
+            setText(8.5, "normal", COLORS.muted);
+            doc.text("Equiv. USD (T/C 36.6243)", rx + 4, y + 42);
+
+            setText(9, "bold", COLORS.green);
+            doc.text(
+                this.formatedCurrency(totalUsd, this.data.fomates.usd),
+                rx + rightW - 4,
+                y + 42,
                 { align: "right" }
             );
 

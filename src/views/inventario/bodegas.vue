@@ -885,7 +885,7 @@
                     <h4
                       class="text-subtitle-2 font-weight-bold text-indigo-darken-4 mb-0"
                     >
-                      Camión Distribuidor
+                      {{ item.bodegaNombre || item.nombreBodega || ('Bodega Camión ' + item.placa) }}
                     </h4>
                     <v-chip
                       size="x-small"
@@ -1386,6 +1386,25 @@
                   ]"
                   maxLength="50"
                   class="text-uppercase"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="
+                    dialogCamion.item.nombreBodega
+                  "
+                  label="Nombre de la Bodega*"
+                  placeholder="Ej: Bodega Móvil Central / Bodega Camión M 123456"
+                  variant="outlined"
+                  density="compact"
+                  color="indigo"
+                  :rules="[
+                    (v) =>
+                      !!v ||
+                      'El nombre de la bodega es requerido.'
+                  ]"
+                  maxLength="150"
                   required
                 ></v-text-field>
               </v-col>
@@ -3115,7 +3134,8 @@ export default {
         loading: false,
         item: {
           idCamion: 0,
-          placa: ''
+          placa: '',
+          nombreBodega: ''
         }
       },
 
@@ -3251,7 +3271,9 @@ export default {
         .toLowerCase()
         .trim()
       return this.camiones.filter((c) =>
-        c.placa.toLowerCase().includes(search)
+        (c.placa && c.placa.toLowerCase().includes(search)) ||
+        (c.bodegaNombre && c.bodegaNombre.toLowerCase().includes(search)) ||
+        (c.nombreBodega && c.nombreBodega.toLowerCase().includes(search))
       )
     },
 
@@ -3839,17 +3861,19 @@ export default {
     openDialogCamion(item = null) {
       if (item) {
         this.dialogCamion.editar = true
-        this.dialogCamion.title = 'Editar Camión'
+        this.dialogCamion.title = 'Editar Camión y Bodega'
         this.dialogCamion.item = {
           idCamion: item.idCamion,
-          placa: item.placa
+          placa: item.placa,
+          nombreBodega: item.bodegaNombre || item.nombreBodega || `Bodega Camión ${item.placa}`
         }
       } else {
         this.dialogCamion.editar = false
-        this.dialogCamion.title = 'Nuevo Camión'
+        this.dialogCamion.title = 'Nuevo Camión y Bodega'
         this.dialogCamion.item = {
           idCamion: 0,
-          placa: ''
+          placa: '',
+          nombreBodega: ''
         }
       }
       this.dialogCamion.show = true
@@ -3861,6 +3885,7 @@ export default {
       this.dialogCamion.loading = true
       const payload = {
         placa: this.dialogCamion.item.placa,
+        nombreBodega: this.dialogCamion.item.nombreBodega,
         usuarioRegistro: this.usuarioLogueado
       }
 

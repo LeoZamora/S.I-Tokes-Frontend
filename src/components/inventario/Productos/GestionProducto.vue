@@ -1355,13 +1355,13 @@
                               class="text-center font-weight-bold text-caption"
                               style="width: 18%"
                             >
-                              Precio Base (Sin IVA)
+                              Precio Final (Con IVA) *
                             </th>
                             <th
                               class="text-center font-weight-bold text-caption"
                               style="width: 18%"
                             >
-                              Precio Final (Con IVA)
+                              Precio Base (Sin IVA)
                             </th>
                             <th
                               class="text-center font-weight-bold text-caption"
@@ -1446,7 +1446,7 @@
                             <td class="pa-1">
                               <v-text-field
                                 v-model="
-                                  row.precio
+                                  row.precioConIva
                                 "
                                 type="number"
                                 step="0.01"
@@ -1461,14 +1461,14 @@
                                   rules.numeric
                                 ]"
                                 @input="
-                                  handleWholesalePrecioChange(
+                                  handleWholesalePrecioConIvaChange(
                                     row
                                   )
                                 "
                               />
                             </td>
                             <td class="pa-1 text-center font-weight-bold text-indigo-darken-3 bg-indigo-lighten-5">
-                              C$ {{ (Number(row.precio || 0) * (1 + Number(ivaConfig.tasaIva || 15) / 100)).toFixed(2) }}
+                              C$ {{ Number(row.precio || 0).toFixed(2) }}
                             </td>
                             <td class="pa-1">
                               <v-text-field
@@ -3215,8 +3215,8 @@ export default {
 
       ivaConfig: {
         tasaIva: 15,
-        costoModo: 'con_iva',
-        precioModo: 'sin_iva',
+        costoModo: 'sin_iva',
+        precioModo: 'con_iva',
         costoInput: null,
         precioInput: null
       },
@@ -3522,6 +3522,11 @@ export default {
       if (this.ivaConfig.precioModo === 'con_iva') {
         this.onInputPrecio(this.ivaConfig.precioInput)
       }
+      if (this.data.form.esMayorista && this.data.form.preciosMayoristas) {
+        this.data.form.preciosMayoristas.forEach((row) => {
+          this.handleWholesalePrecioConIvaChange(row)
+        })
+      }
     },
 
     handleChangeCosto() {
@@ -3578,6 +3583,23 @@ export default {
       }
     },
 
+    handleWholesalePrecioConIvaChange(row) {
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      const conIva =
+        row.precioConIva !== '' &&
+        row.precioConIva !== null &&
+        row.precioConIva !== undefined
+          ? Number(row.precioConIva)
+          : null
+      if (conIva === null || isNaN(conIva)) {
+        row.precio = 0
+        row.utilidad = null
+        return
+      }
+      row.precio = Number((conIva / (1 + tasa)).toFixed(4))
+      this.handleWholesalePrecioChange(row)
+    },
+
     handleWholesalePrecioChange(row) {
       if (!row.precio || !this.data.form.costo) {
         row.utilidad = null
@@ -3596,19 +3618,27 @@ export default {
     },
 
     handleWholesaleUtilidadChange(row) {
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
       if (
-        !row.utilidad ||
+        row.utilidad === '' ||
+        row.utilidad === null ||
+        row.utilidad === undefined ||
         !this.data.form.costo
       ) {
-        row.precio = this.data.form.costo
+        row.precio = this.data.form.costo || 0
+        row.precioConIva =
+          row.precio > 0
+            ? Number((Number(row.precio) * (1 + tasa)).toFixed(2))
+            : ''
         return
       }
       const utilidad = Number(row.utilidad)
       const costo = Number(this.data.form.costo)
-      row.precio = (
+      row.precio = Number((
         (utilidad / 100) * costo +
         costo
-      ).toFixed(4)
+      ).toFixed(4))
+      row.precioConIva = Number((Number(row.precio) * (1 + tasa)).toFixed(2))
     },
 
     handleChangePrecio() {
@@ -4029,11 +4059,18 @@ export default {
 
       const count =
         this.data.form.preciosMayoristas.length
+      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
       if (count === 0) {
+        const basePrecio = this.data.form.precio || 0
+        const conIva =
+          basePrecio > 0
+            ? Number((Number(basePrecio) * (1 + tasa)).toFixed(2))
+            : ''
         this.data.form.preciosMayoristas.push({
           minimo: 1,
           maximo: 2,
-          precio: this.data.form.precio || 0,
+          precio: basePrecio,
+          precioConIva: conIva,
           utilidad: this.data.form.utilidad || 0,
           observaciones: ''
         })
@@ -4059,6 +4096,7 @@ export default {
           minimo: nextMinimo,
           maximo: '',
           precio: '',
+          precioConIva: '',
           utilidad: '',
           observaciones: ''
         })
@@ -4141,8 +4179,8 @@ export default {
       this.registroDisplay.tab = 0
       this.registroDisplay.imagen.url = null
       this.registroDisplay.imagen.archivo = null
-      this.ivaConfig.costoModo = 'con_iva'
-      this.ivaConfig.precioModo = 'sin_iva'
+      this.ivaConfig.costoModo = 'sin_iva'
+      this.ivaConfig.precioModo = 'con_iva'
       this.ivaConfig.tasaIva = 15
       this.ivaConfig.costoInput = null
       this.ivaConfig.precioInput = null
@@ -4237,17 +4275,18 @@ export default {
         this.ivaConfig.costoInput =
           fullProduct.costo !== null &&
           fullProduct.costo !== undefined
-            ? Number((Number(fullProduct.costo) * 1.15).toFixed(2))
+            ? Number(Number(fullProduct.costo).toFixed(2))
             : null
         this.data.form.categoria =
           fullProduct.categoria ||
           product.categoria
         this.data.form.nombre = fullProduct.nombre
         this.data.form.precio = fullProduct.precio
+        const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
         this.ivaConfig.precioInput =
           fullProduct.precio !== null &&
           fullProduct.precio !== undefined
-            ? Number(Number(fullProduct.precio).toFixed(2))
+            ? Number((Number(fullProduct.precio) * (1 + tasa)).toFixed(2))
             : null
         this.data.form.idSubCatProd =
           fullProduct.idSubCatProd
@@ -4273,8 +4312,14 @@ export default {
           fullProduct.precioMayorista
             ? fullProduct.precioMayorista.map(
                 (pm) => {
+                  const precio = Number(pm.precio || 0)
+                  const conIva =
+                    precio > 0
+                      ? Number((precio * (1 + tasa)).toFixed(2))
+                      : ''
                   const row = {
                     precio: pm.precio,
+                    precioConIva: conIva,
                     minimo: pm.minimo,
                     maximo:
                       pm.rangoIndefinido ||
@@ -4287,11 +4332,10 @@ export default {
                       pm.observaciones,
                     utilidad: 0
                   }
-                  const precio = Number(pm.precio)
                   const costo = Number(
                     fullProduct.costo
                   )
-                  if (costo > 0) {
+                  if (costo > 0 && precio > 0) {
                     row.utilidad = (
                       ((precio - costo) / costo) *
                       100
@@ -4399,8 +4443,8 @@ export default {
       this.data.dialog = false
       this.selectedProduct = null
       this.data.form.idSubCatProd = null
-      this.ivaConfig.costoModo = 'con_iva'
-      this.ivaConfig.precioModo = 'sin_iva'
+      this.ivaConfig.costoModo = 'sin_iva'
+      this.ivaConfig.precioModo = 'con_iva'
       this.ivaConfig.tasaIva = 15
       this.ivaConfig.costoInput = null
       this.ivaConfig.precioInput = null

@@ -258,22 +258,21 @@
                     />
                   </v-col>
 
-                  <!-- Costo Unitario (con IVA) -->
+                  <!-- Costo Unitario -->
                   <v-col cols="12" sm="5" md="3">
                     <v-text-field
-                      v-model.number="data.producto.costoIngresado"
+                      v-model.number="data.producto.costoUnitario"
                       prepend-inner-icon="mdi-cash"
                       prefix="C$"
                       density="compact"
                       variant="outlined"
                       hide-details
-                      label="Costo Unitario (con IVA)"
+                      label="Costo Unitario"
                       type="number"
                       min="0"
                       step="0.01"
                       color="indigo"
                       bg-color="white"
-                      @update:model-value="onCostoIngresadoChange"
                       @keyup.enter="addProducts()"
                     />
                   </v-col>
@@ -292,15 +291,6 @@
                     >
                       Agregar
                     </v-btn>
-                  </v-col>
-
-                  <!-- Desglose de costo unitario preview -->
-                  <v-col cols="12" class="pt-1 pb-0" v-if="data.producto.idProducto">
-                    <div class="bg-indigo-lighten-5 px-3 py-1 rounded d-flex justify-space-between align-center text-caption font-weight-medium text-indigo-darken-4 border border-indigo-lighten-4" style="font-size: 11px;">
-                      <span>Base (Sin IVA): <strong>C$ {{ Number(data.producto.costoUnitario || 0).toFixed(2) }}</strong></span>
-                      <span>IVA (15%): <strong>C$ {{ Number((data.producto.costoUnitario * 0.15) || 0).toFixed(2) }}</strong></span>
-                      <span>Con IVA: <strong>C$ {{ Number((data.producto.costoUnitario * 1.15) || 0).toFixed(2) }}</strong></span>
-                    </div>
                   </v-col>
                 </v-row>
 
@@ -390,18 +380,9 @@
                     </span>
                   </template>
 
-                  <template v-slot:item.montoImpuesto="{ item }">
-                    <div class="text-caption text-right">
-                      <span class="text-indigo-darken-3 font-weight-medium">
-                        {{ formatedCurrency(item.montoImpuesto, data.fomates.nio) }}
-                        <small class="text-grey ml-1">(15%)</small>
-                      </span>
-                    </div>
-                  </template>
-
                   <template v-slot:item.subTotal="{ item }">
                     <span class="font-weight-bold text-body-2 text-indigo-darken-3">
-                      {{ formatedCurrency(item.totalConIva, data.fomates.nio) }}
+                      {{ formatedCurrency(item.subTotal, data.fomates.nio) }}
                     </span>
                   </template>
 
@@ -418,23 +399,14 @@
                 </v-data-table>
               </div>
 
-              <!-- Resumen Financiero Completo: Subtotal, Impuestos y Total -->
+              <!-- Resumen Financiero Completo: Subtotal y Total -->
               <v-row dense justify="end">
                 <v-col cols="12" sm="8" md="5">
                   <div class="bg-indigo-lighten-5 pa-3 rounded-lg border border-indigo-lighten-4">
                     <div class="d-flex justify-space-between align-center mb-1">
-                      <span class="text-caption text-grey-darken-2 font-weight-medium">Sub Total (Neto):</span>
+                      <span class="text-caption text-grey-darken-2 font-weight-medium">Sub Total:</span>
                       <span class="text-body-2 font-weight-bold text-grey-darken-3">
                         {{ formatedCurrency(data.factura.subTotal, data.fomates.nio) }}
-                      </span>
-                    </div>
-                    <div
-                      class="d-flex justify-space-between align-center mb-1"
-                      v-if="data.factura.totalImpuestos > 0"
-                    >
-                      <span class="text-caption text-indigo-darken-3 font-weight-medium">Impuestos (IVA 15%):</span>
-                      <span class="text-body-2 font-weight-bold text-indigo-darken-3">
-                        {{ formatedCurrency(data.factura.totalImpuestos, data.fomates.nio) }}
                       </span>
                     </div>
                     <v-divider class="my-1 border-indigo-lighten-3" />
@@ -442,15 +414,6 @@
                       <span class="text-subtitle-2 font-weight-bold text-indigo-darken-4">TOTAL ORDEN:</span>
                       <span class="text-h6 font-weight-black text-indigo-darken-4">
                         {{ formatedCurrency(data.factura.total, data.fomates.nio) }}
-                      </span>
-                    </div>
-                    <div class="d-flex justify-space-between align-center pt-1 mt-1 border-t">
-                      <span class="text-caption text-grey-darken-1 d-flex align-center font-weight-medium">
-                        <v-icon size="14" class="mr-1" color="green-darken-2">mdi-currency-usd</v-icon>
-                        TOTAL USD (T/C 36.6243):
-                      </span>
-                      <span class="text-caption font-weight-bold text-green-darken-2">
-                        {{ formatedCurrency(data.factura.usdTotal, data.fomates.usd) }}
                       </span>
                     </div>
                   </div>
@@ -563,9 +526,8 @@ export default {
         { title: '', key: 'opc', align: 'center', width: '45px', sortable: false },
         { title: 'Producto', key: 'producto', align: 'start' },
         { title: 'Cantidad', key: 'cantidad', align: 'center', width: '130px' },
-        { title: 'Costo (Sin IVA)', key: 'costoUnitario', align: 'end', width: '130px' },
-        { title: 'IVA (15%)', key: 'montoImpuesto', align: 'end', width: '115px' },
-        { title: 'SubTotal', key: 'subTotal', align: 'end', width: '135px' }
+        { title: 'Costo Unitario', key: 'costoUnitario', align: 'end', width: '140px' },
+        { title: 'SubTotal', key: 'subTotal', align: 'end', width: '140px' }
       ],
       rules: {
         rules: [
@@ -597,7 +559,6 @@ export default {
         idProducto: null,
         cantidad: 1,
         costoUnitario: 0,
-        costoIngresado: 0,
         observaciones: null
       },
       factura: {
@@ -676,7 +637,6 @@ export default {
 
     const calcularTotals = () => {
       let subTotal = 0
-      let totalImpuestos = 0
       data.factura.subTotal = 0
       data.factura.totalImpuestos = 0
       data.factura.total = 0
@@ -686,27 +646,20 @@ export default {
         const costo = Number(item.costoUnitario || 0)
         const cant = Number(item.cantidad || 0)
         const sub = Number((costo * cant).toFixed(2))
-        const imp = Number((sub * 0.15).toFixed(2))
 
         item.subTotal = sub
-        item.costoConIva = Number((costo * 1.15).toFixed(2))
-        item.montoImpuesto = imp
-        item.totalConIva = sub + imp
-
         subTotal += sub
-        totalImpuestos += imp
       })
 
       data.factura.subTotal = Number(subTotal.toFixed(2))
-      data.factura.totalImpuestos = Number(totalImpuestos.toFixed(2))
-      data.factura.total = Number((subTotal + totalImpuestos).toFixed(2))
+      data.factura.totalImpuestos = 0
+      data.factura.total = Number(subTotal.toFixed(2))
       data.factura.usdTotal = Number((data.factura.total / 36.6243).toFixed(2))
     }
 
     const handleChangeProducto = async () => {
       if (!data.producto.idProducto) {
         data.producto.costoUnitario = 0
-        data.producto.costoIngresado = 0
         return
       }
       const prodInList = data.productos.find((p) => p.idProducto === data.producto.idProducto)
@@ -718,12 +671,6 @@ export default {
         baseCost = Number(product?.costo || 0)
       }
       data.producto.costoUnitario = baseCost
-      data.producto.costoIngresado = Number((baseCost * 1.15).toFixed(2))
-    }
-
-    const onCostoIngresadoChange = () => {
-      const val = Number(data.producto.costoIngresado || 0)
-      data.producto.costoUnitario = Number((val / 1.15).toFixed(4))
     }
 
     const incrementarCantidad = (item) => {
@@ -754,9 +701,6 @@ export default {
       const costo = Number(item.costoUnitario || 0)
       const cant = Number(item.cantidad || 0)
       item.subTotal = Number((costo * cant).toFixed(2))
-      item.costoConIva = Number((costo * 1.15).toFixed(2))
-      item.montoImpuesto = Number((item.subTotal * 0.15).toFixed(2))
-      item.totalConIva = item.subTotal + item.montoImpuesto
       calcularTotals()
     }
 
@@ -800,19 +744,15 @@ export default {
         data.items = []
         const promises = (result.detalleCompras || []).map(async (item) => {
           const product = await requestHttp.getByIdProducto(item.idProducto)
-          const sub = Number(item.cantidad || 0) * Number(item.costoUnitario || 0)
-          const imp = Number((sub * 0.15).toFixed(2))
+          const sub = Number((Number(item.cantidad || 0) * Number(item.costoUnitario || 0)).toFixed(2))
           data.items.push({
             idCompra: item.idCompra,
             idProducto: item.idProducto,
             codigo: product.codigo,
             cantidad: item.cantidad,
             costoUnitario: item.costoUnitario,
-            costoConIva: Number((item.costoUnitario * 1.15).toFixed(2)),
-            montoImpuesto: imp,
             observaciones: item.observaciones,
             subTotal: sub,
-            totalConIva: sub + imp,
             producto: product.nombre
           })
         })
@@ -876,13 +816,11 @@ export default {
           if (oldBodega && newBodega !== oldBodega) {
             data.producto.idProducto = null
             data.producto.costoUnitario = 0
-            data.producto.costoIngresado = 0
           }
         } else {
           data.productos = []
           data.producto.idProducto = null
           data.producto.costoUnitario = 0
-          data.producto.costoIngresado = 0
         }
       }
     )
@@ -894,7 +832,6 @@ export default {
           await handleChangeProducto()
         } else {
           data.producto.costoUnitario = 0
-          data.producto.costoIngresado = 0
         }
       }
     )
@@ -920,7 +857,6 @@ export default {
       showAlert,
       showSuccesAlert,
       calcularTotals,
-      onCostoIngresadoChange,
       incrementarCantidad,
       decrementarCantidad,
       onCantidadInputChange,
@@ -953,7 +889,6 @@ export default {
       const costoUnit = Number(this.data.producto.costoUnitario || 0)
       const cant = Number(this.data.producto.cantidad || 0)
       const sub = Number((costoUnit * cant).toFixed(2))
-      const imp = Number((sub * 0.15).toFixed(2))
 
       // Si el producto ya está en la lista, sumar cantidad
       const indexExistente = this.data.items.findIndex(
@@ -964,10 +899,7 @@ export default {
         const itemExistente = this.data.items[indexExistente]
         itemExistente.cantidad = Number((Number(itemExistente.cantidad) + cant).toFixed(4))
         itemExistente.costoUnitario = costoUnit
-        itemExistente.costoConIva = Number((costoUnit * 1.15).toFixed(2))
         itemExistente.subTotal = Number((itemExistente.cantidad * costoUnit).toFixed(2))
-        itemExistente.montoImpuesto = Number((itemExistente.subTotal * 0.15).toFixed(2))
-        itemExistente.totalConIva = itemExistente.subTotal + itemExistente.montoImpuesto
       } else {
         this.data.items.push({
           idCompra: this.data.producto.idCompra || 0,
@@ -975,10 +907,7 @@ export default {
           codigo: product.codigo,
           cantidad: cant,
           costoUnitario: costoUnit,
-          costoConIva: Number((costoUnit * 1.15).toFixed(2)),
-          montoImpuesto: imp,
           subTotal: sub,
-          totalConIva: sub + imp,
           producto: product.nombre || product.title,
           observaciones: this.data.producto.observaciones || ''
         })
@@ -988,7 +917,6 @@ export default {
       this.data.producto.idProducto = null
       this.data.producto.cantidad = 1
       this.data.producto.costoUnitario = 0
-      this.data.producto.costoIngresado = 0
       this.data.producto.observaciones = null
     },
 

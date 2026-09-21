@@ -408,6 +408,12 @@
             </div>
           </template>
 
+          <template v-slot:item.descuento="{ item }">
+            <div class="text-right text-body-2 font-weight-medium" :class="Number(item.descuento) > 0 ? 'text-purple-darken-3 font-weight-bold' : 'text-grey'">
+              {{ Number(item.descuento) > 0 ? '-' + formatedCurrency(item.descuento) : '—' }}
+            </div>
+          </template>
+
           <template v-slot:item.iva="{ item }">
             <div class="text-right text-body-2 font-weight-medium" :class="Number(item.iva) > 0 ? 'text-indigo-darken-3' : 'text-grey'">
               {{ formatedCurrency(item.iva) }}
@@ -1010,6 +1016,18 @@ export default {
         {
           title: 'Subtotal',
           key: 'subtotal',
+          align: 'end',
+          sortable: true,
+          headerProps: {
+            class: 'pa-1'
+          },
+          cellProps: {
+            class: 'pa-1'
+          }
+        },
+        {
+          title: 'Descuento',
+          key: 'descuento',
           align: 'end',
           sortable: true,
           headerProps: {

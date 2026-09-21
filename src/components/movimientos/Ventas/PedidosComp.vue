@@ -2007,6 +2007,8 @@ export default {
   },
 
   data() {
+    
+    
     return {
       requestHttp: new RequestHttp(),
       store: useStore(),

@@ -16,6 +16,7 @@
 
       <template v-slot:append>
         <v-btn
+          v-if="hasAccessToFunct('162')"
           color="indigo-darken-4"
           @click="openCreateDialog()"
           variant="tonal"
@@ -680,6 +681,7 @@ import { formatters } from '@/helpers/formatters'
 import RequestHttp from '@/services/requestHttp'
 import { useStore } from '@/store'
 import SuccessAlert from '@/components/widgets/SuccessAlert.vue'
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 export default {
   name: 'CajasModule',
@@ -1061,7 +1063,8 @@ export default {
       headersHistorialCaja,
       historialCaja,
       abrirHistorialCaja,
-      verDetalleComprobante
+      verDetalleComprobante,
+      hasAccessToFunct
     }
   }
 }
