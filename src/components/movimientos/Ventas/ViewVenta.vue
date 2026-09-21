@@ -1,8 +1,8 @@
 <template>
-  <v-dialog v-model="localShow" max-width="950" persistent>
-    <v-card class="rounded-xl overflow-hidden invoice-preview-card" elevation="16">
+  <v-dialog v-model="localShow" max-width="950" persistent scrollable>
+    <v-card class="rounded-xl overflow-hidden invoice-preview-card d-flex flex-column" style="max-height: 90vh;" elevation="16">
       <!-- Header con gradiente profesional y badges de estado -->
-      <div class="invoice-header px-6 py-4 d-flex align-center justify-space-between">
+      <div class="invoice-header px-6 py-4 d-flex align-center justify-space-between flex-shrink-0">
         <div class="d-flex align-center">
           <v-avatar size="44" color="white" class="mr-3 elevation-2">
             <v-icon color="indigo-darken-4" size="24">mdi-receipt-text-outline</v-icon>
@@ -64,7 +64,7 @@
       </div>
 
       <!-- Contenido de la Factura -->
-      <v-card-text class="pa-5 bg-grey-lighten-5">
+      <v-card-text class="pa-5 bg-grey-lighten-5 overflow-y-auto flex-grow-1">
         <!-- Bloque de Información General -->
         <v-card variant="flat" class="pa-4 rounded-lg border bg-white mb-4" elevation="0">
           <v-row dense>
@@ -140,14 +140,15 @@
                 <th class="text-left text-caption font-weight-bold text-grey-darken-3" style="width: 40px;">#</th>
                 <th class="text-left text-caption font-weight-bold text-grey-darken-3">Producto</th>
                 <th class="text-center text-caption font-weight-bold text-grey-darken-3" style="width: 100px;">Cantidad</th>
-                <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 130px;">Precio Unit.</th>
-                <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 140px;">Impuesto (IVA)</th>
-                <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 140px;">Subtotal</th>
+                <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 120px;">Precio Unit.</th>
+                <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 120px;">Descuento</th>
+                <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 130px;">Impuesto (IVA)</th>
+                <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 130px;">Subtotal</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="data.items.length === 0">
-                <td colspan="6" class="text-center py-6 text-grey text-caption">
+                <td colspan="7" class="text-center py-6 text-grey text-caption">
                   No hay productos registrados en esta factura
                 </td>
               </tr>
@@ -185,6 +186,14 @@
                 </td>
                 <td class="text-right text-body-2 font-weight-medium text-grey-darken-3">
                   {{ formatedCurrency(item.costoUnitario, data.fomates.nio) }}
+                </td>
+                <td class="text-right text-body-2 font-weight-medium">
+                  <span v-if="item.descuento > 0" class="text-purple-darken-3 font-weight-bold">
+                    -{{ formatedCurrency(item.descuento, data.fomates.nio) }}
+                  </span>
+                  <span v-else class="text-grey font-weight-medium">
+                    —
+                  </span>
                 </td>
                 <td class="text-right text-body-2">
                   <div v-if="item.montoImpuesto > 0" class="text-indigo-darken-3 font-weight-medium">
@@ -230,9 +239,16 @@
 
               <div class="financial-breakdown bg-indigo-lighten-5 pa-3 rounded-lg border border-indigo-lighten-4">
                 <div class="d-flex justify-space-between align-center mb-2">
-                  <span class="text-caption text-grey-darken-2 font-weight-medium">Sub Total (Neto):</span>
+                  <span class="text-caption text-grey-darken-2 font-weight-medium">Sub Total (Bruto):</span>
                   <span class="text-body-2 font-weight-bold text-grey-darken-3">
                     {{ formatedCurrency(data.factura.subTotal, data.fomates.nio) }}
+                  </span>
+                </div>
+
+                <div v-if="data.factura.totalDescuento > 0" class="d-flex justify-space-between align-center mb-2 text-purple-darken-3">
+                  <span class="text-caption font-weight-bold">Descuento Total:</span>
+                  <span class="text-body-2 font-weight-bold">
+                    - {{ formatedCurrency(data.factura.totalDescuento, data.fomates.nio) }}
                   </span>
                 </div>
 
@@ -266,7 +282,7 @@
 
       <!-- Footer de Acciones -->
       <v-divider />
-      <v-card-actions class="pa-4 bg-white d-flex align-center justify-space-between">
+      <v-card-actions class="pa-4 bg-white d-flex align-center justify-space-between flex-shrink-0">
         <v-btn
           color="grey-darken-2"
           variant="tonal"
@@ -328,6 +344,7 @@ export default {
         { title: 'Producto', key: 'producto', align: 'left' },
         { title: 'Cantidad', key: 'cantidad', align: 'center' },
         { title: 'Precio Unit.', key: 'costoUnitario', align: 'right' },
+        { title: 'Descuento', key: 'descuento', align: 'right' },
         { title: 'Impuesto (IVA)', key: 'impuesto', align: 'right' },
         { title: 'SubTotal', key: 'subTotal', align: 'right' }
       ],
@@ -335,6 +352,7 @@ export default {
       productos: [],
       factura: {
         subTotal: 0.0,
+        totalDescuento: 0.0,
         totalImpuestos: 0.0,
         total: 0.0,
         usdTotal: 0.0
@@ -370,24 +388,28 @@ export default {
 
     const calcularFactura = () => {
       let subtotal = 0
+      let totalDescuento = 0
       let totalImpuestos = 0
       data.factura.subTotal = 0.0
+      data.factura.totalDescuento = 0.0
       data.factura.totalImpuestos = 0.0
       data.factura.total = 0.0
       data.factura.usdTotal = 0.0
 
       data.items.forEach((item) => {
         const lineSubtotal = (Number(item.costoUnitario) || 0) * (Number(item.cantidad) || 0)
-        item.subTotal = lineSubtotal
+        const lineDescuento = Number(item.descuento) || 0
+        const montoImpuesto = Number(item.montoImpuesto) || 0
+        item.subTotal = Math.max(0, lineSubtotal - lineDescuento) + montoImpuesto
         subtotal += lineSubtotal
-        if (item.montoImpuesto) {
-          totalImpuestos += Number(item.montoImpuesto) || 0
-        }
+        totalDescuento += lineDescuento
+        totalImpuestos += montoImpuesto
       })
 
       data.factura.subTotal = subtotal
+      data.factura.totalDescuento = totalDescuento
       data.factura.totalImpuestos = totalImpuestos
-      data.factura.total = subtotal + totalImpuestos
+      data.factura.total = Math.max(0, subtotal - totalDescuento + totalImpuestos)
       data.factura.usdTotal = data.factura.total / 36.6243
     }
 
@@ -406,6 +428,7 @@ export default {
       data.overlay.show = true
       data.items = []
       data.factura.subTotal = 0.0
+      data.factura.totalDescuento = 0.0
       data.factura.totalImpuestos = 0.0
       data.factura.total = 0.0
       data.factura.usdTotal = 0.0
@@ -462,6 +485,7 @@ export default {
             const qty = Number(item.cantidad) || 0
             const unitCost = Number(item.precioUnitario || item.costoUnitario) || 0
             const lineSubtotal = qty * unitCost
+            const desc = Number(item.descuento || item.Descuento || 0)
 
             // Evaluación de Precios Mayoristas
             let esMayoristaAplicado = false
@@ -484,7 +508,10 @@ export default {
               0
             )
 
-            const montoImpuesto = lineSubtotal * (porcentajeImpuestoTotal / 100)
+            const baseGravable = Math.max(0, lineSubtotal - desc)
+            const montoImpuesto = item.iva !== undefined && item.iva !== null && item.iva !== 0
+              ? Number(item.iva)
+              : baseGravable * (porcentajeImpuestoTotal / 100)
 
             return {
               idDetalleVenta: item.idDetalleVenta,
@@ -494,10 +521,11 @@ export default {
               producto: productName,
               cantidad: qty,
               costoUnitario: unitCost,
+              descuento: desc,
               observaciones: item.observaciones,
               esMayorista: esMayoristaAplicado,
               rangoMayorista: rangoMayoristaText,
-              subTotal: lineSubtotal,
+              subTotal: Math.max(0, lineSubtotal - desc) + montoImpuesto,
               montoImpuesto: montoImpuesto,
               porcentajeImpuesto: porcentajeImpuestoTotal
             }
@@ -618,13 +646,14 @@ export default {
       doc.line(15, currentY, pageWidth - 15, currentY)
       currentY += 8
 
-      // Tabla de ítems con columna de impuesto
-      const headers = [['#', 'Producto', 'Cantidad', 'Precio Unit.', 'Impuesto (IVA)', 'Subtotal']]
+      // Tabla de ítems con columna de impuesto y descuento
+      const headers = [['#', 'Producto', 'Cantidad', 'Precio Unit.', 'Descuento', 'Impuesto (IVA)', 'Subtotal']]
       const filas = this.data.items.map((item, idx) => [
         (idx + 1).toString(),
         `${item.codigo ? item.codigo + ' - ' : ''}${item.producto}${item.esMayorista ? ' (Mayorista ' + item.rangoMayorista + ')' : ''}`,
         this.formatQty(item.cantidad),
         this.formatedCurrency(item.costoUnitario, this.data.fomates.nio),
+        item.descuento > 0 ? `-${this.formatedCurrency(item.descuento, this.data.fomates.nio)}` : '—',
         item.montoImpuesto > 0
           ? `${this.formatedCurrency(item.montoImpuesto, this.data.fomates.nio)} (+${item.porcentajeImpuesto}%)`
           : 'Exento',
@@ -648,12 +677,13 @@ export default {
           cellPadding: 3
         },
         columnStyles: {
-          0: { cellWidth: 10, halign: 'center' },
+          0: { cellWidth: 8, halign: 'center' },
           1: { cellWidth: 'auto', halign: 'left' },
-          2: { cellWidth: 20, halign: 'center' },
-          3: { cellWidth: 28, halign: 'right' },
-          4: { cellWidth: 32, halign: 'right' },
-          5: { cellWidth: 32, halign: 'right' }
+          2: { cellWidth: 18, halign: 'center' },
+          3: { cellWidth: 24, halign: 'right' },
+          4: { cellWidth: 24, halign: 'right' },
+          5: { cellWidth: 28, halign: 'right' },
+          6: { cellWidth: 28, halign: 'right' }
         },
         margin: { left: 15, right: 15 },
         didDrawPage: (dataObj) => {
@@ -664,7 +694,10 @@ export default {
       // Totales
       currentY = doc.lastAutoTable.finalY + 8
 
-      const totalBoxHeight = this.data.factura.totalImpuestos > 0 ? 35 : 28
+      let totalBoxHeight = 28
+      if (this.data.factura.totalDescuento > 0) totalBoxHeight += 6
+      if (this.data.factura.totalImpuestos > 0) totalBoxHeight += 6
+
       doc.setFillColor(lightGray[0], lightGray[1], lightGray[2])
       doc.rect(pageWidth - 100, currentY, 85, totalBoxHeight, 'F')
       doc.setDrawColor(200, 200, 200)
@@ -674,8 +707,14 @@ export default {
       doc.setFontSize(9)
       doc.setFont('helvetica', 'normal')
       doc.setTextColor(darkGray[0], darkGray[1], darkGray[2])
-      doc.text('Sub Total (Neto):', pageWidth - 95, totalLineY)
+      doc.text('Sub Total (Bruto):', pageWidth - 95, totalLineY)
       doc.text(this.formatedCurrency(this.data.factura.subTotal, this.data.fomates.nio), pageWidth - 18, totalLineY, { align: 'right' })
+
+      if (this.data.factura.totalDescuento > 0) {
+        totalLineY += 6
+        doc.text('Descuento Total:', pageWidth - 95, totalLineY)
+        doc.text(`-${this.formatedCurrency(this.data.factura.totalDescuento, this.data.fomates.nio)}`, pageWidth - 18, totalLineY, { align: 'right' })
+      }
 
       if (this.data.factura.totalImpuestos > 0) {
         totalLineY += 6

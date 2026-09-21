@@ -243,10 +243,7 @@
       <template v-slot:item.total="{ item }">
         <div class="text-right">
           <div class="font-weight-bold text-indigo-darken-4 text-subtitle-2">
-            {{ formatedCurrency(Number(item.total || 0) * 1.15) }}
-          </div>
-          <div class="text-caption text-grey font-weight-medium" style="font-size: 11px;">
-            Neto: {{ formatedCurrency(item.total) }}
+            {{ formatedCurrency(item.total) }}
           </div>
         </div>
       </template>
