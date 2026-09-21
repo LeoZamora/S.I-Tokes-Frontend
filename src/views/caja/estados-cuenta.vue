@@ -19,6 +19,7 @@
 
       <div class="d-flex align-center ga-2">
         <v-btn
+          v-if="hasAccessToFunct('201')"
           prepend-icon="mdi-printer"
           color="indigo-darken-4"
           variant="flat"
@@ -30,6 +31,7 @@
           Imprimir PDF
         </v-btn>
         <v-btn
+          v-if="hasAccessToFunct('201')"
           prepend-icon="mdi-file-excel"
           color="green-darken-3"
           variant="flat"
@@ -716,6 +718,7 @@ import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { hasAccessToFunct } from '@/scripts/Seguridad.js';
 
 export default {
   name: 'EstadosCuentaCajaView',
@@ -873,6 +876,7 @@ export default {
   },
 
   methods: {
+    hasAccessToFunct,
     showAlert(msg, type = 'success') {
       this.alert.message = msg;
       this.alert.type = type;

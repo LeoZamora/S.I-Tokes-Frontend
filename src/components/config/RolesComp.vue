@@ -67,80 +67,111 @@
       </v-card-text>
     </v-card>
 
-    <v-dialog v-model="data.showPermisos" width="800">
+    <v-dialog v-model="data.showPermisos" width="1100">
       <v-card>
-        <v-card-title>Permisos</v-card-title>
-        <v-card-text>
-          <v-row
-              dense
-          >
+        <v-card-title class="d-flex align-center bg-indigo-darken-4 text-white pa-4">
+          <v-icon class="mr-2" color="white">mdi-shield-account</v-icon>
+          <span class="text-h6 font-weight-bold">Configuración de Permisos del Rol</span>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <v-row dense>
+            <!-- 1. Facturación / Movimientos -->
             <v-col
-                cols="12" sm="6" md="6"
-                style='
-                border: 1px solid #e0e0e0;
-              '
+                cols="12" sm="12" md="4"
+                style='border: 1px solid #e0e0e0; border-radius: 8px;'
+                class="pa-2 mb-2 mb-md-0"
             >
-              <div class="d-flex justify-center">Gestión General</div>
+              <div class="text-subtitle-2 font-weight-bold text-center text-indigo-darken-3 py-1">Facturación y Movimientos</div>
+              <v-divider class="my-1"/>
               <div
-                  class="ma-2"
-                  style='border: 1px solid #e0e0e0;'
+                  class="ma-1"
+                  style='max-height: 420px; overflow-y: auto;'
               >
-                <div class="d-flex justify-center">
-                  <v-treeview
-                      open-all
-                      item-value="id"
-                      selectable
-                      select-strategy="classic"
-                      v-model="data.win2.data.permisos.facturacion"
-                      :items="data.win2.setup.facturacionPermisosTreeItems"
-
-                  >
-                    <template v-slot:prepend="{ item }">
-                      <v-icon>{{ item.icon }}</v-icon>
-                    </template>
-                  </v-treeview>
-                </div>
+                <v-treeview
+                    open-all
+                    item-value="id"
+                    selectable
+                    select-strategy="classic"
+                    v-model="data.win2.data.permisos.facturacion"
+                    :items="data.win2.setup.facturacionPermisosTreeItems"
+                >
+                  <template v-slot:prepend="{ item }">
+                    <v-icon size="small" color="indigo">{{ item.icon }}</v-icon>
+                  </template>
+                </v-treeview>
               </div>
             </v-col>
-            <v-col
-                cols="12" sm="6" md="6"
-                style='
-                border: 1px solid #e0e0e0;
-              '
-            >
-              <div class="d-flex justify-center">Gestión General</div>
-              <div
-                  class="ma-2"
-                  style='border: 1px solid #e0e0e0;'
-              >
-                <div class="d-flex justify-center">
-                  <v-treeview
-                      open-all
-                      item-value="id"
-                      selectable
-                      select-strategy="classic"
-                      v-model="data.win2.data.permisos.configuracion"
-                      :items="data.win2.setup.configuracionPermisosTreeItems"
 
-                  >
-                    <template v-slot:prepend="{ item }">
-                      <v-icon>{{ item.icon }}</v-icon>
-                    </template>
-                  </v-treeview>
-                </div>
+            <!-- 2. Gestión de Caja -->
+            <v-col
+                cols="12" sm="12" md="4"
+                style='border: 1px solid #e0e0e0; border-radius: 8px;'
+                class="pa-2 mb-2 mb-md-0"
+            >
+              <div class="text-subtitle-2 font-weight-bold text-center text-indigo-darken-3 py-1">Gestión de Caja</div>
+              <v-divider class="my-1"/>
+              <div
+                  class="ma-1"
+                  style='max-height: 420px; overflow-y: auto;'
+              >
+                <v-treeview
+                    open-all
+                    item-value="id"
+                    selectable
+                    select-strategy="classic"
+                    v-model="data.win2.data.permisos.cajas"
+                    :items="data.win2.setup.cajasPermisosTreeItems"
+                >
+                  <template v-slot:prepend="{ item }">
+                    <v-icon size="small" color="indigo">{{ item.icon }}</v-icon>
+                  </template>
+                </v-treeview>
+              </div>
+            </v-col>
+
+            <!-- 3. Configuración y Catálogos -->
+            <v-col
+                cols="12" sm="12" md="4"
+                style='border: 1px solid #e0e0e0; border-radius: 8px;'
+                class="pa-2"
+            >
+              <div class="text-subtitle-2 font-weight-bold text-center text-indigo-darken-3 py-1">Configuración y Catálogos</div>
+              <v-divider class="my-1"/>
+              <div
+                  class="ma-1"
+                  style='max-height: 420px; overflow-y: auto;'
+              >
+                <v-treeview
+                    open-all
+                    item-value="id"
+                    selectable
+                    select-strategy="classic"
+                    v-model="data.win2.data.permisos.configuracion"
+                    :items="data.win2.setup.configuracionPermisosTreeItems"
+                >
+                  <template v-slot:prepend="{ item }">
+                    <v-icon size="small" color="indigo">{{ item.icon }}</v-icon>
+                  </template>
+                </v-treeview>
               </div>
             </v-col>
           </v-row>
         </v-card-text>
-        <v-card-actions>
+        <v-divider/>
+        <v-card-actions class="pa-3 justify-end">
           <v-btn
               variant="outlined"
+              color="grey-darken-1"
+              class="text-none font-weight-bold"
               @click="data.showPermisos = false"
           >Cerrar</v-btn>
           <v-btn
-              class="bg-primary"
+              color="indigo-darken-4"
+              variant="flat"
+              class="text-none font-weight-bold"
+              prepend-icon="mdi-content-save-outline"
               @click="guardarPermisos"
-          >Guardar</v-btn>
+          >Guardar Permisos</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -199,6 +230,7 @@ export default {
             idRol: 0,
             facturacion: [],
             configuracion: [],
+            cajas: [],
           },
         },
         setup: {
@@ -235,12 +267,6 @@ export default {
                   title: 'Editar',
                   icon: 'mdi-monitor',
                 },
-
-                /*{
-                  id: '3-4',
-                  title: 'Eliminar',
-                  icon: 'mdi-monitor',
-                },*/
               ],
             },
             {
@@ -317,6 +343,92 @@ export default {
                 {
                   id: '11-3',
                   title: 'Editar',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
+              id: 14,
+              title: 'Pedidos',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '14-1',
+                  title: 'Visualizar',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
+              id: 21,
+              title: 'Tipos de Venta',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '21-1',
+                  title: 'Visualizar',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+          ],
+          cajasPermisosTreeItems: [
+            {
+              id: 16,
+              title: 'Control de Cajas',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '16-2',
+                  title: 'Crear',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
+              id: 17,
+              title: 'Apertura de Cajas',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '17-2',
+                  title: 'Crear',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
+              id: 18,
+              title: 'Arqueo de Cajas',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '18-2',
+                  title: 'Crear',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
+              id: 19,
+              title: 'Cierre de Cajas',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '19-2',
+                  title: 'Crear',
+                  icon: 'mdi-monitor',
+                },
+              ],
+            },
+            {
+              id: 20,
+              title: 'Estados de Cuenta de Cajas',
+              icon: 'mdi-menu',
+              children: [
+                {
+                  id: '20-1',
+                  title: 'Visualizar',
                   icon: 'mdi-monitor',
                 },
               ],
@@ -483,17 +595,11 @@ export default {
       me.win2.data.permisos.idRol = idRol
       me.win2.data.permisos.facturacion = []
       me.win2.data.permisos.configuracion = []
+      me.win2.data.permisos.cajas = []
       try {
-
-        //
         const permisos =
             await httpGet('api/Rol/Permisos/' + idRol)
 
-        /*4: GESTION PRESTAMOS
-        * 5: OTROS PERMISOS
-        * 6: GESTION SISTEMA
-        * 8: GESTION COLABORADORES
-        * */
         permisos.map(function(x) {
           switch (x.idVentanaPadre) {
             case 6:
@@ -502,30 +608,30 @@ export default {
             case 1:
               me.win2.data.permisos.configuracion.push(x.idCompuesto)
               break
+            case 15:
+              me.win2.data.permisos.cajas.push(x.idCompuesto)
+              break
             default:
-              if([3, 7, 8, 9, 10, 11].includes(x.idVentana)){
+              if ([16, 17, 18, 19, 20].includes(x.idVentana)) {
+                me.win2.data.permisos.cajas.push(x.idCompuesto)
+              } else if ([3, 7, 8, 9, 10, 11, 14, 21].includes(x.idVentana)) {
                 me.win2.data.permisos.facturacion.push(x.idCompuesto)
-              }
-              else{
+              } else {
                 me.win2.data.permisos.configuracion.push(x.idCompuesto)
               }
               break
           }
         })
 
-        this.resultPantalla()
-
       } catch (err) {
-
+        console.error(err)
       }
     },
 
     async openPermisos(item){
-
       await this.load_DataPermisosDisplay(item)
       this.data.showPermisos = true
     },
-
 
     closeDialog(val) {
       this.data.show = val

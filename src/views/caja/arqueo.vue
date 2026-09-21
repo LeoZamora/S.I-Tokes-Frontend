@@ -174,6 +174,7 @@
 
                 <div class="pa-3 bg-white">
                   <v-btn
+                    v-if="hasAccessToFunct('182')"
                     block
                     color="indigo-darken-4"
                     variant="flat"
@@ -419,6 +420,7 @@
 import { ref, reactive, computed, onMounted, onActivated } from 'vue'
 import { formatters } from '@/helpers/formatters'
 import RequestHttp from '@/services/requestHttp'
+import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 
 export default {
   name: 'ArqueoCajaModule',
@@ -712,7 +714,8 @@ export default {
       guardarArqueo,
       formateDate,
       formatCurrency,
-      preventNegative
+      preventNegative,
+      hasAccessToFunct
     }
   }
 }

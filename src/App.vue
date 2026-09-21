@@ -75,6 +75,7 @@
           ></v-list-item>
 
           <v-list-subheader
+            v-if="showGestionGeneralSubTitle"
             class="font-weight-bold"
           >
             Gestión General
@@ -289,6 +290,7 @@
           </v-list-group>
 
           <v-list-subheader
+            v-if="showGestionLogisticaSubTitle"
             class="font-weight-bold"
           >
             Gestión Logística
@@ -379,6 +381,7 @@
           </v-list-group>
 
           <v-list-subheader
+            v-if="showGestionEmpresarialSubTitle"
             class="font-weight-bold"
           >
             Gestión Empresarial
@@ -676,34 +679,34 @@ export default {
         {
           title: 'Cajas',
           route: 'Cajas',
-          idVentana: '3'
+          idVentana: '16'
         },
         {
           title: 'Apertura',
           route: 'Apertura',
-          idVentana: '3'
+          idVentana: '17'
         },
         {
           title: 'Arqueo',
           route: 'Arqueo',
-          idVentana: '3'
+          idVentana: '18'
         },
         {
           title: 'Cierre',
           route: 'Cierre',
-          idVentana: '3'
+          idVentana: '19'
         },
         {
           title: 'Estados Cuenta',
           route: 'Estados Cuenta',
-          idVentana: '3'
+          idVentana: '20'
         }
       ],
       ventas: [
         {
           title: 'Tipos de Venta',
           route: 'Tipos de Venta',
-          idVentana: '3'
+          idVentana: '21'
         },
         {
           title: 'Facturación',
@@ -713,7 +716,7 @@ export default {
         {
           title: 'Pedidos',
           route: 'Pedidos',
-          idVentana: '3'
+          idVentana: '14'
         }
       ],
       compras: [
@@ -935,35 +938,34 @@ export default {
   },
 
   computed: {
-    showGestionLogisticaSubTitle() {
-      let rutas = !!this.data.rutas.filter((c) =>
-        hasAccessToMenu(c.idVentana)
-      ).length
-      let inventario =
-        !!this.data.inventario.filter((c) =>
-          hasAccessToMenu(c.idVentana)
-        ).length
+    showGestionGeneralSubTitle() {
+      const ventas = this.data.ventas.some((c) => hasAccessToMenu(c.idVentana))
+      const porCobrar = this.data.porCobrar.some((c) => hasAccessToMenu(c.idVentana))
+      const clientes = this.data.clientes.some((c) => hasAccessToMenu(c.idVentana))
+      const compras = this.data.compras.some((c) => hasAccessToMenu(c.idVentana))
+      const cajas = this.data.cajas.some((c) => hasAccessToMenu(c.idVentana))
 
-      if (rutas || inventario) {
-        return true
-      } else {
-        return false
-      }
+      return ventas || porCobrar || clientes || compras || cajas
+    },
+    showGestionLogisticaSubTitle() {
+      let rutas = this.data.rutas.some((c) =>
+        hasAccessToMenu(c.idVentana)
+      )
+      let inventario = this.data.inventario.some((c) =>
+        hasAccessToMenu(c.idVentana)
+      )
+
+      return rutas || inventario
     },
     showGestionEmpresarialSubTitle() {
-      let movimientos =
-        this.data.movimientos.filter((c) =>
-          hasAccessToMenu(c.idVentana)
-        ).length
-      let cierres = this.data.cierres.filter(
-        (c) => hasAccessToMenu(c.idVentana)
-      ).length
+      let movimientos = this.data.movimientos.some((c) =>
+        hasAccessToMenu(c.idVentana)
+      )
+      let cierres = this.data.cierres.some((c) =>
+        hasAccessToMenu(c.idVentana)
+      )
 
-      if (movimientos || cierres) {
-        return true
-      } else {
-        return false
-      }
+      return movimientos || cierres
     },
     ventasFiltradas() {
       return this.data.ventasActions.filter(

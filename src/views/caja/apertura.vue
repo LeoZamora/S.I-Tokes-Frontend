@@ -193,7 +193,7 @@
       <!-- Columna Acción -->
       <template v-slot:item.acciones="{ item }">
         <v-btn
-          v-if="item.isCerrada"
+          v-if="item.isCerrada && hasAccessToFunct('172')"
           color="indigo-darken-3"
           variant="flat"
           size="x-small"
@@ -512,6 +512,7 @@
 <script>
 import { formatters } from '@/helpers/formatters';
 import RequestHttp from '@/services/requestHttp';
+import { hasAccessToFunct } from '@/scripts/Seguridad.js';
 
 export default {
   name: 'AperturaCajaView',
@@ -659,6 +660,7 @@ export default {
   },
 
   methods: {
+    hasAccessToFunct,
     cargarUsuarioSesion() {
       try {
         const raw = localStorage.getItem('token');
