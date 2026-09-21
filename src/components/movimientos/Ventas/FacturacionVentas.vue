@@ -25,7 +25,7 @@
           class="nuevaVenta rounded"
           @click="createFactura()"
           color="indigo-darken-4"
-          prepend-icon="mdi-plus"
+          prepend-icon="mdi-plus" 
           variant="tonal"
         >
           Nueva Venta
@@ -728,6 +728,7 @@ import { getIntervaloMesActual } from '@/scripts/utils.js'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
 import introJs from 'intro.js'
 import tourOptions from '@/helpers/utilFunctions'
+// import { qz } from 'qz-tray'
 
 export default {
   beforeRouteEnter(to, from, next) {
@@ -1205,6 +1206,8 @@ export default {
       requestHttp: new RequestHttp()
     })
 
+
+
     return {
       data,
       dateDesde,
@@ -1212,7 +1215,7 @@ export default {
       dateHasta,
       dateHastaFormatted,
       isMobile,
-      store
+      store,
     }
   },
 

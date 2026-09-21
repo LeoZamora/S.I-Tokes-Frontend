@@ -8,7 +8,7 @@
       <v-card
         elevation="12"
         rounded="xl"
-        class="bg-grey-lighten-4 overflow-hidden"
+        class="bg-grey-lighten-4 "
       >
         <!-- Header del Diálogo -->
         <v-card-title
@@ -2473,7 +2473,7 @@ export default {
   color: #1e293b;
   outline: none;
   transition: all 0.2s ease;
-  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .quantity-input::-webkit-outer-spin-button,

@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="localShow" max-width="950" persistent>
-    <v-card class="rounded-xl overflow-hidden invoice-preview-card" elevation="16">
+    <v-card class="rounded-xl invoice-preview-card" elevation="16">
       <!-- Header con gradiente profesional y badges de estado -->
       <div class="invoice-header px-6 py-4 d-flex align-center justify-space-between">
         <div class="d-flex align-center">
@@ -142,6 +142,7 @@
                 <th class="text-center text-caption font-weight-bold text-grey-darken-3" style="width: 100px;">Cantidad</th>
                 <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 130px;">Precio Unit.</th>
                 <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 140px;">Impuesto (IVA)</th>
+                <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 140px;">Descuento</th>
                 <th class="text-right text-caption font-weight-bold text-grey-darken-3" style="width: 140px;">Subtotal</th>
               </tr>
             </thead>
@@ -196,6 +197,9 @@
                   <span v-else class="text-caption text-grey font-weight-medium">
                     Exento
                   </span>
+                </td>
+                <td class="text-right text-body-2 font-weight-medium text-grey-darken-3">
+                  {{ formatedCurrency(item.descuento, data.fomates.nio) }}
                 </td>
                 <td class="text-right text-body-2 font-weight-bold text-indigo-darken-4">
                   {{ formatedCurrency(item.subTotal, data.fomates.nio) }}
@@ -253,7 +257,7 @@
                 </div>
 
                 <div class="d-flex justify-space-between align-center mt-2 px-1 text-caption text-grey-darken-2">
-                  <span>Equivalente en USD (T/C 36.6243):</span>
+                  <span>Equivalente en USD (T/C 36.50):</span>
                   <span class="font-weight-bold text-grey-darken-4">
                     {{ formatedCurrency(data.factura.usdTotal, data.fomates.usd) }}
                   </span>
@@ -278,6 +282,16 @@
         </v-btn>
 
         <div class="d-flex align-center gap-2">
+          <v-btn
+            color="indigo-darken-3 mr-2"
+            variant="tonal"
+            @click="imprimirFactura(data)"
+            class="px-5 font-weight-bold text-none elevation-2"
+          >
+            <v-icon size="18">mdi-printer</v-icon>
+            Imprimir
+          </v-btn>
+
           <v-btn
             color="indigo-darken-3"
             variant="flat"
@@ -388,7 +402,7 @@ export default {
       data.factura.subTotal = subtotal
       data.factura.totalImpuestos = totalImpuestos
       data.factura.total = subtotal + totalImpuestos
-      data.factura.usdTotal = data.factura.total / 36.6243
+      data.factura.usdTotal = data.factura.total / 36.50
     }
 
     const cargarDetalleFactura = async (facturaParam) => {
@@ -497,6 +511,7 @@ export default {
               observaciones: item.observaciones,
               esMayorista: esMayoristaAplicado,
               rangoMayorista: rangoMayoristaText,
+              descuento: Number(item.descuento) || 0,
               subTotal: lineSubtotal,
               montoImpuesto: montoImpuesto,
               porcentajeImpuesto: porcentajeImpuestoTotal
@@ -533,28 +548,173 @@ export default {
       }
     )
 
+    function formatedCurrency(key, currency) {
+      return formatters.formatCurrency(key, currency || 'NIO')
+    }
+
+    function formateDate(dateString) {
+      if (!dateString) return 'N/A'
+      return formatters.formatDate(dateString)
+    }
+
+    function formatQty(qty) {
+      const num = Number(qty) || 0
+      return num % 1 === 0 ? num.toString() : num.toFixed(4).replace(/0+$/, '')
+    }
+
+
+    // ---------------------------------------------------------
+    // CONFIGURACIÓN DEL NEGOCIO
+    // Estos datos no vienen en `data` (son fijos del comercio),
+    // así que van acá. Si los tenés en otro store/config, reemplazá
+    // estas constantes por esa fuente.
+    // ---------------------------------------------------------
+    const NEGOCIO = {
+      nombre: 'Migdalia\'s Market',
+      direccion: 'Mercado Mayoreo Modulo #4',
+      telefono: '2263-2783'
+    }
+
+    const ANCHO_TICKET = 48 // columnas para impresora de 80mm (ajustá a 42 si tu driver usa fuente más chica)
+
+    // ---------------------------------------------------------
+    // HELPERS DE FORMATO DE LÍNEA
+    // ---------------------------------------------------------
+    function truncarOAjustar(texto, largo) {
+      texto = String(texto ?? '')
+      return texto.length > largo ? texto.slice(0, largo) : texto.padEnd(largo)
+    }
+
+    function lineaDosColumnas(izquierda, derecha, ancho = ANCHO_TICKET) {
+      const espacio = ancho - izquierda.length - derecha.length
+      return espacio > 0
+        ? izquierda + ' '.repeat(espacio) + derecha + '\n'
+        : izquierda.slice(0, ancho - derecha.length - 1) + ' ' + derecha + '\n'
+    }
+
+    // Cada ítem puede ocupar 2 líneas: nombre completo arriba,
+    // cantidad/precio/subtotal abajo — así no se corta el nombre del producto.
+    function lineasItem(item, fomatoNio) {
+      const nombre = item.producto || 'Producto'
+      const cant = formatQty(item.cantidad)
+      const descuento = formatedCurrency(item.descuento, fomatoNio)
+      const precioUnit = formatedCurrency(item.costoUnitario, fomatoNio)
+      const subtotal = formatedCurrency(item.subTotal, fomatoNio)
+
+      let salida = `${nombre}\n`
+      salida += lineaDosColumnas(`  ${cant} x ${precioUnit}`, subtotal)
+
+      if (item.esMayorista) {
+        salida += `  (Mayorista ${item.rangoMayorista})\n`
+      }
+      if (item.montoImpuesto > 0) {
+        const impuesto = formatedCurrency(item.montoImpuesto, fomatoNio)
+        salida += `  IVA (${item.porcentajeImpuesto}%): ${impuesto}\n`
+      }
+      if (item.descuento > 0) {
+        salida += `  Descuento: ${descuento}\n`
+      }
+
+      return salida
+    }
+
+    // ---------------------------------------------------------
+    // FUNCIÓN PRINCIPAL DE IMPRESIÓN
+    // Llamala con el mismo objeto `data` que ya usa tu template:
+    //   await imprimirFactura(this.data)
+    // Si tus helpers (formatedCurrency, formatQty, formateDate) son
+    // métodos del componente, llamala con .call(this, data) para que
+    // mantengan acceso a `this`. Ver nota al final del archivo.
+    // ---------------------------------------------------------
+    async function imprimirFactura(data) {
+      try {
+        const qz = window.qz
+
+        if (!qz.websocket.isActive()) {
+          await qz.websocket.connect()
+        }
+
+        const nombreImpresora = await qz.printers.find('POS-80C')
+        const config = qz.configs.create(nombreImpresora)
+
+        const { venta, editVenta, items, factura, fomates } = data
+        const separador = '-'.repeat(ANCHO_TICKET) + '\n'
+        const separadorBlank = ' '.repeat(ANCHO_TICKET) + '\n'
+
+        const cuerpoItems = items.length
+          ? items.map((item) => lineasItem.call(this, item, fomates.nio)).join(separador === '\n' ? '' : '')
+          : 'Sin productos registrados\n'
+
+        const ticket = [
+          '\x1B\x40',                                    // init
+          '\x1B\x61\x01',                                // centrar
+          '\x1B\x21\x30',                                // negrita + doble tamaño
+          `${NEGOCIO.nombre}\n`,
+          '\x1B\x21\x00',                                // fuente normal
+          `${NEGOCIO.direccion}\n`,
+          `Tel: ${NEGOCIO.telefono}\n`,
+          separador,
+
+          '\x1B\x61\x00',                                // alinear izquierda
+          `TICKET N°: ${venta.noVenta || 'N/A'}\n`,
+          `Fecha: ${formateDate(editVenta.fechaRegistro)}\n`,
+          `Cliente: ${venta.cliente || 'Consumidor Final'}\n`,
+          `Atendido por: ${venta.usuarioRegistro || 'N/A'}\n`,
+          `Tipo: ${venta.tipoVenta || 'Venta General'} | ${venta.credito ? 'Crédito' : 'Contado'}\n`,
+          // editVenta.estado === false ? '*** FACTURA ANULADA ***\n' : '',
+
+          separadorBlank,
+
+          lineaDosColumnas('PRODUCTOS', ''),
+          separador,
+
+          ...items.map((item) => lineasItem.call(this, item, fomates.nio)),
+          
+          separadorBlank,
+          lineaDosColumnas('RESUMEN', ''),
+          separador,
+
+          lineaDosColumnas('Sub Total:', formatedCurrency(factura.subTotal, fomates.nio)),
+          factura.totalImpuestos > 0
+            ? lineaDosColumnas('IVA:', formatedCurrency(factura.totalImpuestos, fomates.nio))
+            : '',
+          lineaDosColumnas('Descuento:', formatedCurrency(items.reduce((acc, item) => acc + (item.descuento || 0), 0), fomates.nio)),
+          // lineaDosColumnas('Equiv. USD:', `$${factura.usdTotal.toFixed(2)}`),
+          '\x1B\x21\x10',                                // negrita
+          lineaDosColumnas('TOTAL:', formatedCurrency(factura.total, fomates.nio)),
+          '\x1B\x21\x00',                                // fuente normal
+
+          venta.observaciones ? `\nObs: ${venta.observaciones}\n` : '',
+
+          separadorBlank,
+          separadorBlank,
+          '\x1B\x61\x01',                                // centrar
+          '\n¡Gracias por su compra!\n\n\n',
+          separadorBlank,
+          separadorBlank,
+          '\x1D\x56\x00'                                  // corte de papel
+        ]
+
+        await qz.print(config, ticket)
+        console.log('Factura enviada a imprimir ✅')
+      } catch (err) {
+        console.error('Error al imprimir:', err)
+      }
+    }
+
+
     return {
       localShow,
       data,
-      cargarDetalleFactura
+      cargarDetalleFactura,
+      imprimirFactura,
+      formatedCurrency,
+      formateDate,
+      formatQty
     }
   },
 
   methods: {
-    formatedCurrency(key, currency) {
-      return formatters.formatCurrency(key, currency || 'NIO')
-    },
-
-    formateDate(dateString) {
-      if (!dateString) return 'N/A'
-      return formatters.formatDate(dateString)
-    },
-
-    formatQty(qty) {
-      const num = Number(qty) || 0
-      return num % 1 === 0 ? num.toString() : num.toFixed(4).replace(/0+$/, '')
-    },
-
     closeDialog() {
       this.$emit('closeDialog', false)
       this.localShow = false
@@ -595,7 +755,7 @@ export default {
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
       doc.text('INFORMACIÓN DE LA VENTA:', 15, currentY)
 
-      doc.setFont('helvetica', 'normal')
+      doc.setFont('helvetica', 'normal');
       doc.setTextColor(darkGray[0], darkGray[1], darkGray[2])
 
       const infoLines = [
