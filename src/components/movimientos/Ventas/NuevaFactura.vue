@@ -3166,7 +3166,7 @@ export default {
       telefono: '2263-2783'
     }
 
-    const ANCHO_TICKET = 42 // 42 columnas para compatibilidad universal con todas las impresoras térmicas de 80mm
+    const ANCHO_TICKET = 42
 
     function formatedCurrency(key, currency) {
       return formatters.formatCurrency(key, currency || 'NIO')
@@ -3201,7 +3201,7 @@ export default {
         },
         items: data.items,
         factura: data.factura,
-        fomates: data.fornates // ojo: esta pantalla usa "fornates", no "fomates"
+        fomates: data.fornates
       }
     }
  
@@ -3222,8 +3222,6 @@ export default {
         : izquierda.slice(0, Math.max(0, ancho - derecha.length - 1)) + ' ' + derecha + '\n'
     }
     
-    // Cada ítem puede ocupar 2 líneas: nombre completo arriba,
-    // cantidad/precio/subtotal abajo — así no se corta el nombre del producto.
     function lineasItem(item, fomatoNio) {
       const nombre = item.producto || 'Producto'
       const cant = this.formatQty ? this.formatQty(item.cantidad) : item.cantidad
@@ -3247,15 +3245,8 @@ export default {
     
       return salida
     }
- 
-// ---------------------------------------------------------
-// FUNCIÓN PRINCIPAL DE IMPRESIÓN
-// Llamala con el mismo objeto `data` que ya usa tu template:
-//   await imprimirFactura(this.data)
-// Si tus helpers (formatedCurrency, formatQty, formateDate) son
-// métodos del componente, llamala con .call(this, data) para que
-// mantengan acceso a `this`. Ver nota al final del archivo.
-// ---------------------------------------------------------
+
+
     async function imprimirFactura(data) {
       try {
         const qz = window.qz

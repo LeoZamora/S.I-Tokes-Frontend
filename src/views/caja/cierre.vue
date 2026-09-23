@@ -780,33 +780,34 @@
         </div>
 
         <!-- TABS DE NAVEGACIÓN -->
-        <v-tabs
-          v-model="tabCierre"
-          color="indigo-darken-4"
-          bg-color="white"
-          density="comfortable"
-          class="border-b"
-        >
-          <v-tab :value="0" class="text-none font-weight-bold">
-            <v-icon start size="18">mdi-calculator-variant</v-icon>
-            Saldos y Desglose de Efectivo
-          </v-tab>
-          <v-tab :value="1" class="text-none font-weight-bold">
-            <v-icon start size="18">mdi-receipt-text</v-icon>
-            Detalle de Ventas ({{ ventasTurno.length }})
-          </v-tab>
-          <v-tab :value="2" class="text-none font-weight-bold">
-            <v-icon start size="18">mdi-cash-minus</v-icon>
-            Detalle de Retiros ({{ retirosTurno.length }})
-          </v-tab>
-          <v-tab :value="3" class="text-none font-weight-bold">
-            <v-icon start size="18">mdi-package-variant-closed</v-icon>
-            Mercadería Vendida ({{ mercaderiaVendidaItems.length }})
-          </v-tab>
-        </v-tabs>
 
         <!-- CONTENIDO DE LAS TABS -->
-        <v-card-text class="px-2 py-1" style="max-height: 61vh; overflow-y: auto;">
+        <v-card-text class="px-2 py-1" >
+          <v-tabs
+            v-model="tabCierre"
+            color="indigo-darken-4"
+            bg-color="white"
+            density="comfortable"
+            class="border-b mb-2"
+          >
+            <v-tab :value="0" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-calculator-variant</v-icon>
+              Saldos y Desglose de Efectivo
+            </v-tab>
+            <v-tab :value="1" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-receipt-text</v-icon>
+              Detalle de Ventas ({{ ventasTurno.length }})
+            </v-tab>
+            <v-tab :value="2" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-cash-minus</v-icon>
+              Detalle de Retiros ({{ retirosTurno.length }})
+            </v-tab>
+            <v-tab :value="3" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-package-variant-closed</v-icon>
+              Mercadería Vendida ({{ mercaderiaVendidaItems.length }})
+            </v-tab>
+          </v-tabs>
+
           <v-window v-model="tabCierre">
             <!-- TAB 0: SALDOS Y DESGLOSE -->
             <v-window-item :value="0">
@@ -819,27 +820,27 @@
                       Saldos y Liquidación
                     </div>
                     
-                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                    <div class="py-2 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Efectivo Apertura:</span>
                       <span class="text-body-2 font-weight-medium">{{ formatCurrency(activeCaja.apertura?.montoAperturaEfectivo) }}</span>
                     </div>
-                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                    <div class="py-2 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Ventas Efectivo (Caja):</span>
                       <span class="text-body-2 font-weight-bold text-success">{{ formatCurrency(activeCaja.resumen?.totalVentasEfectivo ?? totalVentasEfectivo) }}</span>
                     </div>
-                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                    <div class="py-2 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Otras Modalidades:</span>
                       <span class="text-body-2 font-weight-bold text-teal-darken-3">{{ formatCurrency(activeCaja.resumen?.totalVentasOtrasModalidades ?? totalVentasOtrasModalidades) }}</span>
                     </div>
-                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                    <div class="py-2 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Total Ventas Turno:</span>
                       <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(activeCaja.resumen?.totalVentas ?? totalVentasTurno) }}</span>
                     </div>
-                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                    <div class="py-2 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Mercadería Inicial:</span>
                       <span class="text-body-2 font-weight-bold text-blue-grey-darken-3">{{ formatCurrency(activeCaja.apertura?.montoAperturaMercaderia) }}</span>
                     </div>
-                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                    <div class="py-2 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Pedidos Turno:</span>
                       <span class="text-body-2 font-weight-bold text-indigo">{{ formatCurrency(activeCaja.resumen?.totalPedidos) }}</span>
                     </div>
@@ -2126,6 +2127,7 @@ export default {
         const res = await this.requestHttp.postCierreCaja(reqData);
         if (res.code === 200) {
           this.showAlert('El cierre de caja se ha procesado exitosamente', 'success');
+          await this.imprimirCierreCaja();
           this.closeCierreDialog();
           await this.loadCajas();
         } else {
@@ -2150,6 +2152,113 @@ export default {
         this.showAlert('Error al enviar la solicitud de cierre de caja', 'error');
       } finally {
         this.saving = false;
+      }
+    },
+
+    lineaDosColumnas(izquierda, derecha, ancho = 42) {
+      const espacio = ancho - izquierda.length - derecha.length
+      return espacio > 0
+        ? izquierda + ' '.repeat(espacio) + derecha + '\n'
+        : izquierda.slice(0, ancho - derecha.length - 1) + ' ' + derecha + '\n'
+    },
+
+
+    async imprimirCierreCaja() {
+      const NEGOCIO = {
+        nombre: 'Migdalia\'s Market',
+        direccion: 'Mercado Mayoreo Modulo #4',
+        telefono: '2263-2783'
+      }
+
+      const ANCHO_TICKET = 42
+    
+      try {
+        const qz = window.qz
+    
+        if (!qz.websocket.isActive()) {
+          await qz.websocket.connect()
+        }
+    
+        const nombreImpresora = await qz.printers.find('POS-80C')
+        const config = qz.configs.create(nombreImpresora)
+        const separador = '-'.repeat(ANCHO_TICKET) + '\n'
+    
+        // --- Desglose de denominaciones (mismo cálculo que ya usás para el payload) ---
+        const desgloceDetalle = this.denominaciones
+          .map((d) => ({
+            valor: d.valor,
+            cantidad: Number(this.cantidades[d.valor]) || 0
+          }))
+          .filter((d) => d.cantidad > 0)
+    
+        const totalContado = desgloceDetalle.reduce((acc, d) => acc + d.valor * d.cantidad, 0)
+    
+        const lineasDesglose = desgloceDetalle.map((d) => {
+          const subtotal = d.valor * d.cantidad
+          return this.lineaDosColumnas(
+            `  C$${d.valor} x ${d.cantidad}`,
+            this.formatCurrency(subtotal)
+          )
+        })
+    
+        // --- Resumen general ---
+        const resumen = this.activeCaja.resumen || {}
+        const apertura = this.activeCaja.apertura || {}
+    
+        const ticket = [
+          '\x1B\x40',                                    // init
+          '\x1B\x61\x01',                                // centrar
+          '\x1B\x21\x10',                                // doble altura
+          '\x1B\x45\x01',                                // negrita ON
+          `${NEGOCIO.nombre}\n`,
+          '\x1B\x45\x00',                                // negrita OFF
+          '\x1B\x21\x00',                                // fuente normal
+          `${NEGOCIO.direccion}\n`,
+          `Tel: ${NEGOCIO.telefono}\n`,
+          separador,
+    
+          '\x1B\x45\x01',
+          'CIERRE DE CAJA\n',
+          '\x1B\x45\x00',
+          '\x1B\x61\x00',                                // alinear izquierda
+          `Caja: ${this.activeCaja.nombre || 'N/A'}\n`,
+          `Apertura: ${this.activeCaja.apertura?.codigo || 'N/A'}\n`,
+          `Bodega: ${this.activeCaja.bodegaNombre || 'N/A'}\n`,
+          `Fecha de cierre: ${new Date().toLocaleString()}\n`,
+          separador,
+    
+          '\x1B\x45\x01',
+          'RESUMEN GENERAL\n',
+          '\x1B\x45\x00',
+          this.lineaDosColumnas('Efectivo Apertura:', this.formatCurrency(apertura.montoAperturaEfectivo)),
+          this.lineaDosColumnas('Ventas Efectivo:', this.formatCurrency(resumen.totalVentasEfectivo ?? this.totalVentasEfectivo)),
+          this.lineaDosColumnas('Otras Modalidades:', this.formatCurrency(resumen.totalVentasOtrasModalidades ?? this.totalVentasOtrasModalidades)),
+          this.lineaDosColumnas('Total Ventas Turno:', this.formatCurrency(resumen.totalVentas ?? this.totalVentasTurno)),
+          this.lineaDosColumnas('Pedidos Turno:', this.formatCurrency(resumen.totalPedidos)),
+          separador,
+    
+          '\x1B\x45\x01',
+          'DESGLOSE DE EFECTIVO\n',
+          '\x1B\x45\x00',
+          ...(lineasDesglose.length ? lineasDesglose : ['  Sin denominaciones contadas\n']),
+          separador,
+          '\x1B\x45\x01',
+          this.lineaDosColumnas('TOTAL CONTADO:', this.formatCurrency(totalContado)),
+          '\x1B\x45\x00',
+          this.lineaDosColumnas('Retiros:', this.formatCurrency(this.form.montoCierreRetiros)),
+          separador,
+    
+          this.form.observaciones ? `Obs: ${this.form.observaciones}\n` : '',
+    
+          '\x1B\x61\x01',                                // centrar
+          '\n--- Fin de Cierre ---\n\n\n',
+          '\x1D\x56\x00'                                  // corte de papel
+        ]
+    
+        await qz.print(config, ticket)
+        console.log('Cierre de caja enviado a imprimir ✅')
+      } catch (err) {
+        console.error('Error al imprimir cierre de caja:', err)
       }
     }
   }
