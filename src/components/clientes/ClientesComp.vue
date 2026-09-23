@@ -694,6 +694,46 @@
               </v-chip>
             </template>
 
+            <!-- VISUALIZACIÓN ESPECIAL: DESCUENTO -->
+            <template
+              v-slot:item.descuento="{ item }"
+            >
+              <v-chip
+                size="x-small"
+                :color="
+                  item.esTieneDescuento ||
+                  item.EsTieneDescuento
+                    ? 'purple-darken-2'
+                    : 'grey-darken-1'
+                "
+                :variant="
+                  item.esTieneDescuento ||
+                  item.EsTieneDescuento
+                    ? 'tonal'
+                    : 'outlined'
+                "
+                class="font-weight-medium"
+              >
+                <v-icon
+                  size="x-small"
+                  class="mr-1"
+                >
+                  {{
+                    item.esTieneDescuento ||
+                    item.EsTieneDescuento
+                      ? 'mdi-percent-outline'
+                      : 'mdi-close-circle-outline'
+                  }}
+                </v-icon>
+                {{
+                  item.esTieneDescuento ||
+                  item.EsTieneDescuento
+                    ? 'Permitido'
+                    : 'No Aplica'
+                }}
+              </v-chip>
+            </template>
+
             <template v-slot:item.opc="{ item }">
               <v-menu
                 :close-on-content-click="false"
@@ -938,6 +978,11 @@ export default {
         {
           title: 'Crédito',
           key: 'credito',
+          align: 'center'
+        },
+        {
+          title: 'Descuento',
+          key: 'descuento',
           align: 'center'
         },
         {

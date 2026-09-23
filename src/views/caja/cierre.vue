@@ -824,16 +824,43 @@
                       <span class="text-body-2 font-weight-medium">{{ formatCurrency(activeCaja.apertura?.montoAperturaEfectivo) }}</span>
                     </div>
                     <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Ventas Efectivo (Caja):</span>
+                      <span class="text-body-2 font-weight-bold text-success">{{ formatCurrency(activeCaja.resumen?.totalVentasEfectivo ?? totalVentasEfectivo) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Otras Modalidades:</span>
+                      <span class="text-body-2 font-weight-bold text-teal-darken-3">{{ formatCurrency(activeCaja.resumen?.totalVentasOtrasModalidades ?? totalVentasOtrasModalidades) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Total Ventas Turno:</span>
+                      <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(activeCaja.resumen?.totalVentas ?? totalVentasTurno) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Mercadería Inicial:</span>
                       <span class="text-body-2 font-weight-bold text-blue-grey-darken-3">{{ formatCurrency(activeCaja.apertura?.montoAperturaMercaderia) }}</span>
                     </div>
                     <div class="py-1.5 border-bottom d-flex justify-space-between">
-                      <span class="text-caption text-grey-darken-1">Ventas Turno:</span>
-                      <span class="text-body-2 font-weight-bold text-success">{{ formatCurrency(activeCaja.resumen?.totalVentas) }}</span>
-                    </div>
-                    <div class="py-1.5 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Pedidos Turno:</span>
                       <span class="text-body-2 font-weight-bold text-indigo">{{ formatCurrency(activeCaja.resumen?.totalPedidos) }}</span>
+                    </div>
+
+                    <!-- DESGLOSE POR MODALIDADES EN RESUMEN -->
+                    <div v-if="desgloseModalidadesVentas.length > 0" class="mt-2 pt-2 border-top">
+                      <span class="text-caption font-weight-bold text-grey-darken-2 d-block mb-1">
+                        Desglose de Modalidades:
+                      </span>
+                      <div class="d-flex align-center ga-1 flex-wrap">
+                        <v-chip
+                          v-for="mod in desgloseModalidadesVentas"
+                          :key="mod.idTipoPago"
+                          size="x-small"
+                          :color="mod.esEfectivo ? 'green-darken-3' : 'indigo-darken-3'"
+                          variant="tonal"
+                          class="font-weight-medium"
+                        >
+                          {{ mod.modalidad }}: {{ formatCurrency(mod.total) }}
+                        </v-chip>
+                      </div>
                     </div>
 
                     <!-- Estado de Mercadería Remanente -->
@@ -1001,29 +1028,54 @@
                 <v-row dense class="mb-3">
                   <v-col cols="12" sm="3">
                     <v-card variant="flat" color="indigo-lighten-5" class="pa-2 rounded text-center">
-                      <div class="text-caption text-grey-darken-1 font-weight-medium">Total Ventas Registradas</div>
-                      <div class="text-h6 font-weight-bold text-indigo-darken-4">{{ ventasTurno.length }}</div>
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Total Facturado (C$)</div>
+                      <div class="text-h6 font-weight-bold text-indigo-darken-4">{{ formatCurrency(totalVentasTurno) }}</div>
+                      <div class="text-caption text-grey-darken-1">{{ ventasTurno.length }} facturas</div>
                     </v-card>
                   </v-col>
                   <v-col cols="12" sm="3">
                     <v-card variant="flat" color="green-lighten-5" class="pa-2 rounded text-center">
-                      <div class="text-caption text-grey-darken-1 font-weight-medium">Total Facturado (C$)</div>
-                      <div class="text-h6 font-weight-bold text-green-darken-4">{{ formatCurrency(totalVentasTurno) }}</div>
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Ventas Efectivo (Caja)</div>
+                      <div class="text-h6 font-weight-bold text-green-darken-4">{{ formatCurrency(totalVentasEfectivo) }}</div>
+                      <div class="text-caption text-green-darken-3 font-weight-medium">Ingresa a Gaveta</div>
                     </v-card>
                   </v-col>
                   <v-col cols="12" sm="3">
-                    <v-card variant="flat" color="blue-grey-lighten-5" class="pa-2 rounded text-center">
-                      <div class="text-caption text-grey-darken-1 font-weight-medium">Ventas Contado</div>
-                      <div class="text-h6 font-weight-bold text-blue-grey-darken-3">{{ formatCurrency(totalVentasContado) }}</div>
+                    <v-card variant="flat" color="teal-lighten-5" class="pa-2 rounded text-center">
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Otras Modalidades</div>
+                      <div class="text-h6 font-weight-bold text-teal-darken-4">{{ formatCurrency(totalVentasOtrasModalidades) }}</div>
+                      <div class="text-caption text-teal-darken-3 font-weight-medium">Transferencias / Tarjetas</div>
                     </v-card>
                   </v-col>
                   <v-col cols="12" sm="3">
                     <v-card variant="flat" color="amber-lighten-5" class="pa-2 rounded text-center">
                       <div class="text-caption text-grey-darken-1 font-weight-medium">Ventas Crédito</div>
                       <div class="text-h6 font-weight-bold text-amber-darken-4">{{ formatCurrency(totalVentasCredito) }}</div>
+                      <div class="text-caption text-amber-darken-3 font-weight-medium">Cuentas por Cobrar</div>
                     </v-card>
                   </v-col>
                 </v-row>
+
+                <!-- Desglose Chips por Modalidad -->
+                <div v-if="desgloseModalidadesVentas.length > 0" class="mb-3 pa-2 bg-grey-lighten-5 rounded border">
+                  <div class="text-caption font-weight-bold text-indigo-darken-4 mb-1 d-flex align-center">
+                    <v-icon size="14" class="mr-1">mdi-credit-card-outline</v-icon>
+                    Desglose por Modalidad de Pago:
+                  </div>
+                  <div class="d-flex align-center ga-2 flex-wrap">
+                    <v-chip
+                      v-for="dm in desgloseModalidadesVentas"
+                      :key="dm.idTipoPago"
+                      size="small"
+                      :color="dm.esEfectivo ? 'green-darken-3' : 'indigo-darken-3'"
+                      variant="tonal"
+                      class="font-weight-bold"
+                    >
+                      <v-icon start size="14">{{ dm.esEfectivo ? 'mdi-cash' : 'mdi-credit-card' }}</v-icon>
+                      {{ dm.modalidad }}: {{ formatCurrency(dm.total) }} ({{ dm.cantidadVentas }} fact.)
+                    </v-chip>
+                  </div>
+                </div>
 
                 <!-- Filtro de Búsqueda de Ventas -->
                 <v-text-field
@@ -1066,6 +1118,16 @@
                       class="font-weight-bold"
                     >
                       {{ item.credito ? 'Crédito' : 'Contado' }}
+                    </v-chip>
+                  </template>
+                  <template v-slot:item.tipoPago="{ item }">
+                    <v-chip
+                      size="x-small"
+                      :color="item.idTipoPago === 1 ? 'green-darken-3' : 'indigo-darken-3'"
+                      variant="tonal"
+                      class="font-weight-medium"
+                    >
+                      {{ item.tipoPago || (item.idTipoPago === 1 ? 'Efectivo' : 'Modalidad ' + (item.idTipoPago || '')) }}
                     </v-chip>
                   </template>
                   <template v-slot:item.subtotal="{ item }">
@@ -1344,6 +1406,7 @@ export default {
         { title: 'Cliente', key: 'cliente', align: 'start', sortable: true },
         { title: 'Tipo Venta', key: 'tipoVenta', align: 'start', sortable: false },
         { title: 'Condición', key: 'credito', align: 'center', sortable: false },
+        { title: 'Tipo Pago', key: 'tipoPago', align: 'center', sortable: false },
         { title: 'Vendedor', key: 'usuarioRegistro', align: 'start', sortable: false },
         { title: 'Subtotal', key: 'subtotal', align: 'end', sortable: false },
         { title: 'IVA', key: 'iva', align: 'end', sortable: false },
@@ -1497,6 +1560,41 @@ export default {
         .filter(v => !v.credito)
         .reduce((sum, v) => sum + (Number(v.total) || 0), 0);
     },
+
+    totalVentasEfectivo() {
+      if (this.activeCaja?.resumen?.totalVentasEfectivo !== undefined) {
+        return Number(this.activeCaja.resumen.totalVentasEfectivo);
+      }
+      return this.ventasTurno
+        .filter(v => (v.idTipoPago === 1 || !v.idTipoPago) && !v.credito && v.estado !== false)
+        .reduce((sum, v) => sum + (Number(v.total) || 0), 0);
+    },
+
+    totalVentasOtrasModalidades() {
+      if (this.activeCaja?.resumen?.totalVentasOtrasModalidades !== undefined) {
+        return Number(this.activeCaja.resumen.totalVentasOtrasModalidades);
+      }
+      return this.ventasTurno
+        .filter(v => v.idTipoPago && v.idTipoPago !== 1 && !v.credito && v.estado !== false)
+        .reduce((sum, v) => sum + (Number(v.total) || 0), 0);
+    },
+
+    desgloseModalidadesVentas() {
+      if (this.activeCaja?.resumen?.desgloseModalidades && this.activeCaja.resumen.desgloseModalidades.length > 0) {
+        return this.activeCaja.resumen.desgloseModalidades;
+      }
+      const groups = {};
+      this.ventasTurno.filter(v => !v.credito && v.estado !== false).forEach(v => {
+        const id = v.idTipoPago || 1;
+        const nombre = v.tipoPago || (id === 1 ? 'Efectivo' : `Modalidad ${id}`);
+        if (!groups[id]) {
+          groups[id] = { idTipoPago: id, modalidad: nombre, cantidadVentas: 0, total: 0, esEfectivo: id === 1 };
+        }
+        groups[id].cantidadVentas++;
+        groups[id].total += (Number(v.total) || 0);
+      });
+      return Object.values(groups);
+    },
     
     totalVentasCredito() {
       return this.ventasTurno
@@ -1514,7 +1612,7 @@ export default {
         .reduce((sum, c) => {
           const enCaja = c.resumen.totalEnCaja !== undefined
             ? Number(c.resumen.totalEnCaja)
-            : (Number(c.resumen.efectivoApertura || 0) + Number(c.resumen.totalVentas || 0) - Number(c.resumen.totalRetiros || 0));
+            : (Number(c.resumen.efectivoApertura || 0) + Number(c.resumen.totalVentasEfectivo ?? c.resumen.totalVentas ?? 0) - Number(c.resumen.totalRetiros || 0));
           return sum + enCaja;
         }, 0);
     },
@@ -1536,7 +1634,10 @@ export default {
       if (!this.activeCaja || !this.activeCaja.resumen) return 0;
       const res = this.activeCaja.resumen;
       const retiros = Number(this.form.montoCierreRetiros || 0);
-      const expected = (Number(res.efectivoApertura || 0) + Number(res.totalVentas || 0)) - retiros;
+      const ventasEfectivo = res.totalVentasEfectivo !== undefined
+        ? Number(res.totalVentasEfectivo)
+        : this.totalVentasEfectivo;
+      const expected = (Number(res.efectivoApertura || 0) + ventasEfectivo) - retiros;
       return expected;
     },
     

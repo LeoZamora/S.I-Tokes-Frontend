@@ -917,6 +917,67 @@
                   </v-row>
                 </div>
               </v-card>
+
+              <!-- 5. POLÍTICAS DE DESCUENTO -->
+              <v-card
+                variant="flat"
+                class="border rounded-lg bg-white overflow-hidden mt-4"
+                elevation="0"
+              >
+                <div
+                  class="bg-indigo-lighten-5 px-4 py-2 border-b d-flex align-center justify-space-between"
+                >
+                  <div
+                    class="text-subtitle-2 font-weight-bold text-indigo-darken-4 d-flex align-center"
+                  >
+                    <v-icon
+                      size="small"
+                      class="mr-2"
+                      color="indigo"
+                      >mdi-sale-outline</v-icon
+                    >
+                    Políticas de Descuento
+                  </div>
+                  <v-chip
+                    size="x-small"
+                    :color="
+                      data.dataCliente.esTieneDescuento
+                        ? 'purple-darken-2'
+                        : 'grey-darken-1'
+                    "
+                    variant="tonal"
+                    class="font-weight-bold"
+                  >
+                    {{
+                      data.dataCliente.esTieneDescuento
+                        ? 'Descuento Permitido'
+                        : 'Sin Descuento'
+                    }}
+                  </v-chip>
+                </div>
+
+                <div class="pa-4">
+                  <v-row dense>
+                    <v-col cols="12">
+                      <v-switch
+                        v-model="
+                          data.dataCliente.esTieneDescuento
+                        "
+                        label="¿Tiene permitido recibir descuentos?"
+                        color="purple-darken-2"
+                        density="compact"
+                        hide-details
+                        :readonly="
+                          readonlyOption()
+                        "
+                      />
+                      <div class="text-caption text-grey-darken-1 mt-1">
+                        Define si este cliente tiene autorización para que se le apliquen descuentos en sus compras y facturas.
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-card>
             </div>
           </v-col>
         </v-row>
@@ -1200,6 +1261,7 @@ export default {
         ruta: null,
         telefono: null,
         usuarioRegistro: null,
+        esTieneDescuento: false,
         esTieneCredito: false,
         esCreditoMensual: false,
         limiteCredito: null,
@@ -1277,6 +1339,12 @@ export default {
           new Date().toISOString(),
         usuarioRegistro:
           src.usuarioRegistro || null,
+        esTieneDescuento:
+          src.esTieneDescuento !== undefined
+            ? src.esTieneDescuento
+            : src.EsTieneDescuento !== undefined
+            ? src.EsTieneDescuento
+            : false,
         esTieneCredito:
           src.esTieneCredito !== undefined
             ? src.esTieneCredito
@@ -1354,6 +1422,7 @@ export default {
         estado: true,
         fechaRegistro: new Date().toISOString(),
         usuarioRegistro: null,
+        esTieneDescuento: false,
         esTieneCredito: false,
         esCreditoMensual: false,
         limiteCredito: null,
@@ -1752,7 +1821,8 @@ export default {
             mainDir.direccionIngresada
         }
 
-        // Sanitizar campos numéricos de crédito antes de enviar al backend
+        // Sanitizar campos numéricos de crédito y descuentos antes de enviar al backend
+        this.data.dataCliente.esTieneDescuento = !!this.data.dataCliente.esTieneDescuento
         const esCredito = !!this.data.dataCliente.esTieneCredito
         this.data.dataCliente.esTieneCredito = esCredito
 

@@ -20,16 +20,27 @@
         </div>
       </template>
       <template v-slot:append>
-        <v-btn
-          v-if="hasAccessToFunct('32')"
-          class="nuevaVenta rounded"
-          @click="createFactura()"
-          color="indigo-darken-4"
-          prepend-icon="mdi-plus" 
-          variant="tonal"
-        >
-          Nueva Venta
-        </v-btn>
+        <div class="d-flex align-center ga-2">
+          <v-btn
+            class="rounded"
+            @click="openRetiroCaja()"
+            color="orange-darken-3"
+            prepend-icon="mdi-cash-minus"
+            variant="tonal"
+          >
+            Retiro de Caja
+          </v-btn>
+          <v-btn
+            v-if="hasAccessToFunct('32')"
+            class="nuevaVenta rounded"
+            @click="createFactura()"
+            color="indigo-darken-4"
+            prepend-icon="mdi-plus" 
+            variant="tonal"
+          >
+            Nueva Venta
+          </v-btn>
+        </div>
       </template>
       <v-divider />
       <!-- FILTROS PRINCIPALES -->
@@ -493,6 +504,18 @@
               "
             />
           </template>
+          <template
+            v-slot:item.tipoPago="{ item }"
+          >
+            <v-chip
+              size="small"
+              variant="tonal"
+              color="indigo-darken-3"
+              class="font-weight-medium"
+            >
+              {{ item.tipoPago || 'Efectivo' }}
+            </v-chip>
+          </template>
           <template v-slot:item.opc="{ item }">
             <v-menu
               :close-on-content-click="false"
@@ -706,6 +729,12 @@
       :show="data.viewAlert"
       @deleteItem="deleteAction"
     />
+    <ModalRetiroCaja
+      v-if="data.retiroCaja.show"
+      :show="data.retiroCaja.show"
+      @closeDialog="data.retiroCaja.show = false"
+      @retiroSuccess="onRetiroSuccess"
+    />
   </div>
 </template>
 
@@ -721,6 +750,7 @@ import {
 } from 'vue'
 import NuevaFactura from './NuevaFactura.vue'
 import ViewVenta from './ViewVenta.vue'
+import ModalRetiroCaja from './dialogsVentas/ModalRetiroCaja.vue'
 import RequestHttp from '@/services/requestHttp'
 import AlertaAction from '@/components/widgets/AlertaAction.vue'
 import { useStore } from '@/store'
@@ -751,7 +781,8 @@ export default {
   components: {
     NuevaFactura,
     ViewVenta,
-    AlertaAction
+    AlertaAction,
+    ModalRetiroCaja
   },
 
   computed: {
@@ -1154,6 +1185,21 @@ export default {
           }
         },
         {
+          title: 'Tipo Pago',
+          key: 'tipoPago',
+          align: 'center',
+          cellProps: {
+            class: 'pa-0',
+            width: '1px'
+          },
+          headerProps: {
+            class: 'pa-0',
+            style: {
+              width: '1px'
+            }
+          }
+        },
+        {
           title: 'Estado',
           key: 'estado',
           align: 'center',
@@ -1198,6 +1244,9 @@ export default {
       viewFactura: {
         show: false,
         item: {}
+      },
+      retiroCaja: {
+        show: false
       },
       crud: {
         create: false,
@@ -1376,6 +1425,14 @@ export default {
       this.data.editFactura.editar = false
       this.data.editFactura.title =
         'NUEVA FACTURA'
+    },
+
+    openRetiroCaja() {
+      this.data.retiroCaja.show = true
+    },
+
+    onRetiroSuccess() {
+      this.snackbar.notify('success', '¡Retiro de caja registrado exitosamente!')
     },
 
     viewFactura(item) {

@@ -1047,6 +1047,21 @@ class RequestHttp {
         }
     }
 
+    async getModalidades() {
+        try {
+            const result = await axios.get(endPoints.getModalidades)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
+
     async getConceptoMov(id) {
         try {
             const result  = await axios.get(`${endPoints.getConcepto}?idTipoMov=${id}`)
@@ -1623,6 +1638,14 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async getUsuarioCajaActiva(idUsuario) {
+        try {
+            const result = await axios.get(`${endPoints.getUsuarioCajaActiva}/${idUsuario}/caja-activa`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
     async getRetirosCaja(params = {}) {
         try {
             const result = await axios.get(endPoints.getRetirosCaja, { params })
@@ -1634,6 +1657,14 @@ class RequestHttp {
     async postRetiroCaja(data) {
         try {
             const result = await axios.post(endPoints.postRetiroCaja, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getConceptosRetiroCajaCombobox() {
+        try {
+            const result = await axios.get(endPoints.getConceptosRetiroCajaCombobox)
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }

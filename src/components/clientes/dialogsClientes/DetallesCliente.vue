@@ -229,6 +229,29 @@
                   </div>
                 </v-card>
 
+                <!-- Políticas de Descuento -->
+                <v-card variant="flat" class="border rounded-lg bg-white pa-4 mb-3" elevation="0">
+                  <div class="d-flex align-center justify-space-between mb-2">
+                    <div class="d-flex align-center">
+                      <v-icon color="purple-darken-2" size="20" class="me-2">mdi-sale-outline</v-icon>
+                      <h4 class="font-weight-bold text-indigo-darken-4">Políticas de Descuento</h4>
+                    </div>
+                    <v-chip
+                      size="x-small"
+                      :color="(fullClienteData.esTieneDescuento || fullClienteData.EsTieneDescuento) ? 'purple-darken-2' : 'grey-darken-1'"
+                      variant="tonal"
+                      class="font-weight-bold"
+                    >
+                      {{ (fullClienteData.esTieneDescuento || fullClienteData.EsTieneDescuento) ? 'Descuento Permitido' : 'Sin Descuento' }}
+                    </v-chip>
+                  </div>
+                  <div class="text-caption text-grey-darken-2">
+                    {{ (fullClienteData.esTieneDescuento || fullClienteData.EsTieneDescuento)
+                        ? 'Este cliente tiene autorización para recibir descuentos en facturación y ventas.'
+                        : 'Este cliente no tiene permitido recibir descuentos en el sistema.' }}
+                  </div>
+                </v-card>
+
                 <!-- Información del Registro -->
                 <v-card variant="flat" class="border rounded-lg bg-white pa-4" elevation="0">
                   <div class="d-flex align-center mb-3">
@@ -392,6 +415,7 @@ export default {
       estado: true,
       fechaRegistro: null,
       usuarioRegistro: null,
+      esTieneDescuento: false,
       esTieneCredito: false,
       esCreditoMensual: false,
       limiteCredito: null,

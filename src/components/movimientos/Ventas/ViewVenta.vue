@@ -42,12 +42,23 @@
             size="small"
             :color="data.venta.credito ? 'amber-darken-4' : 'blue-grey-darken-3'"
             variant="flat"
-            class="font-weight-bold mr-3"
+            class="font-weight-bold mr-2"
           >
             <v-icon start size="14">
               {{ data.venta.credito ? 'mdi-clock-outline' : 'mdi-cash' }}
             </v-icon>
             {{ data.venta.credito ? 'Crédito' : 'Contado' }}
+          </v-chip>
+
+          <v-chip
+            v-if="data.venta.tipoPago"
+            size="small"
+            color="indigo-darken-3"
+            variant="flat"
+            class="font-weight-bold mr-3"
+          >
+            <v-icon start size="14">mdi-credit-card-outline</v-icon>
+            {{ data.venta.tipoPago }}
           </v-chip>
 
           <v-btn
@@ -100,7 +111,7 @@
 
             <v-divider class="my-3 w-100" />
 
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="3">
               <div class="d-flex align-center mb-1">
                 <v-icon size="16" color="indigo" class="mr-1">mdi-format-list-bulleted</v-icon>
                 <span class="text-caption font-weight-bold text-grey-darken-2">TIPO DE VENTA</span>
@@ -110,7 +121,17 @@
               </div>
             </v-col>
 
-            <v-col cols="12" sm="8">
+            <v-col cols="12" sm="3">
+              <div class="d-flex align-center mb-1">
+                <v-icon size="16" color="indigo" class="mr-1">mdi-credit-card-outline</v-icon>
+                <span class="text-caption font-weight-bold text-grey-darken-2">TIPO DE PAGO</span>
+              </div>
+              <div class="text-body-2 font-weight-medium text-grey-darken-4">
+                {{ data.venta.tipoPago || 'Efectivo' }}
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
               <div class="d-flex align-center mb-1">
                 <v-icon size="16" color="indigo" class="mr-1">mdi-map-marker-outline</v-icon>
                 <span class="text-caption font-weight-bold text-grey-darken-2">DIRECCIÓN / UBICACIÓN</span>
@@ -376,6 +397,7 @@ export default {
         enviarA: null,
         ubicacion: null,
         tipoVenta: null,
+        tipoPago: null,
         usuarioRegistro: null,
         detalleVenta: []
       },
@@ -475,6 +497,10 @@ export default {
             ventaData.tipoVenta ||
             ventaData.idTipoVentaNavigation?.nombre ||
             'Venta General'
+          data.venta.tipoPago =
+            ventaData.tipoPago ||
+            ventaData.idTipoPagoNavigation?.nombre ||
+            (ventaData.idTipoPago === 1 ? 'Efectivo' : null)
           data.venta.idCliente = ventaData.idCliente
           data.venta.observaciones = ventaData.observaciones
           data.venta.usuarioRegistro = ventaData.usuarioRegistro
@@ -598,7 +624,7 @@ export default {
       telefono: '2263-2783'
     }
 
-    const ANCHO_TICKET = 48 // columnas para impresora de 80mm (ajustá a 42 si tu driver usa fuente más chica)
+    const ANCHO_TICKET = 42 // 42 columnas para compatibilidad universal con todas las impresoras térmicas de 80mm
 
     // ---------------------------------------------------------
     // HELPERS DE FORMATO DE LÍNEA
@@ -609,10 +635,12 @@ export default {
     }
 
     function lineaDosColumnas(izquierda, derecha, ancho = ANCHO_TICKET) {
+      izquierda = String(izquierda ?? '')
+      derecha = String(derecha ?? '')
       const espacio = ancho - izquierda.length - derecha.length
       return espacio > 0
         ? izquierda + ' '.repeat(espacio) + derecha + '\n'
-        : izquierda.slice(0, ancho - derecha.length - 1) + ' ' + derecha + '\n'
+        : izquierda.slice(0, Math.max(0, ancho - derecha.length - 1)) + ' ' + derecha + '\n'
     }
 
     // Cada ítem puede ocupar 2 líneas: nombre completo arriba,
@@ -664,6 +692,8 @@ export default {
         const separador = '-'.repeat(ANCHO_TICKET) + '\n'
         const separadorBlank = ' '.repeat(ANCHO_TICKET) + '\n'
 
+        const nombreTipoPago = venta.tipoPago || (venta.credito ? 'Crédito' : 'Efectivo')
+
         const cuerpoItems = items.length
           ? items.map((item) => lineasItem.call(this, item, fomates.nio)).join(separador === '\n' ? '' : '')
           : 'Sin productos registrados\n'
@@ -671,8 +701,10 @@ export default {
         const ticket = [
           '\x1B\x40',                                    // init
           '\x1B\x61\x01',                                // centrar
-          '\x1B\x21\x30',                                // negrita + doble tamaño
+          '\x1B\x21\x10',                                // doble altura
+          '\x1B\x45\x01',                                // negrita ON
           `${NEGOCIO.nombre}\n`,
+          '\x1B\x45\x00',                                // negrita OFF
           '\x1B\x21\x00',                                // fuente normal
           `${NEGOCIO.direccion}\n`,
           `Tel: ${NEGOCIO.telefono}\n`,
@@ -684,6 +716,7 @@ export default {
           `Cliente: ${venta.cliente || 'Consumidor Final'}\n`,
           `Atendido por: ${venta.usuarioRegistro || 'N/A'}\n`,
           `Tipo: ${venta.tipoVenta || 'Venta General'} | ${venta.credito ? 'Crédito' : 'Contado'}\n`,
+          `Tipo Pago: ${nombreTipoPago}\n`,
           // editVenta.estado === false ? '*** FACTURA ANULADA ***\n' : '',
 
           separadorBlank,
@@ -703,9 +736,9 @@ export default {
             : '',
           lineaDosColumnas('Descuento:', formatedCurrency(items.reduce((acc, item) => acc + (item.descuento || 0), 0), fomates.nio)),
           // lineaDosColumnas('Equiv. USD:', `$${factura.usdTotal.toFixed(2)}`),
-          '\x1B\x21\x10',                                // negrita
+          '\x1B\x45\x01',                                // negrita ON
           lineaDosColumnas('TOTAL:', formatedCurrency(factura.total, fomates.nio)),
-          '\x1B\x21\x00',                                // fuente normal
+          '\x1B\x45\x00',                                // negrita OFF
 
           venta.observaciones ? `\nObs: ${venta.observaciones}\n` : '',
 

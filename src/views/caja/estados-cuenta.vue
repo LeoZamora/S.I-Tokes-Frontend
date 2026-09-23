@@ -167,8 +167,9 @@
           <div class="text-h5 font-weight-black text-green-darken-4">
             {{ formatCurrency(resumen.totalVentas) }}
           </div>
-          <div class="text-caption text-grey-darken-2 mt-1">
-            Retiros: <strong class="text-orange-darken-4">{{ formatCurrency(resumen.totalRetiros) }}</strong>
+          <div class="text-caption text-grey-darken-2 mt-1 d-flex justify-space-between">
+            <span>Efectivo: <strong class="text-success">{{ formatCurrency(resumen.totalVentasEfectivo ?? resumen.totalVentas) }}</strong></span>
+            <span>Otros: <strong class="text-teal-darken-3">{{ formatCurrency(resumen.totalVentasOtrasModalidades || 0) }}</strong></span>
           </div>
         </v-card>
       </v-col>
@@ -376,7 +377,12 @@
 
               <!-- Ventas -->
               <template v-slot:item.ventas="{ item }">
-                <span class="font-weight-medium text-success">{{ formatCurrency(item.ventas) }}</span>
+                <div>
+                  <span class="font-weight-medium text-success d-block">{{ formatCurrency(item.ventasEfectivo ?? item.ventas) }}</span>
+                  <span v-if="Number(item.ventasOtrasModalidades) > 0" class="text-caption text-grey-darken-1" style="font-size: 10px;">
+                    Tot: {{ formatCurrency(item.ventas) }}
+                  </span>
+                </div>
               </template>
 
               <!-- Retiros -->
@@ -648,15 +654,44 @@
               <span class="font-weight-medium">{{ formatCurrency(dialogDetalle.item.efectivoInicial) }}</span>
             </div>
             <div class="d-flex justify-space-between py-1 border-bottom text-body-2">
-              <span class="text-grey-darken-1">Ventas del Turno:</span>
-              <span class="font-weight-bold text-success">{{ formatCurrency(dialogDetalle.item.ventas) }}</span>
+              <span class="text-grey-darken-1">Ventas en Efectivo (Caja):</span>
+              <span class="font-weight-bold text-success">{{ formatCurrency(dialogDetalle.item.ventasEfectivo ?? dialogDetalle.item.ventas) }}</span>
+            </div>
+            <div class="d-flex justify-space-between py-1 border-bottom text-body-2">
+              <span class="text-grey-darken-1">Ventas Otras Modalidades:</span>
+              <span class="font-weight-bold text-teal-darken-3">{{ formatCurrency(dialogDetalle.item.ventasOtrasModalidades || 0) }}</span>
+            </div>
+            <div class="d-flex justify-space-between py-1 border-bottom text-body-2">
+              <span class="text-grey-darken-1">Total Ventas Facturadas:</span>
+              <span class="font-weight-bold text-indigo-darken-4">{{ formatCurrency(dialogDetalle.item.ventas) }}</span>
             </div>
             <div class="d-flex justify-space-between py-1 border-bottom text-body-2">
               <span class="text-grey-darken-1">Retiros / Gastos:</span>
               <span class="font-weight-bold text-orange-darken-4">-{{ formatCurrency(dialogDetalle.item.retiros) }}</span>
             </div>
+
+            <!-- Desglose por Modalidad en Modal -->
+            <div v-if="dialogDetalle.item.desgloseModalidades && dialogDetalle.item.desgloseModalidades.length > 0" class="py-2 border-bottom">
+              <span class="text-caption font-weight-bold text-grey-darken-2 d-block mb-1">
+                Desglose por Modalidad de Pago:
+              </span>
+              <div class="d-flex align-center ga-1 flex-wrap">
+                <v-chip
+                  v-for="dm in dialogDetalle.item.desgloseModalidades"
+                  :key="dm.idTipoPago"
+                  size="x-small"
+                  :color="dm.esEfectivo ? 'green-darken-3' : 'indigo-darken-3'"
+                  variant="tonal"
+                  class="font-weight-medium"
+                >
+                  <v-icon start size="12">{{ dm.esEfectivo ? 'mdi-cash' : 'mdi-credit-card' }}</v-icon>
+                  <strong>{{ dm.modalidad }}:</strong>&nbsp;{{ formatCurrency(dm.total) }} ({{ dm.cantidadVentas }} fact.)
+                </v-chip>
+              </div>
+            </div>
+
             <div class="d-flex justify-space-between py-1 border-bottom text-body-2 bg-indigo-lighten-5 pa-1 rounded">
-              <span class="font-weight-bold text-indigo-darken-4">Total Esperado:</span>
+              <span class="font-weight-bold text-indigo-darken-4">Total Esperado (Efectivo):</span>
               <span class="font-weight-bold text-indigo-darken-4">{{ formatCurrency(dialogDetalle.item.totalEsperado) }}</span>
             </div>
             <div class="d-flex justify-space-between py-1 border-bottom text-body-2">
@@ -763,6 +798,8 @@ export default {
         totalCierres: 0,
         totalEfectivoInicial: 0,
         totalVentas: 0,
+        totalVentasEfectivo: 0,
+        totalVentasOtrasModalidades: 0,
         totalRetiros: 0,
         totalEsperado: 0,
         totalContado: 0,

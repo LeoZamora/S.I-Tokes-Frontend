@@ -279,23 +279,53 @@
           <!-- RESUMEN ENCABEZADO -->
           <v-card variant="outlined" class="pa-3 mb-4 bg-indigo-lighten-5 border-indigo-lighten-3">
             <v-row dense class="text-caption">
-              <v-col cols="6" sm="3">
+              <v-col cols="6" sm="2">
                 <span class="text-grey-darken-1 d-block">Fondo Inicial:</span>
                 <strong class="text-body-2 text-indigo-darken-4">{{ formatCurrency(cajaSeleccionada?.apertura?.montoAperturaEfectivo) }}</strong>
               </v-col>
-              <v-col cols="6" sm="3">
-                <span class="text-grey-darken-1 d-block">Ventas Turno:</span>
-                <strong class="text-body-2 text-green-darken-4">{{ formatCurrency(resumenVigente.totalVentas) }}</strong>
+              <v-col cols="6" sm="2">
+                <span class="text-grey-darken-1 d-block">Ventas Efectivo:</span>
+                <strong class="text-body-2 text-green-darken-4">{{ formatCurrency(resumenVigente.totalVentasEfectivo) }}</strong>
               </v-col>
               <v-col cols="6" sm="3">
-                <span class="text-grey-darken-1 d-block">Retiros Registrados:</span>
+                <span class="text-grey-darken-1 d-block">Otras Modalidades:</span>
+                <strong class="text-body-2 text-teal-darken-3">{{ formatCurrency(resumenVigente.totalVentasOtrasModalidades) }}</strong>
+              </v-col>
+              <v-col cols="6" sm="2">
+                <span class="text-grey-darken-1 d-block">Retiros Turno:</span>
                 <strong class="text-body-2 text-red-darken-4">{{ formatCurrency(resumenVigente.totalRetiros) }}</strong>
               </v-col>
               <v-col cols="6" sm="3">
-                <span class="text-grey-darken-1 d-block">Teórico en Caja:</span>
-                <strong class="text-body-2 text-indigo-darken-4">{{ formatCurrency(resumenVigente.totalEnCaja) }}</strong>
+                <span class="text-grey-darken-1 d-block">Teórico en Caja (Efectivo):</span>
+                <strong class="text-body-2 text-indigo-darken-4 font-weight-black">{{ formatCurrency(resumenVigente.totalEnCaja) }}</strong>
               </v-col>
             </v-row>
+
+            <!-- DESGLOSE POR MODALIDAD DE PAGO EN ARQUEO -->
+            <div v-if="resumenVigente.desgloseModalidades && resumenVigente.desgloseModalidades.length > 0" class="mt-2 pt-2 border-t">
+              <div class="d-flex align-center justify-space-between mb-1">
+                <span class="text-caption font-weight-bold text-indigo-darken-4 d-flex align-center">
+                  <v-icon size="14" class="mr-1">mdi-credit-card-outline</v-icon>
+                  Desglose de Ventas por Modalidad de Pago:
+                </span>
+                <span class="text-caption font-weight-bold text-grey-darken-3">
+                  Total Ventas: {{ formatCurrency(resumenVigente.totalVentas) }}
+                </span>
+              </div>
+              <div class="d-flex align-center ga-1.5 flex-wrap">
+                <v-chip
+                  v-for="mod in resumenVigente.desgloseModalidades"
+                  :key="mod.idTipoPago"
+                  size="x-small"
+                  :color="mod.esEfectivo ? 'green-darken-3' : 'indigo-darken-3'"
+                  variant="tonal"
+                  class="font-weight-medium"
+                >
+                  <v-icon start size="12">{{ mod.esEfectivo ? 'mdi-cash' : 'mdi-credit-card' }}</v-icon>
+                  <strong>{{ mod.modalidad }}:</strong>&nbsp;{{ formatCurrency(mod.total) }} ({{ mod.cantidadVentas }} fact.)
+                </v-chip>
+              </div>
+            </div>
           </v-card>
 
           <!-- TABLA DE DESGLOSE DE EFECTIVO -->
@@ -455,10 +485,13 @@ export default {
 
     const resumenVigente = reactive({
       totalVentas: 0,
+      totalVentasEfectivo: 0,
+      totalVentasOtrasModalidades: 0,
       totalMercaderia: 0,
       efectivoApertura: 0,
       totalRetiros: 0,
-      totalEnCaja: 0
+      totalEnCaja: 0,
+      desgloseModalidades: []
     })
 
     const formArqueo = reactive({
@@ -600,16 +633,22 @@ export default {
         const resResumen = await requestHttp.getCajaAperturaVigenteResumen(caja.idCaja)
         if (resResumen.code === 200 && resResumen.data) {
           resumenVigente.totalVentas = resResumen.data.totalVentas || 0
+          resumenVigente.totalVentasEfectivo = resResumen.data.totalVentasEfectivo ?? (resResumen.data.totalVentas || 0)
+          resumenVigente.totalVentasOtrasModalidades = resResumen.data.totalVentasOtrasModalidades || 0
           resumenVigente.totalMercaderia = resResumen.data.totalMercaderia || 0
           resumenVigente.efectivoApertura = resResumen.data.efectivoApertura || 0
           resumenVigente.totalRetiros = resResumen.data.totalRetiros || 0
           resumenVigente.totalEnCaja = resResumen.data.totalEnCaja || 0
+          resumenVigente.desgloseModalidades = resResumen.data.desgloseModalidades || []
         } else {
           resumenVigente.totalVentas = 0
+          resumenVigente.totalVentasEfectivo = 0
+          resumenVigente.totalVentasOtrasModalidades = 0
           resumenVigente.totalMercaderia = 0
           resumenVigente.efectivoApertura = 0
           resumenVigente.totalRetiros = 0
           resumenVigente.totalEnCaja = 0
+          resumenVigente.desgloseModalidades = []
         }
       } catch (e) {
         console.error('Error cargando resumen vigente:', e)

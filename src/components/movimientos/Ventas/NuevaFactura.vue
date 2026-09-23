@@ -698,6 +698,34 @@
                       </div>
                     </v-col>
 
+                    <!-- Tipo / Método de Pago (Modalidades) -->
+                    <v-col cols="12" class="mt-2">
+                      <label
+                        class="text-caption font-weight-bold text-grey-darken-2 d-block mb-1"
+                      >
+                        Tipo / Método de Pago *
+                      </label>
+                      <v-autocomplete
+                        v-model="
+                          data.venta.idTipoPago
+                        "
+                        :items="data.modalidades"
+                        item-title="title"
+                        item-value="value"
+                        prepend-inner-icon="mdi-credit-card-outline"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        single-line
+                        :menu-props="{
+                          closeOnContentClick: true
+                        }"
+                        placeholder="Seleccione método de pago..."
+                        color="indigo"
+                        class="fixed-autocomplete"
+                      />
+                    </v-col>
+
                     <!-- Observaciones -->
                     <v-col cols="12" class="mt-2">
                       <label
@@ -2079,6 +2107,28 @@
               </span>
             </div>
 
+            <!-- Selector de Tipo de Pago en Cobro -->
+            <div class="mb-3">
+              <span
+                class="text-caption font-weight-bold text-grey-darken-2 d-block mb-1"
+              >
+                Tipo de Pago:
+              </span>
+              <v-select
+                v-model="
+                  data.venta.idTipoPago
+                "
+                :items="data.modalidades"
+                item-title="title"
+                item-value="value"
+                density="compact"
+                variant="outlined"
+                color="indigo"
+                prepend-inner-icon="mdi-credit-card-check-outline"
+                hide-details
+              />
+            </div>
+
             <!-- Input Efectivo Recibido -->
             <div class="mb-2">
               <div
@@ -2116,6 +2166,15 @@
               class="d-flex flex-wrap gap-1 mb-3"
             >
               <v-chip
+                size="small"
+                variant="flat"
+                color="indigo-darken-3"
+                class="font-weight-bold cursor-pointer text-white"
+                @click="setMontoRecibidoExacto()"
+              >
+                Exacto
+              </v-chip>
+              <v-chip
                 v-for="billete in [
                   50, 100, 200, 500, 1000
                 ]"
@@ -2149,10 +2208,7 @@
 
             <!-- Estado del Cambio / Vuelto -->
             <div
-              v-if="
-                cobroMontoRecibidoNumber >=
-                data.factura.total
-              "
+              v-if="cobroEstaCompleto"
               class="pa-3 rounded-lg d-flex align-center justify-space-between"
               style="
                 background-color: #f0fdf4;
@@ -2176,9 +2232,7 @@
             </div>
 
             <div
-              v-else-if="
-                cobroMontoRecibidoNumber > 0
-              "
+              v-else-if="cobroMontoRecibidoNumber > 0"
               class="pa-3 rounded-lg d-flex align-center justify-space-between"
               style="
                 background-color: #fff7ed;
@@ -2239,8 +2293,7 @@
               @click="confirmarCobroYGuardar()"
               :disabled="
                 data.contDisableBtn ||
-                cobroMontoRecibidoNumber <
-                  data.factura.total
+                !cobroEstaCompleto
               "
               class="text-none px-5 font-weight-bold"
             >
@@ -2304,6 +2357,7 @@ export default {
     }
     this.getProductos()
     this.getTipoVentas()
+    this.getModalidades()
     this.cargarSesionCajaActiva()
   },
 
@@ -2407,6 +2461,7 @@ export default {
 
       productos: [],
       tipoVenta: [],
+      modalidades: [],
       items: [],
       clientes:
         props.clientesList &&
@@ -2435,6 +2490,7 @@ export default {
       venta: {
         noVenta: null,
         idTipoVenta: null,
+        idTipoPago: 1,
         idCliente: null,
         credito: false,
         observaciones: null,
@@ -2485,6 +2541,7 @@ export default {
       },
 
       contDisableBtn: false,
+      isSaving: false,
       hide: true,
       isCredito: 'contado',
       idVenta: null,
@@ -2579,49 +2636,53 @@ export default {
       )
     })
 
-    const cobroMontoRecibidoNumber = computed(
-      () => {
-        const val = parseFloat(
-          data.dialogCobro.montoRecibido
-        )
-        return isNaN(val) ? 0 : val
+    const round2 = (val) => {
+      const n = Number(val)
+      return isNaN(n) ? 0 : Math.round(n * 100) / 100
+    }
+
+    const cobroTotalFactura = computed(() => {
+      return round2(data.factura.total)
+    })
+
+    const cobroMontoRecibidoNumber = computed(() => {
+      if (
+        data.dialogCobro.montoRecibido === null ||
+        data.dialogCobro.montoRecibido === undefined ||
+        data.dialogCobro.montoRecibido === ''
+      ) {
+        return 0
       }
-    )
+      const rawStr = String(data.dialogCobro.montoRecibido).replace(',', '.')
+      const val = parseFloat(rawStr)
+      return isNaN(val) ? 0 : round2(val)
+    })
+
+    const cobroEstaCompleto = computed(() => {
+      const total = cobroTotalFactura.value
+      const recibido = cobroMontoRecibidoNumber.value
+      return total > 0 ? recibido >= total : recibido >= 0
+    })
 
     const cobroCambioCalculado = computed(() => {
-      const total =
-        Number(data.factura.total) || 0
-      const recibido =
-        cobroMontoRecibidoNumber.value
-      return Math.max(
-        0,
-        parseFloat((recibido - total).toFixed(2))
-      )
+      const total = cobroTotalFactura.value
+      const recibido = cobroMontoRecibidoNumber.value
+      return Math.max(0, round2(recibido - total))
     })
 
     const cobroMontoFaltante = computed(() => {
-      const total =
-        Number(data.factura.total) || 0
-      const recibido =
-        cobroMontoRecibidoNumber.value
-      return Math.max(
-        0,
-        parseFloat((total - recibido).toFixed(2))
-      )
+      const total = cobroTotalFactura.value
+      const recibido = cobroMontoRecibidoNumber.value
+      return Math.max(0, round2(total - recibido))
     })
 
     const setMontoRecibidoExacto = () => {
-      data.dialogCobro.montoRecibido = parseFloat(
-        Number(data.factura.total).toFixed(2)
-      )
+      data.dialogCobro.montoRecibido = cobroTotalFactura.value
     }
 
     const agregarDenominacion = (monto) => {
-      const actual =
-        cobroMontoRecibidoNumber.value
-      data.dialogCobro.montoRecibido = parseFloat(
-        (actual + monto).toFixed(2)
-      )
+      const actual = cobroMontoRecibidoNumber.value
+      data.dialogCobro.montoRecibido = round2(actual + Number(monto))
     }
 
     const cerrarDialogCobro = () => {
@@ -2653,7 +2714,7 @@ export default {
                 )
               )
             : 0
-        item.descuento = descuento
+        item.descuento = round2(descuento)
         const baseGravable = Math.max(
           0,
           base - descuento
@@ -2663,25 +2724,29 @@ export default {
           ((Number(item.porcentajeImpuesto) ||
             0) /
             100)
-        item.montoImpuesto = montoImpuesto
-        item.subTotal =
+        item.montoImpuesto = round2(montoImpuesto)
+        item.subTotal = round2(
           baseGravable + montoImpuesto
+        )
         subtotalNeto += base
         totalDescuento += descuento
         totalImpuestos += montoImpuesto
       })
 
-      data.factura.subTotal = subtotalNeto
-      data.factura.totalDescuento = totalDescuento
-      data.factura.totalImpuestos = totalImpuestos
+      data.factura.subTotal = round2(subtotalNeto)
+      data.factura.totalDescuento = round2(totalDescuento)
+      data.factura.totalImpuestos = round2(totalImpuestos)
       data.factura.total = Math.max(
         0,
-        subtotalNeto -
-          totalDescuento +
-          totalImpuestos
+        round2(
+          subtotalNeto -
+            totalDescuento +
+            totalImpuestos
+        )
       )
-      data.factura.usdTotal =
+      data.factura.usdTotal = round2(
         data.factura.total / 36.6243
+      )
     }
 
     const cargarSesionCajaActiva = async () => {
@@ -2937,6 +3002,9 @@ export default {
             )
             if (result.code === 200) {
               data.venta = result.data
+              if (!data.venta.idTipoPago) {
+                data.venta.idTipoPago = result.data.IdTipoPago || 1
+              }
               data.editVenta.estado =
                 result.data.estado
               data.editVenta.fechaRegistro =
@@ -3098,7 +3166,7 @@ export default {
       telefono: '2263-2783'
     }
 
-    const ANCHO_TICKET = 48
+    const ANCHO_TICKET = 42 // 42 columnas para compatibilidad universal con todas las impresoras térmicas de 80mm
 
     function formatedCurrency(key, currency) {
       return formatters.formatCurrency(key, currency || 'NIO')
@@ -3146,10 +3214,12 @@ export default {
     }
     
     function lineaDosColumnas(izquierda, derecha, ancho = ANCHO_TICKET) {
+      izquierda = String(izquierda ?? '')
+      derecha = String(derecha ?? '')
       const espacio = ancho - izquierda.length - derecha.length
       return espacio > 0
         ? izquierda + ' '.repeat(espacio) + derecha + '\n'
-        : izquierda.slice(0, ancho - derecha.length - 1) + ' ' + derecha + '\n'
+        : izquierda.slice(0, Math.max(0, ancho - derecha.length - 1)) + ' ' + derecha + '\n'
     }
     
     // Cada ítem puede ocupar 2 líneas: nombre completo arriba,
@@ -3169,6 +3239,10 @@ export default {
       if (item.montoImpuesto > 0) {
         const impuesto = this.formatedCurrency ? this.formatedCurrency(item.montoImpuesto, fomatoNio) : item.montoImpuesto
         salida += `  IVA (${item.porcentajeImpuesto}%): ${impuesto}\n`
+      }
+      if (item.descuento > 0) {
+        const desc = this.formatedCurrency ? this.formatedCurrency(item.descuento, fomatoNio) : item.descuento
+        salida += `  Descuento: ${desc}\n`
       }
     
       return salida
@@ -3193,9 +3267,12 @@ export default {
         const nombreImpresora = await qz.printers.find('POS-80C')
         const config = qz.configs.create(nombreImpresora)
     
-        const { venta, editVenta, items, factura, fornates, dialogCobro, sesionCaja, clientes } = data
+        const { venta, editVenta, items, factura, fornates, dialogCobro, sesionCaja, clientes, modalidades } = data
         const separador = '-'.repeat(ANCHO_TICKET) + '\n'
         const separadorBlank = ' '.repeat(ANCHO_TICKET) + '\n'
+
+        const modalidadItem = (modalidades || []).find((m) => m.value === venta.idTipoPago || m.id === venta.idTipoPago)
+        const nombreTipoPago = modalidadItem?.title || modalidadItem?.nombre || (venta.credito ? 'Crédito' : 'Efectivo')
     
         const cuerpoItems = items.length
           ? items.map((item) => lineasItem.call(this, item, fornates.nio)).join(separador === '\n' ? '' : '')
@@ -3219,12 +3296,13 @@ export default {
           `Cliente: ${clientes.find((c) => c.id === venta.idCliente)?.nombre || 'Consumidor Final'}\n`,
           `Atendido por: ${sesionCaja.usuario || 'N/A'}\n`,
           `Tipo: ${venta.tipoVenta || 'Venta General'} | ${venta.credito ? 'Crédito' : 'Contado'}\n`,
+          `Tipo Pago: ${nombreTipoPago}\n`,
     
           separadorBlank,
-
+ 
           lineaDosColumnas('PRODUCTOS', ''),
           separador,
-
+ 
           ...items.map((item) => lineasItem.call(this, item, fornates.nio)),
           
           separadorBlank,
@@ -3233,13 +3311,20 @@ export default {
     
           lineaDosColumnas('Sub Total:', this.formatedCurrency ? this.formatedCurrency(factura.subTotal, fornates.nio) : factura.subTotal),
           factura.totalImpuestos > 0
-            ? lineaDosColumnas('Impuestos:', this.formatedCurrency ? this.formatedCurrency(factura.totalImpuestos, fornates.nio) : factura.totalImpuestos)
+            ? lineaDosColumnas('IVA:', this.formatedCurrency ? this.formatedCurrency(factura.totalImpuestos, fornates.nio) : factura.totalImpuestos)
+            : '',
+          factura.totalDescuento > 0
+            ? lineaDosColumnas('Descuento:', this.formatedCurrency ? this.formatedCurrency(factura.totalDescuento, fornates.nio) : factura.totalDescuento)
             : '',
           '\x1B\x45\x01',                                // negrita ON (Emphasized mode, no descuadra el interlineado)
           lineaDosColumnas('TOTAL:', this.formatedCurrency ? this.formatedCurrency(factura.total, fornates.nio) : factura.total),
           '\x1B\x45\x00',                                // negrita OFF
-          `Paga Con: ${this.formatedCurrency ? this.formatedCurrency(dialogCobro.montoRecibido, fornates.nio) : factura.usdTotal}\n`,
-          `Cambio: ${this.formatedCurrency ? this.formatedCurrency(cobroCambioCalculado.value, fornates.nio) : cobroCambioCalculado.value}\n`,
+          dialogCobro?.montoRecibido
+            ? `Paga Con: ${this.formatedCurrency ? this.formatedCurrency(dialogCobro.montoRecibido, fornates.nio) : factura.usdTotal}\n`
+            : '',
+          cobroCambioCalculado?.value > 0
+            ? `Cambio: ${this.formatedCurrency ? this.formatedCurrency(cobroCambioCalculado.value, fornates.nio) : cobroCambioCalculado.value}\n`
+            : '',
     
           venta.observaciones ? `\nObs: ${venta.observaciones}\n` : '',
     
@@ -3268,6 +3353,8 @@ export default {
       clienteTieneCredito,
       clienteTieneDescuento,
       clienteSeleccionado,
+      cobroTotalFactura,
+      cobroEstaCompleto,
       cobroMontoRecibidoNumber,
       cobroCambioCalculado,
       cobroMontoFaltante,
@@ -3311,6 +3398,32 @@ export default {
             value: item.id
           })
         })
+      }
+    },
+
+    async getModalidades() {
+      this.data.modalidades = []
+      const result =
+        await this.data.requestHttp.getModalidades()
+      if (
+        result.code === 200 &&
+        Array.isArray(result.data)
+      ) {
+        result.data.forEach((item) => {
+          this.data.modalidades.push({
+            title: item.nombre,
+            value: item.id || item.Id || item.idModalidad || item.IdModalidad,
+            id: item.id || item.Id || item.idModalidad || item.IdModalidad,
+            nombre: item.nombre
+          })
+        })
+        if (
+          !this.data.venta.idTipoPago &&
+          this.data.modalidades.length > 0
+        ) {
+          this.data.venta.idTipoPago =
+            this.data.modalidades[0].value || 1
+        }
       }
     },
 
@@ -3734,8 +3847,12 @@ export default {
     },
 
     async guardarFactura() {
-      const valid =
-        await this.$refs.form.validate()
+      // 1. Candado síncrono inmediato en Frame 0 para evitar doble-clic
+      if (this.data.contDisableBtn || this.data.isSaving) {
+        return
+      }
+      this.data.contDisableBtn = true
+      this.data.isSaving = true
 
       try {
         if (!this.localEdit) {
@@ -3748,8 +3865,13 @@ export default {
               'No cuenta con una apertura de caja activa para registrar ventas. Realice una apertura de caja primero.',
               'warning'
             )
+            this.data.contDisableBtn = false
+            this.data.isSaving = false
             return
           }
+
+          const valid =
+            await this.$refs.form.validate()
 
           if (!valid.valid) {
             this.showAlert(
@@ -3757,6 +3879,8 @@ export default {
               'Complete los campos obligatorios marcados con *',
               'warning'
             )
+            this.data.contDisableBtn = false
+            this.data.isSaving = false
             return
           }
 
@@ -3769,6 +3893,8 @@ export default {
               'Debe agregar al menos un producto a la factura',
               'warning'
             )
+            this.data.contDisableBtn = false
+            this.data.isSaving = false
             return
           }
 
@@ -3779,6 +3905,8 @@ export default {
                 'El cliente seleccionado no tiene crédito autorizado. Cambie la condición a Contado.',
                 'warning'
               )
+              this.data.contDisableBtn = false
+              this.data.isSaving = false
               return
             }
 
@@ -3816,6 +3944,8 @@ export default {
                     `Venta a crédito bloqueada: Excede el crédito disponible por ${this.formatedCurrency(excedente, this.data.fornates.nio)}`,
                     'error'
                   )
+                  this.data.contDisableBtn = false
+                  this.data.isSaving = false
                   return
                 }
               }
@@ -3827,6 +3957,8 @@ export default {
             await this.ejecutarGuardadoFactura()
           } else {
             // Venta de Contado: abrir diálogo de cobro y cálculo de cambio para el cajero
+            this.data.contDisableBtn = false
+            this.data.isSaving = false
             this.data.dialogCobro.montoRecibido =
               null
             this.data.dialogCobro.show = true
@@ -3838,6 +3970,8 @@ export default {
               'Complete los campos obligatorios',
               'warning'
             )
+            this.data.contDisableBtn = false
+            this.data.isSaving = false
             return
           }
 
@@ -3848,6 +3982,8 @@ export default {
                 'El cliente seleccionado no tiene crédito autorizado. Cambie la condición a Contado.',
                 'warning'
               )
+              this.data.contDisableBtn = false
+              this.data.isSaving = false
               return
             }
 
@@ -3884,6 +4020,8 @@ export default {
                     `Venta a crédito bloqueada: Excede el crédito disponible por ${this.formatedCurrency(excedente, this.data.fornates.nio)}`,
                     'error'
                   )
+                  this.data.contDisableBtn = false
+                  this.data.isSaving = false
                   return
                 }
               }
@@ -3896,32 +4034,52 @@ export default {
         }
       } catch (error) {
         console.error(error)
+        this.data.contDisableBtn = false
+        this.data.isSaving = false
+        this.data.overlay.show = false
       }
     },
 
     async confirmarCobroYGuardar() {
-      if (
-        this.cobroMontoRecibidoNumber <
-        this.data.factura.total
-      ) {
+      // 1. Candado síncrono inmediato en Frame 0 para evitar doble-clic o doble Enter
+      if (this.data.contDisableBtn || this.data.isSaving) {
+        return
+      }
+
+      const totalRound = Math.round((Number(this.data.factura.total) || 0) * 100) / 100
+      const recibidoRound = Math.round((Number(this.cobroMontoRecibidoNumber) || 0) * 100) / 100
+
+      if (totalRound > 0 && recibidoRound < totalRound) {
         this.showAlert(
           2,
-          `El monto recibido (${this.formatedCurrency(this.cobroMontoRecibidoNumber, this.data.fornates.nio)}) es insuficiente para cubrir el total (${this.formatedCurrency(this.data.factura.total, this.data.fornates.nio)}).`,
+          `El monto recibido (${this.formatedCurrency(recibidoRound, this.data.fornates.nio)}) es insuficiente para cubrir el total (${this.formatedCurrency(totalRound, this.data.fornates.nio)}).`,
           'warning'
         )
         return
       }
+
+      // Bloquear botones y activar loading inmediatamente antes de cerrar el modal
+      this.data.contDisableBtn = true
+      this.data.isSaving = true
+      this.data.overlay.show = true
       this.data.dialogCobro.show = false
+
       await this.ejecutarGuardadoFactura()
     },
 
     async ejecutarGuardadoFactura() {
       try {
+        this.data.contDisableBtn = true
+        this.data.isSaving = true
+        this.data.overlay.show = true
+
         if (!this.localEdit) {
           const payload = {
             idCliente: this.data.venta.idCliente,
             idTipoVenta:
               this.data.venta.idTipoVenta,
+            idTipoPago:
+              this.data.venta.idTipoPago || 1,
             credito:
               this.data.venta.credito || false,
             observaciones:
@@ -3943,13 +4101,10 @@ export default {
             )
           }
 
-          this.data.contDisableBtn = true
-          this.data.overlay.show = true
           const result =
             await this.data.requestHttp.postVenta(
               payload
             )
-          this.data.overlay.show = false
 
           if (result.code === 200) {
             this.showSuccesAlert(
@@ -3958,11 +4113,16 @@ export default {
             )
             this.imprimirFactura.call(this, this.data)
             setTimeout(() => {
-              this.data.contDisableBtn = false
               this.closeDialog()
+              this.data.overlay.show = false
+              this.data.contDisableBtn = false
+              this.data.isSaving = false
             }, 1500)
           } else {
+            this.data.overlay.show = false
             this.data.contDisableBtn = false
+            this.data.isSaving = false
+
             // Refrescar lista de productos y stock por posibles ventas en concurrencia
             await this.getProductos()
 
@@ -4002,13 +4162,11 @@ export default {
               observaciones: item.observaciones
             }))
 
-          this.data.contDisableBtn = true
           const result =
             await this.data.requestHttp.putVenta(
               this.data.venta,
               this.data.editVenta.idVenta
             )
-          this.data.contDisableBtn = false
 
           if (result.code === 200) {
             this.showSuccesAlert(
@@ -4017,8 +4175,14 @@ export default {
             )
             setTimeout(() => {
               this.closeDialog()
+              this.data.overlay.show = false
+              this.data.contDisableBtn = false
+              this.data.isSaving = false
             }, 1500)
           } else {
+            this.data.overlay.show = false
+            this.data.contDisableBtn = false
+            this.data.isSaving = false
             await this.getProductos()
             this.showSuccesAlert(
               '¡No se pudo actualizar la factura!',
@@ -4029,6 +4193,7 @@ export default {
         }
       } catch (error) {
         this.data.contDisableBtn = false
+        this.data.isSaving = false
         this.data.overlay.show = false
         await this.getProductos()
         this.showSuccesAlert(
@@ -4148,6 +4313,8 @@ export default {
     // },
 
     closeDialog() {
+      this.data.isSaving = false
+      this.data.contDisableBtn = false
       this.data.dialogCobro.show = false
       this.data.dialogCobro.montoRecibido = null
       this.$emit('closeDialog', false)
