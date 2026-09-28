@@ -116,6 +116,8 @@ const endPoints = {
     getRetirosCaja: 'api/retiros-caja',
     postRetiroCaja: 'api/retiros-caja',
     getConceptosRetiroCajaCombobox: 'api/conceptos-tipo-mov/retiros-caja/combobox',
+    getCierresCaja: 'api/cierres-caja',
+    getCierreCajaById: 'api/cierres-caja',
     postCierreCaja: 'api/cierres-caja',
     postCierreMercaderia: 'api/aperturas-caja/cierre-mercaderia',
     postEstadoCuentaCaja: 'api/cierres-caja/estado-cuenta',

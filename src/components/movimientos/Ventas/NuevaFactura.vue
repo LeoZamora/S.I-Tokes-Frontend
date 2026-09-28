@@ -1219,8 +1219,12 @@
                               step="0.01"
                               min="0"
                               :max="
-                                item.costoUnitario *
-                                item.cantidad
+                                (item.costoUnitario *
+                                  item.cantidad) *
+                                (1 +
+                                  (item.porcentajeImpuesto ||
+                                    0) /
+                                    100)
                               "
                               :value="
                                 item.descuento ||
@@ -2704,44 +2708,52 @@ export default {
         const base =
           (Number(item.costoUnitario) || 0) *
           (Number(item.cantidad) || 0)
-        const descuento =
+        const porcentajeImpuesto =
+          Number(item.porcentajeImpuesto) || 0
+        const factorIva = 1 + porcentajeImpuesto / 100
+        const maxDescuentoConIva = base * factorIva
+
+        const inputDescuento =
           clienteTieneDescuento.value
             ? Math.min(
-                base,
+                maxDescuentoConIva,
                 Math.max(
                   0,
                   Number(item.descuento) || 0
                 )
               )
             : 0
-        item.descuento = round2(descuento)
+
+        item.descuento = round2(inputDescuento)
+        const descuentoSinIva =
+          inputDescuento > 0 && factorIva > 0
+            ? round2(inputDescuento / factorIva)
+            : 0
+
         const baseGravable = Math.max(
           0,
-          base - descuento
+          round2(base - descuentoSinIva)
         )
-        const montoImpuesto =
+        const montoImpuesto = round2(
           baseGravable *
-          ((Number(item.porcentajeImpuesto) ||
-            0) /
-            100)
+            (porcentajeImpuesto / 100)
+        )
         item.montoImpuesto = round2(montoImpuesto)
         item.subTotal = round2(
           baseGravable + montoImpuesto
         )
         subtotalNeto += base
-        totalDescuento += descuento
+        totalDescuento += inputDescuento
         totalImpuestos += montoImpuesto
       })
 
       data.factura.subTotal = round2(subtotalNeto)
       data.factura.totalDescuento = round2(totalDescuento)
       data.factura.totalImpuestos = round2(totalImpuestos)
-      data.factura.total = Math.max(
-        0,
-        round2(
-          subtotalNeto -
-            totalDescuento +
-            totalImpuestos
+      data.factura.total = round2(
+        data.items.reduce(
+          (acc, item) => acc + (Number(item.subTotal) || 0),
+          0
         )
       )
       data.factura.usdTotal = round2(
@@ -3079,14 +3091,33 @@ export default {
                         ) || 0),
                       0
                     )
+                  const factorIva =
+                    1 +
+                    porcentajeImpuestoTotal / 100
+                  const descuentoSinIva =
+                    desc > 0 && factorIva > 0
+                      ? Math.round(
+                          (desc / factorIva) * 100
+                        ) / 100
+                      : 0
                   const baseGravable = Math.max(
                     0,
-                    subtotalBase - desc
+                    Math.round(
+                      (subtotalBase -
+                        descuentoSinIva) *
+                        100
+                    ) / 100
                   )
                   const montoImpuesto =
-                    baseGravable *
-                    (porcentajeImpuestoTotal /
-                      100)
+                    item.iva !== undefined &&
+                    item.iva !== null
+                      ? Number(item.iva)
+                      : Math.round(
+                          (baseGravable *
+                            (porcentajeImpuestoTotal /
+                              100)) *
+                            100
+                        ) / 100
 
                   return {
                     idDetalleVenta:
@@ -3115,10 +3146,11 @@ export default {
                       porcentajeImpuestoTotal,
                     montoImpuesto: montoImpuesto,
                     subTotal:
-                      Math.max(
-                        0,
-                        subtotalBase - desc
-                      ) + montoImpuesto,
+                      Math.round(
+                        (baseGravable +
+                          montoImpuesto) *
+                          100
+                      ) / 100,
                     observaciones:
                       item.observaciones,
                     idProductoNavigation:
@@ -3264,11 +3296,51 @@ export default {
 
         const modalidadItem = (modalidades || []).find((m) => m.value === venta.idTipoPago || m.id === venta.idTipoPago)
         const nombreTipoPago = modalidadItem?.title || modalidadItem?.nombre || (venta.credito ? 'Crédito' : 'Efectivo')
-    
+
+        const clienteObj = (clientes || []).find(
+          (c) =>
+            c.id === venta.idCliente ||
+            c.value === venta.idCliente ||
+            c.idCliente === venta.idCliente
+        )
+        const nombreCliente =
+          clienteObj?.nombre ||
+          clienteObj?.title ||
+          venta.cliente ||
+          'Consumidor Final'
+
+        const tipoVentaObj = (data.tipoVenta || []).find(
+          (t) =>
+            t.id === venta.idTipoVenta ||
+            t.value === venta.idTipoVenta ||
+            t.idTipoVenta === venta.idTipoVenta
+        )
+        const nombreTipoVenta =
+          tipoVentaObj?.title ||
+          tipoVentaObj?.nombre ||
+          venta.tipoVenta ||
+          'Venta General'
+
+        const nombreCajero =
+          sesionCaja?.nombre ||
+          sesionCaja?.usuario ||
+          venta.usuarioRegistro ||
+          'N/A'
+
+        const fechaTicket =
+          editVenta?.fechaRegistro ||
+          venta.fechaRegistro ||
+          new Date()
+
+        const noFacturaTicket =
+          venta.noVenta ||
+          editVenta?.noVenta ||
+          'N/A'
+
         const cuerpoItems = items.length
           ? items.map((item) => lineasItem.call(this, item, fornates.nio)).join(separador === '\n' ? '' : '')
           : 'Sin productos registrados\n'
-    
+
         const ticket = [
           '\x1B\x40',                                    // init
           '\x1B\x61\x01',                                // centrar
@@ -3280,13 +3352,13 @@ export default {
           `${NEGOCIO.direccion}\n`,
           `Tel: ${NEGOCIO.telefono}\n`,
           separador,
-    
+
           '\x1B\x61\x00',                                // alinear izquierda
-          `Factura N°: ${venta.noVenta || 'N/A'}\n`,
-          `Fecha: ${this.formateDate ? this.formateDate(editVenta.fechaRegistro) : editVenta.fechaRegistro}\n`,
-          `Cliente: ${clientes.find((c) => c.id === venta.idCliente)?.nombre || 'Consumidor Final'}\n`,
-          `Atendido por: ${sesionCaja.usuario || 'N/A'}\n`,
-          `Tipo: ${venta.tipoVenta || 'Venta General'} | ${venta.credito ? 'Crédito' : 'Contado'}\n`,
+          `Ticket Venta: ${noFacturaTicket}\n`,
+          `Fecha: ${this.formateDate ? this.formateDate(fechaTicket) : fechaTicket}\n`,
+          `Cliente: ${nombreCliente}\n`,
+          `Atendido por: ${nombreCajero}\n`,
+          `Tipo: ${nombreTipoVenta} | ${venta.credito ? 'Crédito' : 'Contado'}\n`,
           `Tipo Pago: ${nombreTipoPago}\n`,
     
           separadorBlank,
@@ -3593,17 +3665,36 @@ export default {
         )
       const subtotalBase =
         totalQty * precioUnitario
+      const factorIva =
+        1 + porcentajeImpuestoTotal / 100
+      const maxDescuentoConIva =
+        subtotalBase * factorIva
       const totalDescuentoLinea = this
         .clienteTieneDescuento
-        ? Math.min(subtotalBase, inputDescuento)
+        ? Math.min(
+            maxDescuentoConIva,
+            inputDescuento
+          )
         : 0
+      const descuentoSinIva =
+        totalDescuentoLinea > 0 && factorIva > 0
+          ? Math.round(
+              (totalDescuentoLinea / factorIva) *
+                100
+            ) / 100
+          : 0
       const baseGravable = Math.max(
         0,
-        subtotalBase - totalDescuentoLinea
+        Math.round(
+          (subtotalBase - descuentoSinIva) * 100
+        ) / 100
       )
       const montoImpuesto =
-        baseGravable *
-        (porcentajeImpuestoTotal / 100)
+        Math.round(
+          (baseGravable *
+            (porcentajeImpuestoTotal / 100)) *
+            100
+        ) / 100
 
       const itemData = {
         idProducto: prod.idProducto,
@@ -3620,10 +3711,9 @@ export default {
           porcentajeImpuestoTotal,
         montoImpuesto: montoImpuesto,
         subTotal:
-          Math.max(
-            0,
-            subtotalBase - totalDescuentoLinea
-          ) + montoImpuesto,
+          Math.round(
+            (baseGravable + montoImpuesto) * 100
+          ) / 100,
         observaciones: mergedObservaciones
       }
 
@@ -3711,22 +3801,37 @@ export default {
             0
           )
         const subtotalBase = qty * precioUnitario
+        const factorIva =
+          1 + porcentajeImpuestoTotal / 100
+        const maxDescuentoConIva =
+          subtotalBase * factorIva
         const desc = this.clienteTieneDescuento
           ? Math.min(
-              subtotalBase,
+              maxDescuentoConIva,
               Math.max(
                 0,
                 Number(item.descuento) || 0
               )
             )
           : 0
+        const descuentoSinIva =
+          desc > 0 && factorIva > 0
+            ? Math.round(
+                (desc / factorIva) * 100
+              ) / 100
+            : 0
         const baseGravable = Math.max(
           0,
-          subtotalBase - desc
+          Math.round(
+            (subtotalBase - descuentoSinIva) * 100
+          ) / 100
         )
         const montoImpuesto =
-          baseGravable *
-          (porcentajeImpuestoTotal / 100)
+          Math.round(
+            (baseGravable *
+              (porcentajeImpuestoTotal / 100)) *
+              100
+          ) / 100
 
         item.cantidad = qty
         item.costoUnitario = precioUnitario
@@ -3737,33 +3842,52 @@ export default {
           porcentajeImpuestoTotal
         item.montoImpuesto = montoImpuesto
         item.subTotal =
-          baseGravable + montoImpuesto
+          Math.round(
+            (baseGravable + montoImpuesto) * 100
+          ) / 100
       } else {
         const subtotalBase =
           (Number(item.costoUnitario) || 0) * qty
+        const porcentajeImpuestoTotal =
+          Number(item.porcentajeImpuesto) || 0
+        const factorIva =
+          1 + porcentajeImpuestoTotal / 100
+        const maxDescuentoConIva =
+          subtotalBase * factorIva
         const desc = this.clienteTieneDescuento
           ? Math.min(
-              subtotalBase,
+              maxDescuentoConIva,
               Math.max(
                 0,
                 Number(item.descuento) || 0
               )
             )
           : 0
+        const descuentoSinIva =
+          desc > 0 && factorIva > 0
+            ? Math.round(
+                (desc / factorIva) * 100
+              ) / 100
+            : 0
         const baseGravable = Math.max(
           0,
-          subtotalBase - desc
+          Math.round(
+            (subtotalBase - descuentoSinIva) * 100
+          ) / 100
         )
         const montoImpuesto =
-          baseGravable *
-          ((Number(item.porcentajeImpuesto) ||
-            0) /
-            100)
+          Math.round(
+            (baseGravable *
+              (porcentajeImpuestoTotal / 100)) *
+              100
+          ) / 100
         item.cantidad = qty
         item.descuento = desc
         item.montoImpuesto = montoImpuesto
         item.subTotal =
-          baseGravable + montoImpuesto
+          Math.round(
+            (baseGravable + montoImpuesto) * 100
+          ) / 100
       }
 
       this.calcularFactura()
@@ -3780,11 +3904,17 @@ export default {
       const subtotalBase =
         (Number(item.costoUnitario) || 0) *
         (Number(item.cantidad) || 0)
-      if (val > subtotalBase) {
-        val = subtotalBase
+      const factorIva =
+        1 +
+        (Number(item.porcentajeImpuesto) || 0) /
+          100
+      const maxDescuentoConIva =
+        subtotalBase * factorIva
+      if (val > maxDescuentoConIva) {
+        val = maxDescuentoConIva
         this.showAlert(
           1,
-          `El descuento no puede superar el subtotal (${this.formatedCurrency(subtotalBase, this.data.fornates.nio)})`,
+          `El descuento no puede superar el subtotal con IVA (${this.formatedCurrency(maxDescuentoConIva, this.data.fornates.nio)})`,
           'warning'
         )
       }
@@ -4098,6 +4228,24 @@ export default {
             )
 
           if (result.code === 200) {
+            const respuestaBackend =
+              result.data?.data || result.data || {}
+            if (respuestaBackend.noVenta) {
+              this.data.venta.noVenta =
+                respuestaBackend.noVenta
+            }
+            if (respuestaBackend.fechaRegistro) {
+              this.data.editVenta.fechaRegistro =
+                respuestaBackend.fechaRegistro
+            } else {
+              this.data.editVenta.fechaRegistro =
+                new Date()
+            }
+            if (respuestaBackend.idVenta) {
+              this.data.editVenta.idVenta =
+                respuestaBackend.idVenta
+            }
+
             this.showSuccesAlert(
               '¡Venta registrada con éxito!',
               true

@@ -1678,6 +1678,22 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async getCierresCaja(params = {}) {
+        try {
+            const result = await axios.get(endPoints.getCierresCaja, { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async getCierreCajaById(id) {
+        try {
+            const result = await axios.get(`${endPoints.getCierreCajaById}/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
     async postCierreCaja(data) {
         try {
             const result = await axios.post(endPoints.postCierreCaja, data)

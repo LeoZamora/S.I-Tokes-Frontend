@@ -8,450 +8,703 @@
       </div>
     </v-snackbar>
 
-    <!-- Encabezado -->
+    <!-- Encabezado Principal -->
     <v-card class="border-t border-b mb-4" elevation="0" rounded="0">
-      <div class="d-flex align-center justify-space-between flex-wrap pa-2 bg-white">
+      <div class="d-flex align-center justify-space-between flex-wrap pa-3 bg-white">
         <div class="d-flex align-center">
-          <v-avatar color="indigo-lighten-5" class="mr-3" size="40">
-            <v-icon color="indigo">mdi-safe-square-outline</v-icon>
+          <v-avatar color="indigo-lighten-5" class="mr-3" size="44">
+            <v-icon color="indigo-darken-3" size="26">mdi-safe-square-outline</v-icon>
           </v-avatar>
           <div>
-            <span class="text-h6 font-weight-bold d-block">Cierre de Caja y Liquidación</span>
-            <span class="text-caption text-grey-darken-1">Cierre de efectivo con arqueo verificado y cierre/devolución de mercadería a bodega</span>
+            <div class="d-flex align-center ga-2">
+              <span class="text-h6 font-weight-bold text-grey-darken-4">Cierre de Caja y Liquidación</span>
+              <v-chip size="x-small" color="indigo" variant="tonal" class="font-weight-bold">
+                Gestión & Auditoría
+              </v-chip>
+            </div>
+            <span class="text-caption text-grey-darken-1 d-block" style="font-size: 11px;">
+              Cierre de efectivo con arqueo verificado, devolución de mercadería a bodega e historial de cierres reimprimibles
+            </span>
           </div>
         </div>
-        <div class="d-flex align-center ga-3">
+
+        <div class="d-flex align-center ga-2">
           <v-btn
             variant="outlined"
-            color="indigo"
+            color="indigo-darken-3"
             size="small"
+            class="text-none font-weight-bold rounded-lg"
             prepend-icon="mdi-refresh"
-            @click="loadCajas()"
-            :loading="loading"
+            @click="handleMainRefresh()"
+            :loading="loading || loadingHistorial"
           >
             Actualizar
           </v-btn>
-          <!-- Toggle Cards vs Tabla -->
+          <!-- Toggle Cards vs Tabla (Solo en Tab de Cajas Activas) -->
           <v-btn-toggle
+            v-if="activeMainTab === 0"
             v-model="viewMode"
             mandatory
             variant="outlined"
             color="indigo-darken-4"
             density="compact"
-            class="rounded bg-white"
+            class="rounded-lg bg-white"
           >
             <v-btn value="grid" icon="mdi-view-grid" size="small" title="Vista Tarjetas" />
             <v-btn value="list" icon="mdi-view-list" size="small" title="Vista Lista" />
           </v-btn-toggle>
         </div>
       </div>
+
       <v-divider />
 
-      <!-- Tarjetas de Métricas -->
-      <v-row class="pa-3 align-center" dense>
-        <v-col cols="12" md="3" sm="6">
-          <v-card variant="flat" color="amber-lighten-5" class="pa-3 rounded-lg border border-amber-lighten-3">
-            <div class="d-flex align-center">
-              <v-avatar color="amber-darken-3" class="mr-3 text-white">
-                <v-icon>mdi-clipboard-check</v-icon>
-              </v-avatar>
-              <div>
-                <div class="text-caption text-amber-darken-4 font-weight-bold">Listas para Cerrar (Arqueadas)</div>
-                <div class="text-h6 font-weight-black text-amber-darken-4">
-                  {{ stats.arqueadas }}
-                </div>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="3" sm="6">
-          <v-card variant="flat" color="green-lighten-5" class="pa-3 rounded-lg border border-green-lighten-3">
-            <div class="d-flex align-center">
-              <v-avatar color="green" class="mr-3 text-white">
-                <v-icon>mdi-cash-register</v-icon>
-              </v-avatar>
-              <div>
-                <div class="text-caption text-green-darken-4 font-weight-bold">Aperturadas (Sin Arqueo)</div>
-                <div class="text-h6 font-weight-black text-green-darken-4">
-                  {{ stats.aperturadas }}
-                </div>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="3" sm="6">
-          <v-card variant="flat" color="blue-grey-lighten-5" class="pa-3 rounded-lg border border-blue-grey-lighten-2">
-            <div class="d-flex align-center">
-              <v-avatar color="blue-grey-darken-2" class="mr-3 text-white">
-                <v-icon>mdi-package-variant-closed</v-icon>
-              </v-avatar>
-              <div>
-                <div class="text-caption text-blue-grey-darken-4 font-weight-bold">Mercadería en Cajas Activas</div>
-                <div class="text-h6 font-weight-bold text-blue-grey-darken-4">
-                  {{ formatCurrency(totalMercaderiaEnCajas) }}
-                </div>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="3" sm="6">
-          <v-card variant="flat" color="indigo-lighten-5" class="pa-3 rounded-lg border border-indigo-lighten-3">
-            <div class="d-flex align-center">
-              <v-avatar color="indigo" class="mr-3 text-white">
-                <v-icon>mdi-cash-multiple</v-icon>
-              </v-avatar>
-              <div>
-                <div class="text-caption text-indigo-darken-3 font-weight-bold">Total Efectivo en Cajas</div>
-                <div class="text-h6 font-weight-bold text-indigo-darken-4">
-                  {{ formatCurrency(totalEfectivoEnCajas) }}
-                </div>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-card>
-
-    <!-- Barra de Filtros -->
-    <v-row class="mb-4 align-center" dense>
-      <v-col cols="12" sm="8" md="6">
-        <v-text-field
-          v-model="searchQuery"
-          label="Buscar caja arqueada por nombre, código o bodega..."
-          prepend-inner-icon="mdi-magnify"
-          density="compact"
-          variant="outlined"
-          color="indigo"
-          hide-details
-          clearable
-        />
-      </v-col>
-    </v-row>
-
-    <!-- Loader -->
-    <div v-if="loading" class="d-flex justify-center my-10">
-      <v-progress-circular indeterminate color="indigo" size="64" />
-    </div>
-
-    <!-- SIN RESULTADOS -->
-    <v-alert
-      v-else-if="filteredCajas.length === 0"
-      type="info"
-      variant="tonal"
-      class="rounded-lg"
-      icon="mdi-clipboard-check-outline"
-    >
-      No hay cajas en estado <strong>Arqueada</strong> listas para cierre. Para cerrar una caja, primero debe realizarse el arqueo de valores correspondiente en el módulo de <strong>Arqueo</strong>.
-    </v-alert>
-
-    <!-- VISTA GRID (CARDS LAYOUT) -->
-    <v-row v-else-if="viewMode === 'grid'" dense>
-      <v-col
-        v-for="caja in filteredCajas"
-        :key="caja.idCaja"
-        cols="12"
-        sm="6"
-        md="4"
-        lg="3"
+      <!-- PESTAÑAS PRINCIPALES: CAJAS ACTIVAS VS HISTORIAL -->
+      <v-tabs
+        v-model="activeMainTab"
+        color="indigo-darken-4"
+        bg-color="grey-lighten-5"
+        density="comfortable"
+        class="px-2"
       >
-        <v-card
-          class="rounded elevation-2 overflow-hidden hover-card h-100 d-flex flex-column"
-          :style="getCardBorder(caja)"
-        >
-          <!-- Encabezado de la Tarjeta -->
-          <div class="pa-3 bg-indigo-darken-4 text-white d-flex align-center justify-space-between">
-            <div>
-              <span class="text-subtitle-2 font-weight-bold d-block">{{ caja.nombre }}</span>
-              <span class="text-caption text-indigo-lighten-3">Código: {{ caja.codigo || '—' }}</span>
-            </div>
-            <v-chip
-              :color="caja.estadoNombre === 'Arqueada' ? 'amber-darken-3' : (caja.estadoNombre === 'Aperturada' ? 'success' : 'grey')"
-              size="x-small"
-              variant="flat"
-              class="font-weight-bold"
-            >
-              {{ caja.estadoNombre }}
-            </v-chip>
-          </div>
-
-          <!-- Cuerpo de la Tarjeta -->
-          <div class="pa-3 flex-grow-1 bg-white">
-            <div class="text-caption text-grey mb-1 d-flex align-center justify-space-between">
-              <div>
-                <v-icon size="small" class="mr-1">mdi-warehouse</v-icon>
-                Bodega: <span class="font-weight-medium text-grey-darken-3">{{ caja.bodegaNombre }}</span>
-              </div>
-            </div>
-            
-            <v-divider class="my-2" />
-
-            <!-- Si la caja está abierta (Aperturada o Arqueada) -->
-            <div v-if="caja.isOpen" class="caja-info">
-              <!-- Banner de Arqueo si está arqueada -->
-              <div v-if="caja.estadoNombre === 'Arqueada' && caja.arqueo" class="mb-2 pa-2 bg-amber-lighten-5 border border-amber rounded">
-                <div class="d-flex align-center justify-space-between">
-                  <div class="d-flex align-center">
-                    <v-icon size="small" color="amber-darken-4" class="mr-1">mdi-clipboard-check</v-icon>
-                    <span class="text-caption font-weight-bold text-amber-darken-4">Arqueo Verificado:</span>
-                  </div>
-                  <span class="text-caption font-weight-black text-amber-darken-4">{{ caja.arqueo.codigo }}</span>
-                </div>
-                <div class="text-caption text-grey-darken-2 mt-0.5 d-flex justify-space-between">
-                  <span>Auditor: {{ caja.arqueo.usuarioArqueo }}</span>
-                  <span>{{ formatDate(caja.arqueo.fechaArqueo) }}</span>
-                </div>
-              </div>
-
-              <!-- Banner de advertencia si solo está aperturada -->
-              <div v-else-if="caja.estadoNombre === 'Aperturada'" class="mb-2 pa-2 bg-grey-lighten-4 border border-grey-lighten-2 rounded d-flex align-center">
-                <v-icon size="small" color="orange-darken-3" class="mr-1.5">mdi-alert-circle-outline</v-icon>
-                <span class="text-caption text-grey-darken-3">Requiere arqueo previo antes de cerrar</span>
-              </div>
-
-              <div class="d-flex justify-space-between py-1 border-bottom">
-                <span class="text-caption text-grey">Apertura:</span>
-                <span class="text-body-2 font-weight-bold text-indigo">{{ caja.apertura?.codigo || '—' }}</span>
-              </div>
-              <div class="d-flex justify-space-between py-1 border-bottom">
-                <span class="text-caption text-grey">Cajero:</span>
-                <span class="text-body-2 font-weight-medium">{{ caja.apertura?.usuarioAperturaNombre || '—' }}</span>
-              </div>
-              <div class="d-flex justify-space-between py-1 border-bottom">
-                <span class="text-caption text-grey">Fecha Apertura:</span>
-                <span class="text-body-2">{{ formatDate(caja.apertura?.fechaApertura) }}</span>
-              </div>
-              <div class="d-flex justify-space-between py-1 border-bottom">
-                <span class="text-caption text-grey">Efectivo Inicial:</span>
-                <span class="text-body-2 font-weight-medium">{{ formatCurrency(caja.apertura?.montoAperturaEfectivo) }}</span>
-              </div>
-              <div class="d-flex justify-space-between py-1 border-bottom">
-                <span class="text-caption text-grey">Mercadería Inicial:</span>
-                <span class="text-body-2 font-weight-medium text-blue-grey-darken-3">{{ formatCurrency(caja.apertura?.montoAperturaMercaderia) }}</span>
-              </div>
-
-              <!-- Resumen Financiero y Mercadería -->
-              <div v-if="caja.resumen" class="mt-2 bg-grey-lighten-4 pa-2 rounded border">
-                <div class="d-flex justify-space-between py-0.5">
-                  <span class="text-caption text-grey">Ventas (Efectivo):</span>
-                  <span class="text-caption font-weight-bold text-success">{{ formatCurrency(caja.resumen.totalVentas) }}</span>
-                </div>
-                <div class="d-flex justify-space-between py-0.5">
-                  <span class="text-caption text-grey">Pedidos Realizados:</span>
-                  <span class="text-caption font-weight-bold text-indigo">{{ formatCurrency(caja.resumen.totalPedidos) }}</span>
-                </div>
-                <div v-if="Number(caja.resumen.totalRetiros) > 0" class="d-flex justify-space-between py-0.5">
-                  <span class="text-caption text-grey">Retiros Realizados:</span>
-                  <span class="text-caption font-weight-bold text-orange-darken-4">-{{ formatCurrency(caja.resumen.totalRetiros) }}</span>
-                </div>
-                <div class="d-flex justify-space-between py-0.5 align-center">
-                  <span class="text-caption text-grey">Mercadería en Caja:</span>
-                  <div class="d-flex align-center ga-1">
-                    <span
-                      class="text-caption font-weight-bold"
-                      :class="Number(caja.resumen.totalMercaderia) > 0 ? 'text-blue-grey-darken-3' : 'text-teal'"
-                    >
-                      {{ formatCurrency(caja.resumen.totalMercaderia) }}
-                    </span>
-                    <v-icon
-                      v-if="Number(caja.resumen.totalMercaderia) === 0"
-                      size="14"
-                      color="teal"
-                      title="Mercadería en cero"
-                    >
-                      mdi-check-circle
-                    </v-icon>
-                  </div>
-                </div>
-                <v-divider class="my-1" />
-                <div class="d-flex justify-space-between py-0.5">
-                  <span class="text-caption text-grey-darken-3 font-weight-bold">Estimado en Caja (Efectivo):</span>
-                  <span class="text-body-2 font-weight-black text-indigo">
-                    {{ formatCurrency(caja.resumen.totalEnCaja !== undefined ? caja.resumen.totalEnCaja : (Number(caja.resumen.efectivoApertura) + Number(caja.resumen.totalVentas) - Number(caja.resumen.totalRetiros || 0))) }}
-                  </span>
-                </div>
-              </div>
-              <div v-else class="d-flex justify-center py-4">
-                <v-progress-circular indeterminate size="20" color="indigo" />
-              </div>
-            </div>
-            
-            <!-- Si la caja está cerrada -->
-            <div v-else class="d-flex flex-column align-center justify-center py-6">
-              <v-icon color="grey-lighten-1" size="48">mdi-lock-outline</v-icon>
-              <span class="text-caption text-grey-darken-1 mt-2">Caja Cerrada / Sin Sesión Vigente</span>
-            </div>
-          </div>
-
-          <!-- Pie de la Tarjeta / Acciones -->
-          <v-card-actions class="bg-grey-lighten-4 border-t pa-2 d-flex justify-space-between align-center flex-wrap ga-1">
-            <!-- Botón Cierre de Mercadería (Siempre disponible si la caja está activa) -->
-            <v-btn
-              v-if="caja.isOpen && hasAccessToFunct('192')"
-              color="blue-grey-darken-3"
-              variant="tonal"
-              size="small"
-              class="font-weight-medium"
-              prepend-icon="mdi-package-variant-closed"
-              title="Devolver / liquidar mercadería remanente a otra bodega"
-              @click="openCierreMercaderiaDialog(caja)"
-            >
-              Cierre Mercadería
-            </v-btn>
-
-            <!-- Botón Cierre de Caja (Solo Arqueada) -->
-            <v-btn
-              v-if="caja.estadoNombre === 'Arqueada' && hasAccessToFunct('192')"
-              color="indigo"
-              variant="flat"
-              size="small"
-              class="text-white font-weight-bold"
-              prepend-icon="mdi-lock"
-              @click="openCierreDialog(caja)"
-            >
-              Cerrar Caja
-            </v-btn>
-            <v-btn
-              v-else-if="caja.estadoNombre === 'Aperturada'"
-              color="amber-darken-4"
-              variant="tonal"
-              size="small"
-              class="font-weight-medium"
-              prepend-icon="mdi-clipboard-alert-outline"
-              disabled
-              title="Debe realizar el arqueo de caja antes de cerrarla"
-            >
-              Requiere Arqueo
-            </v-btn>
-            <v-btn
-              v-else
-              color="grey"
-              variant="outlined"
-              size="small"
-              disabled
-              prepend-icon="mdi-lock"
-            >
-              Cerrada
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- VISTA TABLA (LIST LAYOUT) -->
-    <v-card v-else class="border rounded-lg" elevation="0">
-      <v-data-table
-        :headers="headers"
-        :items="filteredCajas"
-        :loading="loading"
-        density="compact"
-        class="rounded"
-      >
-        <template v-slot:item.nombre="{ item }">
-          <span class="font-weight-bold">{{ item.nombre }}</span>
-        </template>
-        <template v-slot:item.estadoNombre="{ item }">
+        <v-tab :value="0" class="text-none font-weight-bold">
+          <v-icon start size="18">mdi-lock-clock</v-icon>
+          Cajas por Cerrar
           <v-chip
-            :color="item.estadoNombre === 'Arqueada' ? 'amber-darken-3' : (item.estadoNombre === 'Aperturada' ? 'success' : 'grey')"
-            size="small"
-            variant="flat"
-            class="font-weight-bold"
-          >
-            {{ item.estadoNombre }}
-          </v-chip>
-        </template>
-        <template v-slot:item.aperturaCodigo="{ item }">
-          <span v-if="item.isOpen" class="font-weight-bold text-indigo">{{ item.apertura?.codigo || '—' }}</span>
-          <span v-else class="text-grey italic">Cerrada</span>
-        </template>
-        <template v-slot:item.arqueoCodigo="{ item }">
-          <v-chip
-            v-if="item.arqueo"
+            v-if="stats.arqueadas > 0"
             size="x-small"
             color="amber-darken-3"
-            variant="tonal"
-            class="font-weight-bold"
+            variant="flat"
+            class="ml-2 font-weight-black"
           >
-            <v-icon start size="12">mdi-clipboard-check</v-icon>
-            {{ item.arqueo.codigo }}
+            {{ stats.arqueadas }}
           </v-chip>
-          <span v-else-if="item.estadoNombre === 'Aperturada'" class="text-caption text-orange-darken-4 font-italic">
-            Pendiente
-          </span>
-          <span v-else class="text-caption text-grey">—</span>
-        </template>
-        <template v-slot:item.usuarioApertura="{ item }">
-          <span v-if="item.isOpen">{{ item.apertura?.usuarioAperturaNombre || '—' }}</span>
-          <span v-else>—</span>
-        </template>
-        <template v-slot:item.efectivoApertura="{ item }">
-          <span v-if="item.isOpen">{{ formatCurrency(item.apertura?.montoAperturaEfectivo) }}</span>
-          <span v-else>—</span>
-        </template>
-        <template v-slot:item.mercaderiaApertura="{ item }">
-          <span v-if="item.isOpen" class="font-weight-medium text-blue-grey-darken-3">
-            {{ formatCurrency(item.apertura?.montoAperturaMercaderia) }}
-          </span>
-          <span v-else>—</span>
-        </template>
-        <template v-slot:item.totalMercaderia="{ item }">
-          <span
-            v-if="item.isOpen && item.resumen"
-            class="font-weight-bold"
-            :class="Number(item.resumen.totalMercaderia) > 0 ? 'text-blue-grey-darken-2' : 'text-teal'"
+        </v-tab>
+        <v-tab :value="1" class="text-none font-weight-bold">
+          <v-icon start size="18">mdi-history</v-icon>
+          Historial de Cierres de Caja
+          <v-chip
+            v-if="cierresHistorial.length > 0"
+            size="x-small"
+            color="indigo"
+            variant="flat"
+            class="ml-2 font-weight-black"
           >
-            {{ formatCurrency(item.resumen.totalMercaderia) }}
-          </span>
-          <span v-else-if="item.isOpen">
-            <v-progress-circular indeterminate size="16" color="indigo" />
-          </span>
-          <span v-else>—</span>
-        </template>
-        <template v-slot:item.totalEnCaja="{ item }">
-          <span v-if="item.isOpen && item.resumen" class="font-weight-bold text-indigo">
-            {{ formatCurrency(item.resumen.totalEnCaja !== undefined ? item.resumen.totalEnCaja : (Number(item.resumen.efectivoApertura) + Number(item.resumen.totalVentas) - Number(item.resumen.totalRetiros || 0))) }}
-          </span>
-          <span v-else-if="item.isOpen">
-            <v-progress-circular indeterminate size="16" color="indigo" />
-          </span>
-          <span v-else>—</span>
-        </template>
-        <template v-slot:item.opc="{ item }">
-          <div class="d-flex align-center justify-center ga-1">
-            <v-btn
-              v-if="item.isOpen && hasAccessToFunct('192')"
-              icon="mdi-package-variant-closed"
-              color="blue-grey-darken-2"
-              variant="tonal"
-              size="x-small"
-              title="Cierre y Devolución de Mercadería"
-              @click="openCierreMercaderiaDialog(item)"
-            />
-            <v-btn
-              v-if="item.estadoNombre === 'Arqueada' && hasAccessToFunct('192')"
-              color="indigo"
-              variant="flat"
-              size="small"
-              class="text-white"
-              prepend-icon="mdi-lock"
-              @click="openCierreDialog(item)"
-            >
-              Cerrar Caja
-            </v-btn>
-            <v-chip
-              v-else-if="item.estadoNombre === 'Aperturada'"
-              color="amber-darken-4"
-              variant="tonal"
-              size="small"
-              class="font-weight-medium"
-              title="Debe arquearse antes de cerrar"
-            >
-              Requiere Arqueo
-            </v-chip>
-            <span v-else class="text-caption text-grey italic">Cerrada</span>
-          </div>
-        </template>
-      </v-data-table>
+            {{ cierresHistorial.length }}
+          </v-chip>
+        </v-tab>
+      </v-tabs>
     </v-card>
+
+    <!-- ======================================================== -->
+    <!-- CONTENIDO PRINCIPAL: WINDOW DE PESTAÑAS                  -->
+    <!-- ======================================================== -->
+    <v-window v-model="activeMainTab">
+      
+      <!-- ======================================================== -->
+      <!-- PESTAÑA 0: CAJAS LISTAS PARA CIERRE (ARQUEADAS)          -->
+      <!-- ======================================================== -->
+      <v-window-item :value="0">
+        <!-- Tarjetas de Métricas -->
+        <v-row class="mb-3 align-center" dense>
+          <v-col cols="12" md="3" sm="6">
+            <v-card variant="flat" color="amber-lighten-5" class="pa-3 rounded-lg border border-amber-lighten-3">
+              <div class="d-flex align-center">
+                <v-avatar color="amber-darken-3" class="mr-3 text-white">
+                  <v-icon>mdi-clipboard-check</v-icon>
+                </v-avatar>
+                <div>
+                  <div class="text-caption text-amber-darken-4 font-weight-bold">Listas para Cerrar (Arqueadas)</div>
+                  <div class="text-h6 font-weight-black text-amber-darken-4">
+                    {{ stats.arqueadas }}
+                  </div>
+                </div>
+              </div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="3" sm="6">
+            <v-card variant="flat" color="green-lighten-5" class="pa-3 rounded-lg border border-green-lighten-3">
+              <div class="d-flex align-center">
+                <v-avatar color="green" class="mr-3 text-white">
+                  <v-icon>mdi-cash-register</v-icon>
+                </v-avatar>
+                <div>
+                  <div class="text-caption text-green-darken-4 font-weight-bold">Aperturadas (Sin Arqueo)</div>
+                  <div class="text-h6 font-weight-black text-green-darken-4">
+                    {{ stats.aperturadas }}
+                  </div>
+                </div>
+              </div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="3" sm="6">
+            <v-card variant="flat" color="blue-grey-lighten-5" class="pa-3 rounded-lg border border-blue-grey-lighten-2">
+              <div class="d-flex align-center">
+                <v-avatar color="blue-grey-darken-2" class="mr-3 text-white">
+                  <v-icon>mdi-package-variant-closed</v-icon>
+                </v-avatar>
+                <div>
+                  <div class="text-caption text-blue-grey-darken-4 font-weight-bold">Mercadería en Cajas Activas</div>
+                  <div class="text-h6 font-weight-bold text-blue-grey-darken-4">
+                    {{ formatCurrency(totalMercaderiaEnCajas) }}
+                  </div>
+                </div>
+              </div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="3" sm="6">
+            <v-card variant="flat" color="indigo-lighten-5" class="pa-3 rounded-lg border border-indigo-lighten-3">
+              <div class="d-flex align-center">
+                <v-avatar color="indigo" class="mr-3 text-white">
+                  <v-icon>mdi-cash-multiple</v-icon>
+                </v-avatar>
+                <div>
+                  <div class="text-caption text-indigo-darken-3 font-weight-bold">Total Efectivo en Cajas</div>
+                  <div class="text-h6 font-weight-bold text-indigo-darken-4">
+                    {{ formatCurrency(totalEfectivoEnCajas) }}
+                  </div>
+                </div>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <!-- Barra de Filtros para Cajas Arqueadas -->
+        <v-row class="mb-4 align-center" dense>
+          <v-col cols="12" sm="8" md="6">
+            <v-text-field
+              v-model="searchQuery"
+              label="Buscar caja arqueada por nombre, código o bodega..."
+              prepend-inner-icon="mdi-magnify"
+              density="compact"
+              variant="outlined"
+              color="indigo"
+              hide-details
+              clearable
+            />
+          </v-col>
+        </v-row>
+
+        <!-- Loader -->
+        <div v-if="loading" class="d-flex justify-center my-10">
+          <v-progress-circular indeterminate color="indigo" size="64" />
+        </div>
+
+        <!-- SIN RESULTADOS -->
+        <v-alert
+          v-else-if="filteredCajas.length === 0"
+          type="info"
+          variant="tonal"
+          class="rounded-lg"
+          icon="mdi-clipboard-check-outline"
+        >
+          No hay cajas en estado <strong>Arqueada</strong> listas para cierre. Para cerrar una caja, primero debe realizarse el arqueo de valores correspondiente en el módulo de <strong>Arqueo</strong>.
+        </v-alert>
+
+        <!-- VISTA GRID (CARDS LAYOUT) -->
+        <v-row v-else-if="viewMode === 'grid'" dense>
+          <v-col
+            v-for="caja in filteredCajas"
+            :key="caja.idCaja"
+            cols="12"
+            sm="6"
+            md="4"
+            lg="3"
+          >
+            <v-card
+              class="rounded elevation-2 overflow-hidden hover-card h-100 d-flex flex-column"
+              :style="getCardBorder(caja)"
+            >
+              <!-- Encabezado de la Tarjeta -->
+              <div class="pa-3 bg-indigo-darken-4 text-white d-flex align-center justify-space-between">
+                <div>
+                  <span class="text-subtitle-2 font-weight-bold d-block">{{ caja.nombre }}</span>
+                  <span class="text-caption text-indigo-lighten-3">Código: {{ caja.codigo || '—' }}</span>
+                </div>
+                <v-chip
+                  :color="caja.estadoNombre === 'Arqueada' ? 'amber-darken-3' : (caja.estadoNombre === 'Aperturada' ? 'success' : 'grey')"
+                  size="x-small"
+                  variant="flat"
+                  class="font-weight-bold"
+                >
+                  {{ caja.estadoNombre }}
+                </v-chip>
+              </div>
+
+              <!-- Cuerpo de la Tarjeta -->
+              <div class="pa-3 flex-grow-1 bg-white">
+                <div class="text-caption text-grey mb-1 d-flex align-center justify-space-between">
+                  <div>
+                    <v-icon size="small" class="mr-1">mdi-warehouse</v-icon>
+                    Bodega: <span class="font-weight-medium text-grey-darken-3">{{ caja.bodegaNombre }}</span>
+                  </div>
+                </div>
+                
+                <v-divider class="my-2" />
+
+                <!-- Si la caja está abierta (Aperturada o Arqueada) -->
+                <div v-if="caja.isOpen" class="caja-info">
+                  <!-- Banner de Arqueo si está arqueada -->
+                  <div v-if="caja.estadoNombre === 'Arqueada' && caja.arqueo" class="mb-2 pa-2 bg-amber-lighten-5 border border-amber rounded">
+                    <div class="d-flex align-center justify-space-between">
+                      <div class="d-flex align-center">
+                        <v-icon size="small" color="amber-darken-4" class="mr-1">mdi-clipboard-check</v-icon>
+                        <span class="text-caption font-weight-bold text-amber-darken-4">Arqueo Verificado:</span>
+                      </div>
+                      <span class="text-caption font-weight-black text-amber-darken-4">{{ caja.arqueo.codigo }}</span>
+                    </div>
+                    <div class="text-caption text-grey-darken-2 mt-0.5 d-flex justify-space-between">
+                      <span>Auditor: {{ caja.arqueo.usuarioArqueo }}</span>
+                      <span>{{ formatDate(caja.arqueo.fechaArqueo) }}</span>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-space-between py-1 border-bottom">
+                    <span class="text-caption text-grey">Apertura:</span>
+                    <span class="text-body-2 font-weight-bold text-indigo">{{ caja.apertura?.codigo || '—' }}</span>
+                  </div>
+                  <div class="d-flex justify-space-between py-1 border-bottom">
+                    <span class="text-caption text-grey">Cajero:</span>
+                    <span class="text-body-2 font-weight-medium">{{ caja.apertura?.usuarioAperturaNombre || '—' }}</span>
+                  </div>
+                  <div class="d-flex justify-space-between py-1 border-bottom">
+                    <span class="text-caption text-grey">Fecha Apertura:</span>
+                    <span class="text-body-2">{{ formatDate(caja.apertura?.fechaApertura) }}</span>
+                  </div>
+                  <div class="d-flex justify-space-between py-1 border-bottom">
+                    <span class="text-caption text-grey">Efectivo Inicial:</span>
+                    <span class="text-body-2 font-weight-medium">{{ formatCurrency(caja.apertura?.montoAperturaEfectivo) }}</span>
+                  </div>
+                  <div class="d-flex justify-space-between py-1 border-bottom">
+                    <span class="text-caption text-grey">Mercadería Inicial:</span>
+                    <span class="text-body-2 font-weight-medium text-blue-grey-darken-3">{{ formatCurrency(caja.apertura?.montoAperturaMercaderia) }}</span>
+                  </div>
+
+                  <!-- Resumen Financiero y Mercadería -->
+                  <div v-if="caja.resumen" class="mt-2 bg-grey-lighten-4 pa-2 rounded border">
+                    <div class="d-flex justify-space-between py-0.5">
+                      <span class="text-caption text-grey">Ventas (Efectivo):</span>
+                      <span class="text-caption font-weight-bold text-success">{{ formatCurrency(caja.resumen.totalVentasEfectivo ?? caja.resumen.totalVentas) }}</span>
+                    </div>
+                    <div class="d-flex justify-space-between py-0.5">
+                      <span class="text-caption text-grey">Otras Modalidades:</span>
+                      <span class="text-caption font-weight-bold text-indigo">{{ formatCurrency(caja.resumen.totalVentasOtrasModalidades || 0) }}</span>
+                    </div>
+                    <div v-if="Number(caja.resumen.totalRetiros) > 0" class="d-flex justify-space-between py-0.5">
+                      <span class="text-caption text-grey">Retiros Realizados:</span>
+                      <span class="text-caption font-weight-bold text-orange-darken-4">-{{ formatCurrency(caja.resumen.totalRetiros) }}</span>
+                    </div>
+                    <div class="d-flex justify-space-between py-0.5 align-center">
+                      <span class="text-caption text-grey">Mercadería en Caja:</span>
+                      <div class="d-flex align-center ga-1">
+                        <span
+                          class="text-caption font-weight-bold"
+                          :class="Number(caja.resumen.totalMercaderia) > 0 ? 'text-blue-grey-darken-3' : 'text-teal'"
+                        >
+                          {{ formatCurrency(caja.resumen.totalMercaderia) }}
+                        </span>
+                        <v-icon
+                          v-if="Number(caja.resumen.totalMercaderia) === 0"
+                          size="14"
+                          color="teal"
+                          title="Mercadería en cero"
+                        >
+                          mdi-check-circle
+                        </v-icon>
+                      </div>
+                    </div>
+                    <v-divider class="my-1" />
+                    <div class="d-flex justify-space-between py-0.5">
+                      <span class="text-caption text-grey-darken-3 font-weight-bold">Estimado en Caja (Efectivo):</span>
+                      <span class="text-body-2 font-weight-black text-indigo">
+                        {{ formatCurrency(caja.resumen.totalEnCaja !== undefined ? caja.resumen.totalEnCaja : (Number(caja.resumen.efectivoApertura) + Number(caja.resumen.totalVentasEfectivo ?? caja.resumen.totalVentas) - Number(caja.resumen.totalRetiros || 0))) }}
+                      </span>
+                    </div>
+                  </div>
+                  <div v-else class="d-flex justify-center py-4">
+                    <v-progress-circular indeterminate size="20" color="indigo" />
+                  </div>
+                </div>
+                
+                <!-- Si la caja está cerrada -->
+                <div v-else class="d-flex flex-column align-center justify-center py-6">
+                  <v-icon color="grey-lighten-1" size="48">mdi-lock-outline</v-icon>
+                  <span class="text-caption text-grey-darken-1 mt-2">Caja Cerrada / Sin Sesión Vigente</span>
+                </div>
+              </div>
+
+              <!-- Pie de la Tarjeta / Acciones -->
+              <v-card-actions class="bg-grey-lighten-4 border-t pa-2 d-flex justify-space-between align-center flex-wrap ga-1">
+                <!-- Botón Cierre de Mercadería -->
+                <v-btn
+                  v-if="caja.isOpen && hasAccessToFunct('192')"
+                  color="blue-grey-darken-3"
+                  variant="tonal"
+                  size="small"
+                  class="font-weight-medium text-none"
+                  prepend-icon="mdi-package-variant-closed"
+                  title="Devolver / liquidar mercadería remanente a otra bodega"
+                  @click="openCierreMercaderiaDialog(caja)"
+                >
+                  Cierre Mercadería
+                </v-btn>
+
+                <!-- Botón Cierre de Caja -->
+                <v-btn
+                  v-if="caja.estadoNombre === 'Arqueada' && hasAccessToFunct('192')"
+                  color="indigo"
+                  variant="flat"
+                  size="small"
+                  class="text-white font-weight-bold text-none"
+                  prepend-icon="mdi-lock"
+                  @click="openCierreDialog(caja)"
+                >
+                  Cerrar Caja
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <!-- VISTA TABLA (LIST LAYOUT) -->
+        <v-card v-else class="border rounded-lg" elevation="0">
+          <v-data-table
+            :headers="headers"
+            :items="filteredCajas"
+            :loading="loading"
+            density="compact"
+            class="rounded"
+          >
+            <template v-slot:item.nombre="{ item }">
+              <span class="font-weight-bold">{{ item.nombre }}</span>
+            </template>
+            <template v-slot:item.estadoNombre="{ item }">
+              <v-chip
+                :color="item.estadoNombre === 'Arqueada' ? 'amber-darken-3' : (item.estadoNombre === 'Aperturada' ? 'success' : 'grey')"
+                size="small"
+                variant="flat"
+                class="font-weight-bold"
+              >
+                {{ item.estadoNombre }}
+              </v-chip>
+            </template>
+            <template v-slot:item.aperturaCodigo="{ item }">
+              <span v-if="item.isOpen" class="font-weight-bold text-indigo">{{ item.apertura?.codigo || '—' }}</span>
+              <span v-else class="text-grey italic">Cerrada</span>
+            </template>
+            <template v-slot:item.arqueoCodigo="{ item }">
+              <v-chip
+                v-if="item.arqueo"
+                size="x-small"
+                color="amber-darken-3"
+                variant="tonal"
+                class="font-weight-bold"
+              >
+                <v-icon start size="12">mdi-clipboard-check</v-icon>
+                {{ item.arqueo.codigo }}
+              </v-chip>
+              <span v-else class="text-caption text-grey">—</span>
+            </template>
+            <template v-slot:item.usuarioApertura="{ item }">
+              <span v-if="item.isOpen">{{ item.apertura?.usuarioAperturaNombre || '—' }}</span>
+              <span v-else>—</span>
+            </template>
+            <template v-slot:item.efectivoApertura="{ item }">
+              <span v-if="item.isOpen">{{ formatCurrency(item.apertura?.montoAperturaEfectivo) }}</span>
+              <span v-else>—</span>
+            </template>
+            <template v-slot:item.mercaderiaApertura="{ item }">
+              <span v-if="item.isOpen" class="font-weight-medium text-blue-grey-darken-3">
+                {{ formatCurrency(item.apertura?.montoAperturaMercaderia) }}
+              </span>
+              <span v-else>—</span>
+            </template>
+            <template v-slot:item.totalMercaderia="{ item }">
+              <span
+                v-if="item.isOpen && item.resumen"
+                class="font-weight-bold"
+                :class="Number(item.resumen.totalMercaderia) > 0 ? 'text-blue-grey-darken-2' : 'text-teal'"
+              >
+                {{ formatCurrency(item.resumen.totalMercaderia) }}
+              </span>
+              <span v-else-if="item.isOpen">
+                <v-progress-circular indeterminate size="16" color="indigo" />
+              </span>
+              <span v-else>—</span>
+            </template>
+            <template v-slot:item.totalEnCaja="{ item }">
+              <span v-if="item.isOpen && item.resumen" class="font-weight-bold text-indigo">
+                {{ formatCurrency(item.resumen.totalEnCaja !== undefined ? item.resumen.totalEnCaja : (Number(item.resumen.efectivoApertura) + Number(item.resumen.totalVentasEfectivo ?? item.resumen.totalVentas) - Number(item.resumen.totalRetiros || 0))) }}
+              </span>
+              <span v-else-if="item.isOpen">
+                <v-progress-circular indeterminate size="16" color="indigo" />
+              </span>
+              <span v-else>—</span>
+            </template>
+            <template v-slot:item.opc="{ item }">
+              <div class="d-flex align-center justify-center ga-1 text-no-wrap" style="width: min-content; margin: 0 auto;">
+                <v-btn
+                  v-if="item.isOpen && hasAccessToFunct('192')"
+                  icon="mdi-package-variant-closed"
+                  color="blue-grey-darken-2"
+                  variant="tonal"
+                  size="x-small"
+                  title="Cierre y Devolución de Mercadería"
+                  @click="openCierreMercaderiaDialog(item)"
+                />
+                <v-btn
+                  v-if="item.estadoNombre === 'Arqueada' && hasAccessToFunct('192')"
+                  color="indigo"
+                  variant="flat"
+                  size="small"
+                  class="text-white text-none"
+                  prepend-icon="mdi-lock"
+                  @click="openCierreDialog(item)"
+                >
+                  Cerrar Caja
+                </v-btn>
+              </div>
+            </template>
+          </v-data-table>
+        </v-card>
+      </v-window-item>
+
+      <!-- ======================================================== -->
+      <!-- PESTAÑA 1: HISTORIAL DE CIERRES DE CAJA                  -->
+      <!-- ======================================================== -->
+      <v-window-item :value="1">
+        <!-- Barra de Búsqueda de Cierres (Sin filtros avanzados por el momento) -->
+        <v-row class="mb-4 align-center" dense>
+          <v-col cols="12" sm="8" md="6">
+            <v-text-field
+              v-model="filtrosHistorial.search"
+              label="Buscar cierre por código, apertura, cajero, caja o bodega..."
+              placeholder="Escribe para filtrar automáticamente..."
+              prepend-inner-icon="mdi-magnify"
+              density="compact"
+              variant="outlined"
+              color="indigo"
+              hide-details
+              clearable
+              @keyup.enter="loadCierresHistorial()"
+            />
+          </v-col>
+          <v-col cols="6" sm="2" md="2">
+            <v-btn
+              color="indigo-darken-3"
+              class="text-white font-weight-bold text-none w-100"
+              variant="flat"
+              prepend-icon="mdi-magnify"
+              :loading="loadingHistorial"
+              @click="loadCierresHistorial()"
+            >
+              Buscar
+            </v-btn>
+          </v-col>
+          <v-col cols="6" sm="2" md="2">
+            <v-btn
+              variant="outlined"
+              color="grey-darken-2"
+              class="text-none font-weight-medium w-100"
+              prepend-icon="mdi-refresh"
+              :loading="loadingHistorial"
+              @click="filtrosHistorial.search = ''; loadCierresHistorial()"
+            >
+              Actualizar
+            </v-btn>
+          </v-col>
+        </v-row>
+
+        <!-- KPI Cards Resumen Historial -->
+        <!--<v-row dense class="mb-3">
+          <v-col cols="12" sm="6" md="2">
+            <v-card variant="flat" color="indigo-lighten-5" class="pa-2 rounded text-center border">
+              <div class="text-caption text-grey-darken-1 font-weight-medium">Cierres Realizados</div>
+              <div class="text-h6 font-weight-bold text-indigo-darken-4">{{ kpiHistorial.totalCierres }}</div>
+              <div class="text-caption text-indigo-darken-3 font-weight-bold">{{ kpiHistorial.cantCuadradas }} cuadradas</div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" sm="6" md="2">
+            <v-card variant="flat" color="green-lighten-5" class="pa-2 rounded text-center border">
+              <div class="text-caption text-grey-darken-1 font-weight-medium">Total Efectivo Contado</div>
+              <div class="text-h6 font-weight-bold text-green-darken-4">{{ formatCurrency(kpiHistorial.totalContado) }}</div>
+              <div class="text-caption text-green-darken-3 font-weight-bold">Físico liquidado</div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" sm="6" md="3">
+            <v-card variant="flat" color="blue-grey-lighten-5" class="pa-2 rounded text-center border">
+              <div class="text-caption text-grey-darken-1 font-weight-medium">Total Ventas de Turno</div>
+              <div class="text-h6 font-weight-bold text-blue-grey-darken-4">{{ formatCurrency(kpiHistorial.totalVentas) }}</div>
+              <div class="text-caption text-blue-grey-darken-3 font-weight-medium">Ventas turno cerradas</div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" sm="6" md="2">
+            <v-card variant="flat" color="orange-lighten-5" class="pa-2 rounded text-center border">
+              <div class="text-caption text-grey-darken-1 font-weight-medium">Total Retiros / Egresos</div>
+              <div class="text-h6 font-weight-bold text-orange-darken-4">{{ formatCurrency(kpiHistorial.totalRetiros) }}</div>
+              <div class="text-caption text-orange-darken-3 font-weight-medium">Deducción de caja</div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" sm="6" md="3">
+            <v-card
+              variant="flat"
+              :color="kpiHistorial.diferenciaNeta >= 0 ? (kpiHistorial.diferenciaNeta === 0 ? 'indigo-lighten-5' : 'teal-lighten-5') : 'red-lighten-5'"
+              class="pa-2 rounded text-center border"
+            >
+              <div class="text-caption text-grey-darken-1 font-weight-medium">Diferencia Neta Acumulada</div>
+              <div
+                class="text-h6 font-weight-black"
+                :class="kpiHistorial.diferenciaNeta >= 0 ? (kpiHistorial.diferenciaNeta === 0 ? 'text-indigo-darken-4' : 'text-teal-darken-4') : 'text-red-darken-4'"
+              >
+                {{ kpiHistorial.diferenciaNeta >= 0 ? '+' : '' }}{{ formatCurrency(kpiHistorial.diferenciaNeta) }}
+              </div>
+              <div class="text-caption font-weight-medium" :class="kpiHistorial.diferenciaNeta >= 0 ? 'text-teal-darken-3' : 'text-red-darken-3'">
+                +{{ formatCurrency(kpiHistorial.totalSobrantes) }} / -{{ formatCurrency(kpiHistorial.totalFaltantes) }}
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>-->
+
+        <!-- Tabla de Historial de Cierres -->
+        <v-card class="border rounded-lg" elevation="0">
+          <v-data-table
+            :headers="headersHistorial"
+            :items="filteredCierresHistorial"
+            :loading="loadingHistorial"
+            density="compact"
+            class="rounded-lg"
+            :items-per-page="10"
+          >
+            <!-- Código Cierre & Apertura -->
+            <template v-slot:item.codigo="{ item }">
+              <div>
+                <span class="font-weight-bold text-indigo-darken-4 d-block">{{ item.codigo || `CIE-${item.idCierreCaja}` }}</span>
+                <span class="text-caption text-grey-darken-1">Apertura: {{ item.aperturaCodigo || '—' }}</span>
+              </div>
+            </template>
+
+            <!-- Caja & Bodega -->
+            <template v-slot:item.cajaNombre="{ item }">
+              <div>
+                <span class="font-weight-medium text-grey-darken-4 d-block">{{ item.cajaNombre || 'Caja' }}</span>
+                <span class="text-caption text-grey d-flex align-center">
+                  <v-icon size="12" class="mr-0.5">mdi-warehouse</v-icon>
+                  {{ item.bodegaNombre || 'Bodega' }}
+                </span>
+              </div>
+            </template>
+
+            <!-- Cajero / Usuario y Fecha Cierre -->
+            <template v-slot:item.usuarioCierre="{ item }">
+              <div>
+                <span class="font-weight-medium text-grey-darken-3 d-block">{{ item.usuarioCierre || item.usuarioAperturaNombre || '—' }}</span>
+                <span class="text-caption text-grey d-block">{{ formatDate(item.fechaCierre) }}</span>
+              </div>
+            </template>
+
+            <!-- Efectivo Apertura -->
+            <template v-slot:item.montoAperturaEfectivo="{ item }">
+              <span class="text-body-2">{{ formatCurrency(item.montoAperturaEfectivo) }}</span>
+            </template>
+
+            <!-- Ventas Efectivo -->
+            <template v-slot:item.totalVentasEfectivo="{ item }">
+              <span class="text-body-2 font-weight-medium text-success">{{ formatCurrency(item.totalVentasEfectivo) }}</span>
+            </template>
+
+            <!-- Otras Modalidades -->
+            <template v-slot:item.totalVentasOtrasModalidades="{ item }">
+              <span class="text-body-2 font-weight-medium text-indigo-darken-3">{{ formatCurrency(item.totalVentasOtrasModalidades) }}</span>
+            </template>
+
+            <!-- Total Ventas -->
+            <template v-slot:item.montoCierreVentas="{ item }">
+              <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(item.montoCierreVentas) }}</span>
+            </template>
+
+            <!-- Retiros -->
+            <template v-slot:item.montoCierreRetiros="{ item }">
+              <span class="text-body-2 font-weight-medium" :class="Number(item.montoCierreRetiros) > 0 ? 'text-orange-darken-4' : 'text-grey'">
+                {{ Number(item.montoCierreRetiros) > 0 ? '-' + formatCurrency(item.montoCierreRetiros) : 'C$ 0.00' }}
+              </span>
+            </template>
+
+            <!-- Total Esperado -->
+            <template v-slot:item.totalEsperado="{ item }">
+              <span class="text-body-2 font-weight-bold text-grey-darken-3">{{ formatCurrency(item.totalEsperado) }}</span>
+            </template>
+
+            <!-- Total Contado -->
+            <template v-slot:item.montoCierreEfectivo="{ item }">
+              <span class="text-body-2 font-weight-black text-indigo-darken-4">{{ formatCurrency(item.montoCierreEfectivo) }}</span>
+            </template>
+
+            <!-- Diferencia & Estado Liquidación -->
+            <template v-slot:item.diferencia="{ item }">
+              <v-chip
+                :color="item.estadoLiquidacion === 'Cuadrada' ? 'indigo-darken-3' : (item.estadoLiquidacion === 'Sobrante' ? 'success' : 'error')"
+                size="x-small"
+                variant="flat"
+                class="font-weight-black"
+              >
+                {{ item.diferencia >= 0 ? (item.diferencia === 0 ? '' : '+') : '' }}{{ formatCurrency(item.diferencia) }}
+                ({{ item.estadoLiquidacion }})
+              </v-chip>
+            </template>
+
+            <!-- Ref. Arqueo -->
+            <template v-slot:item.arqueoCodigo="{ item }">
+              <v-chip
+                v-if="item.arqueoCodigo"
+                size="x-small"
+                color="amber-darken-3"
+                variant="tonal"
+                class="font-weight-bold"
+              >
+                <v-icon start size="12">mdi-clipboard-check</v-icon>
+                {{ item.arqueoCodigo }}
+              </v-chip>
+              <span v-else class="text-caption text-grey">—</span>
+            </template>
+
+            <!-- Acciones -->
+            <template v-slot:item.opc="{ item }">
+              <div>
+                <!-- Ver Detalle Completo -->
+                <v-btn
+                  icon="mdi-eye"
+                  size="small"
+                  variant="text"
+                  color="indigo-darken-3"
+                  title="Ver detalle completo del cierre"
+                  @click="openDetalleHistorial(item)"
+                />
+
+                <!-- Reimprimir Ticket POS directo -->
+                <v-btn
+                  icon="mdi-printer"
+                  size="small"
+                  variant="text"
+                  color="green-darken-3"
+                  title="Reimprimir Ticket"
+                  :loading="printingId === item.idCierreCaja"
+                  @click="imprimirTicketCierre(item, true)"
+                />
+
+                <!-- Vista Previa de Ticket -->
+                <v-btn
+                  icon="mdi-receipt-text"
+                  size="small"
+                  variant="text"
+                  color="blue-grey-darken-2"
+                  title="Vista previa de ticket de cierre"
+                  @click="openTicketPreview(item)"
+                />
+              </div>
+            </template>
+          </v-data-table>
+        </v-card>
+      </v-window-item>
+    </v-window>
 
     <!-- ======================================================== -->
     <!-- DIÁLOGO DE CIERRE DE MERCADERÍA / DEVOLUCIÓN A BODEGA   -->
@@ -680,12 +933,12 @@
         <!-- Acciones del Modal -->
         <v-card-actions class="bg-grey-lighten-4 pa-3 border-t">
           <v-spacer />
-          <v-btn color="grey-darken-1" variant="outlined" @click="closeCierreMercaderiaDialog()" :disabled="savingMercaderia">
+          <v-btn color="grey-darken-1" variant="outlined" class="text-none" @click="closeCierreMercaderiaDialog()" :disabled="savingMercaderia">
             Cancelar
           </v-btn>
           <v-btn
             color="blue-grey-darken-4"
-            class="text-white font-weight-bold"
+            class="text-white font-weight-bold text-none"
             variant="flat"
             prepend-icon="mdi-check-circle-outline"
             @click="submitCierreMercaderia()"
@@ -701,7 +954,7 @@
     <!-- ======================================================== -->
     <!-- DIÁLOGO DE CIERRE DE CAJA (EFECTIVO)                     -->
     <!-- ======================================================== -->
-    <v-dialog v-model="dialogs.cierre" max-width="1100" height="800" persistent>
+    <v-dialog v-model="dialogs.cierre" max-width="1100" persistent>
       <v-card v-if="activeCaja" class="rounded-lg elevation-12 bg-grey-lighten-4">
         <!-- Header del Diálogo -->
         <v-card-title class="bg-indigo-darken-4 text-white d-flex align-center py-2 px-4">
@@ -779,16 +1032,14 @@
           </v-card>
         </div>
 
-        <!-- TABS DE NAVEGACIÓN -->
-
-        <!-- CONTENIDO DE LAS TABS -->
-        <v-card-text class="px-2 py-1" >
+        <!-- TABS DE NAVEGACIÓN CIERRE -->
+        <v-card-text class="px-3 py-2" style="max-height: 70vh; overflow-y: auto;">
           <v-tabs
             v-model="tabCierre"
             color="indigo-darken-4"
             bg-color="white"
             density="comfortable"
-            class="border-b mb-2"
+            class="border-b mb-2 rounded"
           >
             <v-tab :value="0" class="text-none font-weight-bold">
               <v-icon start size="18">mdi-calculator-variant</v-icon>
@@ -864,28 +1115,6 @@
                       </div>
                     </div>
 
-                    <!-- Estado de Mercadería Remanente -->
-                    <div class="py-1.5 border-bottom d-flex justify-space-between align-center">
-                      <span class="text-caption text-grey-darken-1">Mercadería en Caja:</span>
-                      <div class="d-flex align-center ga-1">
-                        <span
-                          class="text-body-2 font-weight-bold"
-                          :class="Number(activeCaja.resumen?.totalMercaderia) > 0 ? 'text-blue-grey-darken-3' : 'text-teal'"
-                        >
-                          {{ formatCurrency(activeCaja.resumen?.totalMercaderia) }}
-                        </span>
-                        <v-btn
-                          v-if="Number(activeCaja.resumen?.totalMercaderia) > 0"
-                          icon="mdi-package-variant-closed"
-                          size="x-small"
-                          variant="text"
-                          color="blue-grey-darken-3"
-                          title="Realizar Cierre de Mercadería"
-                          @click="openCierreMercaderiaDialog(activeCaja)"
-                        />
-                      </div>
-                    </div>
-
                     <!-- Retiros / Gastos -->
                     <div class="mt-3">
                       <div class="d-flex align-center justify-space-between mb-1">
@@ -911,21 +1140,18 @@
                         hide-details
                         prepend-inner-icon="mdi-cash-minus"
                       />
-                      <span class="text-caption text-grey-darken-1 d-block mt-1" style="font-size: 11px;">
-                        * Los retiros se deducen del efectivo esperado que el cajero debe tener en caja.
-                      </span>
                     </div>
 
                     <v-textarea
                       v-model="form.observaciones"
                       label="Observaciones del Cierre"
-                      rows="3"
+                      rows="2"
                       density="compact"
                       variant="outlined"
                       class="mt-3"
                       color="indigo"
                       hide-details
-                      placeholder="Observaciones o notas adicionales de liquidación..."
+                      placeholder="Notas adicionales de liquidación..."
                     />
                     
                     <v-divider class="my-3" />
@@ -949,7 +1175,7 @@
                           variant="flat"
                           class="font-weight-black"
                         >
-                          {{ diferencia >= 0 ? '+' : '' }} {{ formatCurrency(diferencia) }}
+                          {{ diferencia >= 0 ? (diferencia === 0 ? '' : '+') : '' }} {{ formatCurrency(diferencia) }}
                         </v-chip>
                       </div>
                       <div class="text-center mt-2">
@@ -1057,28 +1283,6 @@
                   </v-col>
                 </v-row>
 
-                <!-- Desglose Chips por Modalidad -->
-                <div v-if="desgloseModalidadesVentas.length > 0" class="mb-3 pa-2 bg-grey-lighten-5 rounded border">
-                  <div class="text-caption font-weight-bold text-indigo-darken-4 mb-1 d-flex align-center">
-                    <v-icon size="14" class="mr-1">mdi-credit-card-outline</v-icon>
-                    Desglose por Modalidad de Pago:
-                  </div>
-                  <div class="d-flex align-center ga-2 flex-wrap">
-                    <v-chip
-                      v-for="dm in desgloseModalidadesVentas"
-                      :key="dm.idTipoPago"
-                      size="small"
-                      :color="dm.esEfectivo ? 'green-darken-3' : 'indigo-darken-3'"
-                      variant="tonal"
-                      class="font-weight-bold"
-                    >
-                      <v-icon start size="14">{{ dm.esEfectivo ? 'mdi-cash' : 'mdi-credit-card' }}</v-icon>
-                      {{ dm.modalidad }}: {{ formatCurrency(dm.total) }} ({{ dm.cantidadVentas }} fact.)
-                    </v-chip>
-                  </div>
-                </div>
-
-                <!-- Filtro de Búsqueda de Ventas -->
                 <v-text-field
                   v-model="searchVentas"
                   label="Buscar por No. Venta, cliente o vendedor..."
@@ -1091,12 +1295,10 @@
                   class="mb-3"
                 />
 
-                <!-- Loader de Ventas -->
                 <div v-if="loadingVentas" class="d-flex justify-center my-6">
                   <v-progress-circular indeterminate color="indigo" />
                 </div>
 
-                <!-- Tabla de Ventas -->
                 <v-data-table
                   v-else
                   :headers="headersVentas"
@@ -1157,11 +1359,10 @@
             <!-- TAB 2: DETALLE DE RETIROS -->
             <v-window-item :value="2">
               <v-card class="pa-3 border bg-white" elevation="0" rounded="lg">
-                <!-- Métricas de Retiros -->
                 <v-row dense class="mb-3">
                   <v-col cols="12" sm="6">
                     <v-card variant="flat" color="orange-lighten-5" class="pa-2 rounded text-center">
-                      <div class="text-caption text-grey-darken-1 font-weight-medium">Cantidad de Retiros / Egresos</div>
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Cantidad de Retiros</div>
                       <div class="text-h6 font-weight-bold text-orange-darken-4">{{ retirosTurno.length }}</div>
                     </v-card>
                   </v-col>
@@ -1173,21 +1374,10 @@
                   </v-col>
                 </v-row>
 
-                <v-alert
-                  type="info"
-                  variant="tonal"
-                  density="compact"
-                  class="mb-3 text-caption"
-                >
-                  Los retiros aquí listados fueron registrados durante esta sesión de caja y se deducen automáticamente del efectivo esperado para la liquidación.
-                </v-alert>
-
-                <!-- Loader de Retiros -->
                 <div v-if="loadingRetiros" class="d-flex justify-center my-6">
                   <v-progress-circular indeterminate color="indigo" />
                 </div>
 
-                <!-- Tabla de Retiros -->
                 <v-data-table
                   v-else
                   :headers="headersRetiros"
@@ -1218,56 +1408,41 @@
             <!-- TAB 3: DETALLE DE MERCADERÍA VENDIDA -->
             <v-window-item :value="3">
               <v-card class="pa-3 border bg-white" elevation="0" rounded="lg">
-                <!-- Métricas de Balance de Mercadería -->
                 <v-row dense class="mb-3">
                   <v-col cols="12" sm="6" md="3">
                     <v-card variant="flat" color="indigo-lighten-5" class="pa-2 rounded text-center h-100">
-                      <div class="text-caption text-grey-darken-1 font-weight-medium">Mercadería Inicial (Apertura)</div>
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Mercadería Inicial</div>
                       <div class="text-h6 font-weight-bold text-indigo-darken-4">
                         {{ formatCurrency(activeCaja.apertura?.montoAperturaMercaderia) }}
                       </div>
-                      <div class="text-caption text-grey-darken-2" style="font-size: 11px;">Monto con que abrió la sesión</div>
                     </v-card>
                   </v-col>
-                  <v-col cols="12" sm="6" md="2">
+                  <v-col cols="12" sm="6" md="3">
                     <v-card variant="flat" color="blue-grey-lighten-5" class="pa-2 rounded text-center h-100">
                       <div class="text-caption text-grey-darken-1 font-weight-medium">Costo de lo Vendido</div>
                       <div class="text-h6 font-weight-bold text-blue-grey-darken-4">
                         {{ formatCurrency(totalCostoMercaderiaVendida) }}
                       </div>
-                      <div class="text-caption text-grey-darken-2" style="font-size: 11px;">Valor de costo de salida</div>
                     </v-card>
                   </v-col>
-                  <v-col cols="12" sm="6" md="2">
+                  <v-col cols="12" sm="6" md="3">
                     <v-card variant="flat" color="green-lighten-5" class="pa-2 rounded text-center h-100">
-                      <div class="text-caption text-grey-darken-1 font-weight-medium">Ventas de Mercadería (Sin IVA)</div>
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Ventas Mercadería (Sin IVA)</div>
                       <div class="text-h6 font-weight-bold text-green-darken-4">
                         {{ formatCurrency(totalVentaMercaderiaVendida) }}
                       </div>
-                      <div class="text-caption text-grey-darken-2" style="font-size: 11px;">Ingreso neto de productos</div>
                     </v-card>
                   </v-col>
                   <v-col cols="12" sm="6" md="3">
                     <v-card variant="flat" color="teal-lighten-5" class="pa-2 rounded text-center h-100">
-                      <div class="text-caption text-grey-darken-1 font-weight-medium">Saldo Remanente de Mercadería</div>
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Saldo Remanente en Caja</div>
                       <div class="text-h6 font-weight-bold text-teal-darken-4">
                         {{ formatCurrency(activeCaja.resumen?.totalMercaderia) }}
                       </div>
-                      <div class="text-caption text-grey-darken-2" style="font-size: 11px;">Stock actual valorizado en caja</div>
-                    </v-card>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="2">
-                    <v-card variant="flat" color="amber-lighten-5" class="pa-2 rounded text-center h-100">
-                      <div class="text-caption text-grey-darken-1 font-weight-medium">Unidades Vendidas</div>
-                      <div class="text-h6 font-weight-bold text-amber-darken-4">
-                        {{ totalUnidadesVendidas }}
-                      </div>
-                      <div class="text-caption text-grey-darken-2" style="font-size: 11px;">Total artículos facturados</div>
                     </v-card>
                   </v-col>
                 </v-row>
 
-                <!-- Filtro de Búsqueda de Mercadería Vendida -->
                 <v-text-field
                   v-model="searchMercaderiaVendida"
                   label="Buscar por código, producto o categoría..."
@@ -1280,12 +1455,10 @@
                   class="mb-3"
                 />
 
-                <!-- Loader de Mercadería Vendida -->
                 <div v-if="loadingMercaderiaVendida" class="d-flex justify-center my-6">
                   <v-progress-circular indeterminate color="indigo" />
                 </div>
 
-                <!-- Tabla de Mercadería Vendida -->
                 <v-data-table
                   v-else
                   :headers="headersMercaderiaVendida"
@@ -1299,11 +1472,6 @@
                   </template>
                   <template v-slot:item.nombre="{ item }">
                     <div class="font-weight-medium text-grey-darken-4">{{ item.nombre }}</div>
-                  </template>
-                  <template v-slot:item.categoria="{ item }">
-                    <v-chip size="x-small" color="blue-grey" variant="tonal" class="font-weight-medium">
-                      {{ item.categoria || 'General' }}
-                    </v-chip>
                   </template>
                   <template v-slot:item.cantidadVendida="{ item }">
                     <span class="font-weight-bold text-blue-grey-darken-3">
@@ -1328,14 +1496,437 @@
           </v-window>
         </v-card-text>
 
-        <!-- Acciones del Diálogo -->
-        <v-card-actions class="bg-grey-lighten-4 px-3 py-0 border-t">
+        <!-- Acciones del Diálogo Cierre -->
+        <v-card-actions class="bg-grey-lighten-4 px-3 py-2 border-t">
           <v-spacer />
-          <v-btn color="grey-darken-1" variant="outlined" @click="closeCierreDialog()" :disabled="saving">
+          <v-btn color="grey-darken-1" variant="outlined" class="text-none" @click="closeCierreDialog()" :disabled="saving">
             Cancelar
           </v-btn>
-          <v-btn color="indigo" class="text-white font-weight-bold" variant="flat" @click="submitCierre()" :disabled="saving" :loading="saving">
+          <v-btn color="indigo" class="text-white font-weight-bold text-none" variant="flat" @click="submitCierre()" :disabled="saving" :loading="saving">
             Confirmar y Cerrar Caja
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ======================================================== -->
+    <!-- MODAL DE DETALLE DE CIERRE HISTÓRICO                     -->
+    <!-- ======================================================== -->
+    <v-dialog v-model="dialogs.detalleHistorial" max-width="1100" persistent>
+      <v-card v-if="cierreHistorialSeleccionado" class="rounded-lg elevation-12 bg-grey-lighten-4">
+        <!-- Header -->
+        <v-card-title class="bg-indigo-darken-4 text-white d-flex align-center py-2 px-4">
+          <v-avatar size="36" color="white" class="mr-3" variant="flat">
+            <v-icon color="indigo-darken-4" size="20">mdi-history</v-icon>
+          </v-avatar>
+          <div>
+            <div class="d-flex align-center ga-2">
+              <h5 class="text-h6 font-weight-bold text-white mb-0">Detalle de Cierre: {{ cierreHistorialSeleccionado.codigo || `CIE-${cierreHistorialSeleccionado.idCierreCaja}` }}</h5>
+              <v-chip
+                :color="cierreHistorialSeleccionado.estadoLiquidacion === 'Cuadrada' ? 'indigo-lighten-2' : (cierreHistorialSeleccionado.estadoLiquidacion === 'Sobrante' ? 'green-lighten-3' : 'red-lighten-3')"
+                size="x-small"
+                class="text-indigo-darken-4 font-weight-black"
+              >
+                {{ cierreHistorialSeleccionado.estadoLiquidacion }}
+              </v-chip>
+            </div>
+            <span class="text-caption text-indigo-lighten-3 d-block" style="margin-top: -2px;">
+              Caja: <strong>{{ cierreHistorialSeleccionado.cajaNombre }}</strong> &bull; Bodega: {{ cierreHistorialSeleccionado.bodegaNombre }} &bull; Apertura: {{ cierreHistorialSeleccionado.aperturaCodigo }}
+            </span>
+          </div>
+          <v-spacer />
+          <v-btn icon size="small" color="white" variant="text" @click="dialogs.detalleHistorial = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <!-- Banner Informativo -->
+        <div class="px-3 py-2 bg-indigo-lighten-5 border-b">
+          <v-card variant="outlined" color="indigo" class="bg-white pa-3 rounded-lg" elevation="0">
+            <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+              <div>
+                <div class="text-caption text-grey-darken-2">
+                  Cajero / Responsable Cierre: <strong>{{ cierreHistorialSeleccionado.usuarioCierre || cierreHistorialSeleccionado.usuarioAperturaNombre }}</strong>
+                </div>
+                <div class="text-caption text-grey-darken-2">
+                  Fecha Apertura: <strong>{{ formatDate(cierreHistorialSeleccionado.fechaApertura) }}</strong> &bull; Fecha Cierre: <strong>{{ formatDate(cierreHistorialSeleccionado.fechaCierre) }}</strong>
+                </div>
+              </div>
+              <div class="d-flex align-center ga-2">
+                <v-btn
+                  color="green-darken-3"
+                  class="text-white font-weight-bold text-none"
+                  size="small"
+                  variant="flat"
+                  prepend-icon="mdi-printer"
+                  :loading="printingId === cierreHistorialSeleccionado.idCierreCaja"
+                  @click="imprimirTicketCierre(cierreHistorialSeleccionado, true)"
+                >
+                  Reimprimir Ticket POS
+                </v-btn>
+                <v-btn
+                  color="blue-grey-darken-3"
+                  class="text-white font-weight-bold text-none"
+                  size="small"
+                  variant="flat"
+                  prepend-icon="mdi-receipt-text"
+                  @click="openTicketPreview(cierreHistorialSeleccionado)"
+                >
+                  Vista Previa
+                </v-btn>
+              </div>
+            </div>
+          </v-card>
+        </div>
+
+        <v-card-text class="px-3 py-2" style="max-height: 70vh; overflow-y: auto;">
+          <v-tabs
+            v-model="tabHistorialDetalle"
+            color="indigo-darken-4"
+            bg-color="white"
+            density="comfortable"
+            class="border-b mb-2 rounded"
+          >
+            <v-tab :value="0" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-calculator-variant</v-icon>
+              Saldos y Desglose de Efectivo
+            </v-tab>
+            <v-tab :value="1" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-credit-card-outline</v-icon>
+              Desglose por Modalidades
+            </v-tab>
+            <v-tab :value="2" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-receipt-text</v-icon>
+              Detalle de Facturas ({{ historialVentas.length }})
+            </v-tab>
+            <v-tab :value="3" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-cash-minus</v-icon>
+              Detalle de Retiros ({{ historialRetiros.length }})
+            </v-tab>
+          </v-tabs>
+
+          <v-window v-model="tabHistorialDetalle">
+            <!-- TAB 0: SALDOS Y DESGLOSE FÍSICO -->
+            <v-window-item :value="0">
+              <v-row dense>
+                <!-- Resumen Financiero -->
+                <v-col cols="12" md="5">
+                  <v-card class="pa-3 border bg-white rounded-lg h-100" elevation="0">
+                    <div class="text-subtitle-2 font-weight-bold text-indigo mb-2 d-flex align-center">
+                      <v-icon size="small" class="mr-1">mdi-scale-balance</v-icon>
+                      Liquidación Financiera
+                    </div>
+
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Efectivo Apertura:</span>
+                      <span class="text-body-2 font-weight-medium">{{ formatCurrency(cierreHistorialSeleccionado.montoAperturaEfectivo) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Ventas en Efectivo:</span>
+                      <span class="text-body-2 font-weight-bold text-success">{{ formatCurrency(cierreHistorialSeleccionado.totalVentasEfectivo) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Ventas Otras Modalidades:</span>
+                      <span class="text-body-2 font-weight-bold text-teal-darken-3">{{ formatCurrency(cierreHistorialSeleccionado.totalVentasOtrasModalidades) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Total Ventas Turno:</span>
+                      <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(cierreHistorialSeleccionado.montoCierreVentas) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Retiros / Egresos:</span>
+                      <span class="text-body-2 font-weight-bold text-orange-darken-4">-{{ formatCurrency(cierreHistorialSeleccionado.montoCierreRetiros) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Mercadería Apertura:</span>
+                      <span class="text-body-2 font-weight-medium text-blue-grey-darken-3">{{ formatCurrency(cierreHistorialSeleccionado.montoAperturaMercaderia) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Mercadería al Cierre:</span>
+                      <span class="text-body-2 font-weight-medium text-blue-grey-darken-3">{{ formatCurrency(cierreHistorialSeleccionado.montoCierreMercaderia) }}</span>
+                    </div>
+
+                    <div v-if="cierreHistorialSeleccionado.observaciones" class="mt-2 text-caption bg-grey-lighten-4 pa-2 rounded border">
+                      <strong>Observaciones:</strong> {{ cierreHistorialSeleccionado.observaciones }}
+                    </div>
+
+                    <v-divider class="my-3" />
+
+                    <!-- Cuadro Comparativo -->
+                    <div class="bg-indigo-lighten-5 pa-3 rounded border border-indigo">
+                      <div class="d-flex justify-space-between mb-1">
+                        <span class="text-caption font-weight-bold text-indigo-darken-3">Total Esperado en Caja:</span>
+                        <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(cierreHistorialSeleccionado.totalEsperado) }}</span>
+                      </div>
+                      <div class="d-flex justify-space-between mb-1">
+                        <span class="text-caption font-weight-bold text-indigo-darken-3">Total Contado Físico:</span>
+                        <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(cierreHistorialSeleccionado.montoCierreEfectivo) }}</span>
+                      </div>
+                      <v-divider class="my-1.5" />
+                      <div class="d-flex justify-space-between align-center">
+                        <span class="text-subtitle-2 font-weight-bold text-indigo-darken-4">Diferencia:</span>
+                        <v-chip
+                          :color="cierreHistorialSeleccionado.diferencia >= 0 ? (cierreHistorialSeleccionado.diferencia === 0 ? 'indigo' : 'success') : 'error'"
+                          size="small"
+                          variant="flat"
+                          class="font-weight-black"
+                        >
+                          {{ cierreHistorialSeleccionado.diferencia >= 0 ? (cierreHistorialSeleccionado.diferencia === 0 ? '' : '+') : '' }}{{ formatCurrency(cierreHistorialSeleccionado.diferencia) }}
+                        </v-chip>
+                      </div>
+                      <div class="text-center mt-2">
+                        <span class="text-caption italic font-weight-bold" :class="cierreHistorialSeleccionado.estadoLiquidacion === 'Cuadrada' ? 'text-indigo' : (cierreHistorialSeleccionado.estadoLiquidacion === 'Sobrante' ? 'text-success' : 'text-error')">
+                          {{ cierreHistorialSeleccionado.estadoLiquidacion === 'Cuadrada' ? 'Caja Cuadrada Exacta' : (cierreHistorialSeleccionado.estadoLiquidacion === 'Sobrante' ? 'Sobrante de Caja' : 'Faltante de Caja') }}
+                        </span>
+                      </div>
+                    </div>
+                  </v-card>
+                </v-col>
+
+                <!-- Desglose Físico de Billetes y Monedas Registrado -->
+                <v-col cols="12" md="7">
+                  <v-card class="pa-3 border bg-white rounded-lg h-100" elevation="0">
+                    <div class="text-subtitle-2 font-weight-bold text-indigo mb-2 d-flex align-center">
+                      <v-icon size="small" class="mr-1">mdi-cash-multiple</v-icon>
+                      Desglose Físico de Efectivo Contado (Base de Datos)
+                    </div>
+
+                    <v-alert
+                      v-if="!cierreHistorialSeleccionado.desgloceDetalle || cierreHistorialSeleccionado.desgloceDetalle.length === 0"
+                      type="info"
+                      variant="tonal"
+                      density="compact"
+                      class="my-2"
+                    >
+                      No se registraron denominaciones individuales en este cierre.
+                    </v-alert>
+
+                    <v-table v-else density="compact" class="border rounded">
+                      <thead>
+                        <tr class="bg-indigo-darken-4 text-white">
+                          <th class="text-white font-weight-bold text-caption py-2">Denominación</th>
+                          <th class="text-white text-center font-weight-bold text-caption py-2" style="width: 140px;">Cantidad Contada</th>
+                          <th class="text-white text-right font-weight-bold text-caption py-2" style="width: 160px;">Subtotal (C$)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="item in cierreHistorialSeleccionado.desgloceDetalle" :key="item.idDetalleDesgloceCaja || item.valorDenominacion">
+                          <td class="text-body-2 font-weight-medium py-1">
+                            {{ formatDenominacionLabel(item.valorDenominacion) }}
+                          </td>
+                          <td class="text-center text-body-2 font-weight-bold py-1">
+                            {{ item.cantidad }}
+                          </td>
+                          <td class="text-right text-body-2 font-weight-bold py-1 text-indigo-darken-4">
+                            {{ formatCurrency(item.subtotal ?? (item.valorDenominacion * item.cantidad)) }}
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr class="bg-grey-lighten-4 font-weight-black">
+                          <td colspan="2" class="text-right text-body-2 py-2">Total Contado Registrado:</td>
+                          <td class="text-right text-subtitle-1 text-indigo-darken-4 py-2">
+                            {{ formatCurrency(cierreHistorialSeleccionado.montoCierreEfectivo) }}
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </v-table>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-window-item>
+
+            <!-- TAB 1: DESGLOSE POR MODALIDADES -->
+            <v-window-item :value="1">
+              <v-card class="pa-3 border bg-white rounded-lg" elevation="0">
+                <div class="text-subtitle-2 font-weight-bold text-indigo mb-3 d-flex align-center">
+                  <v-icon size="small" class="mr-1">mdi-credit-card-multiple</v-icon>
+                  Resumen de Ventas por Modalidad de Pago
+                </div>
+
+                <v-row dense>
+                  <v-col
+                    v-for="mod in (cierreHistorialSeleccionado.desgloseModalidades || [])"
+                    :key="mod.idTipoPago"
+                    cols="12"
+                    sm="6"
+                    md="4"
+                  >
+                    <v-card
+                      variant="flat"
+                      :color="mod.esEfectivo ? 'green-lighten-5' : 'indigo-lighten-5'"
+                      class="pa-3 rounded border"
+                    >
+                      <div class="d-flex align-center justify-space-between">
+                        <div class="d-flex align-center">
+                          <v-avatar :color="mod.esEfectivo ? 'green-darken-3' : 'indigo-darken-3'" size="32" class="mr-2 text-white">
+                            <v-icon size="18">{{ mod.esEfectivo ? 'mdi-cash' : 'mdi-credit-card' }}</v-icon>
+                          </v-avatar>
+                          <div>
+                            <span class="text-caption font-weight-bold d-block" :class="mod.esEfectivo ? 'text-green-darken-4' : 'text-indigo-darken-4'">
+                              {{ mod.modalidad }}
+                            </span>
+                            <span class="text-caption text-grey-darken-1">{{ mod.cantidadVentas }} venta(s)</span>
+                          </div>
+                        </div>
+                        <span class="text-subtitle-1 font-weight-black" :class="mod.esEfectivo ? 'text-green-darken-4' : 'text-indigo-darken-4'">
+                          {{ formatCurrency(mod.total) }}
+                        </span>
+                      </div>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-window-item>
+
+            <!-- TAB 2: DETALLE DE FACTURAS -->
+            <v-window-item :value="2">
+              <v-card class="pa-3 border bg-white rounded-lg" elevation="0">
+                <div v-if="loadingHistorialDetalle" class="d-flex justify-center my-6">
+                  <v-progress-circular indeterminate color="indigo" />
+                </div>
+                <div v-else-if="historialVentas.length === 0" class="text-center py-6 text-grey">
+                  <v-icon size="36">mdi-receipt-text-outline</v-icon>
+                  <div class="text-caption mt-1">No se encontraron ventas registradas para esta sesión de caja.</div>
+                </div>
+                <v-data-table
+                  v-else
+                  :headers="headersVentas"
+                  :items="historialVentas"
+                  density="compact"
+                  class="border rounded"
+                  :items-per-page="5"
+                >
+                  <template v-slot:item.noVenta="{ item }">
+                    <span class="font-weight-bold text-indigo">{{ item.noVenta }}</span>
+                  </template>
+                  <template v-slot:item.fechaRegistro="{ item }">
+                    <span class="text-caption">{{ formatDate(item.fechaRegistro) }}</span>
+                  </template>
+                  <template v-slot:item.credito="{ item }">
+                    <v-chip size="x-small" :color="item.credito ? 'amber-darken-3' : 'blue-grey-darken-2'" variant="flat" class="font-weight-bold">
+                      {{ item.credito ? 'Crédito' : 'Contado' }}
+                    </v-chip>
+                  </template>
+                  <template v-slot:item.tipoPago="{ item }">
+                    <v-chip size="x-small" :color="item.idTipoPago === 1 ? 'green-darken-3' : 'indigo-darken-3'" variant="tonal" class="font-weight-medium">
+                      {{ item.tipoPago || (item.idTipoPago === 1 ? 'Efectivo' : 'Modalidad ' + (item.idTipoPago || '')) }}
+                    </v-chip>
+                  </template>
+                  <template v-slot:item.subtotal="{ item }">
+                    <span>{{ formatCurrency(item.subtotal) }}</span>
+                  </template>
+                  <template v-slot:item.iva="{ item }">
+                    <span>{{ formatCurrency(item.iva) }}</span>
+                  </template>
+                  <template v-slot:item.total="{ item }">
+                    <span class="font-weight-bold text-success">{{ formatCurrency(item.total) }}</span>
+                  </template>
+                  <template v-slot:item.opciones="{ item }">
+                    <v-btn
+                      icon="mdi-eye"
+                      size="x-small"
+                      variant="text"
+                      color="indigo"
+                      title="Ver detalle de factura"
+                      @click="verFacturaDetalle(item)"
+                    />
+                  </template>
+                </v-data-table>
+              </v-card>
+            </v-window-item>
+
+            <!-- TAB 3: DETALLE DE RETIROS -->
+            <v-window-item :value="3">
+              <v-card class="pa-3 border bg-white rounded-lg" elevation="0">
+                <div v-if="loadingHistorialDetalle" class="d-flex justify-center my-6">
+                  <v-progress-circular indeterminate color="indigo" />
+                </div>
+                <div v-else-if="historialRetiros.length === 0" class="text-center py-6 text-grey">
+                  <v-icon size="36">mdi-cash-minus</v-icon>
+                  <div class="text-caption mt-1">No se registraron retiros durante esta sesión de caja.</div>
+                </div>
+                <v-data-table
+                  v-else
+                  :headers="headersRetiros"
+                  :items="historialRetiros"
+                  density="compact"
+                  class="border rounded"
+                  :items-per-page="5"
+                >
+                  <template v-slot:item.fechaRegistro="{ item }">
+                    <span class="text-caption">{{ formatDate(item.fechaRegistro) }}</span>
+                  </template>
+                  <template v-slot:item.conceptoNombre="{ item }">
+                    <span class="font-weight-medium text-grey-darken-4">{{ item.conceptoNombre }}</span>
+                  </template>
+                  <template v-slot:item.monto="{ item }">
+                    <span class="font-weight-bold text-red-darken-3">{{ formatCurrency(item.monto) }}</span>
+                  </template>
+                  <template v-slot:item.usuarioRegistro="{ item }">
+                    <span class="text-caption font-weight-medium">{{ item.usuarioRegistro }}</span>
+                  </template>
+                  <template v-slot:item.observaciones="{ item }">
+                    <span class="text-caption text-grey-darken-1">{{ item.observaciones || '—' }}</span>
+                  </template>
+                </v-data-table>
+              </v-card>
+            </v-window-item>
+          </v-window>
+        </v-card-text>
+
+        <!-- Footer -->
+        <v-card-actions class="bg-grey-lighten-4 pa-3 border-t">
+          <v-spacer />
+          <v-btn color="grey-darken-1" variant="outlined" class="text-none" @click="dialogs.detalleHistorial = false">
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ======================================================== -->
+    <!-- MODAL DE VISTA PREVIA DE TICKET TÉRMICO (POS-80C)        -->
+    <!-- ======================================================== -->
+    <v-dialog v-model="dialogs.ticketPreview" max-width="480">
+      <v-card class="rounded-lg elevation-12">
+        <v-card-title class="bg-indigo-darken-4 text-white d-flex align-center py-2 px-3">
+          <v-icon color="white" size="20" class="mr-2">mdi-receipt-text</v-icon>
+          <span class="text-subtitle-1 font-weight-bold">Vista Previa de Ticket Térmico</span>
+          <v-spacer />
+          <v-btn icon size="small" color="white" variant="text" @click="dialogs.ticketPreview = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text class="pa-3 bg-grey-lighten-3" style="max-height: 70vh; overflow-y: auto;">
+          <!-- Simulación de Papel Térmico -->
+          <div class="ticket-preview-box pa-4 bg-white rounded border elevation-1">
+            <pre class="ticket-text">{{ ticketPreviewText }}</pre>
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="bg-grey-lighten-4 pa-3 border-t d-flex justify-space-between align-center flex-wrap ga-2">
+          <v-btn
+            color="indigo-darken-3"
+            variant="outlined"
+            size="small"
+            class="text-none font-weight-bold"
+            prepend-icon="mdi-printer-eye"
+            @click="imprimirTicketNavegador()"
+          >
+            Imprimir PDF
+          </v-btn>
+          <v-btn
+            color="green-darken-3"
+            class="text-white font-weight-bold text-none"
+            variant="flat"
+            size="small"
+            prepend-icon="mdi-printer-pos"
+            :loading="printingId === activePreviewCierre?.idCierreCaja"
+            @click="imprimirTicketCierre(activePreviewCierre, true)"
+          >
+            Imprimir Ticket
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1371,8 +1962,10 @@ export default {
       savingMercaderia: false,
       viewMode: 'grid',
       searchQuery: '',
-      filterEstado: 'ALL',
+      activeMainTab: 0,
       tabCierre: 0,
+      tabHistorialDetalle: 0,
+      printingId: null,
       
       stats: {
         arqueadas: 0,
@@ -1384,6 +1977,34 @@ export default {
         cajas: [],
         bodegas: []
       },
+
+      // Historial de Cierres
+      cierresHistorial: [],
+      loadingHistorial: false,
+      cierreHistorialSeleccionado: null,
+      loadingHistorialDetalle: false,
+      historialVentas: [],
+      historialRetiros: [],
+      activePresetHistorial: 'ESTE_MES',
+      filtrosHistorial: {
+        search: '',
+        desde: '',
+        hasta: '',
+        idCaja: null,
+        estado: 'TODOS'
+      },
+      presetsFecha: [
+        { key: 'HOY', label: 'Hoy' },
+        { key: 'AYER', label: 'Ayer' },
+        { key: 'ESTA_SEMANA', label: 'Esta Semana' },
+        { key: 'ESTE_MES', label: 'Este Mes' },
+        { key: 'ULTIMOS_30', label: 'Últimos 30 días' },
+        { key: 'TODO', label: 'Todo' }
+      ],
+
+      // Vista Previa de Ticket
+      activePreviewCierre: null,
+      ticketPreviewText: '',
       
       headers: [
         { title: 'Caja', key: 'nombre', align: 'start', sortable: true },
@@ -1397,7 +2018,23 @@ export default {
         { title: 'Mercadería Inicial', key: 'mercaderiaApertura', align: 'end', sortable: false },
         { title: 'Mercadería Actual', key: 'totalMercaderia', align: 'end', sortable: false },
         { title: 'Total en Caja', key: 'totalEnCaja', align: 'end', sortable: false },
-        { title: 'Opciones', key: 'opc', align: 'center', sortable: false }
+        { title: 'Opciones', key: 'opc', align: 'center', sortable: false, width: '1%', cellProps: { class: 'text-no-wrap' }, headerProps: { class: 'text-no-wrap' } }
+      ],
+
+      headersHistorial: [
+        { title: 'Acciones', key: 'opc', align: 'center', sortable: false, width: '1px', cellProps: { class: 'text-no-wrap pa-0' }, headerProps: { class: 'text-no-wrap pa-0' } },
+        { title: 'Código Cierre', key: 'codigo', align: 'start', sortable: true },
+        { title: 'Caja & Bodega', key: 'cajaNombre', align: 'start', sortable: true },
+        { title: 'Cajero / Fecha', key: 'usuarioCierre', align: 'start', sortable: true },
+        { title: 'Efect. Inicial', key: 'montoAperturaEfectivo', align: 'end', sortable: true },
+        { title: 'Ventas Efectivo', key: 'totalVentasEfectivo', align: 'end', sortable: true },
+        { title: 'Otras Modalidades', key: 'totalVentasOtrasModalidades', align: 'end', sortable: true },
+        { title: 'Total Ventas', key: 'montoCierreVentas', align: 'end', sortable: true },
+        { title: 'Retiros', key: 'montoCierreRetiros', align: 'end', sortable: true },
+        { title: 'Total Esperado', key: 'totalEsperado', align: 'end', sortable: true },
+        { title: 'Total Contado', key: 'montoCierreEfectivo', align: 'end', sortable: true },
+        { title: 'Diferencia', key: 'diferencia', align: 'center', sortable: true },
+        { title: 'Ref. Arqueo', key: 'arqueoCodigo', align: 'center', sortable: false },
       ],
       
       // Detalle de Ventas
@@ -1459,7 +2096,9 @@ export default {
       
       dialogs: {
         cierre: false,
-        cierreMercaderia: false
+        cierreMercaderia: false,
+        detalleHistorial: false,
+        ticketPreview: false
       },
       
       viewFactura: {
@@ -1517,6 +2156,61 @@ export default {
         (c.codigo && c.codigo.toLowerCase().includes(query)) ||
         (c.bodegaNombre && c.bodegaNombre.toLowerCase().includes(query))
       );
+    },
+
+    cajasFilterItems() {
+      return (this.data.cajas || []).map(c => ({
+        title: `${c.nombre} (${c.codigo || 'S/C'})`,
+        value: c.idCaja
+      }));
+    },
+
+    filteredCierresHistorial() {
+      let list = this.cierresHistorial || [];
+
+      // Filtro reactivo de texto
+      if (this.filtrosHistorial.search) {
+        const q = this.filtrosHistorial.search.toLowerCase().trim();
+        list = list.filter(c =>
+          (c.codigo && c.codigo.toLowerCase().includes(q)) ||
+          (c.aperturaCodigo && c.aperturaCodigo.toLowerCase().includes(q)) ||
+          (c.cajaNombre && c.cajaNombre.toLowerCase().includes(q)) ||
+          (c.bodegaNombre && c.bodegaNombre.toLowerCase().includes(q)) ||
+          (c.usuarioCierre && c.usuarioCierre.toLowerCase().includes(q)) ||
+          (c.usuarioAperturaNombre && c.usuarioAperturaNombre.toLowerCase().includes(q)) ||
+          (c.estadoLiquidacion && c.estadoLiquidacion.toLowerCase().includes(q)) ||
+          (c.observaciones && c.observaciones.toLowerCase().includes(q))
+        );
+      }
+
+      return list;
+    },
+
+    kpiHistorial() {
+      const list = this.filteredCierresHistorial;
+      const totalCierres = list.length;
+      const totalContado = list.reduce((sum, c) => sum + (Number(c.montoCierreEfectivo) || 0), 0);
+      const totalVentas = list.reduce((sum, c) => sum + (Number(c.montoCierreVentas) || 0), 0);
+      const totalRetiros = list.reduce((sum, c) => sum + (Number(c.montoCierreRetiros) || 0), 0);
+      const diferenciaNeta = list.reduce((sum, c) => sum + (Number(c.diferencia) || 0), 0);
+      const totalSobrantes = list.filter(c => Number(c.diferencia) > 0).reduce((sum, c) => sum + Number(c.diferencia), 0);
+      const totalFaltantes = list.filter(c => Number(c.diferencia) < 0).reduce((sum, c) => sum + Math.abs(Number(c.diferencia)), 0);
+      const cantCuadradas = list.filter(c => c.estadoLiquidacion === 'Cuadrada').length;
+      const cantSobrantes = list.filter(c => c.estadoLiquidacion === 'Sobrante').length;
+      const cantFaltantes = list.filter(c => c.estadoLiquidacion === 'Faltante').length;
+
+      return {
+        totalCierres,
+        totalContado,
+        totalVentas,
+        totalRetiros,
+        diferenciaNeta,
+        totalSobrantes,
+        totalFaltantes,
+        cantCuadradas,
+        cantSobrantes,
+        cantFaltantes
+      };
     },
     
     bodegasDestinoDisponibles() {
@@ -1666,24 +2360,38 @@ export default {
 
     totalUnidadesVendidas() {
       return this.mercaderiaVendidaItems.reduce((sum, i) => sum + (Number(i.cantidadVendida) || 0), 0);
-    },
-
-    totalUtilidadMercaderiaVendida() {
-      return this.totalVentaMercaderiaVendida - this.totalCostoMercaderiaVendida;
     }
   },
   
+  watch: {
+    activeMainTab(newVal) {
+      if (newVal === 1) {
+        this.loadCierresHistorial();
+      }
+    }
+  },
+
   mounted() {
     this.loadCajas();
     this.loadBodegas();
+    this.loadCierresHistorial();
   },
   
   methods: {
     hasAccessToFunct,
+
     showAlert(msg, type = 'success') {
       this.alert.message = msg;
       this.alert.type = type;
       this.alert.show = true;
+    },
+
+    handleMainRefresh() {
+      if (this.activeMainTab === 0) {
+        this.loadCajas();
+      } else {
+        this.loadCierresHistorial();
+      }
     },
     
     async loadBodegas() {
@@ -1719,12 +2427,12 @@ export default {
             };
           });
 
-          // Calculate statistics
+          // Estadísticas de cajas
           this.stats.arqueadas = mapped.filter(c => c.estadoNombre === 'Arqueada').length;
           this.stats.aperturadas = mapped.filter(c => c.estadoNombre === 'Aperturada').length;
           this.stats.cerradas = mapped.filter(c => !c.isOpen).length;
 
-          // Show only boxes that are already Arqueadas and ready for closure
+          // Mostrar cajas para cierre
           this.data.cajas = mapped.filter(c => c.estadoNombre === 'Arqueada');
           
           await Promise.all(this.data.cajas.map(async (caja) => {
@@ -1750,7 +2458,6 @@ export default {
         
         if (apRes.code === 200 && apRes.data) {
           caja.apertura = apRes.data;
-          // Associate matching arqueo if available
           if (caja.apertura.idAperturaCaja && arqueosList.length > 0) {
             caja.arqueo = arqueosList.find(a => a.idAperturaCaja === caja.apertura.idAperturaCaja && a.estado !== false) || null;
           }
@@ -1761,6 +2468,146 @@ export default {
       } catch (e) {
         console.error(`Error loading details for box ${caja.idCaja}:`, e);
       }
+    },
+
+    // ==========================================
+    // HISTORIAL DE CIERRES
+    // ==========================================
+    async loadCierresHistorial() {
+      this.loadingHistorial = true;
+      try {
+        const params = {};
+        if (this.filtrosHistorial.search) {
+          params.search = this.filtrosHistorial.search;
+        }
+
+        const res = await this.requestHttp.getCierresCaja(params);
+        if (res.code === 200 && Array.isArray(res.data)) {
+          this.cierresHistorial = res.data;
+        } else {
+          this.showAlert('No se pudieron obtener los cierres de caja', 'warning');
+        }
+      } catch (e) {
+        console.error('Error loading cierres historial:', e);
+        this.showAlert('Error al consultar el historial de cierres', 'error');
+      } finally {
+        this.loadingHistorial = false;
+      }
+    },
+
+    applyPresetHistorial(preset, triggerFetch = true) {
+      this.activePresetHistorial = preset.key;
+      const now = new Date();
+      let desde = '';
+      let hasta = '';
+
+      const formatDateInput = (d) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      if (preset.key === 'HOY') {
+        desde = formatDateInput(now);
+        hasta = formatDateInput(now);
+      } else if (preset.key === 'AYER') {
+        const ayer = new Date(now);
+        ayer.setDate(now.getDate() - 1);
+        desde = formatDateInput(ayer);
+        hasta = formatDateInput(ayer);
+      } else if (preset.key === 'ESTA_SEMANA') {
+        const primerDia = new Date(now);
+        const day = primerDia.getDay() || 7;
+        primerDia.setDate(primerDia.getDate() - day + 1);
+        desde = formatDateInput(primerDia);
+        hasta = formatDateInput(now);
+      } else if (preset.key === 'ESTE_MES') {
+        const primerDiaMes = new Date(now.getFullYear(), now.getMonth(), 1);
+        desde = formatDateInput(primerDiaMes);
+        hasta = formatDateInput(now);
+      } else if (preset.key === 'ULTIMOS_30') {
+        const hace30 = new Date(now);
+        hace30.setDate(now.getDate() - 30);
+        desde = formatDateInput(hace30);
+        hasta = formatDateInput(now);
+      } else if (preset.key === 'TODO') {
+        desde = '';
+        hasta = '';
+      }
+
+      this.filtrosHistorial.desde = desde;
+      this.filtrosHistorial.hasta = hasta;
+
+      if (triggerFetch) {
+        this.loadCierresHistorial();
+      }
+    },
+
+    limpiarFiltrosHistorial() {
+      this.filtrosHistorial = {
+        search: '',
+        desde: '',
+        hasta: '',
+        idCaja: null,
+        estado: 'TODOS'
+      };
+      this.activePresetHistorial = null;
+      this.loadCierresHistorial();
+    },
+
+    async openDetalleHistorial(cierre) {
+      this.cierreHistorialSeleccionado = cierre;
+      this.tabHistorialDetalle = 0;
+      this.historialVentas = [];
+      this.historialRetiros = [];
+      this.dialogs.detalleHistorial = true;
+      this.loadingHistorialDetalle = true;
+
+      try {
+        // Cargar detalle completo del cierre si hiciera falta o consultar ventas y retiros de esa apertura
+        const [resDetalleCierre, resRetiros, resVentas] = await Promise.all([
+          this.requestHttp.getCierreCajaById(cierre.idCierreCaja),
+          cierre.idAperturaCaja ? this.requestHttp.getRetirosCaja({ idAperturaCaja: cierre.idAperturaCaja }) : Promise.resolve({ code: 200, data: [] }),
+          cierre.idCaja ? this.requestHttp.getVentasLista({ idCaja: cierre.idCaja, desde: cierre.fechaApertura, hasta: cierre.fechaCierre }) : Promise.resolve({ code: 200, data: [] })
+        ]);
+
+        if (resDetalleCierre.code === 200 && resDetalleCierre.data) {
+          this.cierreHistorialSeleccionado = {
+            ...this.cierreHistorialSeleccionado,
+            ...resDetalleCierre.data
+          };
+        }
+
+        if (resRetiros.code === 200 && Array.isArray(resRetiros.data)) {
+          this.historialRetiros = resRetiros.data;
+        }
+
+        if (resVentas.code === 200 && Array.isArray(resVentas.data)) {
+          if (cierre.idAperturaCaja) {
+            this.historialVentas = resVentas.data.filter(v => !v.idAperturaCaja || v.idAperturaCaja === cierre.idAperturaCaja);
+          } else {
+            this.historialVentas = resVentas.data;
+          }
+        }
+      } catch (e) {
+        console.error('Error loading deep details for closure:', e);
+      } finally {
+        this.loadingHistorialDetalle = false;
+      }
+    },
+
+    openTicketPreview(cierre) {
+      this.activePreviewCierre = cierre;
+      this.ticketPreviewText = this.generarTextoTicket(cierre, true);
+      this.dialogs.ticketPreview = true;
+    },
+
+    formatDenominacionLabel(valor) {
+      const v = Number(valor);
+      if (v >= 10) return `Billetes de C$ ${v}`;
+      if (v >= 1) return `Monedas de C$ ${v}`;
+      return `Monedas de C$ ${v.toFixed(2)}`;
     },
     
     getCardBorder(caja) {
@@ -1825,7 +2672,7 @@ export default {
         if (res.code === 200 && Array.isArray(res.data)) {
           this.mercaderiaItems = res.data.map(p => ({
             ...p,
-            cantADevolver: p.cantidadTotal, // Default devolver todo el stock
+            cantADevolver: p.cantidadTotal,
             obsADevolver: ''
           }));
         } else {
@@ -1881,7 +2728,6 @@ export default {
         return;
       }
 
-      // Validar que no se exceda el stock
       for (const item of this.mercaderiaItems) {
         if (Number(item.cantADevolver) > Number(item.cantidadTotal)) {
           this.showAlert(`La cantidad a devolver de "${item.nombre}" no puede superar el stock actual (${item.cantidadTotal}).`, 'error');
@@ -1942,11 +2788,8 @@ export default {
       }
 
       this.activeArqueo = caja.arqueo || null;
-      
-      // Open dialog
       this.dialogs.cierre = true;
 
-      // Load Arqueo details, Ventas, and Retiros in parallel
       await Promise.all([
         this.loadArqueoData(caja),
         this.loadVentasData(caja),
@@ -1993,7 +2836,6 @@ export default {
         }
 
         if (resVentas.code === 200 && Array.isArray(resVentas.data)) {
-          // Filter by active apertura if present
           if (caja.apertura?.idAperturaCaja) {
             this.ventasTurno = resVentas.data.filter(v => !v.idAperturaCaja || v.idAperturaCaja === caja.apertura.idAperturaCaja);
           } else {
@@ -2101,7 +2943,6 @@ export default {
         return;
       }
 
-      // Validar que la caja esté arqueada
       if (this.activeCaja.estadoNombre !== 'Arqueada') {
         this.showAlert('La caja debe ser arqueada previamente antes de poder cerrarla.', 'warning');
         return;
@@ -2127,9 +2968,13 @@ export default {
         const res = await this.requestHttp.postCierreCaja(reqData);
         if (res.code === 200) {
           this.showAlert('El cierre de caja se ha procesado exitosamente', 'success');
-          await this.imprimirCierreCaja();
+          
+          const cierreCreado = res.data?.data || res.data || null;
+          await this.imprimirTicketCierre(cierreCreado || this.activeCaja, false);
+
           this.closeCierreDialog();
           await this.loadCajas();
+          await this.loadCierresHistorial();
         } else {
           let errorMsg = 'Error al guardar el cierre de caja';
           if (res.data) {
@@ -2156,55 +3001,192 @@ export default {
     },
 
     lineaDosColumnas(izquierda, derecha, ancho = 42) {
-      const espacio = ancho - izquierda.length - derecha.length
+      const izq = String(izquierda || '');
+      const der = String(derecha || '');
+      const espacio = ancho - izq.length - der.length;
       return espacio > 0
-        ? izquierda + ' '.repeat(espacio) + derecha + '\n'
-        : izquierda.slice(0, ancho - derecha.length - 1) + ' ' + derecha + '\n'
+        ? izq + ' '.repeat(espacio) + der + '\n'
+        : izq.slice(0, Math.max(0, ancho - der.length - 1)) + ' ' + der + '\n';
     },
 
-
-    async imprimirCierreCaja() {
+    // ==========================================
+    // GENERADOR DE TEXTO DE TICKET
+    // ==========================================
+    generarTextoTicket(cierreObj, esReimpresion = false) {
       const NEGOCIO = {
         nombre: 'Migdalia\'s Market',
         direccion: 'Mercado Mayoreo Modulo #4',
         telefono: '2263-2783'
+      };
+      const ANCHO = 42;
+      const separador = '-'.repeat(ANCHO) + '\n';
+
+      const cajaNombre = cierreObj?.cajaNombre || cierreObj?.nombre || this.activeCaja?.nombre || 'N/A';
+      const aperturaCodigo = cierreObj?.aperturaCodigo || cierreObj?.apertura?.codigo || this.activeCaja?.apertura?.codigo || 'N/A';
+      const bodegaNombre = cierreObj?.bodegaNombre || this.activeCaja?.bodegaNombre || 'N/A';
+      const codigoCierre = cierreObj?.codigo || (cierreObj?.idCierreCaja ? `CIE-${cierreObj.idCierreCaja}` : 'CIE-N/A');
+      const cajero = cierreObj?.usuarioCierre || cierreObj?.usuarioAperturaNombre || this.activeCaja?.apertura?.usuarioAperturaNombre || 'N/A';
+      const fechaCierre = cierreObj?.fechaCierre ? this.formatDate(cierreObj.fechaCierre) : new Date().toLocaleString();
+
+      const efectivoApertura = Number(cierreObj?.montoAperturaEfectivo ?? cierreObj?.apertura?.montoAperturaEfectivo ?? 0);
+      const ventasEfectivo = Number(cierreObj?.totalVentasEfectivo ?? cierreObj?.resumen?.totalVentasEfectivo ?? this.totalVentasEfectivo);
+      const ventasOtras = Number(cierreObj?.totalVentasOtrasModalidades ?? cierreObj?.resumen?.totalVentasOtrasModalidades ?? this.totalVentasOtrasModalidades);
+      const totalVentas = Number(cierreObj?.montoCierreVentas ?? cierreObj?.resumen?.totalVentas ?? this.totalVentasTurno);
+      const pedidosTurno = Number(cierreObj?.totalPedidos ?? cierreObj?.resumen?.totalPedidos ?? 0);
+      const retiros = Number(cierreObj?.montoCierreRetiros ?? this.form.montoCierreRetiros ?? 0);
+      const totalEsperado = Number(cierreObj?.totalEsperado ?? this.totalEsperado);
+      const totalContado = Number(cierreObj?.montoCierreEfectivo ?? this.totalContado);
+      const diferencia = Number(cierreObj?.diferencia ?? this.diferencia);
+      const estadoLiquidacion = cierreObj?.estadoLiquidacion || (diferencia === 0 ? 'Cuadrada' : (diferencia > 0 ? 'Sobrante' : 'Faltante'));
+
+      let lineas = '';
+      lineas += `      ${NEGOCIO.nombre}\n`;
+      lineas += `  ${NEGOCIO.direccion}\n`;
+      lineas += `       Tel: ${NEGOCIO.telefono}\n`;
+      lineas += separador;
+      lineas += `           CIERRE DE CAJA\n`;
+      if (esReimpresion) {
+        lineas += `       *** REIMPRESIÓN ***\n`;
+        lineas += `  Reimpreso: ${new Date().toLocaleString()}\n`;
+      }
+      lineas += separador;
+      lineas += `Cierre:   ${codigoCierre}\n`;
+      lineas += `Apertura: ${aperturaCodigo}\n`;
+      lineas += `Caja:     ${cajaNombre}\n`;
+      lineas += `Bodega:   ${bodegaNombre}\n`;
+      lineas += `Cajero:   ${cajero}\n`;
+      lineas += `Fecha:    ${fechaCierre}\n`;
+      lineas += separador;
+      lineas += `RESUMEN GENERAL\n`;
+      lineas += this.lineaDosColumnas('Efectivo Apertura:', this.formatCurrency(efectivoApertura));
+      lineas += this.lineaDosColumnas('Ventas Efectivo:', this.formatCurrency(ventasEfectivo));
+      lineas += this.lineaDosColumnas('Otras Modalidades:', this.formatCurrency(ventasOtras));
+      lineas += this.lineaDosColumnas('Total Ventas Turno:', this.formatCurrency(totalVentas));
+      if (pedidosTurno > 0) {
+        lineas += this.lineaDosColumnas('Pedidos Turno:', this.formatCurrency(pedidosTurno));
+      }
+      lineas += this.lineaDosColumnas('Retiros / Egresos:', this.formatCurrency(retiros));
+      lineas += separador;
+      lineas += `DESGLOSE DE EFECTIVO CONTADO\n`;
+
+      // Desglose de billetes y monedas
+      let tieneDesglose = false;
+      if (Array.isArray(cierreObj?.desgloceDetalle) && cierreObj.desgloceDetalle.length > 0) {
+        cierreObj.desgloceDetalle.forEach(d => {
+          const val = Number(d.valorDenominacion || d.valor || 0);
+          const cant = Number(d.cantidad || 0);
+          if (cant > 0) {
+            tieneDesglose = true;
+            lineas += this.lineaDosColumnas(`  C$${val} x ${cant}`, this.formatCurrency(val * cant));
+          }
+        });
+      } else if (this.activeCaja) {
+        this.denominaciones.forEach(d => {
+          const cant = Number(this.cantidades[d.valor]) || 0;
+          if (cant > 0) {
+            tieneDesglose = true;
+            lineas += this.lineaDosColumnas(`  C$${d.valor} x ${cant}`, this.formatCurrency(d.valor * cant));
+          }
+        });
       }
 
-      const ANCHO_TICKET = 42
-    
+      if (!tieneDesglose) {
+        lineas += `  Sin desglose físico individual\n`;
+      }
+
+      lineas += separador;
+      lineas += this.lineaDosColumnas('TOTAL ESPERADO:', this.formatCurrency(totalEsperado));
+      lineas += this.lineaDosColumnas('TOTAL CONTADO:', this.formatCurrency(totalContado));
+      lineas += this.lineaDosColumnas('DIFERENCIA:', (diferencia >= 0 ? '+' : '') + this.formatCurrency(diferencia));
+      lineas += this.lineaDosColumnas('ESTADO:', estadoLiquidacion);
+      lineas += separador;
+
+      const obs = cierreObj?.observaciones || this.form.observaciones;
+      if (obs) {
+        lineas += `Obs: ${obs}\n`;
+        lineas += separador;
+      }
+
+      lineas += `\n\n`;
+      lineas += `_____________________    _____________________\n`;
+      lineas += `  Firma del Cajero         Firma Supervisor\n`;
+      lineas += `\n        --- Fin de Cierre ---\n`;
+
+      return lineas;
+    },
+
+    async imprimirTicketCierre(cierreObj, esReimpresion = false) {
+      const targetCierre = cierreObj || this.cierreHistorialSeleccionado || this.activeCaja;
+      if (!targetCierre) {
+        this.showAlert('No hay datos de cierre para imprimir', 'warning');
+        return;
+      }
+
+      const idCierre = targetCierre.idCierreCaja || targetCierre.id || targetCierre.codigo || 'NOW';
+      this.printingId = idCierre;
+
+      const NEGOCIO = {
+        nombre: 'Migdalia\'s Market',
+        direccion: 'Mercado Mayoreo Modulo #4',
+        telefono: '2263-2783'
+      };
+
+      const ANCHO_TICKET = 42;
+      const separador = '-'.repeat(ANCHO_TICKET) + '\n';
+      const separadorBlank = ' '.repeat(ANCHO_TICKET) + '\n';
+
       try {
-        const qz = window.qz
-    
-        if (!qz.websocket.isActive()) {
-          await qz.websocket.connect()
+        const qz = window.qz;
+        if (!qz) {
+          this.showAlert('QZ Tray no está disponible en la ventana. Abriendo vista previa.', 'info');
+          this.openTicketPreview(targetCierre);
+          return;
         }
-    
-        const nombreImpresora = await qz.printers.find('POS-80C')
-        const config = qz.configs.create(nombreImpresora)
-        const separador = '-'.repeat(ANCHO_TICKET) + '\n'
-    
-        // --- Desglose de denominaciones (mismo cálculo que ya usás para el payload) ---
-        const desgloceDetalle = this.denominaciones
-          .map((d) => ({
-            valor: d.valor,
-            cantidad: Number(this.cantidades[d.valor]) || 0
-          }))
-          .filter((d) => d.cantidad > 0)
-    
-        const totalContado = desgloceDetalle.reduce((acc, d) => acc + d.valor * d.cantidad, 0)
-    
-        const lineasDesglose = desgloceDetalle.map((d) => {
-          const subtotal = d.valor * d.cantidad
-          return this.lineaDosColumnas(
-            `  C$${d.valor} x ${d.cantidad}`,
-            this.formatCurrency(subtotal)
-          )
-        })
-    
-        // --- Resumen general ---
-        const resumen = this.activeCaja.resumen || {}
-        const apertura = this.activeCaja.apertura || {}
-    
+
+        if (!qz.websocket.isActive()) {
+          await qz.websocket.connect();
+        }
+
+        const nombreImpresora = await qz.printers.find('POS-80C');
+        const config = qz.configs.create(nombreImpresora);
+
+        const cajaNombre = targetCierre.cajaNombre || targetCierre.nombre || this.activeCaja?.nombre || 'N/A';
+        const aperturaCodigo = targetCierre.aperturaCodigo || targetCierre.apertura?.codigo || this.activeCaja?.apertura?.codigo || 'N/A';
+        const bodegaNombre = targetCierre.bodegaNombre || this.activeCaja?.bodegaNombre || 'N/A';
+        const codigoCierre = targetCierre.codigo || (targetCierre.idCierreCaja ? `CIE-${targetCierre.idCierreCaja}` : 'CIE-N/A');
+        const cajero = targetCierre.usuarioCierre || targetCierre.usuarioAperturaNombre || this.activeCaja?.apertura?.usuarioAperturaNombre || 'N/A';
+        const fechaCierre = targetCierre.fechaCierre ? this.formatDate(targetCierre.fechaCierre) : new Date().toLocaleString();
+
+        const efectivoApertura = Number(targetCierre.montoAperturaEfectivo ?? targetCierre.apertura?.montoAperturaEfectivo ?? 0);
+        const ventasEfectivo = Number(targetCierre.totalVentasEfectivo ?? targetCierre.resumen?.totalVentasEfectivo ?? this.totalVentasEfectivo);
+        const ventasOtras = Number(targetCierre.totalVentasOtrasModalidades ?? targetCierre.resumen?.totalVentasOtrasModalidades ?? this.totalVentasOtrasModalidades);
+        const totalVentas = Number(targetCierre.montoCierreVentas ?? targetCierre.resumen?.totalVentas ?? this.totalVentasTurno);
+        const pedidosTurno = Number(targetCierre.totalPedidos ?? targetCierre.resumen?.totalPedidos ?? 0);
+        const retiros = Number(targetCierre.montoCierreRetiros ?? this.form.montoCierreRetiros ?? 0);
+        const totalEsperado = Number(targetCierre.totalEsperado ?? this.totalEsperado);
+        const totalContado = Number(targetCierre.montoCierreEfectivo ?? this.totalContado);
+        const diferencia = Number(targetCierre.diferencia ?? this.diferencia);
+        const estadoLiquidacion = targetCierre.estadoLiquidacion || (diferencia === 0 ? 'Cuadrada' : (diferencia > 0 ? 'Sobrante' : 'Faltante'));
+
+        // Desglose de billetes y monedas
+        const lineasDesglose = [];
+        if (Array.isArray(targetCierre.desgloceDetalle) && targetCierre.desgloceDetalle.length > 0) {
+          targetCierre.desgloceDetalle.forEach(d => {
+            const val = Number(d.valorDenominacion || d.valor || 0);
+            const cant = Number(d.cantidad || 0);
+            if (cant > 0) {
+              lineasDesglose.push(this.lineaDosColumnas(`  C$${val} x ${cant}`, this.formatCurrency(val * cant)));
+            }
+          });
+        } else if (this.activeCaja) {
+          this.denominaciones.forEach(d => {
+            const cant = Number(this.cantidades[d.valor]) || 0;
+            if (cant > 0) {
+              lineasDesglose.push(this.lineaDosColumnas(`  C$${d.valor} x ${cant}`, this.formatCurrency(d.valor * cant)));
+            }
+          });
+        }
+
         const ticket = [
           '\x1B\x40',                                    // init
           '\x1B\x61\x01',                                // centrar
@@ -2216,49 +3198,95 @@ export default {
           `${NEGOCIO.direccion}\n`,
           `Tel: ${NEGOCIO.telefono}\n`,
           separador,
-    
+
           '\x1B\x45\x01',
           'CIERRE DE CAJA\n',
+          esReimpresion ? '*** REIMPRESIÓN ***\n' : '',
           '\x1B\x45\x00',
           '\x1B\x61\x00',                                // alinear izquierda
-          `Caja: ${this.activeCaja.nombre || 'N/A'}\n`,
-          `Apertura: ${this.activeCaja.apertura?.codigo || 'N/A'}\n`,
-          `Bodega: ${this.activeCaja.bodegaNombre || 'N/A'}\n`,
-          `Fecha de cierre: ${new Date().toLocaleString()}\n`,
+          `Cierre:   ${codigoCierre}\n`,
+          `Apertura: ${aperturaCodigo}\n`,
+          `Caja:     ${cajaNombre}\n`,
+          `Bodega:   ${bodegaNombre}\n`,
+          `Cajero:   ${cajero}\n`,
+          `Fecha:    ${fechaCierre}\n`,
+          esReimpresion ? `Reimpreso: ${new Date().toLocaleString()}\n` : '',
           separador,
-    
+
           '\x1B\x45\x01',
           'RESUMEN GENERAL\n',
           '\x1B\x45\x00',
-          this.lineaDosColumnas('Efectivo Apertura:', this.formatCurrency(apertura.montoAperturaEfectivo)),
-          this.lineaDosColumnas('Ventas Efectivo:', this.formatCurrency(resumen.totalVentasEfectivo ?? this.totalVentasEfectivo)),
-          this.lineaDosColumnas('Otras Modalidades:', this.formatCurrency(resumen.totalVentasOtrasModalidades ?? this.totalVentasOtrasModalidades)),
-          this.lineaDosColumnas('Total Ventas Turno:', this.formatCurrency(resumen.totalVentas ?? this.totalVentasTurno)),
-          this.lineaDosColumnas('Pedidos Turno:', this.formatCurrency(resumen.totalPedidos)),
+          this.lineaDosColumnas('Efectivo Apertura:', this.formatCurrency(efectivoApertura)),
+          this.lineaDosColumnas('Ventas Efectivo:', this.formatCurrency(ventasEfectivo)),
+          this.lineaDosColumnas('Otras Modalidades:', this.formatCurrency(ventasOtras)),
+          this.lineaDosColumnas('Total Ventas Turno:', this.formatCurrency(totalVentas)),
+          pedidosTurno > 0 ? this.lineaDosColumnas('Pedidos Turno:', this.formatCurrency(pedidosTurno)) : '',
+          this.lineaDosColumnas('Retiros / Egresos:', this.formatCurrency(retiros)),
           separador,
-    
+
           '\x1B\x45\x01',
-          'DESGLOSE DE EFECTIVO\n',
+          'DESGLOSE DE EFECTIVO CONTADO\n',
           '\x1B\x45\x00',
-          ...(lineasDesglose.length ? lineasDesglose : ['  Sin denominaciones contadas\n']),
+          ...(lineasDesglose.length ? lineasDesglose : ['  Sin desglose físico individual\n']),
           separador,
+
+          this.lineaDosColumnas('TOTAL ESPERADO:', this.formatCurrency(totalEsperado)),
           '\x1B\x45\x01',
           this.lineaDosColumnas('TOTAL CONTADO:', this.formatCurrency(totalContado)),
           '\x1B\x45\x00',
-          this.lineaDosColumnas('Retiros:', this.formatCurrency(this.form.montoCierreRetiros)),
+          this.lineaDosColumnas('DIFERENCIA:', (diferencia >= 0 ? '+' : '') + this.formatCurrency(diferencia)),
+          this.lineaDosColumnas('ESTADO:', estadoLiquidacion),
           separador,
-    
-          this.form.observaciones ? `Obs: ${this.form.observaciones}\n` : '',
-    
-          '\x1B\x61\x01',                                // centrar
+
+          (targetCierre.observaciones || this.form.observaciones) ? `Obs: ${targetCierre.observaciones || this.form.observaciones}\n${separador}` : '',
+
+          separadorBlank,
+          separadorBlank,
+          '\x1B\x61\x01',
+          '______________________________\n',
+          'Firma del Cajero\n\n\n',
+          '______________________________\n',
+          'Firma Supervisor / Auditor\n\n',
           '\n--- Fin de Cierre ---\n\n\n',
           '\x1D\x56\x00'                                  // corte de papel
-        ]
-    
-        await qz.print(config, ticket)
-        console.log('Cierre de caja enviado a imprimir ✅')
+        ];
+
+        await qz.print(config, ticket);
+        this.showAlert(esReimpresion ? 'Reimpresión de cierre enviada a POS-80C exitosamente' : 'Cierre impreso exitosamente', 'success');
       } catch (err) {
-        console.error('Error al imprimir cierre de caja:', err)
+        console.error('Error al imprimir cierre de caja:', err);
+        this.showAlert('No se pudo imprimir en POS-80C. Abriendo vista previa de ticket.', 'warning');
+        this.openTicketPreview(targetCierre);
+      } finally {
+        this.printingId = null;
+      }
+    },
+
+    imprimirTicketNavegador() {
+      const contenido = this.ticketPreviewText;
+      const win = window.open('', '_blank', 'width=450,height=600');
+      if (win) {
+        win.document.write(`
+          <html>
+            <head>
+              <title>Ticket de Cierre de Caja</title>
+              <style>
+                body {
+                  font-family: 'Courier New', Courier, monospace;
+                  font-size: 12px;
+                  margin: 10px;
+                  white-space: pre;
+                  color: #000;
+                }
+              </style>
+            </head>
+            <body>${contenido}</body>
+          </html>
+        `);
+        win.document.close();
+        win.focus();
+        win.print();
+        win.close();
       }
     }
   }
@@ -2287,5 +3315,18 @@ export default {
 .hover-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+.ticket-preview-box {
+  background-color: #ffffff;
+  border: 1px dashed #bbb;
+  font-family: 'Courier New', Courier, monospace;
+}
+.ticket-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  line-height: 1.35;
+  margin: 0;
+  white-space: pre-wrap;
+  color: #111;
 }
 </style>
