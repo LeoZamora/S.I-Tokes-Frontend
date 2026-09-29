@@ -91,8 +91,8 @@ qz.security.setSignaturePromise((toSing) => (resolve, reject) => {
 })
 
 
-//Axios.defaults.baseURL = 'http://localhost:5091/'
-Axios.defaults.baseURL = 'https://inversiones-zafiro.com/devodigital/'
+Axios.defaults.baseURL = 'http://localhost/'
+//Axios.defaults.baseURL = 'https://inversiones-zafiro.com/distribuidora-paiz/'
 
 Axios.interceptors.request.use(
     (config) => {

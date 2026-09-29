@@ -3014,7 +3014,7 @@ export default {
     // ==========================================
     generarTextoTicket(cierreObj, esReimpresion = false) {
       const NEGOCIO = {
-        nombre: 'Migdalia\'s Market',
+        nombre: 'Distribuidora Paiz',
         direccion: 'Mercado Mayoreo Modulo #4',
         telefono: '2263-2783'
       };
@@ -3126,7 +3126,7 @@ export default {
       this.printingId = idCierre;
 
       const NEGOCIO = {
-        nombre: 'Migdalia\'s Market',
+        nombre: 'Distribuidora Paiz',
         direccion: 'Mercado Mayoreo Modulo #4',
         telefono: '2263-2783'
       };

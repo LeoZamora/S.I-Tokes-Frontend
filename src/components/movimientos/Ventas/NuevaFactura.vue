@@ -3193,7 +3193,7 @@ export default {
     )
 
     const NEGOCIO = {
-      nombre: 'Migdalia\'s Market',
+      nombre: 'Distribuidora Paiz',
       direccion: 'Mercado Mayoreo Modulo #4',
       telefono: '2263-2783'
     }
