@@ -16,7 +16,19 @@
             <v-icon color="indigo-darken-3" size="26">mdi-calculator-variant-outline</v-icon>
           </v-avatar>
           <div>
-            <span class="text-h6 font-weight-bold d-block text-indigo-darken-4">Arqueo de Caja</span>
+            <div class="d-flex align-center flex-wrap ga-2">
+              <span class="text-h6 font-weight-bold d-block text-indigo-darken-4">Arqueo de Caja</span>
+              <v-chip
+                v-if="currentUserNombre"
+                size="small"
+                color="indigo-lighten-5"
+                class="text-indigo-darken-4 font-weight-bold"
+                variant="flat"
+              >
+                <v-icon start size="14">mdi-account-check</v-icon>
+                Cajas de {{ currentUserNombre }}
+              </v-chip>
+            </div>
             <span class="text-caption text-grey-darken-1">Auditoría, conteo físico de efectivo y verificación de turnos</span>
           </div>
         </div>
@@ -249,12 +261,23 @@
             <template v-slot:item.fechaArqueo="{ item }">
               <span class="text-caption">{{ formateDate(item.fechaArqueo) }}</span>
             </template>
+
+            <template v-slot:item.acciones="{ item }">
+              <v-btn
+                icon="mdi-receipt-text-outline"
+                size="x-small"
+                color="indigo-darken-3"
+                variant="tonal"
+                title="Ver Comprobante de Arqueo"
+                @click="verDetalleArqueo(item)"
+              />
+            </template>
           </v-data-table>
         </div>
       </v-card-text>
     </v-card>
 
-    <!-- DIALOG: REALIZAR ARQUEO -->
+    <!-- DIALOG: REALIZAR ARQUEO MULTIDIVISA -->
     <v-dialog v-model="dialogs.arqueo" max-width="850" persistent scrollable>
       <v-card class="rounded-lg">
         <v-card-title class="bg-indigo-darken-4 text-white d-flex align-center py-3 px-4">
@@ -328,50 +351,131 @@
             </div>
           </v-card>
 
-          <!-- TABLA DE DESGLOSE DE EFECTIVO -->
-          <div class="text-subtitle-2 font-weight-bold mb-2 text-indigo-darken-4 d-flex align-center">
-            <v-icon size="18" class="mr-1">mdi-cash-multiple</v-icon>
-            Desglose de Efectivo Físico Contado
+          <!-- TABLA DE DESGLOSE DE EFECTIVO MULTIDIVISA -->
+          <div class="d-flex align-center justify-space-between mb-2">
+            <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4 d-flex align-center">
+              <v-icon size="18" class="mr-1">mdi-cash-multiple</v-icon>
+              Desglose de Efectivo Físico Contado (Multidivisa)
+            </div>
+            <v-btn
+              size="x-small"
+              variant="tonal"
+              color="grey-darken-2"
+              prepend-icon="mdi-eraser"
+              class="text-none font-weight-bold"
+              @click="resetCantidades()"
+            >
+              Limpiar Cantidades
+            </v-btn>
           </div>
 
-          <v-table density="compact" class="border rounded mb-4">
-            <thead class="bg-grey-lighten-4">
-              <tr>
-                <th class="text-left font-weight-bold">Denominación</th>
-                <th class="text-center font-weight-bold" style="width: 140px;">Cantidad</th>
-                <th class="text-right font-weight-bold" style="width: 150px;">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="den in denominaciones" :key="den.valor">
-                <td class="font-weight-medium">{{ den.label }}</td>
-                <td class="pa-1">
-                  <v-text-field
-                    v-model.number="cantidades[den.valor]"
-                    type="number"
-                    min="0"
-                    density="compact"
-                    variant="outlined"
-                    hide-details
-                    class="text-center"
-                    color="indigo"
-                    @keydown="preventNegative"
-                  />
-                </td>
-                <td class="text-right font-weight-bold text-grey-darken-3">
-                  {{ formatCurrency((cantidades[den.valor] || 0) * den.valor) }}
-                </td>
-              </tr>
-            </tbody>
-            <tfoot class="bg-indigo-lighten-5">
-              <tr>
-                <td colspan="2" class="text-right font-weight-bold text-indigo-darken-4">Total Efectivo Físico Contado:</td>
-                <td class="text-right font-weight-bold text-h6 text-green-darken-3">
-                  {{ formatCurrency(totalEfectivoContado) }}
-                </td>
-              </tr>
-            </tfoot>
-          </v-table>
+          <!-- TABS DE DIVISAS EN ARQUEO -->
+          <v-tabs
+            v-model="activeTabDivisa"
+            color="indigo-darken-4"
+            density="compact"
+            class="border rounded-t-lg bg-grey-lighten-4 mb-3"
+          >
+            <v-tab
+              v-for="(div, idx) in divisas"
+              :key="div.idDivisa"
+              :value="idx"
+              class="text-none font-weight-bold"
+            >
+              <v-icon start size="small">{{ div.codigo === 'USD' ? 'mdi-currency-usd' : 'mdi-cash' }}</v-icon>
+              {{ div.nombre }} ({{ div.codigo }})
+              <v-chip
+                v-if="subtotalDivisa(div) > 0"
+                size="x-small"
+                color="green-darken-3"
+                variant="flat"
+                class="ml-2 font-weight-bold"
+              >
+                {{ div.simbolo }} {{ subtotalDivisa(div).toLocaleString('es-NI', { minimumFractionDigits: 2 }) }}
+              </v-chip>
+            </v-tab>
+          </v-tabs>
+
+          <!-- CONTENIDO DE LA DIVISA ACTIVA -->
+          <div v-if="divisaActiva">
+            <!-- Banner informativo de Tasa de Cambio para divisas extranjeras -->
+            <div
+              v-if="!divisaActiva.esPredeterminada && divisaActiva.codigo !== 'NIO'"
+              class="d-flex align-center justify-space-between pa-2 mb-3 rounded bg-amber-lighten-5 border border-amber-lighten-3 text-caption text-amber-darken-4 font-weight-medium"
+            >
+              <div class="d-flex align-center">
+                <v-icon size="small" color="amber-darken-4" class="mr-1">mdi-swap-horizontal-bold</v-icon>
+                <span>Tasa de cambio: <strong>1 {{ divisaActiva.codigo }} = C$ {{ Number(divisaActiva.tasaCambio).toFixed(2) }}</strong></span>
+              </div>
+              <div>
+                Subtotal convertido: <strong>{{ formatCurrency(subtotalDivisaMonedaPrincipal(divisaActiva)) }}</strong>
+              </div>
+            </div>
+
+            <!-- Tabla de Denominaciones para la Divisa Activa -->
+            <v-table density="compact" class="border rounded mb-3">
+              <thead class="bg-grey-lighten-4">
+                <tr>
+                  <th class="text-left font-weight-bold">Denominación</th>
+                  <th class="text-center font-weight-bold" style="width: 140px;">Cantidad</th>
+                  <th class="text-right font-weight-bold" style="width: 150px;">Subtotal ({{ divisaActiva.simbolo }})</th>
+                  <th v-if="divisaActiva.codigo !== 'NIO'" class="text-right font-weight-bold" style="width: 150px;">Equiv. (C$)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="den in getDenominaciones(divisaActiva)" :key="`${divisaActiva.idDivisa}_${den.valor}`">
+                  <td class="font-weight-medium">{{ den.label }}</td>
+                  <td class="pa-1">
+                    <v-text-field
+                      v-model.number="cantidades[`${divisaActiva.idDivisa}_${den.valor}`]"
+                      type="number"
+                      min="0"
+                      density="compact"
+                      variant="outlined"
+                      hide-details
+                      class="text-center"
+                      color="indigo"
+                      @keydown="preventNegative"
+                    />
+                  </td>
+                  <td class="text-right font-weight-bold text-grey-darken-3">
+                    {{ divisaActiva.simbolo }} {{ ((cantidades[`${divisaActiva.idDivisa}_${den.valor}`] || 0) * den.valor).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                  </td>
+                  <td v-if="divisaActiva.codigo !== 'NIO'" class="text-right font-weight-bold text-indigo-darken-4">
+                    {{ formatCurrency(((cantidades[`${divisaActiva.idDivisa}_${den.valor}`] || 0) * den.valor) * (divisaActiva.tasaCambio || 1)) }}
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </div>
+
+          <!-- Total Consolidado y Diferencia -->
+          <div class="pa-3 rounded-lg bg-green-lighten-5 border border-green-lighten-3 mb-4">
+            <!-- Chips por Divisa -->
+            <div v-if="resumenPorDivisas.length > 0" class="d-flex align-center ga-2 flex-wrap mb-2 pb-2 border-b border-green-lighten-3">
+              <span class="text-caption font-weight-bold text-green-darken-4">Subtotales por Divisa:</span>
+              <v-chip
+                v-for="r in resumenPorDivisas"
+                :key="r.idDivisa"
+                size="small"
+                color="green-darken-4"
+                variant="outlined"
+                class="font-weight-bold bg-white"
+              >
+                {{ r.codigo }}: {{ r.simbolo }} {{ r.totalMonedaOriginal.toLocaleString('es-NI', { minimumFractionDigits: 2 }) }}
+                <span v-if="r.codigo !== 'NIO'" class="ml-1 text-caption text-grey-darken-2">
+                  (≈ {{ formatCurrency(r.totalMonedaPrincipal) }})
+                </span>
+              </v-chip>
+            </div>
+
+            <div class="d-flex align-center justify-space-between">
+              <span class="text-subtitle-2 font-weight-bold text-green-darken-4">Total Efectivo Físico Contado (Moneda Principal):</span>
+              <span class="text-h6 font-weight-black text-green-darken-4">
+                {{ formatCurrency(totalEfectivoContado) }}
+              </span>
+            </div>
+          </div>
 
           <!-- CAMPOS ADICIONALES: RETIROS Y OBSERVACIONES -->
           <v-row dense>
@@ -443,6 +547,161 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- DIALOG: VER DETALLE / COMPROBANTE DE ARQUEO -->
+    <v-dialog v-model="dialogs.detalle" max-width="700" scrollable>
+      <v-card class="rounded-lg overflow-hidden elevation-10" v-if="detalleArqueo">
+        <v-card-title class="bg-indigo-darken-4 text-white d-flex align-center py-3 px-4">
+          <v-icon class="mr-2">mdi-receipt-text-check</v-icon>
+          <div>
+            <div class="text-subtitle-1 font-weight-bold lh-1">
+              Comprobante de Arqueo - {{ detalleArqueo.codigo || 'ARQ-000' }}
+            </div>
+            <div class="text-caption text-indigo-lighten-3">
+              Apertura: {{ detalleArqueo.aperturaCodigo }} | Auditor: {{ detalleArqueo.usuarioArqueo }}
+            </div>
+          </div>
+          <v-spacer />
+          <v-btn icon size="small" color="white" variant="text" @click="dialogs.detalle = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-4 bg-grey-lighten-5">
+          <!-- Tarjeta de Resumen Financiero -->
+          <v-card variant="flat" class="pa-3 rounded-lg border bg-white mb-3" elevation="0">
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <span class="text-caption text-grey font-weight-bold">FECHA Y HORA:</span>
+                <div class="text-body-2 text-grey-darken-4">
+                  {{ formateDate(detalleArqueo.fechaArqueo) }}
+                </div>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <span class="text-caption text-grey font-weight-bold">USUARIO AUDITOR:</span>
+                <div class="text-body-2 font-weight-bold text-grey-darken-4">
+                  {{ detalleArqueo.usuarioArqueo }}
+                </div>
+              </v-col>
+
+              <v-divider class="my-2 w-100" />
+
+              <v-col cols="6" sm="3">
+                <span class="text-caption text-grey font-weight-bold">EFECTIVO CONTADO:</span>
+                <div class="text-subtitle-2 font-weight-bold text-green-darken-3">
+                  {{ formatCurrency(detalleArqueo.montoArqueoEfectivo) }}
+                </div>
+              </v-col>
+              <v-col cols="6" sm="3">
+                <span class="text-caption text-grey font-weight-bold">VENTAS TURNO:</span>
+                <div class="text-subtitle-2 font-weight-bold text-indigo-darken-3">
+                  {{ formatCurrency(detalleArqueo.montoArqueoVentas) }}
+                </div>
+              </v-col>
+              <v-col cols="6" sm="3">
+                <span class="text-caption text-grey font-weight-bold">RETIROS:</span>
+                <div class="text-subtitle-2 font-weight-bold text-red-darken-3">
+                  {{ formatCurrency(detalleArqueo.montoArqueoRetiros) }}
+                </div>
+              </v-col>
+              <v-col cols="6" sm="3">
+                <span class="text-caption text-grey font-weight-bold">MERCADERÍA:</span>
+                <div class="text-subtitle-2 font-weight-bold text-blue-grey-darken-2">
+                  {{ formatCurrency(detalleArqueo.montoArqueoMercaderia) }}
+                </div>
+              </v-col>
+
+              <v-col cols="12" class="mt-2" v-if="detalleArqueo.observaciones">
+                <span class="text-caption text-grey font-weight-bold">OBSERVACIONES:</span>
+                <div class="text-caption pa-2 bg-grey-lighten-4 rounded mt-1 text-grey-darken-3">
+                  {{ detalleArqueo.observaciones }}
+                </div>
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <!-- Resumen por Divisas -->
+          <v-card v-if="detalleArqueo.desglocePorDivisa && detalleArqueo.desglocePorDivisa.length > 0" variant="flat" class="pa-3 rounded-lg border bg-white mb-3" elevation="0">
+            <div class="text-caption font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center">
+              <v-icon size="small" class="mr-1">mdi-cash-multiple</v-icon>
+              DESGLOSE POR DIVISAS (MULTIDIVISA)
+            </div>
+            <v-row dense>
+              <v-col
+                v-for="div in detalleArqueo.desglocePorDivisa"
+                :key="div.idDivisa"
+                cols="12"
+                sm="6"
+              >
+                <div class="pa-2 rounded border bg-grey-lighten-5">
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <v-chip size="x-small" color="indigo-darken-3" variant="flat" class="font-weight-bold">
+                      {{ div.divisaCodigo }} - {{ div.divisaNombre }}
+                    </v-chip>
+                    <span class="text-caption text-grey-darken-2">{{ div.totalCantidad }} unids.</span>
+                  </div>
+                  <div class="d-flex align-center justify-space-between">
+                    <span class="text-caption text-grey-darken-1">Monto Original:</span>
+                    <span class="text-body-2 font-weight-bold text-grey-darken-4">
+                      {{ div.divisaSimbolo }} {{ Number(div.totalMonedaOriginal).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                    </span>
+                  </div>
+                  <div v-if="div.divisaCodigo !== 'NIO'" class="d-flex align-center justify-space-between mt-1 text-caption">
+                    <span class="text-grey-darken-1">T.C. {{ Number(div.tasaCambio).toFixed(2) }}:</span>
+                    <span class="font-weight-bold text-indigo-darken-3">
+                      {{ formatCurrency(div.totalMonedaPrincipal) }}
+                    </span>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <!-- Detalle Físico de Billetes y Monedas -->
+          <v-card v-if="detalleArqueo.desgloceDetalle && detalleArqueo.desgloceDetalle.length > 0" variant="flat" class="pa-3 rounded-lg border bg-white" elevation="0">
+            <div class="text-caption font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center">
+              <v-icon size="small" class="mr-1">mdi-format-list-numbered</v-icon>
+              DETALLE DE BILLETES Y MONEDAS CONTADOS
+            </div>
+            <v-table density="compact" class="border rounded">
+              <thead>
+                <tr class="bg-indigo-lighten-5 text-indigo-darken-4">
+                  <th class="font-weight-bold text-caption">Divisa</th>
+                  <th class="font-weight-bold text-caption">Denominación</th>
+                  <th class="font-weight-bold text-caption text-center">Cantidad</th>
+                  <th class="font-weight-bold text-caption text-right">Subtotal Moneda</th>
+                  <th class="font-weight-bold text-caption text-right">Subtotal (C$)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, idx) in detalleArqueo.desgloceDetalle" :key="idx">
+                  <td class="text-caption font-weight-bold">{{ item.divisaCodigo || 'NIO' }}</td>
+                  <td class="text-caption font-weight-medium">
+                    {{ (item.valorDenominacion >= 10 ? 'Billete de ' : 'Moneda de ') + (item.divisaSimbolo || 'C$') + ' ' + (item.valorDenominacion >= 1 ? item.valorDenominacion.toLocaleString('es-NI') : item.valorDenominacion.toFixed(2)) }}
+                  </td>
+                  <td class="text-caption text-center font-weight-bold">{{ item.cantidad }}</td>
+                  <td class="text-caption text-right font-weight-medium">
+                    {{ (item.divisaSimbolo || 'C$') }} {{ (item.valorDenominacion * item.cantidad).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                  </td>
+                  <td class="text-caption text-right font-weight-bold text-indigo-darken-4">
+                    {{ formatCurrency(item.subtotalMonedaPrincipal ?? ((item.valorDenominacion * item.cantidad) * (item.tasaCambio || 1))) }}
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-card>
+        </v-card-text>
+
+        <v-divider />
+        <v-card-actions class="pa-3 bg-white d-flex justify-end">
+          <v-btn color="indigo-darken-3" variant="tonal" class="px-5 font-weight-bold text-none" @click="dialogs.detalle = false">
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -451,6 +710,7 @@ import { ref, reactive, computed, onMounted, onActivated } from 'vue'
 import { formatters } from '@/helpers/formatters'
 import RequestHttp from '@/services/requestHttp'
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
+import { DEFAULT_DIVISAS, getDenominacionesPorDivisa } from '@/helpers/divisaHelper.js'
 
 export default {
   name: 'ArqueoCajaModule',
@@ -464,7 +724,8 @@ export default {
     const searchHistorial = ref('')
 
     const dialogs = reactive({
-      arqueo: false
+      arqueo: false,
+      detalle: false
     })
 
     const alert = reactive({
@@ -482,6 +743,11 @@ export default {
     const cajasList = ref([])
     const arqueosHistorial = ref([])
     const cajaSeleccionada = ref(null)
+    const detalleArqueo = ref(null)
+
+    const divisas = ref([...DEFAULT_DIVISAS])
+    const activeTabDivisa = ref(0)
+    const cantidades = reactive({})
 
     const resumenVigente = reactive({
       totalVentas: 0,
@@ -499,50 +765,72 @@ export default {
       observaciones: ''
     })
 
-    const denominaciones = [
-      { valor: 1000, label: 'Billetes de C$ 1,000' },
-      { valor: 500, label: 'Billetes de C$ 500' },
-      { valor: 200, label: 'Billetes de C$ 200' },
-      { valor: 100, label: 'Billetes de C$ 100' },
-      { valor: 50, label: 'Billetes de C$ 50' },
-      { valor: 20, label: 'Billetes de C$ 20' },
-      { valor: 10, label: 'Billetes de C$ 10' },
-      { valor: 5, label: 'Monedas de C$ 5' },
-      { valor: 1, label: 'Monedas de C$ 1' },
-      { valor: 0.5, label: 'Monedas de C$ 0.50' },
-      { valor: 0.25, label: 'Monedas de C$ 0.25' },
-      { valor: 0.1, label: 'Monedas de C$ 0.10' }
-    ]
+    const loadDivisas = async () => {
+      try {
+        const res = await requestHttp.getDivisas()
+        if (res && res.code === 200 && Array.isArray(res.data) && res.data.length > 0) {
+          divisas.value = res.data
+        }
+      } catch (e) {
+        console.error('Error al cargar catálogo de divisas:', e)
+      }
+    }
 
-    const cantidades = reactive({
-      1000: 0,
-      500: 0,
-      200: 0,
-      100: 0,
-      50: 0,
-      20: 0,
-      10: 0,
-      5: 0,
-      1: 0,
-      0.5: 0,
-      0.25: 0,
-      0.1: 0
+    const divisaActiva = computed(() => {
+      return divisas.value[activeTabDivisa.value] || divisas.value[0]
     })
 
-    const resetCantidades = () => {
-      denominaciones.forEach(d => {
-        cantidades[d.valor] = 0
-      })
-      formArqueo.montoRetiros = 0
-      formArqueo.observaciones = ''
+    const getDenominaciones = (divisa) => {
+      return getDenominacionesPorDivisa(divisa)
+    }
+
+    const subtotalDivisa = (divisa) => {
+      if (!divisa) return 0
+      const denoms = getDenominaciones(divisa)
+      return denoms.reduce((acc, d) => {
+        const cant = Number(cantidades[`${divisa.idDivisa}_${d.valor}`]) || 0
+        return acc + (cant * d.valor)
+      }, 0)
+    }
+
+    const subtotalDivisaMonedaPrincipal = (divisa) => {
+      if (!divisa) return 0
+      const sub = subtotalDivisa(divisa)
+      const tasa = Number(divisa.tasaCambio) > 0 ? Number(divisa.tasaCambio) : 1
+      return sub * tasa
     }
 
     const totalEfectivoContado = computed(() => {
-      return denominaciones.reduce((acc, d) => {
-        const qty = Number(cantidades[d.valor]) || 0
-        return acc + qty * d.valor
+      return divisas.value.reduce((total, div) => {
+        return total + subtotalDivisaMonedaPrincipal(div)
       }, 0)
     })
+
+    const resumenPorDivisas = computed(() => {
+      return divisas.value
+        .map(div => {
+          const subtotalOriginal = subtotalDivisa(div)
+          const subtotalPrincipal = subtotalDivisaMonedaPrincipal(div)
+          return {
+            idDivisa: div.idDivisa,
+            codigo: div.codigo,
+            nombre: div.nombre,
+            simbolo: div.simbolo,
+            tasaCambio: div.tasaCambio,
+            totalMonedaOriginal: subtotalOriginal,
+            totalMonedaPrincipal: subtotalPrincipal
+          }
+        })
+        .filter(r => r.totalMonedaOriginal > 0)
+    })
+
+    const resetCantidades = () => {
+      for (const k in cantidades) {
+        cantidades[k] = 0
+      }
+      formArqueo.montoRetiros = 0
+      formArqueo.observaciones = ''
+    }
 
     const diferenciaArqueo = computed(() => {
       const teorico = Number(resumenVigente.totalEnCaja) || 0
@@ -556,6 +844,21 @@ export default {
         const est = (c.estadoNombre || '').toLowerCase()
         return est.includes('aperturad') || est.includes('arquead')
       })
+    })
+
+    const currentUserNombre = computed(() => {
+      try {
+        const name = localStorage.getItem('name')
+        if (name) return name
+        const raw = localStorage.getItem('token')
+        if (raw) {
+          const userObj = typeof raw === 'string' && raw.startsWith('{') ? JSON.parse(raw) : {}
+          return userObj?.nombre || userObj?.name || userObj?.usuario || userObj?.username || ''
+        }
+      } catch (e) {
+        // ignore
+      }
+      return ''
     })
 
     const ultimoArqueoTexto = computed(() => {
@@ -572,7 +875,8 @@ export default {
       { title: 'Ventas Turno', key: 'montoArqueoVentas', align: 'end' },
       { title: 'Retiros', key: 'montoArqueoRetiros', align: 'end' },
       { title: 'Mercadería', key: 'montoArqueoMercaderia', align: 'end' },
-      { title: 'Fecha Arqueo', key: 'fechaArqueo', align: 'center' }
+      { title: 'Fecha Arqueo', key: 'fechaArqueo', align: 'center' },
+      { title: 'Acción', key: 'acciones', align: 'center', sortable: false }
     ]
 
     const filteredHistorial = computed(() => {
@@ -592,10 +896,50 @@ export default {
     const loadAllData = async () => {
       loading.value = true
       try {
-        // 1. Cargar cajas
+        await loadDivisas()
+
+        // 1. Obtener identificador del usuario autenticado
+        let idUsuario = null
+        try {
+          const raw = localStorage.getItem('token')
+          if (raw) {
+            const userObj = typeof raw === 'string' && raw.startsWith('{') ? JSON.parse(raw) : {}
+            idUsuario = Number(userObj?.idusuario || userObj?.idUsuario || userObj?.id || userObj?.userId)
+          }
+        } catch (e) {
+          console.error('Error al leer token de usuario:', e)
+        }
+
+        // 2. Obtener cajas autorizadas para el usuario desde UsuarioController
+        let authorizedIds = []
+        if (idUsuario) {
+          try {
+            const resIds = await requestHttp.getCajasAutorizadasIds(idUsuario)
+            if (resIds && resIds.code === 200 && Array.isArray(resIds.data)) {
+              authorizedIds = resIds.data
+            } else {
+              const resDetalle = await requestHttp.getCajasAutorizadas(idUsuario)
+              if (resDetalle && resDetalle.code === 200 && Array.isArray(resDetalle.data)) {
+                authorizedIds = resDetalle.data.map(c => c.idCaja)
+              }
+            }
+          } catch (e) {
+            console.warn('Error al consultar cajas autorizadas:', e)
+          }
+        }
+
+        // 3. Cargar cajas y filtrar exclusivamente las autorizadas para el usuario
         const resCajas = await requestHttp.getCajas()
         if (resCajas.code === 200 && Array.isArray(resCajas.data)) {
-          cajasList.value = resCajas.data
+          const authorizedSet = new Set(authorizedIds)
+          const cajasAutorizadas = idUsuario
+            ? resCajas.data.filter(c =>
+                authorizedSet.has(c.idCaja) ||
+                (Array.isArray(c.cajerosAutorizados) && c.cajerosAutorizados.some(u => (u.idUsuario || u.idusuario) === idUsuario))
+              )
+            : resCajas.data
+
+          cajasList.value = cajasAutorizadas
 
           // Para cada caja abierta, cargar apertura vigente
           await Promise.all(
@@ -611,7 +955,7 @@ export default {
           )
         }
 
-        // 2. Cargar historial de arqueos
+        // 4. Cargar historial de arqueos
         const resArqueos = await requestHttp.getArqueosCaja()
         if (resArqueos.code === 200 && Array.isArray(resArqueos.data)) {
           arqueosHistorial.value = resArqueos.data
@@ -627,6 +971,9 @@ export default {
     const iniciarArqueo = async (caja) => {
       cajaSeleccionada.value = caja
       resetCantidades()
+      activeTabDivisa.value = 0
+
+      await loadDivisas()
 
       // Cargar resumen vigente de la caja
       try {
@@ -664,22 +1011,31 @@ export default {
         return
       }
 
-      // Preparar desglose de denominaciones con cantidad > 0
-      const desgloceDetalle = denominaciones
-        .filter(d => (cantidades[d.valor] || 0) > 0)
-        .map(d => ({
-          valorDenominacion: d.valor,
-          cantidad: Number(cantidades[d.valor])
-        }))
+      // Preparar desglose multidivisa
+      const desgloceDetalle = []
+      divisas.value.forEach(div => {
+        const denoms = getDenominaciones(div)
+        denoms.forEach(d => {
+          const cant = Number(cantidades[`${div.idDivisa}_${d.valor}`]) || 0
+          if (cant > 0) {
+            desgloceDetalle.push({
+              idDivisa: div.idDivisa,
+              valorDenominacion: d.valor,
+              cantidad: cant
+            })
+          }
+        })
+      })
 
       if (desgloceDetalle.length === 0 && totalEfectivoContado.value === 0) {
         if (!confirm('¿Desea registrar el arqueo con total de efectivo en 0?')) {
           return
         }
-        // Si es 0, agregar una denominacion con valor 0 o cantidad 0 según regla del backend
+        const defaultDiv = divisas.value.find(d => d.esPredeterminada) || divisas.value[0] || { idDivisa: 1 }
         desgloceDetalle.push({
+          idDivisa: defaultDiv.idDivisa,
           valorDenominacion: 1,
-          cantidad: 0.001 // O valor mínimo válido según Range
+          cantidad: 0.001
         })
       }
 
@@ -708,6 +1064,11 @@ export default {
       }
     }
 
+    const verDetalleArqueo = (item) => {
+      detalleArqueo.value = item
+      dialogs.detalle = true
+    }
+
     const formateDate = (dateString) => {
       if (!dateString) return '—'
       return formatters.formatDate(dateString)
@@ -723,7 +1084,6 @@ export default {
       }
     }
 
-    // onActivated se ejecuta tanto al montarse por primera vez como al volver a entrar mediante keep-alive
     onActivated(() => {
       loadAllData()
     })
@@ -737,20 +1097,30 @@ export default {
       searchHistorial,
       cajasList,
       cajasAperturadas,
+      currentUserNombre,
       arqueosHistorial,
       filteredHistorial,
       headersHistorial,
       cajaSeleccionada,
+      detalleArqueo,
       resumenVigente,
       formArqueo,
-      denominaciones,
+      divisas,
+      activeTabDivisa,
+      divisaActiva,
       cantidades,
+      getDenominaciones,
+      subtotalDivisa,
+      subtotalDivisaMonedaPrincipal,
       totalEfectivoContado,
+      resumenPorDivisas,
       diferenciaArqueo,
       ultimoArqueoTexto,
       loadAllData,
       iniciarArqueo,
       guardarArqueo,
+      verDetalleArqueo,
+      resetCantidades,
       formateDate,
       formatCurrency,
       preventNegative,

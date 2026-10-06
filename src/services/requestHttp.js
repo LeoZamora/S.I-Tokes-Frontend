@@ -31,7 +31,7 @@ class RequestHttp {
     // CATEGORIAS
     async getCategorias() {
         try {
-            const result  = await axios.get(endPoints.getCategoria)
+            const result = await axios.get(endPoints.getCategoria)
             return {
                 code: 200,
                 data: result.data
@@ -45,7 +45,7 @@ class RequestHttp {
     }
     async getByIdCategorias(id) {
         try {
-            const result  = await axios.get(`${endPoints.getCategoria}/${id}`)
+            const result = await axios.get(`${endPoints.getCategoria}/${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -59,7 +59,7 @@ class RequestHttp {
     }
     async postCategorias(data) {
         try {
-            const result  = await axios.post(endPoints.postCategoria, data)
+            const result = await axios.post(endPoints.postCategoria, data)
             return {
                 code: 200,
                 data: result.data
@@ -73,7 +73,7 @@ class RequestHttp {
     }
     async putCategorias(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putCategoria}/${id}`, data)
+            const result = await axios.put(`${endPoints.putCategoria}/${id}`, data)
             return {
                 code: 200,
                 data: result.data
@@ -87,7 +87,7 @@ class RequestHttp {
     }
     async deleteCategorias(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteCategoria}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteCategoria}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -98,7 +98,7 @@ class RequestHttp {
     // SUBCATEGORIAS
     async getSubCategorias() {
         try {
-            const result  = await axios.get(endPoints.getSubCategoria)
+            const result = await axios.get(endPoints.getSubCategoria)
             return {
                 code: 200,
                 data: result.data
@@ -112,7 +112,7 @@ class RequestHttp {
     }
     async getCodeSub(id) {
         try {
-            const result  = await axios.get(`${endPoints.getCode}?idCategoria=${id}`)
+            const result = await axios.get(`${endPoints.getCode}?idCategoria=${id}`)
             return result.data
         } catch (error) {
             return null
@@ -120,7 +120,7 @@ class RequestHttp {
     }
     async getByIdSubCategorias(id) {
         try {
-            const result  = await axios.get(`${endPoints.getSubCategoria}/${id}`)
+            const result = await axios.get(`${endPoints.getSubCategoria}/${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -134,7 +134,7 @@ class RequestHttp {
     }
     async postSubCategorias(data) {
         try {
-            const result  = await axios.post(endPoints.postSubCategoria, data)
+            const result = await axios.post(endPoints.postSubCategoria, data)
             return {
                 code: 200,
                 data: result.data
@@ -148,7 +148,7 @@ class RequestHttp {
     }
     async putSubCategorias(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putSubCategoria}/${id}`, data)
+            const result = await axios.put(`${endPoints.putSubCategoria}/${id}`, data)
             return {
                 code: 200,
                 data: result.data
@@ -162,7 +162,7 @@ class RequestHttp {
     }
     async deleteSubCategorias(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteSubCategoria}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteSubCategoria}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -202,10 +202,10 @@ class RequestHttp {
     async getProductos(type = null) {
         try {
             var url = endPoints.getProducto
-            if(type){
+            if (type) {
                 url = `${endPoints.getProducto}?tipoProducto=${type}`
             }
-            const result  = await axios.get(url)
+            const result = await axios.get(url)
             return {
                 code: 200,
                 data: result.data
@@ -219,7 +219,7 @@ class RequestHttp {
     }
     async getByIdProducto(id) {
         try {
-            const result  = await axios.get(`${endPoints.getProducto}/${id}`)
+            const result = await axios.get(`${endPoints.getProducto}/${id}`)
             return result.data
         } catch (error) {
             return {
@@ -230,7 +230,7 @@ class RequestHttp {
     }
     async postProducto(data) {
         try {
-            const result  = await axios.post(endPoints.postProducto, data)
+            const result = await axios.post(endPoints.postProducto, data)
             return result.data
         } catch (error) {
             return null
@@ -238,7 +238,7 @@ class RequestHttp {
     }
     async putProductos(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putProducto}/${id}`, data)
+            const result = await axios.put(`${endPoints.putProducto}/${id}`, data)
             return result.data
         } catch (error) {
 
@@ -247,7 +247,7 @@ class RequestHttp {
     }
     async deleteProducto(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteProducto}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteProducto}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -269,19 +269,19 @@ class RequestHttp {
         }
     }
 
-     // PROVEEDORES
+    // PROVEEDORES
     async getProveedores(params = {}) {
         try {
-            const result  = await axios.get(endPoints.getProveedor, { params })
+            const result = await axios.get(endPoints.getProveedor, { params })
             return result.data
         } catch (error) {
             return null
-            
+
         }
     }
     async getByIdProveedor(id) {
         try {
-            const result  = await axios.get(`${endPoints.getProveedor}/${id}`)
+            const result = await axios.get(`${endPoints.getProveedor}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -289,7 +289,7 @@ class RequestHttp {
     }
     async postProveedor(data) {
         try {
-            const result  = await axios.post(endPoints.postProveedor, data)
+            const result = await axios.post(endPoints.postProveedor, data)
             return {
                 code: 200,
                 data: result.data
@@ -303,16 +303,21 @@ class RequestHttp {
     }
     async putProveedor(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putProveedor}/${id}`, data)
-            return result.data
+            const result = await axios.put(`${endPoints.putProveedor}/${id}`, data)
+            return {
+                code: 200,
+                data: result.data
+            }
         } catch (error) {
-
-            return null
+            return {
+                code: error.response ? error.response.status : 500,
+                data: error.response ? error.response.data : null
+            }
         }
     }
     async deleteProveedor(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteProveedor}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteProveedor}/${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -328,16 +333,16 @@ class RequestHttp {
     // TIPO PROVEEDORES
     async getTipoProveedores() {
         try {
-            const result  = await axios.get(endPoints.getTipoProveedor)
+            const result = await axios.get(endPoints.getTipoProveedor)
             return result.data
         } catch (error) {
             return null
-            
+
         }
     }
     async getByIdTipoProveedor(id) {
         try {
-            const result  = await axios.get(`${endPoints.getTipoProveedor}/${id}`)
+            const result = await axios.get(`${endPoints.getTipoProveedor}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -345,7 +350,7 @@ class RequestHttp {
     }
     async postTipoProveedor(data) {
         try {
-            const result  = await axios.post(endPoints.postTipoProveedor, data)
+            const result = await axios.post(endPoints.postTipoProveedor, data)
             return {
                 code: 200,
                 data: result.data
@@ -359,7 +364,7 @@ class RequestHttp {
     }
     async putTipoProveedor(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putTipoProveedor}/${id}`, data)
+            const result = await axios.put(`${endPoints.putTipoProveedor}/${id}`, data)
             return {
                 code: 200,
                 data: result.data
@@ -373,7 +378,7 @@ class RequestHttp {
     }
     async deleteTipoProveedor(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteTipoProveedor}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteTipoProveedor}/${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -389,16 +394,16 @@ class RequestHttp {
     // PROVEEDOR PRODUCTO
     async getProveedorProductos() {
         try {
-            const result  = await axios.get(endPoints.getProveedorProducto)
+            const result = await axios.get(endPoints.getProveedorProducto)
             return result.data
         } catch (error) {
             return null
-            
+
         }
     }
     async getByIdProveedorProducto(id) {
         try {
-            const result  = await axios.get(`${endPoints.getProveedorProducto}/${id}`)
+            const result = await axios.get(`${endPoints.getProveedorProducto}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -406,7 +411,7 @@ class RequestHttp {
     }
     async postProveedorProducto(data) {
         try {
-            const result  = await axios.post(endPoints.postProveedorProducto, data)
+            const result = await axios.post(endPoints.postProveedorProducto, data)
             return result.data
         } catch (error) {
             return null
@@ -414,7 +419,7 @@ class RequestHttp {
     }
     async putProveedorProducto(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putProveedorProducto}/${id}`, data)
+            const result = await axios.put(`${endPoints.putProveedorProducto}/${id}`, data)
             return result.data
         } catch (error) {
 
@@ -423,7 +428,7 @@ class RequestHttp {
     }
     async deleteProveedorProducto(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteProveedorProducto}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteProveedorProducto}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -433,7 +438,7 @@ class RequestHttp {
     // COMPRAS
     async getCompras() {
         try {
-            const result  = await axios.get(endPoints.getCompra)
+            const result = await axios.get(endPoints.getCompra)
             return result.data
         } catch (error) {
             return null
@@ -441,7 +446,7 @@ class RequestHttp {
     }
     async getByIdCompra(id) {
         try {
-            const result  = await axios.get(`${endPoints.getCompra}/${id}`)
+            const result = await axios.get(`${endPoints.getCompra}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -450,7 +455,7 @@ class RequestHttp {
     async postCompra(data) {
         try {
             const headers = getAuthHeaders()
-            const result  = await axios.post(endPoints.postCompra, data, { headers })
+            const result = await axios.post(endPoints.postCompra, data, { headers })
             return {
                 code: result.status,
                 data: result.data
@@ -465,7 +470,7 @@ class RequestHttp {
     async putCompra(data, id) {
         try {
             const headers = getAuthHeaders()
-            const result  = await axios.put(`${endPoints.putCompra}/${id}`, data, { headers })
+            const result = await axios.put(`${endPoints.putCompra}/${id}`, data, { headers })
             return result.data
         } catch (error) {
             return null
@@ -473,7 +478,7 @@ class RequestHttp {
     }
     async deleteCompra(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteCompra}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteCompra}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -497,7 +502,7 @@ class RequestHttp {
     // VENTAS
     async getVentas() {
         try {
-            const result  = await axios.get(endPoints.getVenta)
+            const result = await axios.get(endPoints.getVenta)
             return result.data
         } catch (error) {
             return {
@@ -509,7 +514,7 @@ class RequestHttp {
 
     async getTipoVentas() {
         try {
-            const result  = await axios.get(endPoints.getTipoVenta)
+            const result = await axios.get(endPoints.getTipoVenta)
             return {
                 code: 200,
                 data: result.data
@@ -524,7 +529,7 @@ class RequestHttp {
 
     async getByIdVenta(id) {
         try {
-            const result  = await axios.get(`${endPoints.getVenta}/${id}`)
+            const result = await axios.get(`${endPoints.getVenta}/${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -539,7 +544,7 @@ class RequestHttp {
     async postVenta(data) {
         try {
             const headers = getAuthHeaders()
-            const result  = await axios.post(endPoints.postVenta, data, { headers })
+            const result = await axios.post(endPoints.postVenta, data, { headers })
             return {
                 code: result?.data?.code ?? result.status,
                 data: result.data
@@ -553,7 +558,7 @@ class RequestHttp {
     }
     async putVenta(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putVenta}/${id}`, data)
+            const result = await axios.put(`${endPoints.putVenta}/${id}`, data)
             return {
                 code: 200,
                 data: result.data
@@ -567,7 +572,7 @@ class RequestHttp {
     }
     async deleteVenta(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteVenta}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteVenta}/${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -583,7 +588,7 @@ class RequestHttp {
     // CLIENTES
     async getClientes() {
         try {
-            const result  = await axios.get(endPoints.getCliente)
+            const result = await axios.get(endPoints.getCliente)
             return result.data
         } catch (error) {
             return null
@@ -591,7 +596,7 @@ class RequestHttp {
     }
     async getByIdCliente(id) {
         try {
-            const result  = await axios.get(`${endPoints.getCliente}/${id}`)
+            const result = await axios.get(`${endPoints.getCliente}/${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -619,7 +624,7 @@ class RequestHttp {
     }
     async postCliente(data) {
         try {
-            const result  = await axios.post(endPoints.postCliente, data)
+            const result = await axios.post(endPoints.postCliente, data)
             return {
                 code: 200,
                 data: result.data
@@ -633,7 +638,7 @@ class RequestHttp {
     }
     async putCliente(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putCliente}/${id}`, data)
+            const result = await axios.put(`${endPoints.putCliente}/${id}`, data)
             return {
                 code: 200,
                 data: result.data
@@ -648,7 +653,7 @@ class RequestHttp {
     }
     async deleteCliente(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteCliente}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteCliente}/${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -686,7 +691,7 @@ class RequestHttp {
     // CATEGORIA CLIENTES
     async getCategoriaClientes() {
         try {
-            const result  = await axios.get(endPoints.getCategoriaCliente)
+            const result = await axios.get(endPoints.getCategoriaCliente)
             return result.data
         } catch (error) {
             return null
@@ -694,7 +699,7 @@ class RequestHttp {
     }
     async getByIdCategoriaCliente(id) {
         try {
-            const result  = await axios.get(`${endPoints.getCategoriaCliente}/${id}`)
+            const result = await axios.get(`${endPoints.getCategoriaCliente}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -702,7 +707,7 @@ class RequestHttp {
     }
     async postCategoriaCliente(data) {
         try {
-            const result  = await axios.post(endPoints.postCategoriaCliente, data)
+            const result = await axios.post(endPoints.postCategoriaCliente, data)
             return result.data
         } catch (error) {
             return null
@@ -710,7 +715,7 @@ class RequestHttp {
     }
     async putCategoriaCliente(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putCategoriaCliente}/${id}`, data)
+            const result = await axios.put(`${endPoints.putCategoriaCliente}/${id}`, data)
             return result.data
         } catch (error) {
 
@@ -719,7 +724,7 @@ class RequestHttp {
     }
     async deleteCategoriaCliente(id) {
         try {
-            const result  = await axios.delete(`${endPoints.deleteCategoriaCliente}/${id}`)
+            const result = await axios.delete(`${endPoints.deleteCategoriaCliente}/${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -736,7 +741,7 @@ class RequestHttp {
     // USUARIOS
     async getUsuarios() {
         try {
-            const result  = await axios.get(endPoints.getUsuario)
+            const result = await axios.get(endPoints.getUsuario)
             return {
                 code: 200,
                 data: result.data
@@ -764,7 +769,7 @@ class RequestHttp {
     }
     async postLogin(data) {
         try {
-            const result  = await axios.post(endPoints.postUsuarioLogin, {
+            const result = await axios.post(endPoints.postUsuarioLogin, {
                 "usuario": data.usuario,
                 "password": data.password
             })
@@ -776,7 +781,7 @@ class RequestHttp {
 
     async putUser(id, estado) {
         try {
-            const result  = await axios.put(`${endPoints.putEstadoUsuario}/${id}/estado?estado=${estado}`)
+            const result = await axios.put(`${endPoints.putEstadoUsuario}/${id}/estado?estado=${estado}`)
             return {
                 code: 200,
                 data: result.data
@@ -792,7 +797,7 @@ class RequestHttp {
     // CAJAS AUTORIZADAS POR USUARIO
     async getCajasAutorizadas(idUsuario) {
         try {
-            const result = await axios.get(`${endPoints.getUsuario}/${idUsuario}/cajas-autorizadas`)
+            const result = await axios.get(`${endPoints.getCajasAutorizadas}?idUsuario=${idUsuario}`)
             return {
                 code: 200,
                 data: result.data
@@ -870,7 +875,7 @@ class RequestHttp {
     // ROLES
     async getRoles() {
         try {
-            const result  = await axios.get(endPoints.getRol)
+            const result = await axios.get(endPoints.getRol)
             return result.data
         } catch (error) {
             return null
@@ -878,7 +883,7 @@ class RequestHttp {
     }
     async getByIdRol(id) {
         try {
-            const result  = await axios.get(`${endPoints.getByIdRol}/${id}`)
+            const result = await axios.get(`${endPoints.getByIdRol}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -886,7 +891,7 @@ class RequestHttp {
     }
     async postRol(data) {
         try {
-            const result  = await axios.post(endPoints.postRol, data)
+            const result = await axios.post(endPoints.postRol, data)
             return result.data
         } catch (error) {
             return null
@@ -894,7 +899,7 @@ class RequestHttp {
     }
     async putRol(data) {
         try {
-            const result  = await axios.put(endPoints.putRol, data)
+            const result = await axios.put(endPoints.putRol, data)
             return result.data
         } catch (error) {
             return null
@@ -904,7 +909,7 @@ class RequestHttp {
     // RUTAS
     async getRutas() {
         try {
-            const result  = await axios.get(endPoints.getRutas)
+            const result = await axios.get(endPoints.getRutas)
             return result.data
         } catch (error) {
             return null
@@ -912,7 +917,7 @@ class RequestHttp {
     }
     async getByIdRuta(id) {
         try {
-            const result  = await axios.get(`${endPoints.getRutas}/${id}`)
+            const result = await axios.get(`${endPoints.getRutas}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -920,7 +925,7 @@ class RequestHttp {
     }
     async postRuta(data) {
         try {
-            const result  = await axios.post(endPoints.postRutas, data)
+            const result = await axios.post(endPoints.postRutas, data)
             return {
                 code: 200,
                 data: result.data
@@ -934,7 +939,7 @@ class RequestHttp {
     }
     async putRuta(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putRutas}/${id}`, data)
+            const result = await axios.put(`${endPoints.putRutas}/${id}`, data)
             return {
                 code: 200,
                 data: result.data
@@ -949,7 +954,7 @@ class RequestHttp {
 
     async getDepartamentos() {
         try {
-            const result  = await axios.get(endPoints.getDepartamentos)
+            const result = await axios.get(endPoints.getDepartamentos)
             return {
                 code: 200,
                 data: result.data
@@ -964,7 +969,7 @@ class RequestHttp {
 
     async getMunById(id) {
         try {
-            const result  = await axios.get(`${endPoints.getMunicipios}?idDepartamento=${id}`)
+            const result = await axios.get(`${endPoints.getMunicipios}?idDepartamento=${id}`)
             return {
                 code: 200,
                 data: result.data
@@ -981,7 +986,7 @@ class RequestHttp {
     // MOVIMIENTOS
     async getMovs() {
         try {
-            const result  = await axios.get(endPoints.getMov)
+            const result = await axios.get(endPoints.getMov)
             return {
                 code: 200,
                 data: result.data
@@ -995,7 +1000,7 @@ class RequestHttp {
     }
     async getByIdMov(id) {
         try {
-            const result  = await axios.get(`${endPoints.getMov}/${id}`)
+            const result = await axios.get(`${endPoints.getMov}/${id}`)
             return result.data
         } catch (error) {
             return null
@@ -1003,7 +1008,7 @@ class RequestHttp {
     }
     async postMov(data) {
         try {
-            const result  = await axios.post(endPoints.postMov, data)
+            const result = await axios.post(endPoints.postMov, data)
             return {
                 code: 200,
                 data: result.data
@@ -1017,7 +1022,7 @@ class RequestHttp {
     }
     async putMov(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putMov}/${id}`, data)
+            const result = await axios.put(`${endPoints.putMov}/${id}`, data)
             return {
                 code: 200,
                 data: result.data
@@ -1034,7 +1039,7 @@ class RequestHttp {
     // COMBOBOX
     async getCombobox(url) {
         try {
-            const result  = await axios.get(url)
+            const result = await axios.get(url)
             return {
                 data: result.data,
                 code: 200
@@ -1064,7 +1069,7 @@ class RequestHttp {
 
     async getConceptoMov(id) {
         try {
-            const result  = await axios.get(`${endPoints.getConcepto}?idTipoMov=${id}`)
+            const result = await axios.get(`${endPoints.getConcepto}?idTipoMov=${id}`)
             return result.data
         } catch (error) {
             return null
@@ -1074,7 +1079,7 @@ class RequestHttp {
     // UNIDADES DE MEDIDA
     async getUnidadMedida() {
         try {
-            const result  = await axios.get(endPoints.getUnidadMedida)
+            const result = await axios.get(endPoints.getUnidadMedida)
             return result.data
         } catch (error) {
             return null
@@ -1093,7 +1098,7 @@ class RequestHttp {
     // TIPO DE MOVIMIENTOS
     async getByIdTipoMov(id) {
         try {
-            const result  = await axios.get(`${endPoints.getTipoMovById}${id}`)
+            const result = await axios.get(`${endPoints.getTipoMovById}${id}`)
             return result.data
         } catch (error) {
             return null
@@ -1101,7 +1106,7 @@ class RequestHttp {
     }
     async postTipoMov(data) {
         try {
-            const result  = await axios.post(endPoints.postTipoMov, data)
+            const result = await axios.post(endPoints.postTipoMov, data)
             return result.data
         } catch (error) {
             return {
@@ -1113,7 +1118,7 @@ class RequestHttp {
 
     async putTipoMov(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putTipoMov}${id}`, data)
+            const result = await axios.put(`${endPoints.putTipoMov}${id}`, data)
             return result.data
         } catch (error) {
             return null
@@ -1123,7 +1128,7 @@ class RequestHttp {
     // TIPO DE VENTAS
     async getByIdTipoVen(id) {
         try {
-            const result  = await axios.get(`${endPoints.getTipoVentaById}${id}`)
+            const result = await axios.get(`${endPoints.getTipoVentaById}${id}`)
             return result.data
         } catch (error) {
             return null
@@ -1131,7 +1136,7 @@ class RequestHttp {
     }
     async postTipoVenta(data) {
         try {
-            const result  = await axios.post(endPoints.postTipoVenta, data)
+            const result = await axios.post(endPoints.postTipoVenta, data)
             return result.data
         } catch (error) {
             return {
@@ -1143,7 +1148,7 @@ class RequestHttp {
 
     async putTipoVenta(data, id) {
         try {
-            const result  = await axios.put(`${endPoints.putTipoVenta}${id}`, data)
+            const result = await axios.put(`${endPoints.putTipoVenta}${id}`, data)
             return result.data
         } catch (error) {
             return null
@@ -1153,7 +1158,7 @@ class RequestHttp {
 
     async anularVenta(id) {
         try {
-            const result  = await axios.put(`${endPoints.anularVenta}/${id}/anulacion`)
+            const result = await axios.put(`${endPoints.anularVenta}/${id}/anulacion`)
             return {
                 data: result.data,
                 code: 200
@@ -1169,7 +1174,7 @@ class RequestHttp {
     // CODIGO RECOMENDADO
     async getCodigo() {
         try {
-            const result  = await axios.get(endPoints.geCodeCompra)
+            const result = await axios.get(endPoints.geCodeCompra)
             return {
                 code: result.data
             }
@@ -1185,7 +1190,7 @@ class RequestHttp {
     // CONCEPTOS
     async getConceptos(id) {
         try {
-            const result  = await axios.get(`api/conceptos-tipo-mov?idTipoMov=${id}`)
+            const result = await axios.get(`api/conceptos-tipo-mov?idTipoMov=${id}`)
             return {
                 code: result.status,
                 data: result.data
@@ -1200,7 +1205,7 @@ class RequestHttp {
 
     async getConceptosById(id) {
         try {
-            const result  = await axios.get(`api/conceptos-tipo-mov/${id}`)
+            const result = await axios.get(`api/conceptos-tipo-mov/${id}`)
             return {
                 code: result.status,
                 data: result.data
@@ -1215,7 +1220,7 @@ class RequestHttp {
 
     async postConceptos(data) {
         try {
-            const result  = await axios.post(`api/conceptos-tipo-mov`, data)
+            const result = await axios.post(`api/conceptos-tipo-mov`, data)
             return {
                 code: result.status,
                 data: result.data
@@ -1230,7 +1235,7 @@ class RequestHttp {
 
     async putConceptos(data, id) {
         try {
-            const result  = await axios.put(`api/conceptos-tipo-mov/${id}`, data)
+            const result = await axios.put(`api/conceptos-tipo-mov/${id}`, data)
             return {
                 code: result.status,
                 data: result.data
@@ -1245,7 +1250,7 @@ class RequestHttp {
 
     async putEstadoConcepto(estado, id) {
         try {
-            const result  = await axios.put(`api/conceptos-tipo-mov/${id}/estado?estado=${estado}`)
+            const result = await axios.put(`api/conceptos-tipo-mov/${id}/estado?estado=${estado}`)
             return {
                 code: result.status,
                 data: result.data
@@ -1882,6 +1887,103 @@ class RequestHttp {
     async getKardexTiposMov() {
         try {
             const result = await axios.get(endPoints.getKardexTiposMov)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    // AJUSTES DE STOCK
+    async getConceptosAjusteInventario() {
+        try {
+            const result = await axios.get(endPoints.getConceptosAjusteInventarioCombobox)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data || [] }
+        }
+    }
+
+    async getAjustesStock(idProducto = null, idBodega = null, extraParams = {}) {
+        try {
+            const params = { ...extraParams }
+            if (idBodega) params.idBodega = idBodega
+            const url = idProducto
+                ? `${endPoints.getAjustesStockProducto}/${idProducto}/ajustes-stock`
+                : endPoints.getAjustesStock
+            const result = await axios.get(url, { params })
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data || [] }
+        }
+    }
+
+    async putAjusteStock(idProducto, data) {
+        try {
+            const result = await axios.put(`${endPoints.getAjustesStockProducto}/${idProducto}/cantidad-total`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    async postAjustesStockLote(data) {
+        try {
+            const result = await axios.post(endPoints.postAjustesStockLote || endPoints.getAjustesStock, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    // DIVISAS
+    async getDivisas() {
+        try {
+            const result = await axios.get(endPoints.getDivisas)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data || [] }
+        }
+    }
+
+    async getDivisasCombobox() {
+        try {
+            const result = await axios.get(endPoints.getDivisasCombobox)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data || [] }
+        }
+    }
+
+    async getDivisaById(id) {
+        try {
+            const result = await axios.get(`${endPoints.getDivisaById}/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    async postDivisa(data) {
+        try {
+            const result = await axios.post(endPoints.postDivisa, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    async putDivisa(id, data) {
+        try {
+            const result = await axios.put(`${endPoints.putDivisa}/${id}`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+
+    async putDivisaTasaCambio(id, data) {
+        try {
+            const result = await axios.put(`${endPoints.putDivisaTasaCambio}/${id}/tasa-cambio`, data)
             return { code: 200, data: result.data }
         } catch (error) {
             return { code: error.response?.status || 500, data: error.response?.data }

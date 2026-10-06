@@ -12,13 +12,23 @@
     <v-card class="border-t border-b" elevation="0" rounded="0">
       <!-- Encabezado -->
       <template v-slot:prepend>
-        <div class="d-flex align-center">
+        <div class="d-flex align-center flex-wrap ga-2">
           <div class="text-h6 font-weight-bold d-flex align-center">
             <v-icon class="me-2" color="indigo">
               mdi-lock-open-check-outline
             </v-icon>
             Apertura de Caja
           </div>
+          <v-chip
+            v-if="currentUserNombre"
+            size="small"
+            color="indigo-lighten-5"
+            class="text-indigo-darken-4 font-weight-bold"
+            variant="flat"
+          >
+            <v-icon start size="14">mdi-account-check</v-icon>
+            Cajas de {{ currentUserNombre }}
+          </v-chip>
         </div>
       </template>
 
@@ -92,6 +102,16 @@
         <v-skeleton-loader
           type="table-row@10"
         ></v-skeleton-loader>
+      </template>
+
+      <template v-slot:no-data>
+        <div class="pa-6 text-center text-grey-darken-1">
+          <v-icon size="40" color="grey-lighten-1" class="mb-2">mdi-cash-register</v-icon>
+          <div class="text-subtitle-2 font-weight-bold">No se encontraron cajas autorizadas</div>
+          <div class="text-caption text-grey">
+            No tienes cajas asignadas o autorizadas para realizar aperturas. Contacta a un administrador.
+          </div>
+        </div>
       </template>
 
       <!-- Header Filtro Bodega -->
@@ -294,13 +314,13 @@
             </v-row>
           </v-card>
 
-          <!-- Desglose de Efectivo / Fondo de Caja -->
+          <!-- Desglose de Efectivo / Fondo de Caja Multidivisa -->
           <v-card variant="flat" class="pa-4 rounded-lg border bg-white mb-4" elevation="0">
             <div class="d-flex align-center justify-space-between mb-3 border-b pb-2">
               <div class="d-flex align-center">
                 <v-icon color="green-darken-3" class="mr-2">mdi-cash-register</v-icon>
                 <span class="text-subtitle-2 font-weight-bold text-grey-darken-4">
-                  Desglose de Efectivo Inicial (Fondo de Caja)
+                  Desglose de Efectivo Inicial (Fondo Multidivisa)
                 </span>
               </div>
               <v-btn
@@ -315,53 +335,117 @@
               </v-btn>
             </div>
 
-            <!-- Grid de Denominaciones de Billetes y Monedas -->
-            <v-row dense>
-              <v-col
-                v-for="den in denominaciones"
-                :key="den.valor"
-                cols="12"
-                sm="6"
-                md="4"
+            <!-- TABS DE DIVISAS -->
+            <v-tabs
+              v-model="activeTabDivisa"
+              color="indigo-darken-4"
+              density="compact"
+              class="border rounded-t-lg bg-grey-lighten-4 mb-3"
+            >
+              <v-tab
+                v-for="(div, idx) in divisas"
+                :key="div.idDivisa"
+                :value="idx"
+                class="text-none font-weight-bold"
               >
-                <v-card variant="flat" class="pa-2 bg-grey-lighten-4 rounded border d-flex align-center justify-space-between">
-                  <div class="flex-grow-1 pr-2">
-                    <span class="text-caption font-weight-bold text-grey-darken-3 d-block">
-                      {{ den.label }}
-                    </span>
-                    <span class="text-caption text-indigo-darken-3 font-weight-bold">
-                      Subtotal: {{ formatCurrency((cantidades[den.valor] || 0) * den.valor) }}
-                    </span>
-                  </div>
-                  <div style="width: 90px;">
-                    <v-text-field
-                      v-model.number="cantidades[den.valor]"
-                      type="number"
-                      min="0"
-                      step="1"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      bg-color="white"
-                      class="text-center font-weight-bold"
-                      @focus="$event.target.select()"
-                    />
-                  </div>
-                </v-card>
-              </v-col>
-            </v-row>
+                <v-icon start size="small">{{ div.codigo === 'USD' ? 'mdi-currency-usd' : 'mdi-cash' }}</v-icon>
+                {{ div.nombre }} ({{ div.codigo }})
+                <v-chip
+                  v-if="subtotalDivisa(div) > 0"
+                  size="x-small"
+                  color="green-darken-3"
+                  variant="flat"
+                  class="ml-2 font-weight-bold"
+                >
+                  {{ div.simbolo }} {{ subtotalDivisa(div).toLocaleString('es-NI', { minimumFractionDigits: 2 }) }}
+                </v-chip>
+              </v-tab>
+            </v-tabs>
 
-            <!-- Total General del Desglose de Efectivo -->
-            <div class="d-flex align-center justify-space-between mt-3 pa-3 rounded-lg bg-green-lighten-5 border border-green-lighten-3">
-              <div class="d-flex align-center">
-                <v-icon color="green-darken-3" class="mr-2" size="24">mdi-cash-check</v-icon>
+            <!-- CONTENIDO DE LA DIVISA ACTIVA -->
+            <div v-if="divisaActiva">
+              <!-- Banner informativo de Tasa de Cambio para divisas extranjeras -->
+              <div
+                v-if="!divisaActiva.esPredeterminada && divisaActiva.codigo !== 'NIO'"
+                class="d-flex align-center justify-space-between pa-2 mb-3 rounded bg-amber-lighten-5 border border-amber-lighten-3 text-caption text-amber-darken-4 font-weight-medium"
+              >
+                <div class="d-flex align-center">
+                  <v-icon size="small" color="amber-darken-4" class="mr-1">mdi-swap-horizontal-bold</v-icon>
+                  <span>Tasa de cambio: <strong>1 {{ divisaActiva.codigo }} = C$ {{ Number(divisaActiva.tasaCambio).toFixed(2) }}</strong></span>
+                </div>
                 <div>
-                  <div class="text-caption font-weight-bold text-green-darken-4 text-uppercase">Total Efectivo de Apertura</div>
-                  <div class="text-caption text-green-darken-2">Suma de billetes y monedas ingresados</div>
+                  Subtotal convertido: <strong>{{ formatCurrency(subtotalDivisaMonedaPrincipal(divisaActiva)) }}</strong>
                 </div>
               </div>
-              <div class="text-h6 font-weight-black text-green-darken-4">
-                {{ formatCurrency(totalEfectivoCalculado) }}
+
+              <!-- Grid de Denominaciones de Billetes y Monedas para la Divisa Activa -->
+              <v-row dense>
+                <v-col
+                  v-for="den in getDenominaciones(divisaActiva)"
+                  :key="`${divisaActiva.idDivisa}_${den.valor}`"
+                  cols="12"
+                  sm="6"
+                  md="4"
+                >
+                  <v-card variant="flat" class="pa-2 bg-grey-lighten-4 rounded border d-flex align-center justify-space-between">
+                    <div class="flex-grow-1 pr-2">
+                      <span class="text-caption font-weight-bold text-grey-darken-3 d-block">
+                        {{ den.label }}
+                      </span>
+                      <span class="text-caption text-indigo-darken-3 font-weight-bold">
+                        Subtotal: {{ divisaActiva.simbolo }} {{ ((cantidades[`${divisaActiva.idDivisa}_${den.valor}`] || 0) * den.valor).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                      </span>
+                    </div>
+                    <div style="width: 90px;">
+                      <v-text-field
+                        v-model.number="cantidades[`${divisaActiva.idDivisa}_${den.valor}`]"
+                        type="number"
+                        min="0"
+                        step="1"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        bg-color="white"
+                        class="text-center font-weight-bold"
+                        @focus="$event.target.select()"
+                      />
+                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </div>
+
+            <!-- Resumen Multidivisa y Total General -->
+            <div class="mt-4 pa-3 rounded-lg bg-green-lighten-5 border border-green-lighten-3">
+              <!-- Chips de resumen por divisa -->
+              <div v-if="resumenPorDivisas.length > 0" class="d-flex align-center ga-2 flex-wrap mb-2 pb-2 border-b border-green-lighten-3">
+                <span class="text-caption font-weight-bold text-green-darken-4">Subtotales por Divisa:</span>
+                <v-chip
+                  v-for="r in resumenPorDivisas"
+                  :key="r.idDivisa"
+                  size="small"
+                  color="green-darken-4"
+                  variant="outlined"
+                  class="font-weight-bold bg-white"
+                >
+                  {{ r.codigo }}: {{ r.simbolo }} {{ r.totalMonedaOriginal.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                  <span v-if="r.codigo !== 'NIO'" class="ml-1 text-caption text-grey-darken-2">
+                    (≈ {{ formatCurrency(r.totalMonedaPrincipal) }})
+                  </span>
+                </v-chip>
+              </div>
+
+              <div class="d-flex align-center justify-space-between">
+                <div class="d-flex align-center">
+                  <v-icon color="green-darken-3" class="mr-2" size="28">mdi-cash-check</v-icon>
+                  <div>
+                    <div class="text-caption font-weight-bold text-green-darken-4 text-uppercase">Total Efectivo de Apertura (Moneda Principal)</div>
+                    <div class="text-caption text-green-darken-2">Suma consolidada de billetes y monedas ingresados</div>
+                  </div>
+                </div>
+                <div class="text-h5 font-weight-black text-green-darken-4">
+                  {{ formatCurrency(totalEfectivoCalculado) }}
+                </div>
               </div>
             </div>
           </v-card>
@@ -411,7 +495,7 @@
     </v-dialog>
 
     <!-- DIÁLOGO: VER COMPROBANTE / DETALLE DE APERTURA -->
-    <v-dialog v-model="dialogs.detalle" max-width="650" persistent>
+    <v-dialog v-model="dialogs.detalle" max-width="700" persistent scrollable>
       <v-card class="rounded-xl overflow-hidden" elevation="16">
         <div class="pa-4 bg-indigo-darken-4 text-white d-flex align-center justify-space-between">
           <div class="d-flex align-center">
@@ -472,7 +556,7 @@
 
               <v-col cols="12" sm="6">
                 <div class="pa-2 bg-green-lighten-5 rounded border border-green-lighten-3">
-                  <span class="text-caption text-green-darken-4 font-weight-bold d-block">FONDO EFECTIVO APERTURA:</span>
+                  <span class="text-caption text-green-darken-4 font-weight-bold d-block">TOTAL EFECTIVO APERTURA:</span>
                   <span class="text-subtitle-1 font-weight-black text-green-darken-4">
                     {{ formatCurrency(detalleApertura.montoAperturaEfectivo) }}
                   </span>
@@ -496,6 +580,77 @@
               </v-col>
             </v-row>
           </v-card>
+
+          <!-- RESUMEN POR DIVISA EN COMPROBANTE -->
+          <v-card v-if="detalleApertura.desglocePorDivisa && detalleApertura.desglocePorDivisa.length > 0" variant="flat" class="pa-3 rounded-lg border bg-white mb-3" elevation="0">
+            <div class="text-caption font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center">
+              <v-icon size="small" class="mr-1">mdi-cash-multiple</v-icon>
+              DESGLOSE POR DIVISAS (MULTIDIVISA)
+            </div>
+            <v-row dense>
+              <v-col
+                v-for="div in detalleApertura.desglocePorDivisa"
+                :key="div.idDivisa"
+                cols="12"
+                sm="6"
+              >
+                <div class="pa-2 rounded border bg-grey-lighten-5">
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <v-chip size="x-small" color="indigo-darken-3" variant="flat" class="font-weight-bold">
+                      {{ div.divisaCodigo }} - {{ div.divisaNombre }}
+                    </v-chip>
+                    <span class="text-caption text-grey-darken-2">{{ div.totalCantidad }} unids.</span>
+                  </div>
+                  <div class="d-flex align-center justify-space-between">
+                    <span class="text-caption text-grey-darken-1">Monto Original:</span>
+                    <span class="text-body-2 font-weight-bold text-grey-darken-4">
+                      {{ div.divisaSimbolo }} {{ Number(div.totalMonedaOriginal).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                    </span>
+                  </div>
+                  <div v-if="div.divisaCodigo !== 'NIO'" class="d-flex align-center justify-space-between mt-1 text-caption">
+                    <span class="text-grey-darken-1">T.C. {{ Number(div.tasaCambio).toFixed(2) }}:</span>
+                    <span class="font-weight-bold text-indigo-darken-3">
+                      {{ formatCurrency(div.totalMonedaPrincipal) }}
+                    </span>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <!-- DETALLE FÍSICO DE BILLETES Y MONEDAS -->
+          <v-card v-if="detalleApertura.desgloceDetalle && detalleApertura.desgloceDetalle.length > 0" variant="flat" class="pa-3 rounded-lg border bg-white" elevation="0">
+            <div class="text-caption font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center">
+              <v-icon size="small" class="mr-1">mdi-format-list-numbered</v-icon>
+              DETALLE DE BILLETES Y MONEDAS INGRESADOS
+            </div>
+            <v-table density="compact" class="border rounded">
+              <thead>
+                <tr class="bg-indigo-lighten-5 text-indigo-darken-4">
+                  <th class="font-weight-bold text-caption">Divisa</th>
+                  <th class="font-weight-bold text-caption">Denominación</th>
+                  <th class="font-weight-bold text-caption text-center">Cantidad</th>
+                  <th class="font-weight-bold text-caption text-right">Subtotal Moneda</th>
+                  <th class="font-weight-bold text-caption text-right">Subtotal (C$)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, idx) in detalleApertura.desgloceDetalle" :key="idx">
+                  <td class="text-caption font-weight-bold">{{ item.divisaCodigo || 'NIO' }}</td>
+                  <td class="text-caption font-weight-medium">
+                    {{ (item.valorDenominacion >= 10 ? 'Billete de ' : 'Moneda de ') + (item.divisaSimbolo || 'C$') + ' ' + (item.valorDenominacion >= 1 ? item.valorDenominacion.toLocaleString('es-NI') : item.valorDenominacion.toFixed(2)) }}
+                  </td>
+                  <td class="text-caption text-center font-weight-bold">{{ item.cantidad }}</td>
+                  <td class="text-caption text-right font-weight-medium">
+                    {{ (item.divisaSimbolo || 'C$') }} {{ (item.valorDenominacion * item.cantidad).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                  </td>
+                  <td class="text-caption text-right font-weight-bold text-indigo-darken-4">
+                    {{ formatCurrency(item.subtotalMonedaPrincipal ?? ((item.valorDenominacion * item.cantidad) * (item.tasaCambio || 1))) }}
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-card>
         </v-card-text>
 
         <v-divider />
@@ -513,6 +668,7 @@
 import { formatters } from '@/helpers/formatters';
 import RequestHttp from '@/services/requestHttp';
 import { hasAccessToFunct } from '@/scripts/Seguridad.js';
+import { DEFAULT_DIVISAS, getDenominacionesPorDivisa } from '@/helpers/divisaHelper.js';
 
 export default {
   name: 'AperturaCajaView',
@@ -560,31 +716,9 @@ export default {
         observaciones: ''
       },
 
-      denominaciones: [
-        { valor: 1000, label: 'Billetes de C$ 1,000' },
-        { valor: 500, label: 'Billetes de C$ 500' },
-        { valor: 200, label: 'Billetes de C$ 200' },
-        { valor: 100, label: 'Billetes de C$ 100' },
-        { valor: 50, label: 'Billetes de C$ 50' },
-        { valor: 20, label: 'Billetes de C$ 20' },
-        { valor: 10, label: 'Billetes de C$ 10' },
-        { valor: 5, label: 'Monedas de C$ 5' },
-        { valor: 1, label: 'Monedas de C$ 1' },
-        { valor: 0.5, label: 'Monedas de C$ 0.50' }
-      ],
-
-      cantidades: {
-        1000: 0,
-        500: 0,
-        200: 0,
-        100: 0,
-        50: 0,
-        20: 0,
-        10: 0,
-        5: 0,
-        1: 0,
-        0.5: 0
-      },
+      divisas: [...DEFAULT_DIVISAS],
+      activeTabDivisa: 0,
+      cantidades: {},
 
       alert: {
         show: false,
@@ -595,11 +729,43 @@ export default {
   },
 
   computed: {
+    divisaActiva() {
+      return this.divisas[this.activeTabDivisa] || this.divisas[0];
+    },
+
+    currentUserNombre() {
+      return (
+        this.currentUser?.nombre ||
+        this.currentUser?.name ||
+        this.currentUser?.usuario ||
+        this.currentUser?.username ||
+        localStorage.getItem('name') ||
+        ''
+      );
+    },
+
     totalEfectivoCalculado() {
-      return this.denominaciones.reduce((acc, den) => {
-        const cant = Number(this.cantidades[den.valor]) || 0;
-        return acc + (cant * den.valor);
+      return this.divisas.reduce((total, div) => {
+        return total + this.subtotalDivisaMonedaPrincipal(div);
       }, 0);
+    },
+
+    resumenPorDivisas() {
+      return this.divisas
+        .map(div => {
+          const subtotalOriginal = this.subtotalDivisa(div);
+          const subtotalPrincipal = this.subtotalDivisaMonedaPrincipal(div);
+          return {
+            idDivisa: div.idDivisa,
+            codigo: div.codigo,
+            nombre: div.nombre,
+            simbolo: div.simbolo,
+            tasaCambio: div.tasaCambio,
+            totalMonedaOriginal: subtotalOriginal,
+            totalMonedaPrincipal: subtotalPrincipal
+          };
+        })
+        .filter(r => r.totalMonedaOriginal > 0);
     },
 
     bodegasOptions() {
@@ -656,16 +822,55 @@ export default {
 
   mounted() {
     this.cargarUsuarioSesion();
+    this.cargarDivisas();
     this.recargarTodo();
   },
 
   methods: {
     hasAccessToFunct,
+
+    async cargarDivisas() {
+      try {
+        const res = await this.requestHttp.getDivisas();
+        if (res && res.code === 200 && Array.isArray(res.data) && res.data.length > 0) {
+          this.divisas = res.data;
+        }
+      } catch (e) {
+        console.error('Error al cargar catálogo de divisas:', e);
+      }
+    },
+
+    getDenominaciones(divisa) {
+      return getDenominacionesPorDivisa(divisa);
+    },
+
+    subtotalDivisa(divisa) {
+      if (!divisa) return 0;
+      const denoms = this.getDenominaciones(divisa);
+      return denoms.reduce((acc, d) => {
+        const cant = Number(this.cantidades[`${divisa.idDivisa}_${d.valor}`]) || 0;
+        return acc + (cant * d.valor);
+      }, 0);
+    },
+
+    subtotalDivisaMonedaPrincipal(divisa) {
+      if (!divisa) return 0;
+      const sub = this.subtotalDivisa(divisa);
+      const tasa = Number(divisa.tasaCambio) > 0 ? Number(divisa.tasaCambio) : 1;
+      return sub * tasa;
+    },
+
     cargarUsuarioSesion() {
       try {
         const raw = localStorage.getItem('token');
         if (raw) {
-          this.currentUser = JSON.parse(raw);
+          this.currentUser = typeof raw === 'string' && raw.startsWith('{') ? JSON.parse(raw) : { token: raw };
+        }
+        const name = localStorage.getItem('name');
+        const rol = localStorage.getItem('rol');
+        if (this.currentUser && typeof this.currentUser === 'object') {
+          if (name && !this.currentUser.nombre) this.currentUser.nombre = name;
+          if (rol && !this.currentUser.rol) this.currentUser.rol = rol;
         }
       } catch (e) {
         console.error('Error al leer el token de usuario:', e);
@@ -673,15 +878,53 @@ export default {
     },
 
     async recargarTodo() {
-      await this.cargarCajas();
+      await Promise.all([this.cargarCajas(), this.cargarDivisas()]);
     },
 
     async cargarCajas() {
       this.loading = true;
       try {
+        this.cargarUsuarioSesion();
+        const idUsuario = Number(
+          this.currentUser?.idusuario ||
+          this.currentUser?.idUsuario ||
+          this.currentUser?.id ||
+          this.currentUser?.userId
+        );
+
+        if (!idUsuario) {
+          this.showAlert('No se pudo identificar la sesión del usuario', 'warning');
+          this.cajas = [];
+          return;
+        }
+
+        // 1. Consultar cajas autorizadas para el usuario en UsuarioController
+        let authorizedIds = [];
+        try {
+          const resIds = await this.requestHttp.getCajasAutorizadasIds(idUsuario);
+          if (resIds && resIds.code === 200 && Array.isArray(resIds.data)) {
+            authorizedIds = resIds.data;
+          } else {
+            const resDetalle = await this.requestHttp.getCajasAutorizadas(idUsuario);
+            if (resDetalle && resDetalle.code === 200 && Array.isArray(resDetalle.data)) {
+              authorizedIds = resDetalle.data.map(c => c.idCaja);
+            }
+          }
+        } catch (e) {
+          console.warn('Error al consultar IDs de cajas autorizadas:', e);
+        }
+
         const res = await this.requestHttp.getCajas();
         if (res && res.code === 200 && Array.isArray(res.data)) {
-          const mapped = res.data.map(c => {
+          const authorizedSet = new Set(authorizedIds);
+
+          // Filtrar para que solo aparezcan las cajas autorizadas para el usuario
+          const cajasAutorizadas = res.data.filter(c =>
+            authorizedSet.has(c.idCaja) ||
+            (Array.isArray(c.cajerosAutorizados) && c.cajerosAutorizados.some(u => (u.idUsuario || u.idusuario) === idUsuario))
+          );
+
+          const mapped = cajasAutorizadas.map(c => {
             const estadoNombre = c.estadoNombre || c.idEstadoActualNavigation?.nombre || 'Cerrada';
             const estLower = estadoNombre.toLowerCase();
             const isCerrada = estLower === 'cerrada' || estLower.includes('cerrad');
@@ -781,9 +1024,12 @@ export default {
     async openAperturaDialog(caja) {
       this.activeCaja = caja;
       this.limpiarDesglose();
+      this.activeTabDivisa = 0;
       this.formApertura.observaciones = '';
       this.stockMercaderiaPreview = 0;
       this.dialogs.apertura = true;
+
+      await this.cargarDivisas();
 
       // Calcular valor de stock en bodega
       this.loadingStockPreview = true;
@@ -800,20 +1046,26 @@ export default {
     },
 
     limpiarDesglose() {
-      this.denominaciones.forEach(d => {
-        this.cantidades[d.valor] = 0;
-      });
+      this.cantidades = {};
     },
 
     async confirmarApertura() {
       if (!this.activeCaja) return;
 
-      const desgloceDetalle = this.denominaciones
-        .filter(d => (Number(this.cantidades[d.valor]) || 0) > 0)
-        .map(d => ({
-          valorDenominacion: d.valor,
-          cantidad: Number(this.cantidades[d.valor]) || 0
-        }));
+      const desgloceDetalle = [];
+      this.divisas.forEach(div => {
+        const denoms = this.getDenominaciones(div);
+        denoms.forEach(d => {
+          const cant = Number(this.cantidades[`${div.idDivisa}_${d.valor}`]) || 0;
+          if (cant > 0) {
+            desgloceDetalle.push({
+              idDivisa: div.idDivisa,
+              valorDenominacion: d.valor,
+              cantidad: cant
+            });
+          }
+        });
+      });
 
       // Obtener el ID de usuario autenticado
       const idUsuario = this.currentUser?.idUsuario ||
@@ -851,10 +1103,21 @@ export default {
       }
     },
 
-    verDetalleApertura(apertura) {
+    async verDetalleApertura(apertura) {
       if (!apertura) return;
       this.detalleApertura = apertura;
       this.dialogs.detalle = true;
+
+      if (apertura.idAperturaCaja && (!apertura.desgloceDetalle || apertura.desgloceDetalle.length === 0)) {
+        try {
+          const res = await this.requestHttp.getAperturaCajaById(apertura.idAperturaCaja);
+          if (res && res.code === 200 && res.data) {
+            this.detalleApertura = res.data;
+          }
+        } catch (e) {
+          console.error('Error cargando detalle completo de apertura:', e);
+        }
+      }
     },
 
     formatCurrency(val) {

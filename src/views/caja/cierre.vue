@@ -1187,62 +1187,129 @@
                   </v-card>
                 </v-col>
 
-                <!-- LADO DERECHO: DESGLOSE DE EFECTIVO -->
+                <!-- LADO DERECHO: DESGLOSE DE EFECTIVO MULTIDIVISA -->
                 <v-col cols="12" md="8">
                   <v-card class="pa-3 border bg-white" elevation="0" rounded="lg">
                     <div class="d-flex align-center justify-space-between mb-2">
                       <div class="text-subtitle-2 font-weight-bold text-indigo d-flex align-center">
-                        <v-icon size="small" class="mr-1">mdi-table-edit</v-icon>
-                        Desglose de Dinero en Caja al Cierre
+                        <v-icon size="small" class="mr-1">mdi-cash-multiple</v-icon>
+                        Desglose de Dinero en Caja al Cierre (Multidivisa)
                       </div>
                       <v-btn
                         size="x-small"
-                        variant="text"
+                        variant="tonal"
                         color="grey-darken-2"
                         prepend-icon="mdi-eraser"
                         @click="limpiarDesglose()"
                       >
-                        Limpiar
+                        Limpiar Cantidades
                       </v-btn>
                     </div>
-                    
-                    <v-table density="compact" class="border rounded">
-                      <thead>
-                        <tr class="bg-indigo-darken-4 text-white">
-                          <th class="text-white font-weight-bold text-caption py-2">Denominación</th>
-                          <th class="text-white text-center font-weight-bold text-caption py-2" style="width: 180px;">Cantidad</th>
-                          <th class="text-white text-right font-weight-bold text-caption py-2" style="width: 180px;">Subtotal (C$)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="denom in denominaciones" :key="denom.valor">
-                          <td class="text-body-2 font-weight-medium py-1">{{ denom.label }}</td>
-                          <td class="text-center py-1">
-                            <v-text-field
-                              v-model.number="cantidades[denom.valor]"
-                              type="number"
-                              min="0"
-                              density="compact"
-                              variant="outlined"
-                              hide-details
-                              class="align-center-input text-center"
-                              style="max-width: 140px; margin: 0 auto;"
-                            />
-                          </td>
-                          <td class="text-right text-body-2 font-weight-bold py-1">
-                            {{ formatCurrency(cantidades[denom.valor] * denom.valor) }}
-                          </td>
-                        </tr>
-                      </tbody>
-                      <tfoot>
-                        <tr class="bg-grey-lighten-4">
-                          <td colspan="2" class="text-right font-weight-black text-body-2 py-2">Total Efectivo Contado:</td>
-                          <td class="text-right font-weight-black text-subtitle-1 text-indigo-darken-4 py-2">
-                            {{ formatCurrency(totalContado) }}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </v-table>
+
+                    <!-- TABS DE DIVISAS EN CIERRE -->
+                    <v-tabs
+                      v-model="activeTabDivisaCierre"
+                      color="indigo-darken-4"
+                      density="compact"
+                      class="border rounded-t bg-grey-lighten-4 mb-2"
+                    >
+                      <v-tab
+                        v-for="(div, idx) in divisas"
+                        :key="div.idDivisa"
+                        :value="idx"
+                        class="text-none font-weight-bold text-caption"
+                      >
+                        <v-icon start size="x-small">{{ div.codigo === 'USD' ? 'mdi-currency-usd' : 'mdi-cash' }}</v-icon>
+                        {{ div.nombre }} ({{ div.codigo }})
+                        <v-chip
+                          v-if="subtotalDivisa(div) > 0"
+                          size="x-small"
+                          color="green-darken-3"
+                          variant="flat"
+                          class="ml-1 font-weight-bold"
+                        >
+                          {{ div.simbolo }} {{ subtotalDivisa(div).toLocaleString('es-NI', { minimumFractionDigits: 2 }) }}
+                        </v-chip>
+                      </v-tab>
+                    </v-tabs>
+
+                    <!-- CONTENIDO DE LA DIVISA ACTIVA -->
+                    <div v-if="divisaActivaCierre">
+                      <!-- Banner informativo de Tasa de Cambio para divisas extranjeras -->
+                      <div
+                        v-if="!divisaActivaCierre.esPredeterminada && divisaActivaCierre.codigo !== 'NIO'"
+                        class="d-flex align-center justify-space-between pa-2 mb-2 rounded bg-amber-lighten-5 border border-amber-lighten-3 text-caption text-amber-darken-4 font-weight-medium"
+                      >
+                        <div class="d-flex align-center">
+                          <v-icon size="x-small" color="amber-darken-4" class="mr-1">mdi-swap-horizontal-bold</v-icon>
+                          <span>Tasa de cambio: <strong>1 {{ divisaActivaCierre.codigo }} = C$ {{ Number(divisaActivaCierre.tasaCambio).toFixed(2) }}</strong></span>
+                        </div>
+                        <div>
+                          Subtotal convertido: <strong>{{ formatCurrency(subtotalDivisaMonedaPrincipal(divisaActivaCierre)) }}</strong>
+                        </div>
+                      </div>
+
+                      <v-table density="compact" class="border rounded mb-2">
+                        <thead>
+                          <tr class="bg-indigo-darken-4 text-white">
+                            <th class="text-white font-weight-bold text-caption py-1">Denominación</th>
+                            <th class="text-white text-center font-weight-bold text-caption py-1" style="width: 140px;">Cantidad</th>
+                            <th class="text-white text-right font-weight-bold text-caption py-1" style="width: 150px;">Subtotal ({{ divisaActivaCierre.simbolo }})</th>
+                            <th v-if="divisaActivaCierre.codigo !== 'NIO'" class="text-white text-right font-weight-bold text-caption py-1" style="width: 150px;">Equiv. (C$)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="denom in getDenominaciones(divisaActivaCierre)" :key="`${divisaActivaCierre.idDivisa}_${denom.valor}`">
+                            <td class="text-body-2 font-weight-medium py-1">{{ denom.label }}</td>
+                            <td class="text-center py-1">
+                              <v-text-field
+                                v-model.number="cantidades[`${divisaActivaCierre.idDivisa}_${denom.valor}`]"
+                                type="number"
+                                min="0"
+                                density="compact"
+                                variant="outlined"
+                                hide-details
+                                class="align-center-input text-center"
+                                style="max-width: 120px; margin: 0 auto;"
+                              />
+                            </td>
+                            <td class="text-right text-body-2 font-weight-bold py-1">
+                              {{ divisaActivaCierre.simbolo }} {{ ((cantidades[`${divisaActivaCierre.idDivisa}_${denom.valor}`] || 0) * denom.valor).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                            </td>
+                            <td v-if="divisaActivaCierre.codigo !== 'NIO'" class="text-right text-body-2 font-weight-bold py-1 text-indigo-darken-4">
+                              {{ formatCurrency(((cantidades[`${divisaActivaCierre.idDivisa}_${denom.valor}`] || 0) * denom.valor) * (divisaActivaCierre.tasaCambio || 1)) }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+                    </div>
+
+                    <!-- RESUMEN MULTIDIVISA -->
+                    <div class="pa-2 rounded bg-indigo-lighten-5 border border-indigo-lighten-4 mt-2">
+                      <div v-if="resumenPorDivisas.length > 0" class="d-flex align-center ga-1 flex-wrap mb-1 pb-1 border-b border-indigo-lighten-4">
+                        <span class="text-caption font-weight-bold text-indigo-darken-4">Subtotales:</span>
+                        <v-chip
+                          v-for="r in resumenPorDivisas"
+                          :key="r.idDivisa"
+                          size="x-small"
+                          color="indigo-darken-4"
+                          variant="tonal"
+                          class="font-weight-medium bg-white"
+                        >
+                          {{ r.codigo }}: {{ r.simbolo }} {{ r.totalMonedaOriginal.toLocaleString('es-NI', { minimumFractionDigits: 2 }) }}
+                          <span v-if="r.codigo !== 'NIO'" class="ml-1 text-caption text-grey-darken-2">
+                            (≈ {{ formatCurrency(r.totalMonedaPrincipal) }})
+                          </span>
+                        </v-chip>
+                      </div>
+
+                      <div class="d-flex justify-space-between align-center">
+                        <span class="font-weight-black text-body-2 text-indigo-darken-4">Total Efectivo Contado (Moneda Principal):</span>
+                        <span class="font-weight-black text-subtitle-1 text-indigo-darken-4">
+                          {{ formatCurrency(totalContado) }}
+                        </span>
+                      </div>
+                    </div>
                   </v-card>
                 </v-col>
               </v-row>
@@ -1691,6 +1758,39 @@
                       Desglose Físico de Efectivo Contado (Base de Datos)
                     </div>
 
+                    <!-- RESUMEN POR DIVISA EN HISTORIAL -->
+                    <div v-if="cierreHistorialSeleccionado.desglocePorDivisa && cierreHistorialSeleccionado.desglocePorDivisa.length > 0" class="mb-3">
+                      <v-row dense>
+                        <v-col
+                          v-for="div in cierreHistorialSeleccionado.desglocePorDivisa"
+                          :key="div.idDivisa"
+                          cols="12"
+                          sm="6"
+                        >
+                          <div class="pa-2 rounded border bg-grey-lighten-5">
+                            <div class="d-flex align-center justify-space-between mb-1">
+                              <v-chip size="x-small" color="indigo-darken-3" variant="flat" class="font-weight-bold">
+                                {{ div.divisaCodigo }} - {{ div.divisaNombre }}
+                              </v-chip>
+                              <span class="text-caption text-grey-darken-2">{{ div.totalCantidad }} unids.</span>
+                            </div>
+                            <div class="d-flex align-center justify-space-between">
+                              <span class="text-caption text-grey-darken-1">Monto Original:</span>
+                              <span class="text-body-2 font-weight-bold text-grey-darken-4">
+                                {{ div.divisaSimbolo }} {{ Number(div.totalMonedaOriginal).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                              </span>
+                            </div>
+                            <div v-if="div.divisaCodigo !== 'NIO'" class="d-flex align-center justify-space-between mt-1 text-caption">
+                              <span class="text-grey-darken-1">T.C. {{ Number(div.tasaCambio).toFixed(2) }}:</span>
+                              <span class="font-weight-bold text-indigo-darken-3">
+                                {{ formatCurrency(div.totalMonedaPrincipal) }}
+                              </span>
+                            </div>
+                          </div>
+                        </v-col>
+                      </v-row>
+                    </div>
+
                     <v-alert
                       v-if="!cierreHistorialSeleccionado.desgloceDetalle || cierreHistorialSeleccionado.desgloceDetalle.length === 0"
                       type="info"
@@ -1704,27 +1804,35 @@
                     <v-table v-else density="compact" class="border rounded">
                       <thead>
                         <tr class="bg-indigo-darken-4 text-white">
+                          <th class="text-white font-weight-bold text-caption py-2">Divisa</th>
                           <th class="text-white font-weight-bold text-caption py-2">Denominación</th>
-                          <th class="text-white text-center font-weight-bold text-caption py-2" style="width: 140px;">Cantidad Contada</th>
-                          <th class="text-white text-right font-weight-bold text-caption py-2" style="width: 160px;">Subtotal (C$)</th>
+                          <th class="text-white text-center font-weight-bold text-caption py-2" style="width: 110px;">Cantidad</th>
+                          <th class="text-white text-right font-weight-bold text-caption py-2" style="width: 140px;">Subtotal Moneda</th>
+                          <th class="text-white text-right font-weight-bold text-caption py-2" style="width: 140px;">Subtotal (C$)</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="item in cierreHistorialSeleccionado.desgloceDetalle" :key="item.idDetalleDesgloceCaja || item.valorDenominacion">
+                          <td class="text-caption font-weight-bold py-1">
+                            {{ item.divisaCodigo || 'NIO' }}
+                          </td>
                           <td class="text-body-2 font-weight-medium py-1">
-                            {{ formatDenominacionLabel(item.valorDenominacion) }}
+                            {{ (item.valorDenominacion >= 10 ? 'Billete de ' : 'Moneda de ') + (item.divisaSimbolo || 'C$') + ' ' + (item.valorDenominacion >= 1 ? item.valorDenominacion.toLocaleString('es-NI') : item.valorDenominacion.toFixed(2)) }}
                           </td>
                           <td class="text-center text-body-2 font-weight-bold py-1">
                             {{ item.cantidad }}
                           </td>
+                          <td class="text-right text-body-2 font-weight-medium py-1">
+                            {{ (item.divisaSimbolo || 'C$') }} {{ (item.valorDenominacion * item.cantidad).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                          </td>
                           <td class="text-right text-body-2 font-weight-bold py-1 text-indigo-darken-4">
-                            {{ formatCurrency(item.subtotal ?? (item.valorDenominacion * item.cantidad)) }}
+                            {{ formatCurrency(item.subtotalMonedaPrincipal ?? ((item.valorDenominacion * item.cantidad) * (item.tasaCambio || 1))) }}
                           </td>
                         </tr>
                       </tbody>
                       <tfoot>
                         <tr class="bg-grey-lighten-4 font-weight-black">
-                          <td colspan="2" class="text-right text-body-2 py-2">Total Contado Registrado:</td>
+                          <td colspan="4" class="text-right text-body-2 py-2">Total Contado Registrado:</td>
                           <td class="text-right text-subtitle-1 text-indigo-darken-4 py-2">
                             {{ formatCurrency(cierreHistorialSeleccionado.montoCierreEfectivo) }}
                           </td>
@@ -1946,6 +2054,7 @@
 import RequestHttp from '@/services/requestHttp';
 import ViewVenta from '@/components/movimientos/Ventas/ViewVenta.vue';
 import { hasAccessToFunct } from '@/scripts/Seguridad.js';
+import { DEFAULT_DIVISAS, getDenominacionesPorDivisa, formatMontoDivisa, formatDenominacionLabel } from '@/helpers/divisaHelper.js';
 
 export default {
   name: 'CierreCajaView',
@@ -1964,6 +2073,7 @@ export default {
       searchQuery: '',
       activeMainTab: 0,
       tabCierre: 0,
+      activeTabDivisaCierre: 0,
       tabHistorialDetalle: 0,
       printingId: null,
       
@@ -1977,6 +2087,9 @@ export default {
         cajas: [],
         bodegas: []
       },
+
+      // Divisas
+      divisas: [...DEFAULT_DIVISAS],
 
       // Historial de Cierres
       cierresHistorial: [],
@@ -2111,31 +2224,7 @@ export default {
         observaciones: ''
       },
       
-      denominaciones: [
-        { valor: 1000, label: 'Billetes de C$ 1000' },
-        { valor: 500, label: 'Billetes de C$ 500' },
-        { valor: 200, label: 'Billetes de C$ 200' },
-        { valor: 100, label: 'Billetes de C$ 100' },
-        { valor: 50, label: 'Billetes de C$ 50' },
-        { valor: 20, label: 'Billetes de C$ 20' },
-        { valor: 10, label: 'Billetes de C$ 10' },
-        { valor: 5, label: 'Monedas de C$ 5' },
-        { valor: 1, label: 'Monedas de C$ 1' },
-        { valor: 0.5, label: 'Monedas de C$ 0.50' }
-      ],
-      
-      cantidades: {
-        1000: 0,
-        500: 0,
-        200: 0,
-        100: 0,
-        50: 0,
-        20: 0,
-        10: 0,
-        5: 0,
-        1: 0,
-        0.5: 0
-      },
+      cantidades: {},
       
       alert: {
         show: false,
@@ -2146,6 +2235,27 @@ export default {
   },
   
   computed: {
+    divisaActivaCierre() {
+      return this.divisas[this.activeTabDivisaCierre] || this.divisas[0] || null;
+    },
+
+    resumenPorDivisas() {
+      return (this.divisas || []).map(div => {
+        const totalMonedaOriginal = this.subtotalDivisa(div);
+        const tasaCambio = Number(div.tasaCambio) || 1;
+        const totalMonedaPrincipal = this.subtotalDivisaMonedaPrincipal(div);
+        return {
+          idDivisa: div.idDivisa,
+          codigo: div.codigo,
+          nombre: div.nombre,
+          simbolo: div.simbolo,
+          tasaCambio,
+          totalMonedaOriginal,
+          totalMonedaPrincipal
+        };
+      }).filter(r => r.totalMonedaOriginal > 0);
+    },
+
     filteredCajas() {
       let result = (this.data.cajas || []).filter(c => c.estadoNombre === 'Arqueada');
       
@@ -2319,10 +2429,7 @@ export default {
     },
     
     totalContado() {
-      return this.denominaciones.reduce((sum, d) => {
-        const qty = Number(this.cantidades[d.valor]) || 0;
-        return sum + (qty * d.valor);
-      }, 0);
+      return (this.divisas || []).reduce((sum, div) => sum + this.subtotalDivisaMonedaPrincipal(div), 0);
     },
     
     totalEsperado() {
@@ -2372,6 +2479,7 @@ export default {
   },
 
   mounted() {
+    this.cargarDivisas();
     this.loadCajas();
     this.loadBodegas();
     this.loadCierresHistorial();
@@ -2384,6 +2492,37 @@ export default {
       this.alert.message = msg;
       this.alert.type = type;
       this.alert.show = true;
+    },
+
+    async cargarDivisas() {
+      try {
+        const res = await this.requestHttp.getDivisas();
+        if (res.code === 200 && Array.isArray(res.data) && res.data.length > 0) {
+          this.divisas = res.data;
+        }
+      } catch (e) {
+        console.error('Error loading divisas in cierre:', e);
+      }
+    },
+
+    getDenominaciones(divisa) {
+      return getDenominacionesPorDivisa(divisa);
+    },
+
+    subtotalDivisa(divisa) {
+      if (!divisa) return 0;
+      const denoms = this.getDenominaciones(divisa);
+      return denoms.reduce((sum, d) => {
+        const qty = Number(this.cantidades[`${divisa.idDivisa}_${d.valor}`]) || 0;
+        return sum + (qty * d.valor);
+      }, 0);
+    },
+
+    subtotalDivisaMonedaPrincipal(divisa) {
+      if (!divisa) return 0;
+      const subtotal = this.subtotalDivisa(divisa);
+      const tasa = Number(divisa.tasaCambio) || 1;
+      return subtotal * tasa;
     },
 
     handleMainRefresh() {
@@ -2565,7 +2704,7 @@ export default {
       this.loadingHistorialDetalle = true;
 
       try {
-        // Cargar detalle completo del cierre si hiciera falta o consultar ventas y retiros de esa apertura
+        // Cargar detalle completo del cierre incluyendo desglocePorDivisa y desgloceDetalle
         const [resDetalleCierre, resRetiros, resVentas] = await Promise.all([
           this.requestHttp.getCierreCajaById(cierre.idCierreCaja),
           cierre.idAperturaCaja ? this.requestHttp.getRetirosCaja({ idAperturaCaja: cierre.idAperturaCaja }) : Promise.resolve({ code: 200, data: [] }),
@@ -2603,11 +2742,11 @@ export default {
       this.dialogs.ticketPreview = true;
     },
 
-    formatDenominacionLabel(valor) {
-      const v = Number(valor);
-      if (v >= 10) return `Billetes de C$ ${v}`;
-      if (v >= 1) return `Monedas de C$ ${v}`;
-      return `Monedas de C$ ${v.toFixed(2)}`;
+    formatDenominacionLabel(item) {
+      if (typeof item === 'object' && item !== null) {
+        return formatDenominacionLabel(item.valorDenominacion ?? item.valor, item.divisaSimbolo || 'C$');
+      }
+      return formatDenominacionLabel(item, 'C$');
     },
     
     getCardBorder(caja) {
@@ -2640,9 +2779,7 @@ export default {
     },
     
     limpiarDesglose() {
-      this.denominaciones.forEach(d => {
-        this.cantidades[d.valor] = 0;
-      });
+      this.cantidades = {};
     },
     
     verFacturaDetalle(venta) {
@@ -2772,6 +2909,7 @@ export default {
     async openCierreDialog(caja) {
       this.activeCaja = caja;
       this.tabCierre = 0;
+      this.activeTabDivisaCierre = 0;
       this.searchVentas = '';
       this.searchMercaderiaVendida = '';
       this.mercaderiaVendidaItems = [];
@@ -2782,19 +2920,31 @@ export default {
       };
       
       this.limpiarDesglose();
+      await this.cargarDivisas();
 
       if (!caja.apertura || !caja.resumen) {
         await this.loadBoxDetails(caja);
       }
 
       this.activeArqueo = caja.arqueo || null;
-      this.dialogs.cierre = true;
 
       await Promise.all([
         this.loadArqueoData(caja),
         this.loadVentasData(caja),
         this.loadRetirosData(caja)
       ]);
+
+      // Pre-cargar desglose desde el arqueo si existe
+      if (this.activeArqueo && Array.isArray(this.activeArqueo.desgloceDetalle) && this.activeArqueo.desgloceDetalle.length > 0) {
+        this.activeArqueo.desgloceDetalle.forEach(item => {
+          const idDiv = item.idDivisa || 1;
+          const val = Number(item.valorDenominacion);
+          const cant = Number(item.cantidad) || 0;
+          this.cantidades[`${idDiv}_${val}`] = cant;
+        });
+      }
+
+      this.dialogs.cierre = true;
     },
     
     async loadArqueoData(caja) {
@@ -2950,12 +3100,20 @@ export default {
       
       this.saving = true;
       
-      const desgloceDetalle = this.denominaciones
-        .map(d => ({
-          ValorDenominacion: d.valor,
-          Cantidad: Number(this.cantidades[d.valor]) || 0
-        }))
-        .filter(d => d.Cantidad > 0);
+      const desgloceDetalle = [];
+      (this.divisas || []).forEach(div => {
+        const denoms = this.getDenominaciones(div);
+        denoms.forEach(d => {
+          const cant = Number(this.cantidades[`${div.idDivisa}_${d.valor}`]) || 0;
+          if (cant > 0) {
+            desgloceDetalle.push({
+              IdDivisa: div.idDivisa,
+              ValorDenominacion: d.valor,
+              Cantidad: cant
+            });
+          }
+        });
+      });
         
       const reqData = {
         IdAperturaCaja: this.activeCaja.apertura.idAperturaCaja,
@@ -3067,6 +3225,36 @@ export default {
       }
       lineas += this.lineaDosColumnas('Retiros / Egresos:', this.formatCurrency(retiros));
       lineas += separador;
+
+      // Resumen por Divisa si existe
+      if (Array.isArray(cierreObj?.desglocePorDivisa) && cierreObj.desglocePorDivisa.length > 0) {
+        lineas += `RESUMEN POR DIVISAS\n`;
+        cierreObj.desglocePorDivisa.forEach(div => {
+          const sim = div.divisaSimbolo || 'C$';
+          const cod = div.divisaCodigo || '';
+          const orig = Number(div.totalMonedaOriginal || 0).toLocaleString('es-NI', { minimumFractionDigits: 2 });
+          const princ = this.formatCurrency(div.totalMonedaPrincipal);
+          lineas += this.lineaDosColumnas(`  ${cod} (${sim})`, `${sim} ${orig}`);
+          if (cod !== 'NIO') {
+            lineas += this.lineaDosColumnas(`    Equivalente:`, princ);
+          }
+        });
+        lineas += separador;
+      } else if (this.resumenPorDivisas?.length > 0) {
+        lineas += `RESUMEN POR DIVISAS\n`;
+        this.resumenPorDivisas.forEach(div => {
+          const sim = div.simbolo || 'C$';
+          const cod = div.codigo || '';
+          const orig = Number(div.totalMonedaOriginal || 0).toLocaleString('es-NI', { minimumFractionDigits: 2 });
+          const princ = this.formatCurrency(div.totalMonedaPrincipal);
+          lineas += this.lineaDosColumnas(`  ${cod} (${sim})`, `${sim} ${orig}`);
+          if (cod !== 'NIO') {
+            lineas += this.lineaDosColumnas(`    Equivalente:`, princ);
+          }
+        });
+        lineas += separador;
+      }
+
       lineas += `DESGLOSE DE EFECTIVO CONTADO\n`;
 
       // Desglose de billetes y monedas
@@ -3075,18 +3263,25 @@ export default {
         cierreObj.desgloceDetalle.forEach(d => {
           const val = Number(d.valorDenominacion || d.valor || 0);
           const cant = Number(d.cantidad || 0);
+          const sim = d.divisaSimbolo || 'C$';
+          const cod = d.divisaCodigo || 'NIO';
+          const subtotal = Number(d.subtotal ?? (val * cant));
           if (cant > 0) {
             tieneDesglose = true;
-            lineas += this.lineaDosColumnas(`  C$${val} x ${cant}`, this.formatCurrency(val * cant));
+            lineas += this.lineaDosColumnas(`  ${cod} ${sim}${val} x ${cant}`, `${sim} ${subtotal.toLocaleString('es-NI', { minimumFractionDigits: 2 })}`);
           }
         });
-      } else if (this.activeCaja) {
-        this.denominaciones.forEach(d => {
-          const cant = Number(this.cantidades[d.valor]) || 0;
-          if (cant > 0) {
-            tieneDesglose = true;
-            lineas += this.lineaDosColumnas(`  C$${d.valor} x ${cant}`, this.formatCurrency(d.valor * cant));
-          }
+      } else if (this.divisas && this.divisas.length > 0) {
+        this.divisas.forEach(div => {
+          const denoms = this.getDenominaciones(div);
+          denoms.forEach(d => {
+            const cant = Number(this.cantidades[`${div.idDivisa}_${d.valor}`]) || 0;
+            if (cant > 0) {
+              tieneDesglose = true;
+              const subtotal = cant * d.valor;
+              lineas += this.lineaDosColumnas(`  ${div.codigo} ${div.simbolo}${d.valor} x ${cant}`, `${div.simbolo} ${subtotal.toLocaleString('es-NI', { minimumFractionDigits: 2 })}`);
+            }
+          });
         });
       }
 
@@ -3174,16 +3369,23 @@ export default {
           targetCierre.desgloceDetalle.forEach(d => {
             const val = Number(d.valorDenominacion || d.valor || 0);
             const cant = Number(d.cantidad || 0);
+            const sim = d.divisaSimbolo || 'C$';
+            const cod = d.divisaCodigo || 'NIO';
+            const subtotal = Number(d.subtotal ?? (val * cant));
             if (cant > 0) {
-              lineasDesglose.push(this.lineaDosColumnas(`  C$${val} x ${cant}`, this.formatCurrency(val * cant)));
+              lineasDesglose.push(this.lineaDosColumnas(`  ${cod} ${sim}${val} x ${cant}`, `${sim} ${subtotal.toLocaleString('es-NI', { minimumFractionDigits: 2 })}`));
             }
           });
-        } else if (this.activeCaja) {
-          this.denominaciones.forEach(d => {
-            const cant = Number(this.cantidades[d.valor]) || 0;
-            if (cant > 0) {
-              lineasDesglose.push(this.lineaDosColumnas(`  C$${d.valor} x ${cant}`, this.formatCurrency(d.valor * cant)));
-            }
+        } else if (this.divisas && this.divisas.length > 0) {
+          this.divisas.forEach(div => {
+            const denoms = this.getDenominaciones(div);
+            denoms.forEach(d => {
+              const cant = Number(this.cantidades[`${div.idDivisa}_${d.valor}`]) || 0;
+              if (cant > 0) {
+                const subtotal = cant * d.valor;
+                lineasDesglose.push(this.lineaDosColumnas(`  ${div.codigo} ${div.simbolo}${d.valor} x ${cant}`, `${div.simbolo} ${subtotal.toLocaleString('es-NI', { minimumFractionDigits: 2 })}`));
+              }
+            });
           });
         }
 

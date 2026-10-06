@@ -73,8 +73,92 @@
                             <span class="mx-6 text-grey font-weight-bold">Proveedores</span>
                             <v-divider />
                         </v-card-subtitle>
+
+                        <!-- Barra de Filtros: Tipo de Proveedor, País, Buscador y Limpieza -->
+                        <v-row dense class="mb-3 px-1 align-center">
+                            <v-col cols="12" sm="6" md="3">
+                                <v-autocomplete
+                                    v-model="data.filtroTipoProveedor"
+                                    :items="data.itemsTipoProv"
+                                    item-title="nombre"
+                                    item-value="idTipoProveedor"
+                                    label="Tipo de Proveedor"
+                                    placeholder="Todos los tipos"
+                                    prepend-inner-icon="mdi-account-tie"
+                                    density="compact"
+                                    variant="outlined"
+                                    hide-details
+                                    clearable
+                                    color="indigo"
+                                />
+                            </v-col>
+
+                            <v-col cols="12" sm="6" md="3">
+                                <v-autocomplete
+                                    v-model="data.filtroPais"
+                                    :items="paisesList"
+                                    item-title="nombre"
+                                    item-value="nombre"
+                                    label="País"
+                                    placeholder="Todos los países"
+                                    prepend-inner-icon="mdi-earth"
+                                    density="compact"
+                                    variant="outlined"
+                                    hide-details
+                                    clearable
+                                    auto-select-first
+                                    color="indigo"
+                                >
+                                    <template v-slot:item="{ props, item }">
+                                        <v-list-item v-bind="props" :title="item.raw.nombre">
+                                            <template v-slot:prepend>
+                                                <span class="me-2 text-body-1">{{ item.raw.flag }}</span>
+                                            </template>
+                                        </v-list-item>
+                                    </template>
+                                    <template v-slot:selection="{ item }">
+                                        <span class="d-flex align-center">
+                                            <span class="me-2">{{ item.raw?.flag || obtenerBanderaPais(item.raw?.nombre || item.raw) }}</span>
+                                            <span>{{ item.raw?.nombre || item.raw }}</span>
+                                        </span>
+                                    </template>
+                                </v-autocomplete>
+                            </v-col>
+
+                            <v-col cols="12" sm="8" md="4">
+                                <v-text-field
+                                    v-model="data.search"
+                                    density="compact"
+                                    variant="outlined"
+                                    label="Buscar proveedor"
+                                    placeholder="Nombre, teléfono, ciudad, estado..."
+                                    prepend-inner-icon="mdi-magnify"
+                                    hide-details
+                                    clearable
+                                    color="indigo"
+                                />
+                            </v-col>
+
+                            <v-col cols="12" sm="4" md="2" class="d-flex align-center justify-end ga-2">
+                                <v-btn
+                                    v-if="hayFiltrosActivos"
+                                    size="small"
+                                    variant="tonal"
+                                    color="red-darken-3"
+                                    class="text-none font-weight-bold rounded"
+                                    prepend-icon="mdi-filter-off"
+                                    @click="limpiarFiltros"
+                                >
+                                    Limpiar
+                                </v-btn>
+                                <v-chip size="small" color="indigo-darken-4" variant="flat" class="font-weight-bold">
+                                    {{ filteredProveedores.length }} {{ filteredProveedores.length === 1 ? 'proveedor' : 'proveedores' }}
+                                </v-chip>
+                            </v-col>
+                        </v-row>
+
                         <v-data-table :loading="data.loading" :search="data.search" class="border" 
-                            :headers="data.headers" density="compact" :items="data.items" :row-props="setStyle" 
+                            :headers="data.headers" density="compact" :items="filteredProveedores" :row-props="setStyle" 
                             :header-props="{ class: 'font-weight-bold' }" hover>
                             <template v-slot:loader>
                                 <v-progress-linear
@@ -94,7 +178,23 @@
                                 <div>{{ formateDate(item.fechaRegistro) }}</div>
                             </template>
                             <template v-slot:item.tipoProveedor="{ item }">
-                                <div>{{ item.idTipoProveedorNavigation.nombre }}</div>
+                                <div>{{ item.idTipoProveedorNavigation?.nombre || '- - -' }}</div>
+                            </template>
+                            <template v-slot:item.pais="{ item }">
+                                <div v-if="item.pais" class="d-flex align-center justify-center">
+                                    <span class="me-1">{{ obtenerBanderaPais(item.pais) }}</span>
+                                    <span>{{ item.pais }}</span>
+                                </div>
+                                <div v-else class="text-grey">- - -</div>
+                            </template>
+                            <template v-slot:item.departamento="{ item }">
+                                <div>{{ item.departamento || '- - -' }}</div>
+                            </template>
+                            <template v-slot:item.municipio="{ item }">
+                                <div>{{ item.municipio || '- - -' }}</div>
+                            </template>
+                            <template v-slot:item.telefono="{ item }">
+                                <div>{{ item.telefono || '- - -' }}</div>
                             </template>
                             <template v-slot:item.opc="{ item }">
 
@@ -273,6 +373,7 @@
 <script>
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { formatters } from '@/helpers/formatters';
+import { PAISES, obtenerBanderaPais } from '@/helpers/paises';
 import NewProveedor from './dialogsCompras/NewProveedor.vue';
 import NewTipoProv from './dialogsCompras/NewTipoProv.vue';
 import RequestHttp from '@/services/requestHttp';
@@ -313,9 +414,11 @@ export default {
                     headerProps: { class: 'pa-0' },
                     cellProps: { class: 'pa-0' }
                 },
-                {title: 'Proveedor', key: 'nombre', align: 'center'},
+                {title: 'Proveedor', key: 'nombre', align: 'start'},
                 {title: 'T. Proveedor', key: 'tipoProveedor', align: 'center'},
-                {title: 'Departamento', key: 'departamento', align: 'center'},
+                {title: 'País', key: 'pais', align: 'center'},
+                {title: 'Ciudad', key: 'departamento', align: 'center'},
+                {title: 'Estado', key: 'municipio', align: 'center'},
                 {title: 'Teléfono', key: 'telefono', align: 'center'},
                 {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
@@ -354,6 +457,9 @@ export default {
                 success: false,
             },
 
+            filtroTipoProveedor: null,
+            filtroPais: null,
+            searchTipo: null,
             wind: 1,
             selectedItem: null,
             search: null,
@@ -365,6 +471,36 @@ export default {
             requestHttp: new RequestHttp()
         })
 
+        const paisesList = PAISES
+
+        const filteredProveedores = computed(() => {
+            let list = data.items || []
+
+            if (data.filtroTipoProveedor) {
+                list = list.filter(item => item.idTipoProveedor === data.filtroTipoProveedor)
+            }
+
+            if (data.filtroPais) {
+                const target = String(data.filtroPais).trim().toLowerCase()
+                list = list.filter(item => {
+                    if (!item.pais) return false
+                    return item.pais.trim().toLowerCase() === target
+                })
+            }
+
+            return list
+        })
+
+        const hayFiltrosActivos = computed(() => {
+            return !!(data.filtroTipoProveedor || data.filtroPais || data.search)
+        })
+
+        const limpiarFiltros = () => {
+            data.filtroTipoProveedor = null
+            data.filtroPais = null
+            data.search = null
+        }
+
         function showSuccesAlert(msg, success = true) {
             data.alertSuccess.msg = msg
             data.alertSuccess.show = true
@@ -375,10 +511,14 @@ export default {
             }, 1500);
         }
 
-
         return {
             isMobile,
             data,
+            paisesList,
+            filteredProveedores,
+            hayFiltrosActivos,
+            limpiarFiltros,
+            obtenerBanderaPais,
             showSuccesAlert
         }
     },

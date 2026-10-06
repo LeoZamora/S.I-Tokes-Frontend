@@ -559,7 +559,7 @@
     </v-dialog>
 
     <!-- APERTURA VIGENTE / DETALLE DIALOG -->
-    <v-dialog v-model="dialogs.apertura" max-width="600">
+    <v-dialog v-model="dialogs.apertura" max-width="700" scrollable>
       <v-card class="rounded-lg overflow-hidden elevation-10">
         <v-card-title class="bg-indigo-darken-4 d-flex align-center py-3 px-4 text-white">
           <v-avatar size="32" color="white" class="mr-2" variant="flat">
@@ -583,7 +583,7 @@
           </div>
 
           <div v-else-if="detalleApertura">
-            <v-card variant="flat" class="pa-3 rounded-lg border bg-white mb-2" elevation="0">
+            <v-card variant="flat" class="pa-3 rounded-lg border bg-white mb-3" elevation="0">
               <v-row dense>
                 <v-col cols="12" sm="6">
                   <span class="text-caption text-grey font-weight-bold">CÓDIGO APERTURA:</span>
@@ -625,7 +625,7 @@
 
                 <v-col cols="12" sm="6">
                   <div class="pa-2 bg-green-lighten-5 rounded border border-green-lighten-3">
-                    <span class="text-caption text-green-darken-4 font-weight-bold d-block">FONDO EFECTIVO:</span>
+                    <span class="text-caption text-green-darken-4 font-weight-bold d-block">TOTAL EFECTIVO (FONDO):</span>
                     <span class="text-subtitle-1 font-weight-black text-green-darken-4">
                       {{ formatCurrency(detalleApertura.montoAperturaEfectivo) }}
                     </span>
@@ -648,6 +648,77 @@
                   </div>
                 </v-col>
               </v-row>
+            </v-card>
+
+            <!-- RESUMEN POR DIVISA -->
+            <v-card v-if="detalleApertura.desglocePorDivisa && detalleApertura.desglocePorDivisa.length > 0" variant="flat" class="pa-3 rounded-lg border bg-white mb-3" elevation="0">
+              <div class="text-caption font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center">
+                <v-icon size="small" class="mr-1">mdi-cash-multiple</v-icon>
+                DESGLOSE POR DIVISAS (MULTIDIVISA)
+              </div>
+              <v-row dense>
+                <v-col
+                  v-for="div in detalleApertura.desglocePorDivisa"
+                  :key="div.idDivisa"
+                  cols="12"
+                  sm="6"
+                >
+                  <div class="pa-2 rounded border bg-grey-lighten-5">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <v-chip size="x-small" color="indigo-darken-3" variant="flat" class="font-weight-bold">
+                        {{ div.divisaCodigo }} - {{ div.divisaNombre }}
+                      </v-chip>
+                      <span class="text-caption text-grey-darken-2">{{ div.totalCantidad }} unids.</span>
+                    </div>
+                    <div class="d-flex align-center justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Monto Original:</span>
+                      <span class="text-body-2 font-weight-bold text-grey-darken-4">
+                        {{ div.divisaSimbolo }} {{ Number(div.totalMonedaOriginal).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                      </span>
+                    </div>
+                    <div v-if="div.divisaCodigo !== 'NIO'" class="d-flex align-center justify-space-between mt-1 text-caption">
+                      <span class="text-grey-darken-1">T.C. {{ Number(div.tasaCambio).toFixed(2) }}:</span>
+                      <span class="font-weight-bold text-indigo-darken-3">
+                        {{ formatCurrency(div.totalMonedaPrincipal) }}
+                      </span>
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card>
+
+            <!-- DETALLE FÍSICO DE BILLETES Y MONEDAS -->
+            <v-card v-if="detalleApertura.desgloceDetalle && detalleApertura.desgloceDetalle.length > 0" variant="flat" class="pa-3 rounded-lg border bg-white" elevation="0">
+              <div class="text-caption font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center">
+                <v-icon size="small" class="mr-1">mdi-format-list-numbered</v-icon>
+                DETALLE DE BILLETES Y MONEDAS INGRESADOS
+              </div>
+              <v-table density="compact" class="border rounded">
+                <thead>
+                  <tr class="bg-indigo-lighten-5 text-indigo-darken-4">
+                    <th class="font-weight-bold text-caption">Divisa</th>
+                    <th class="font-weight-bold text-caption">Denominación</th>
+                    <th class="font-weight-bold text-caption text-center">Cantidad</th>
+                    <th class="font-weight-bold text-caption text-right">Subtotal Moneda</th>
+                    <th class="font-weight-bold text-caption text-right">Subtotal (C$)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, idx) in detalleApertura.desgloceDetalle" :key="idx">
+                    <td class="text-caption font-weight-bold">{{ item.divisaCodigo || 'NIO' }}</td>
+                    <td class="text-caption font-weight-medium">
+                      {{ (item.valorDenominacion >= 10 ? 'Billete de ' : 'Moneda de ') + (item.divisaSimbolo || 'C$') + ' ' + (item.valorDenominacion >= 1 ? item.valorDenominacion.toLocaleString('es-NI') : item.valorDenominacion.toFixed(2)) }}
+                    </td>
+                    <td class="text-caption text-center font-weight-bold">{{ item.cantidad }}</td>
+                    <td class="text-caption text-right font-weight-medium">
+                      {{ (item.divisaSimbolo || 'C$') }} {{ (item.valorDenominacion * item.cantidad).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                    </td>
+                    <td class="text-caption text-right font-weight-bold text-indigo-darken-4">
+                      {{ formatCurrency(item.subtotalMonedaPrincipal ?? ((item.valorDenominacion * item.cantidad) * (item.tasaCambio || 1))) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </v-card>
           </div>
 
@@ -1029,10 +1100,24 @@ export default {
       }
     }
 
-    const verDetalleComprobante = (apertura) => {
+    const verDetalleComprobante = async (apertura) => {
       detalleAperturaCaja.value = historialCaja.caja || { nombre: apertura.cajaNombre }
       detalleApertura.value = apertura
       dialogs.apertura = true
+
+      if (apertura?.idAperturaCaja && (!apertura.desgloceDetalle || apertura.desgloceDetalle.length === 0)) {
+        loadingApertura.value = true
+        try {
+          const res = await requestHttp.getAperturaCajaById(apertura.idAperturaCaja)
+          if (res.code === 200 && res.data) {
+            detalleApertura.value = res.data
+          }
+        } catch (e) {
+          console.error('Error cargando comprobante completo:', e)
+        } finally {
+          loadingApertura.value = false
+        }
+      }
     }
 
     return {

@@ -113,6 +113,7 @@ const endPoints = {
     getArqueosCaja: 'api/arqueos-caja',
     postArqueoCaja: 'api/arqueos-caja',
     getUsuarioCajaActiva: 'api/usuarios',
+    getCajasAutorizadas: 'api/usuarios/cajas-autorizadas',
     getRetirosCaja: 'api/retiros-caja',
     postRetiroCaja: 'api/retiros-caja',
     getConceptosRetiroCajaCombobox: 'api/conceptos-tipo-mov/retiros-caja/combobox',
@@ -157,7 +158,21 @@ const endPoints = {
     getSucursalInventario: 'api/sucursales/{id}/inventario',
     getSucursalHistorialCargas: 'api/sucursales/{id}/historial-cargas',
     getSucursalesInformeStock: 'api/sucursales/informe-stock',
-    postTrasladoSucursal: 'api/sucursales/traslado'
+    postTrasladoSucursal: 'api/sucursales/traslado',
+
+    // AJUSTES DE STOCK
+    getConceptosAjusteInventarioCombobox: 'api/conceptos-tipo-mov/ajustes-inventario/combobox',
+    getAjustesStock: 'api/producto/ajustes-stock',
+    postAjustesStockLote: 'api/producto/ajustes-stock',
+    getAjustesStockProducto: 'api/producto',
+
+    // DIVISAS
+    getDivisas: 'api/divisas',
+    getDivisasCombobox: 'api/divisas/combobox',
+    getDivisaById: 'api/divisas',
+    postDivisa: 'api/divisas',
+    putDivisa: 'api/divisas',
+    putDivisaTasaCambio: 'api/divisas'
 }
 
 export default endPoints

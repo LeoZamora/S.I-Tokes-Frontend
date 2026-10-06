@@ -308,6 +308,20 @@ const routes = createRouter({
       }
     },
     {
+      path: '/ajustes-stock',
+      name: 'Ajustes Stock',
+      component: () =>
+        import(
+          '@/views/inventario/ajustes-stock.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Ajustes de Stock | DevoDigital'
+      }
+    },
+    {
       path: '/tipo-ventas',
       name: 'Tipos de Venta',
       component: () =>

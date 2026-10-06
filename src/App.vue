@@ -763,6 +763,11 @@ export default {
           title: 'Bodegas',
           route: 'Bodegas',
           idVentana: '12'
+        },
+        {
+          title: 'Ajustes Stock',
+          route: 'Ajustes Stock',
+          idVentana: '12'
         }
       ],
 

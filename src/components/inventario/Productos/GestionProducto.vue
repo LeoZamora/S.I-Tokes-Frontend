@@ -120,12 +120,12 @@
               {{ formatCurrency(item.costo) }}
             </span>
             <span
-              v-if="item.costo !== null && item.costo !== undefined"
+              v-if="item.costo !== null && item.costo !== undefined && itemHasIvaCompra(item)"
               class="text-caption text-indigo-darken-3 font-weight-bold mt-0.5"
               style="font-size: 0.72rem !important; line-height: 1;"
-              title="Costo con IVA (15%)"
+              :title="`Costo con IVA (${itemIvaTasaCompra(item)}%)`"
             >
-              c/IVA: {{ formatCurrency(item.costo * 1.15) }}
+              c/IVA: {{ formatCurrency(item.costo * (1 + itemIvaTasaCompra(item) / 100)) }}
             </span>
           </div>
         </template>
@@ -223,9 +223,10 @@
                     <th
                       class="text-center font-weight-bold text-caption py-1"
                     >
-                      Sin IVA
+                      {{ itemHasIvaVenta(item) ? 'Sin IVA' : 'Precio' }}
                     </th>
                     <th
+                      v-if="itemHasIvaVenta(item)"
                       class="text-center font-weight-bold text-caption py-1"
                     >
                       Con IVA
@@ -263,10 +264,11 @@
                       }}
                     </td>
                     <td
+                      v-if="itemHasIvaVenta(item)"
                       class="text-center text-caption py-1 text-teal-darken-4 font-weight-bold"
                     >
                       {{
-                        formatCurrency(pm.precio * 1.15)
+                        formatCurrency(pm.precio * (1 + itemIvaTasaVenta(item) / 100))
                       }}
                     </td>
                     <td
@@ -288,7 +290,7 @@
                     "
                   >
                     <td
-                      colspan="4"
+                      :colspan="itemHasIvaVenta(item) ? 4 : 3"
                       class="text-center text-grey text-caption py-2"
                     >
                       Sin rangos registrados
@@ -303,12 +305,12 @@
               {{ formatCurrency(item.precio) }}
             </span>
             <span
-              v-if="item.precio !== null && item.precio !== undefined"
+              v-if="item.precio !== null && item.precio !== undefined && itemHasIvaVenta(item)"
               class="text-caption text-teal-darken-3 font-weight-bold mt-0.5"
               style="font-size: 0.72rem !important; line-height: 1;"
-              title="Precio con IVA (15%)"
+              :title="`Precio con IVA (${itemIvaTasaVenta(item)}%)`"
             >
-              c/IVA: {{ formatCurrency(item.precio * 1.15) }}
+              c/IVA: {{ formatCurrency(item.precio * (1 + itemIvaTasaVenta(item) / 100)) }}
             </span>
           </div>
         </template>
@@ -1238,9 +1240,21 @@
                             <v-icon size="x-small" class="mr-1">mdi-tag-outline</v-icon>
                             Sin IVA
                           </v-btn>
-                          <v-btn value="con_iva" size="small" class="text-caption font-weight-bold px-3">
+                          <v-btn
+                            value="con_iva"
+                            size="small"
+                            class="text-caption font-weight-bold px-3"
+                            :disabled="!tieneIvaVenta"
+                          >
                             <v-icon size="x-small" class="mr-1">mdi-receipt-text-outline</v-icon>
-                            Con IVA ({{ ivaConfig.tasaIva }}%)
+                            Con IVA ({{ tasaIvaCalculo }}%)
+                            <v-tooltip
+                              v-if="!tieneIvaVenta"
+                              activator="parent"
+                              location="top"
+                            >
+                              El producto no tiene IVA aplicable en venta
+                            </v-tooltip>
                           </v-btn>
                         </v-btn-toggle>
                       </div>
@@ -1251,7 +1265,7 @@
                             v-model="ivaConfig.precioInput"
                             :rules="[rules.required, rules.numeric]"
                             prefix="C$"
-                            :label="ivaConfig.precioModo === 'con_iva' ? `Precio Final al Cliente (Con IVA ${ivaConfig.tasaIva}%) *` : 'Precio de Venta Base (Sin IVA) *'"
+                            :label="precioInputLabel"
                             variant="outlined"
                             hide-details="auto"
                             density="compact"
@@ -1286,8 +1300,8 @@
                           <span class="text-grey-darken-1">Precio Base:</span>
                           <span class="font-weight-bold text-blue-grey-darken-4">C$ {{ precioBaseCalc.toFixed(2) }}</span>
                         </div>
-                        <div class="d-flex align-center ga-1 text-caption text-grey-darken-2">
-                          <span class="text-grey-darken-1">IVA ({{ ivaConfig.tasaIva }}%):</span>
+                        <div v-if="tieneIvaVenta" class="d-flex align-center ga-1 text-caption text-grey-darken-2">
+                          <span class="text-grey-darken-1">IVA ({{ tasaIvaCalculo }}%):</span>
                           <span class="font-weight-bold text-amber-darken-4">+ C$ {{ precioIvaCalc.toFixed(2) }}</span>
                         </div>
                         <div class="d-flex align-center ga-1 text-caption">
@@ -1341,23 +1355,24 @@
                           >
                             <th
                               class="text-center font-weight-bold text-caption"
-                              style="width: 14%"
+                              :style="{ width: tieneIvaVenta ? '14%' : '16%' }"
                             >
                               Cant. Mínima
                             </th>
                             <th
                               class="text-center font-weight-bold text-caption"
-                              style="width: 14%"
+                              :style="{ width: tieneIvaVenta ? '14%' : '16%' }"
                             >
                               Cant. Máxima
                             </th>
                             <th
                               class="text-center font-weight-bold text-caption"
-                              style="width: 18%"
+                              :style="{ width: tieneIvaVenta ? '18%' : '24%' }"
                             >
-                              Precio Final (Con IVA) *
+                              {{ tieneIvaVenta ? `Precio Final (Con IVA ${tasaIvaCalculo}%) *` : 'Precio de Venta Final *' }}
                             </th>
                             <th
+                              v-if="tieneIvaVenta"
                               class="text-center font-weight-bold text-caption"
                               style="width: 18%"
                             >
@@ -1365,7 +1380,7 @@
                             </th>
                             <th
                               class="text-center font-weight-bold text-caption"
-                              style="width: 15%"
+                              :style="{ width: tieneIvaVenta ? '15%' : '18%' }"
                             >
                               Utilidad (%)
                             </th>
@@ -1467,7 +1482,10 @@
                                 "
                               />
                             </td>
-                            <td class="pa-1 text-center font-weight-bold text-indigo-darken-3 bg-indigo-lighten-5">
+                            <td
+                              v-if="tieneIvaVenta"
+                              class="pa-1 text-center font-weight-bold text-indigo-darken-3 bg-indigo-lighten-5"
+                            >
                               C$ {{ Number(row.precio || 0).toFixed(2) }}
                             </td>
                             <td class="pa-1">
@@ -1538,7 +1556,7 @@
                             "
                           >
                             <td
-                              colspan="7"
+                              :colspan="tieneIvaVenta ? 7 : 6"
                               class="py-2 text-indigo-darken-4 font-weight-bold text-caption bg-indigo-lighten-5"
                             >
                               <v-icon
@@ -1560,7 +1578,7 @@
                             "
                           >
                             <td
-                              colspan="7"
+                              :colspan="tieneIvaVenta ? 7 : 6"
                               class="text-center text-grey text-caption py-4"
                             >
                               <v-icon
@@ -1667,6 +1685,7 @@
                                 rules.required
                               ]"
                               color="indigo"
+                              @update:model-value="onImpuestosChange"
                             />
                           </td>
                           <td
@@ -1682,6 +1701,7 @@
                                 color="indigo"
                                 hide-details
                                 density="compact"
+                                @update:model-value="onImpuestosChange"
                               />
                             </div>
                           </td>
@@ -1698,6 +1718,7 @@
                                 color="indigo"
                                 hide-details
                                 density="compact"
+                                @update:model-value="onImpuestosChange"
                               />
                             </div>
                           </td>
@@ -1998,7 +2019,7 @@
                         >
                           <template v-slot:append>
                             <v-tooltip
-                              text="Ajustar Stock"
+                              text="Gestionar ajustes de stock por bodega en el módulo 'Ajustes Stock'"
                               location="top"
                             >
                               <template
@@ -2009,12 +2030,14 @@
                                 <v-btn
                                   v-bind="props"
                                   @click="
-                                    loadAjusteStockDisplay
+                                    $router.push(
+                                      '/ajustes-stock'
+                                    )
                                   "
                                   color="indigo-darken-3"
                                   variant="tonal"
                                   size="36"
-                                  icon="mdi-pencil-box-outline"
+                                  icon="mdi-tune-vertical-variant"
                                 />
                               </template>
                             </v-tooltip>
@@ -2464,9 +2487,19 @@
           </v-card>
         </v-card-text>
 
-        <!-- Footer -->
         <v-divider thickness="2" />
-        <v-card-actions class="pa-4 bg-white">
+        <v-card-actions class="pa-4 bg-white d-flex justify-space-between">
+          <v-btn
+            color="indigo-darken-4"
+            variant="tonal"
+            prepend-icon="mdi-tune-vertical-variant"
+            @click="
+              display.verAjusteStock = false;
+              $router.push('/ajustes-stock')
+            "
+          >
+            Ir al Módulo de Ajustes de Stock
+          </v-btn>
           <v-btn
             color="grey-darken-2"
             variant="tonal"
@@ -2476,80 +2509,6 @@
             prepend-icon="mdi-close"
           >
             Cerrar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog
-      v-model="display.ajusteStock"
-      width="300"
-    >
-      <v-card>
-        <v-card-item>
-          <v-card-title
-            >Ajustar stock</v-card-title
-          >
-          <v-card-subtitle>
-            {{ ajusteStock.producto }}
-          </v-card-subtitle>
-        </v-card-item>
-        <v-divider></v-divider>
-        <v-card-text>
-          <v-form ref="formAjusteStock">
-            <v-row dense>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="
-                    ajusteStock.data.cantidadTotal
-                  "
-                  label="Nuevo stock:"
-                  color="indigo"
-                  variant="outlined"
-                  density="compact"
-                  type="number"
-                  prepend-inner-icon="mdi-numeric"
-                  :rules="[
-                    (v) => !!v || 'Requerido.'
-                  ]"
-                >
-                </v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-textarea
-                  v-model="
-                    ajusteStock.data.observaciones
-                  "
-                  label="Motivo del ajuste:"
-                  color="indigo"
-                  variant="outlined"
-                  density="compact"
-                  rows="2"
-                  auto-grow
-                  :rules="[
-                    (v) => !!v || 'Requerido.'
-                  ]"
-                >
-                </v-textarea>
-              </v-col>
-            </v-row>
-          </v-form>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions class="justify-end">
-          <v-btn
-            color="secondary"
-            variant="outlined"
-            @click="closeAjusteStockDisplay"
-          >
-            Cancelar
-          </v-btn>
-          <v-btn
-            color="primary"
-            variant="elevated"
-            @click="saveAjusteStockDisplay"
-          >
-            Ajustar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -3100,64 +3059,74 @@ export default {
           items: [],
           headers: [
             {
-              title: 'Stock Anterior',
-              key: 'stockAnterior',
-              align: 'center',
-              width: 1,
-              headerProps: {
-                class: 'pa-1'
-              },
-              cellProps: {
-                class: 'pa-1 border-e'
-              }
+              title: 'Ref. Kardex',
+              key: 'referenciaKardex',
+              align: 'start',
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1 border-e font-weight-bold' }
             },
             {
-              title: 'Stock Ajustado',
+              title: 'Bodega',
+              key: 'bodega',
+              align: 'start',
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1 border-e' }
+            },
+            {
+              title: 'Concepto',
+              key: 'concepto',
+              align: 'start',
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1 border-e' }
+            },
+            {
+              title: 'Stock Ant.',
+              key: 'stockAnterior',
+              align: 'center',
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1 border-e' }
+            },
+            {
+              title: 'Ajuste',
+              key: 'cantidadAjustada',
+              align: 'center',
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1 border-e' }
+            },
+            {
+              title: 'Stock Resultante',
               key: 'stockActual',
               align: 'center',
-              width: 1,
-              headerProps: {
-                class: 'pa-1'
-              },
-              cellProps: {
-                class: 'pa-1 border-e'
-              }
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1 border-e font-weight-bold' }
+            },
+            {
+              title: 'Tipo',
+              key: 'tipoOperacion',
+              align: 'center',
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1 border-e' }
             },
             {
               title: 'Motivo',
               key: 'observaciones',
-              align: 'center',
-              //width: 1,
-              headerProps: {
-                class: 'pa-1'
-              },
-              cellProps: {
-                class: 'pa-1 border-e'
-              }
+              align: 'start',
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1 border-e' }
             },
             {
               title: 'Fecha Registro',
               key: 'fechaRegistro',
               align: 'center',
-              width: 1,
-              headerProps: {
-                class: 'pa-1'
-              },
-              cellProps: {
-                class: 'pa-1 border-e'
-              }
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1 border-e' }
             },
             {
               title: 'Usuario Registro',
               key: 'usuarioRegistro',
-              align: 'center',
-              width: 1,
-              headerProps: {
-                class: 'pa-1'
-              },
-              cellProps: {
-                class: 'pa-1'
-              }
+              align: 'start',
+              headerProps: { class: 'pa-1' },
+              cellProps: { class: 'pa-1' }
             }
           ]
         }
@@ -3216,7 +3185,7 @@ export default {
       ivaConfig: {
         tasaIva: 15,
         costoModo: 'sin_iva',
-        precioModo: 'con_iva',
+        precioModo: 'sin_iva',
         costoInput: null,
         precioInput: null
       },
@@ -3249,6 +3218,50 @@ export default {
         ? 'Nuevo Producto'
         : 'Editar Producto'
     },
+    tieneIvaVenta() {
+      if (!this.data.form.impuestos || this.data.form.impuestos.length === 0) {
+        return false
+      }
+      return this.data.form.impuestos.some((imp) => {
+        if (!imp.esAplicadoVenta) return false
+        return this.isIvaImpuestoItem(imp)
+      })
+    },
+    tieneIvaCompra() {
+      if (!this.data.form.impuestos || this.data.form.impuestos.length === 0) {
+        return false
+      }
+      return this.data.form.impuestos.some((imp) => {
+        if (!imp.esAplicadoCompra) return false
+        return this.isIvaImpuestoItem(imp)
+      })
+    },
+    tasaIvaCalculo() {
+      if (!this.tieneIvaVenta) return 0
+      for (const imp of this.data.form.impuestos || []) {
+        if (imp.esAplicadoVenta && this.isIvaImpuestoItem(imp)) {
+          return this.getImpuestoTasa(imp)
+        }
+      }
+      return Number(this.ivaConfig.tasaIva || 15)
+    },
+    tasaIvaCompraCalculo() {
+      if (!this.tieneIvaCompra) return 0
+      for (const imp of this.data.form.impuestos || []) {
+        if (imp.esAplicadoCompra && this.isIvaImpuestoItem(imp)) {
+          return this.getImpuestoTasa(imp)
+        }
+      }
+      return Number(this.ivaConfig.tasaIva || 15)
+    },
+    precioInputLabel() {
+      if (!this.tieneIvaVenta) {
+        return 'Precio de Venta Final (Sin IVA) *'
+      }
+      return this.ivaConfig.precioModo === 'con_iva'
+        ? `Precio Final al Cliente (Con IVA ${this.tasaIvaCalculo}%) *`
+        : 'Precio de Venta Base (Sin IVA) *'
+    },
     costoBaseCalc() {
       if (this.ivaConfig.costoModo === 'con_iva') {
         const val = Number(this.ivaConfig.costoInput || 0)
@@ -3274,19 +3287,23 @@ export default {
     },
 
     precioBaseCalc() {
-      if (this.ivaConfig.precioModo === 'con_iva') {
-        const val = Number(this.ivaConfig.precioInput || 0)
-        const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
-        return val > 0 ? val / (1 + tasa) : 0
+      if (!this.tieneIvaVenta || this.ivaConfig.precioModo === 'sin_iva') {
+        return Number(this.ivaConfig.precioInput || this.data.form.precio || 0)
       }
-      return Number(this.ivaConfig.precioInput || this.data.form.precio || 0)
+      const val = Number(this.ivaConfig.precioInput || 0)
+      const tasa = Number(this.tasaIvaCalculo || 15) / 100
+      return val > 0 ? val / (1 + tasa) : 0
     },
     precioIvaCalc() {
+      if (!this.tieneIvaVenta) return 0
       const base = this.precioBaseCalc
-      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      const tasa = Number(this.tasaIvaCalculo || 15) / 100
       return base * tasa
     },
     precioTotalCalc() {
+      if (!this.tieneIvaVenta) {
+        return this.precioBaseCalc
+      }
       if (this.ivaConfig.precioModo === 'con_iva') {
         return Number(this.ivaConfig.precioInput || 0)
       }
@@ -3303,6 +3320,15 @@ export default {
     }
   },
 
+  watch: {
+    'data.form.impuestos': {
+      handler() {
+        this.onImpuestosChange()
+      },
+      deep: true
+    }
+  },
+
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       vm.getProductos()
@@ -3313,81 +3339,6 @@ export default {
   methods: {
     hasAccessToFunct,
 
-    loadAjusteStockDisplay() {
-      this.display.ajusteStock = true
-      this.ajusteStock.data.idProducto =
-        this.data.form.idProducto
-      this.ajusteStock.producto =
-        this.data.form.nombre
-    },
-
-    closeAjusteStockDisplay() {
-      this.display.ajusteStock = false
-      this.ajusteStock.data.cantidadTotal = 0
-      this.ajusteStock.data.observaciones = ''
-      this.ajusteStock.data.idProducto = 0
-    },
-
-    async saveAjusteStockDisplay() {
-      const validation =
-        await this.$refs.formAjusteStock.validate()
-
-      if (!validation.valid) {
-        this.snackbar.notify(
-          'error',
-          'Rellene los campos requeridos.'
-        )
-        return
-      }
-
-      this.ajusteStock.loading = true
-      try {
-        this.ajusteStock.data.usuarioRegistro =
-          this.token.usuario
-        const targetId =
-          this.ajusteStock.data.idProducto
-        const nuevoStock = Number(
-          this.ajusteStock.data.cantidadTotal
-        )
-
-        await httpPut(
-          `api/producto/${targetId}/cantidad-total`,
-          this.ajusteStock.data
-        )
-
-        this.snackbar.notify(
-          'success',
-          'Ajuste de stock realizado correctamente.'
-        )
-
-        this.data.form.cantidadTotal = nuevoStock
-
-        const productInTable =
-          this.data.products.find(
-            (p) => p.idProducto === targetId
-          )
-        if (productInTable) {
-          productInTable.cantidadTotal =
-            nuevoStock
-          productInTable.stockMin =
-            productInTable.cantidadMinima >
-            nuevoStock
-              ? 'SI'
-              : 'NO'
-        }
-
-        this.closeAjusteStockDisplay()
-        await this.getProductos()
-      } catch (err) {
-        console.error(err)
-        this.snackbar.notify(
-          'error',
-          'Ocurrió un error al realizar el ajuste de stock, contacte al administrador.'
-        )
-      } finally {
-        this.ajusteStock.loading = false
-      }
-    },
 
     async loadVerAjustesStockDisplay(item) {
       try {
@@ -3484,16 +3435,147 @@ export default {
       }
     },
 
+    getImpuestoInfo(impOrId) {
+      if (!impOrId) return { isIva: false, tasa: 15, nombre: '' }
+      const id =
+        typeof impOrId === 'object'
+          ? (impOrId.idImpuesto ?? impOrId.id ?? impOrId.value)
+          : impOrId
+
+      let nombre = ''
+      let tasa = null
+
+      if (typeof impOrId === 'object') {
+        nombre = impOrId.impuesto || impOrId.nombre || ''
+        if (
+          impOrId.valorPorcentual !== undefined &&
+          impOrId.valorPorcentual !== null &&
+          impOrId.valorPorcentual !== ''
+        ) {
+          tasa = Number(impOrId.valorPorcentual)
+        } else if (
+          impOrId.porcentaje !== undefined &&
+          impOrId.porcentaje !== null &&
+          impOrId.porcentaje !== ''
+        ) {
+          tasa = Number(impOrId.porcentaje)
+        } else if (
+          impOrId.tasa !== undefined &&
+          impOrId.tasa !== null &&
+          impOrId.tasa !== ''
+        ) {
+          tasa = Number(impOrId.tasa)
+        }
+      }
+
+      const impDef = (this.cmb.impuestos || []).find(
+        (c) => (c.value ?? c.id ?? c.idImpuesto) == id
+      )
+
+      if (impDef) {
+        if (!nombre) {
+          nombre =
+            impDef.nombre ||
+            impDef.title ||
+            impDef.impuesto ||
+            impDef.codigo ||
+            ''
+        }
+        if (tasa === null) {
+          if (
+            impDef.valorPorcentual !== undefined &&
+            impDef.valorPorcentual !== null &&
+            impDef.valorPorcentual !== ''
+          ) {
+            tasa = Number(impDef.valorPorcentual)
+          } else if (
+            impDef.porcentaje !== undefined &&
+            impDef.porcentaje !== null &&
+            impDef.porcentaje !== ''
+          ) {
+            tasa = Number(impDef.porcentaje)
+          } else if (
+            impDef.tasa !== undefined &&
+            impDef.tasa !== null &&
+            impDef.tasa !== ''
+          ) {
+            tasa = Number(impDef.tasa)
+          }
+        }
+      }
+
+      const upperName = (nombre || '').toUpperCase()
+      const isExento = upperName.includes('EXENT') || tasa === 0
+      const isIva = !isExento
+
+      return {
+        isIva: isIva,
+        tasa: tasa !== null && tasa > 0 ? tasa : 15,
+        nombre: nombre
+      }
+    },
+
+    isIvaImpuestoItem(idOrObj) {
+      return this.getImpuestoInfo(idOrObj).isIva
+    },
+
+    getImpuestoTasa(idOrObj) {
+      return this.getImpuestoInfo(idOrObj).tasa
+    },
+
+    onImpuestosChange() {
+      const tieneIva = this.tieneIvaVenta
+      const tasa = this.tasaIvaCalculo / 100
+
+      if (!tieneIva) {
+        this.ivaConfig.precioModo = 'sin_iva'
+        if (this.data.form.precio !== null && this.data.form.precio !== undefined) {
+          this.ivaConfig.precioInput = Number(
+            Number(this.data.form.precio).toFixed(2)
+          )
+        }
+        if (
+          this.data.form.preciosMayoristas &&
+          this.data.form.preciosMayoristas.length > 0
+        ) {
+          this.data.form.preciosMayoristas.forEach((row) => {
+            if (row.precio !== null && row.precio !== undefined && row.precio !== '') {
+              row.precioConIva = Number(Number(row.precio).toFixed(2))
+            }
+          })
+        }
+      } else {
+        this.ivaConfig.precioModo = 'con_iva'
+        if (this.data.form.precio !== null && this.data.form.precio !== undefined) {
+          this.ivaConfig.precioInput = Number(
+            (Number(this.data.form.precio) * (1 + tasa)).toFixed(2)
+          )
+        }
+
+        if (
+          this.data.form.preciosMayoristas &&
+          this.data.form.preciosMayoristas.length > 0
+        ) {
+          this.data.form.preciosMayoristas.forEach((row) => {
+            const base = Number(row.precio || 0)
+            if (base > 0) {
+              row.precioConIva = Number((base * (1 + tasa)).toFixed(2))
+            }
+          })
+        }
+      }
+    },
+
     onInputPrecio(val) {
       this.ivaConfig.precioInput = val
       const numVal =
         val !== '' && val !== null && val !== undefined ? Number(val) : null
-      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      const tasa = this.tieneIvaVenta ? Number(this.tasaIvaCalculo || 15) / 100 : 0
       if (numVal === null || isNaN(numVal)) {
         this.data.form.precio = null
         this.data.form.utilidad = null
       } else {
-        if (this.ivaConfig.precioModo === 'con_iva') {
+        if (this.tieneIvaVenta && this.ivaConfig.precioModo === 'con_iva') {
           this.data.form.precio = Number((numVal / (1 + tasa)).toFixed(4))
         } else {
           this.data.form.precio = Number(numVal.toFixed(4))
@@ -3503,9 +3585,13 @@ export default {
     },
 
     onTogglePrecioModo(modo) {
+      if (!this.tieneIvaVenta) {
+        this.ivaConfig.precioModo = 'sin_iva'
+        return
+      }
       this.ivaConfig.precioModo = modo
       const precioBase = Number(this.data.form.precio || 0)
-      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      const tasa = Number(this.tasaIvaCalculo || 15) / 100
       if (modo === 'con_iva') {
         const conIva = precioBase * (1 + tasa)
         this.ivaConfig.precioInput = conIva > 0 ? Number(conIva.toFixed(2)) : ''
@@ -3584,19 +3670,24 @@ export default {
     },
 
     handleWholesalePrecioConIvaChange(row) {
-      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
-      const conIva =
+      const tieneIva = this.tieneIvaVenta
+      const tasa = tieneIva ? Number(this.tasaIvaCalculo || 15) / 100 : 0
+      const inputVal =
         row.precioConIva !== '' &&
         row.precioConIva !== null &&
         row.precioConIva !== undefined
           ? Number(row.precioConIva)
           : null
-      if (conIva === null || isNaN(conIva)) {
+      if (inputVal === null || isNaN(inputVal)) {
         row.precio = 0
         row.utilidad = null
         return
       }
-      row.precio = Number((conIva / (1 + tasa)).toFixed(4))
+      if (tieneIva) {
+        row.precio = Number((inputVal / (1 + tasa)).toFixed(4))
+      } else {
+        row.precio = Number(inputVal.toFixed(4))
+      }
       this.handleWholesalePrecioChange(row)
     },
 
@@ -3618,7 +3709,8 @@ export default {
     },
 
     handleWholesaleUtilidadChange(row) {
-      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      const tieneIva = this.tieneIvaVenta
+      const tasa = tieneIva ? Number(this.tasaIvaCalculo || 15) / 100 : 0
       if (
         row.utilidad === '' ||
         row.utilidad === null ||
@@ -3672,8 +3764,8 @@ export default {
           ((utilidad / 100) * costo + costo).toFixed(4)
         )
       }
-      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
-      if (this.ivaConfig.precioModo === 'con_iva') {
+      const tasa = this.tieneIvaVenta ? Number(this.tasaIvaCalculo || 15) / 100 : 0
+      if (this.tieneIvaVenta && this.ivaConfig.precioModo === 'con_iva') {
         const conIva = Number(this.data.form.precio || 0) * (1 + tasa)
         this.ivaConfig.precioInput = conIva > 0 ? Number(conIva.toFixed(2)) : ''
       } else {
@@ -4059,12 +4151,15 @@ export default {
 
       const count =
         this.data.form.preciosMayoristas.length
-      const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
+      const tieneIva = this.tieneIvaVenta
+      const tasa = tieneIva ? Number(this.tasaIvaCalculo || 15) / 100 : 0
       if (count === 0) {
         const basePrecio = this.data.form.precio || 0
         const conIva =
           basePrecio > 0
-            ? Number((Number(basePrecio) * (1 + tasa)).toFixed(2))
+            ? tieneIva
+              ? Number((Number(basePrecio) * (1 + tasa)).toFixed(2))
+              : Number(Number(basePrecio).toFixed(2))
             : ''
         this.data.form.preciosMayoristas.push({
           minimo: 1,
@@ -4123,10 +4218,16 @@ export default {
         esAplicadoCompra: true,
         esAplicadoVenta: true
       })
+      this.$nextTick(() => {
+        this.onImpuestosChange()
+      })
     },
 
     removeImpuestoRow(index) {
       this.data.form.impuestos.splice(index, 1)
+      this.$nextTick(() => {
+        this.onImpuestosChange()
+      })
     },
 
     async guardarUnidadMedida() {
@@ -4180,7 +4281,7 @@ export default {
       this.registroDisplay.imagen.url = null
       this.registroDisplay.imagen.archivo = null
       this.ivaConfig.costoModo = 'sin_iva'
-      this.ivaConfig.precioModo = 'con_iva'
+      this.ivaConfig.precioModo = 'sin_iva'
       this.ivaConfig.tasaIva = 15
       this.ivaConfig.costoInput = null
       this.ivaConfig.precioInput = null
@@ -4223,6 +4324,13 @@ export default {
             }
           ]
         }
+        this.$nextTick(() => {
+          if (this.tieneIvaVenta) {
+            this.ivaConfig.precioModo = 'con_iva'
+          } else {
+            this.ivaConfig.precioModo = 'sin_iva'
+          }
+        })
       } else {
         await this.loadCmbSubCategoria(
           product.idCategoriaProducto
@@ -4282,12 +4390,6 @@ export default {
           product.categoria
         this.data.form.nombre = fullProduct.nombre
         this.data.form.precio = fullProduct.precio
-        const tasa = Number(this.ivaConfig.tasaIva || 15) / 100
-        this.ivaConfig.precioInput =
-          fullProduct.precio !== null &&
-          fullProduct.precio !== undefined
-            ? Number((Number(fullProduct.precio) * (1 + tasa)).toFixed(2))
-            : null
         this.data.form.idSubCatProd =
           fullProduct.idSubCatProd
         this.data.form.tipoProducto =
@@ -4308,6 +4410,42 @@ export default {
           fullProduct.usuarioRegistro
         this.data.form.esMayorista =
           fullProduct.esMayorista || false
+
+        const impSource =
+          fullProduct.productoImpuestos ||
+          fullProduct.impuestos ||
+          product.impuestos ||
+          []
+        this.data.form.impuestos = impSource.map(
+          (imp) => ({
+            idImpuesto: imp.idImpuesto || imp.id,
+            impuesto: imp.impuesto || imp.nombre,
+            valorPorcentual: imp.valorPorcentual,
+            esAplicadoCompra:
+              imp.esAplicadoCompra !== false,
+            esAplicadoVenta:
+              imp.esAplicadoVenta !== false
+          })
+        )
+
+        const tieneIva = this.tieneIvaVenta
+        const tasa = tieneIva ? Number(this.tasaIvaCalculo || 15) / 100 : 0
+        this.ivaConfig.precioModo = tieneIva ? 'con_iva' : 'sin_iva'
+
+        if (fullProduct.precio !== null && fullProduct.precio !== undefined) {
+          if (tieneIva) {
+            this.ivaConfig.precioInput = Number(
+              (Number(fullProduct.precio) * (1 + tasa)).toFixed(2)
+            )
+          } else {
+            this.ivaConfig.precioInput = Number(
+              Number(fullProduct.precio).toFixed(2)
+            )
+          }
+        } else {
+          this.ivaConfig.precioInput = null
+        }
+
         this.data.form.preciosMayoristas =
           fullProduct.precioMayorista
             ? fullProduct.precioMayorista.map(
@@ -4315,7 +4453,9 @@ export default {
                   const precio = Number(pm.precio || 0)
                   const conIva =
                     precio > 0
-                      ? Number((precio * (1 + tasa)).toFixed(2))
+                      ? tieneIva
+                        ? Number((precio * (1 + tasa)).toFixed(2))
+                        : Number(precio.toFixed(2))
                       : ''
                   const row = {
                     precio: pm.precio,
@@ -4345,21 +4485,6 @@ export default {
                 }
               )
             : []
-
-        const impSource =
-          fullProduct.productoImpuestos ||
-          fullProduct.impuestos ||
-          product.impuestos ||
-          []
-        this.data.form.impuestos = impSource.map(
-          (imp) => ({
-            idImpuesto: imp.idImpuesto,
-            esAplicadoCompra:
-              imp.esAplicadoCompra !== false,
-            esAplicadoVenta:
-              imp.esAplicadoVenta !== false
-          })
-        )
 
         this.loadImagenProducto(
           fullProduct.idProducto
@@ -4444,7 +4569,7 @@ export default {
       this.selectedProduct = null
       this.data.form.idSubCatProd = null
       this.ivaConfig.costoModo = 'sin_iva'
-      this.ivaConfig.precioModo = 'con_iva'
+      this.ivaConfig.precioModo = 'sin_iva'
       this.ivaConfig.tasaIva = 15
       this.ivaConfig.costoInput = null
       this.ivaConfig.precioInput = null
@@ -4909,6 +5034,36 @@ export default {
           this.data.popoverLoading = false
         }
       }
+    },
+
+    itemHasIvaVenta(item) {
+      if (!item || !item.impuestos || item.impuestos.length === 0) return false
+      return item.impuestos.some((imp) => {
+        if (!imp.esAplicadoVenta) return false
+        const name = (imp.impuesto || imp.nombre || '').toUpperCase()
+        return name.includes('IVA') || (Number(imp.valorPorcentual) > 0)
+      })
+    },
+
+    itemHasIvaCompra(item) {
+      if (!item || !item.impuestos || item.impuestos.length === 0) return false
+      return item.impuestos.some((imp) => {
+        if (!imp.esAplicadoCompra) return false
+        const name = (imp.impuesto || imp.nombre || '').toUpperCase()
+        return name.includes('IVA') || (Number(imp.valorPorcentual) > 0)
+      })
+    },
+
+    itemIvaTasaVenta(item) {
+      if (!item || !item.impuestos) return 15
+      const imp = item.impuestos.find((i) => i.esAplicadoVenta && (Number(i.valorPorcentual) > 0 || (i.impuesto || i.nombre || '').toUpperCase().includes('IVA')))
+      return imp ? Number(imp.valorPorcentual || 15) : 15
+    },
+
+    itemIvaTasaCompra(item) {
+      if (!item || !item.impuestos) return 15
+      const imp = item.impuestos.find((i) => i.esAplicadoCompra && (Number(i.valorPorcentual) > 0 || (i.impuesto || i.nombre || '').toUpperCase().includes('IVA')))
+      return imp ? Number(imp.valorPorcentual || 15) : 15
     },
 
     calculatePopoverUtilidad(precio, costo) {

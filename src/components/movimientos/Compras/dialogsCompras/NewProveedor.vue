@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="localShow" max-width="600" persistent>
+    <v-dialog v-model="localShow" max-width="650" persistent>
         <v-card>
             <v-card-title class="bg-indigo-darken-4 d-flex align-center">
                 <h5><v-icon>mdi-account-tie</v-icon>{{ localTitle }}</h5>
@@ -46,24 +46,46 @@
                                 :rules="data.rules.rule"/>
                         </v-col>
                         <v-col cols="12" md="6" sm="6" class="py-2">
-                            <v-text-field v-model="data.dataProveedor.telefono" prepend-inner-icon="mdi-phone" density="compact" 
-                                variant="outlined" hide-details label="Teléfono" placeholder="teléfono del proveedor"  
-                                persistent-placeholder type="number" :readonly="readonlyOption()" color="indigo"
-                                :rules="data.rules.rule"/>
+                            <v-autocomplete v-model="data.dataProveedor.pais" :items="paisesList" 
+                                item-title="nombre" item-value="nombre" prepend-inner-icon="mdi-earth" 
+                                density="compact" variant="outlined" hide-details label="País" 
+                                placeholder="Seleccione o busque país" persistent-placeholder 
+                                clearable auto-select-first :readonly="readonlyOption()" color="indigo"
+                                :rules="data.rules.rule">
+                                <template v-slot:item="{ props, item }">
+                                    <v-list-item v-bind="props" :title="item.raw.nombre">
+                                        <template v-slot:prepend>
+                                            <span class="me-2 text-body-1">{{ item.raw.flag }}</span>
+                                        </template>
+                                    </v-list-item>
+                                </template>
+                                <template v-slot:selection="{ item }">
+                                    <span class="d-flex align-center">
+                                        <span class="me-2">{{ item.raw?.flag || obtenerBanderaPais(item.raw?.nombre || item.raw) }}</span>
+                                        <span>{{ item.raw?.nombre || item.raw }}</span>
+                                    </span>
+                                </template>
+                            </v-autocomplete>
                         </v-col>
                         <v-col cols="12" md="6" sm="6" class="py-2">
-                            <v-text-field v-model="data.dataProveedor.departamento" prepend-inner-icon="mdi-home-city" density="compact" 
-                                variant="outlined" hide-details label="Departamento" placeholder="ingrese un departamento"  
+                            <v-text-field v-model="data.dataProveedor.departamento" prepend-inner-icon="mdi-city" density="compact" 
+                                variant="outlined" hide-details label="Ciudad" placeholder="ingrese la ciudad"  
                                 persistent-placeholder :readonly="readonlyOption()" color="indigo"
                                 :rules="data.rules.rule"/>
                         </v-col>
                         <v-col cols="12" md="6" sm="6" class="py-2">
                             <v-text-field v-model="data.dataProveedor.municipio" prepend-inner-icon="mdi-map-marker" density="compact" 
-                                variant="outlined" hide-details label="Municipio" placeholder="ingrese un municipio"  
+                                variant="outlined" hide-details label="Estado" placeholder="ingrese el estado / provincia"  
                                 persistent-placeholder :readonly="readonlyOption()" color="indigo"
                                 :rules="data.rules.rule"/>
                         </v-col>
                         <v-col cols="12" md="6" sm="6" class="py-2">
+                            <v-text-field v-model="data.dataProveedor.telefono" prepend-inner-icon="mdi-phone" density="compact" 
+                                variant="outlined" hide-details label="Teléfono" placeholder="teléfono del proveedor"  
+                                persistent-placeholder :readonly="readonlyOption()" color="indigo"
+                                :rules="data.rules.rule"/>
+                        </v-col>
+                        <v-col cols="12" class="py-2">
                             <v-textarea v-model="data.dataProveedor.direccion" prepend-inner-icon="mdi-text" density="compact" 
                                 variant="outlined" hide-details label="Dirección" placeholder="dirección del proveedor"  
                                 persistent-placeholder :rows="2" :readonly="readonlyOption()" color="indigo" />
@@ -124,6 +146,7 @@
 
 <script>
 import { formatters } from '@/helpers/formatters';
+import { PAISES, obtenerBanderaPais } from '@/helpers/paises';
 import RequestHttp from '@/services/requestHttp';
 import { reactive, ref, watch } from 'vue';
 import AlertComp from '@/components/reutilizable/AlertComp.vue';
@@ -178,13 +201,14 @@ export default {
         })
         watch(() => props.editar, (val) => {
             localEdit.value = val
-            if (val === true) {
+            if (val === true && localProv.value) {
                 data.dataProveedor.nombre = localProv.value.nombre
                 data.dataProveedor.usuarioRegistro = localProv.value.usuarioRegistro
-                data.dataProveedor.telefono = localProv.value.telefono
-                data.dataProveedor.departamento = localProv.value.departamento
-                data.dataProveedor.municipio = localProv.value.municipio
-                data.dataProveedor.direccion = localProv.value.direccion
+                data.dataProveedor.pais = localProv.value.pais || null
+                data.dataProveedor.departamento = localProv.value.departamento || null
+                data.dataProveedor.municipio = localProv.value.municipio || null
+                data.dataProveedor.telefono = localProv.value.telefono || null
+                data.dataProveedor.direccion = localProv.value.direccion || null
                 data.dataProveedor.idTipoProveedor = localProv.value.idTipoProveedor
                 data.idProv = localProv.value.idProveedor
             }
@@ -197,13 +221,14 @@ export default {
         })
         watch(() => props.ver, (val) => {
             localView.value = val
-            if (val === true) {
+            if (val === true && localProv.value) {
                 data.dataProveedor.nombre = localProv.value.nombre
                 data.dataProveedor.usuarioRegistro = localProv.value.usuarioRegistro
-                data.dataProveedor.telefono = localProv.value.telefono
-                data.dataProveedor.departamento = localProv.value.departamento
-                data.dataProveedor.municipio = localProv.value.municipio
-                data.dataProveedor.direccion = localProv.value.direccion
+                data.dataProveedor.pais = localProv.value.pais || null
+                data.dataProveedor.departamento = localProv.value.departamento || null
+                data.dataProveedor.municipio = localProv.value.municipio || null
+                data.dataProveedor.telefono = localProv.value.telefono || null
+                data.dataProveedor.direccion = localProv.value.direccion || null
                 data.dataProveedor.idTipoProveedor = localProv.value.idTipoProveedor
                 data.idProv = localProv.value.idProveedor
             }
@@ -217,9 +242,10 @@ export default {
             dataProveedor: {
                 nombre: null,
                 idTipoProveedor: null,
-                telefono: null,
+                pais: null,
                 departamento: null,
                 municipio: null,
+                telefono: null,
                 direccion: null,
                 usuarioRegistro: null,
             },
@@ -271,6 +297,8 @@ export default {
             }, 3000);
         }
 
+        const paisesList = PAISES
+
         return {
             localShow,
             localEdit,
@@ -278,6 +306,8 @@ export default {
             localProv,
             localView,
             data,
+            paisesList,
+            obtenerBanderaPais,
             showAlert,
             showSuccesAlert,
             store
@@ -301,7 +331,7 @@ export default {
                     if (result.code === 200) {
                         this.showSuccesAlert('¡Registro Guardado!', true)
                         setTimeout(() => {
-                            this.$emit('closeDialog', false)
+                            this.closeDialog()
                             this.localEdit = false
                         }, 1500);
                     } else {
@@ -317,14 +347,14 @@ export default {
 
                     this.data.disabledBtn = true
                     this.data.overlay.show = true
-                    const result = await this.data.requestHttp.putCategorias(this.data.dataProveedor, this.data.idProv)
+                    const result = await this.data.requestHttp.putProveedor(this.data.dataProveedor, this.data.idProv)
                     this.data.disabledBtn = false
                     this.data.overlay.show = false
 
-                    if (result.code === 200) {
+                    if (result && result.code === 200) {
                         this.showSuccesAlert('¡Registro Editado!', true)
                         setTimeout(() => {
-                            this.$emit('closeDialog', false)
+                            this.closeDialog()
                             this.localEdit = false
                         }, 1500);
                     } else {
@@ -337,7 +367,7 @@ export default {
                 }
             }
         },
-         async getTipoProveedores() {
+        async getTipoProveedores() {
             this.data.tipoProveedor = []
             const result = await this.data.requestHttp.getTipoProveedores()
             result.map(item => {
@@ -350,9 +380,23 @@ export default {
             return value
         },
 
+        resetProveedor() {
+            this.data.dataProveedor = {
+                nombre: null,
+                idTipoProveedor: null,
+                pais: null,
+                departamento: null,
+                municipio: null,
+                telefono: null,
+                direccion: null,
+                usuarioRegistro: null,
+            }
+            this.data.idProv = null
+        },
+
         closeDialog() {
             this.$emit('closeDialog', false)
-            this.data.dataProveedor = {}
+            this.resetProveedor()
         },
 
         readonlyOption() {
@@ -364,7 +408,7 @@ export default {
                 return false
             }
         }
-    },
+    }
 }
 </script>
 

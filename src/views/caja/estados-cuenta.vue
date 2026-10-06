@@ -711,6 +711,73 @@
             </div>
           </v-card>
 
+          <!-- DESGLOSE MULTIDIVISA EN DETALLE DE SESIÓN -->
+          <v-card v-if="dialogDetalle.item.desglocePorDivisa && dialogDetalle.item.desglocePorDivisa.length > 0" class="pa-3 rounded border bg-white mb-3">
+            <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center">
+              <v-icon size="small" class="mr-1">mdi-cash-multiple</v-icon>
+              Resumen de Efectivo por Divisas
+            </div>
+            <v-row dense>
+              <v-col
+                v-for="div in dialogDetalle.item.desglocePorDivisa"
+                :key="div.idDivisa"
+                cols="12"
+                sm="6"
+              >
+                <v-card class="pa-2 border rounded bg-grey-lighten-5">
+                  <div class="d-flex justify-space-between align-center">
+                    <span class="font-weight-bold text-caption text-indigo-darken-4">{{ div.divisaNombre }} ({{ div.divisaCodigo }})</span>
+                    <v-chip size="x-small" color="indigo" variant="tonal" class="font-weight-bold">
+                      {{ div.divisaSimbolo }} {{ Number(div.totalMonedaOriginal || 0).toLocaleString('es-NI', { minimumFractionDigits: 2 }) }}
+                    </v-chip>
+                  </div>
+                  <div v-if="div.divisaCodigo !== 'NIO'" class="text-caption text-grey-darken-2 mt-1 d-flex justify-space-between">
+                    <span>Tasa: C$ {{ Number(div.tasaCambio).toFixed(2) }}</span>
+                    <span>Equiv: <strong class="text-indigo-darken-4">{{ formatCurrency(div.totalMonedaPrincipal) }}</strong></span>
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <!-- TABLA DE DESGLOSE FÍSICO DETALLADO -->
+          <v-card v-if="dialogDetalle.item.desgloceDetalle && dialogDetalle.item.desgloceDetalle.length > 0" class="pa-3 rounded border bg-white mb-3">
+            <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center">
+              <v-icon size="small" class="mr-1">mdi-format-list-numbered</v-icon>
+              Desglose de Billetes y Monedas Contados
+            </div>
+            <v-table density="compact" class="border rounded">
+              <thead>
+                <tr class="bg-indigo-darken-4 text-white">
+                  <th class="text-white font-weight-bold text-caption">Moneda</th>
+                  <th class="text-white font-weight-bold text-caption">Denominación</th>
+                  <th class="text-white text-center font-weight-bold text-caption" style="width: 90px;">Cantidad</th>
+                  <th class="text-white text-right font-weight-bold text-caption" style="width: 120px;">Subtotal</th>
+                  <th class="text-white text-right font-weight-bold text-caption" style="width: 130px;">Equiv. (C$)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(denom, idx) in dialogDetalle.item.desgloceDetalle" :key="idx">
+                  <td class="text-caption font-weight-medium">{{ denom.divisaCodigo || 'NIO' }}</td>
+                  <td class="text-caption">{{ formatDenominacionLabel(denom) }}</td>
+                  <td class="text-caption text-center font-weight-bold">{{ denom.cantidad }}</td>
+                  <td class="text-caption text-right font-weight-bold">
+                    {{ denom.divisaSimbolo || 'C$' }} {{ Number(denom.subtotal ?? (denom.valorDenominacion * denom.cantidad)).toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                  </td>
+                  <td class="text-caption text-right font-weight-bold text-indigo-darken-4">
+                    {{ formatCurrency(denom.subtotalMonedaPrincipal ?? ((denom.valorDenominacion * denom.cantidad) * (denom.tasaCambio || 1))) }}
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-card>
+
+          <!-- Loader de carga del detalle -->
+          <div v-if="dialogDetalle.item.loadingDetalle" class="d-flex justify-center py-4">
+            <v-progress-circular indeterminate size="24" color="indigo" />
+            <span class="ml-2 text-caption text-grey-darken-2">Cargando desglose multidivisa de la sesión...</span>
+          </div>
+
           <!-- Referencia de Arqueo si existe -->
           <v-alert
             v-if="dialogDetalle.item.idArqueoCaja"
@@ -754,6 +821,7 @@ import { saveAs } from 'file-saver';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { hasAccessToFunct } from '@/scripts/Seguridad.js';
+import { formatDenominacionLabel } from '@/helpers/divisaHelper.js';
 
 export default {
   name: 'EstadosCuentaCajaView',
@@ -1031,9 +1099,40 @@ export default {
       }
     },
 
-    verDetalleSesion(item) {
-      this.dialogDetalle.item = item;
+    formatDenominacionLabel(item) {
+      if (typeof item === 'object' && item !== null) {
+        return formatDenominacionLabel(item.valorDenominacion ?? item.valor, item.divisaSimbolo || 'C$');
+      }
+      return formatDenominacionLabel(item, 'C$');
+    },
+
+    async verDetalleSesion(item) {
+      this.dialogDetalle.item = {
+        ...item,
+        desglocePorDivisa: item.desglocePorDivisa || [],
+        desgloceDetalle: item.desgloceDetalle || [],
+        loadingDetalle: true
+      };
       this.dialogDetalle.show = true;
+
+      try {
+        if (item.idCierreCaja) {
+          const res = await this.requestHttp.getCierreCajaById(item.idCierreCaja);
+          if (res.code === 200 && res.data) {
+            this.dialogDetalle.item = {
+              ...this.dialogDetalle.item,
+              ...res.data,
+              loadingDetalle: false
+            };
+          }
+        }
+      } catch (e) {
+        console.error('Error al cargar detalle del cierre en sesión:', e);
+      } finally {
+        if (this.dialogDetalle.item) {
+          this.dialogDetalle.item.loadingDetalle = false;
+        }
+      }
     },
 
     async exportToExcel() {

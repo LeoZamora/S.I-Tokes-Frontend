@@ -1038,7 +1038,7 @@
                       :items="data.items"
                       hide-default-footer
                       :items-per-page="100"
-                      height="200px"
+                      height="250px"
                       fixed-header
                       class="product-table"
                     >
@@ -1153,6 +1153,12 @@
                                 $event
                               )
                             "
+                            @input="
+                              onCantidadInputChange(
+                                item,
+                                $event
+                              )
+                            "
                             @click.stop
                             class="quantity-input mx-1 text-center font-weight-bold"
                           />
@@ -1231,6 +1237,12 @@
                                 0
                               "
                               @change="
+                                onDescuentoInputChange(
+                                  item,
+                                  $event
+                                )
+                              "
+                              @input="
                                 onDescuentoInputChange(
                                   item,
                                   $event
@@ -2052,10 +2064,10 @@
         </v-card>
       </v-dialog>
 
-      <!-- Modal de Cobro y Cambio para Cajero (Minimalista) -->
+      <!-- Modal de Cobro y Cambio para Cajero (Multidivisa) -->
       <v-dialog
         v-model="data.dialogCobro.show"
-        max-width="420px"
+        max-width="460px"
         persistent
       >
         <v-card
@@ -2075,7 +2087,7 @@
               >
               <span
                 class="text-subtitle-1 font-weight-bold text-grey-darken-4"
-                >Cobro en Efectivo</span
+                >Cobro y Cambio</span
               >
             </div>
             <v-btn
@@ -2093,22 +2105,72 @@
           <v-card-text class="px-5 py-2">
             <!-- Total a Cobrar -->
             <div
-              class="pa-3 rounded-lg bg-grey-lighten-4 border d-flex align-center justify-space-between mb-3"
+              class="pa-3 rounded-lg bg-grey-lighten-4 border mb-3"
             >
-              <span
-                class="text-caption font-weight-bold text-grey-darken-2 text-uppercase"
-                >Total Factura:</span
+              <div class="d-flex align-center justify-space-between">
+                <span
+                  class="text-caption font-weight-bold text-grey-darken-2 text-uppercase"
+                  >Total Factura:</span
+                >
+                <span
+                  class="text-h5 font-weight-black text-indigo-darken-4"
+                >
+                  {{
+                    formatedCurrency(
+                      data.factura.total,
+                      data.fornates.nio
+                    )
+                  }}
+                </span>
+              </div>
+              <div
+                v-if="divisaCobro && divisaCobro.codigo !== 'NIO'"
+                class="d-flex align-center justify-space-between pt-1 border-t mt-1"
               >
-              <span
-                class="text-h5 font-weight-black text-indigo-darken-4"
+                <span class="text-caption text-grey-darken-1 font-weight-medium">
+                  Equivalente en {{ divisaCobro.codigo }}:
+                </span>
+                <span class="text-subtitle-1 font-weight-bold text-indigo">
+                  {{ divisaCobro.simbolo }} {{ cobroTotalEnMonedaSeleccionada.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Selector de Moneda / Divisa de Cobro -->
+            <div class="mb-3">
+              <div class="d-flex align-center justify-space-between mb-1">
+                <span
+                  class="text-caption font-weight-bold text-grey-darken-2"
+                >
+                  Moneda de Pago:
+                </span>
+                <span
+                  v-if="divisaCobro && divisaCobro.codigo !== 'NIO'"
+                  class="text-caption text-amber-darken-4 font-weight-bold d-flex align-center"
+                >
+                  <v-icon size="14" color="amber-darken-4" class="mr-0.5">mdi-swap-horizontal</v-icon>
+                  1 {{ divisaCobro.codigo }} = C$ {{ Number(tasaCambioCobro).toFixed(2) }}
+                </span>
+              </div>
+              <v-btn-toggle
+                v-model="data.dialogCobro.idDivisa"
+                mandatory
+                color="indigo-darken-4"
+                density="compact"
+                class="w-100 border rounded-lg"
+                @update:model-value="cambiarDivisaCobro"
               >
-                {{
-                  formatedCurrency(
-                    data.factura.total,
-                    data.fornates.nio
-                  )
-                }}
-              </span>
+                <v-btn
+                  v-for="div in data.divisas"
+                  :key="div.idDivisa"
+                  :value="div.idDivisa"
+                  class="flex-grow-1 text-none font-weight-bold text-caption"
+                  variant="flat"
+                >
+                  <v-icon start size="16">{{ div.codigo === 'USD' ? 'mdi-currency-usd' : 'mdi-cash' }}</v-icon>
+                  {{ div.nombre }} ({{ div.simbolo }})
+                </v-btn>
+              </v-btn-toggle>
             </div>
 
             <!-- Selector de Tipo de Pago en Cobro -->
@@ -2140,15 +2202,21 @@
               >
                 <span
                   class="text-caption font-weight-bold text-grey-darken-2"
-                  >Paga con:</span
+                  >Paga con ({{ divisaCobro.simbolo }}):</span
                 >
+                <span
+                  v-if="divisaCobro && divisaCobro.codigo !== 'NIO' && cobroMontoRecibidoNumber > 0"
+                  class="text-caption text-indigo-darken-3 font-weight-bold"
+                >
+                  ≈ C$ {{ cobroMontoRecibidoMonedaPrincipal.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                </span>
               </div>
 
               <v-text-field
                 v-model="
                   data.dialogCobro.montoRecibido
                 "
-                prefix="C$"
+                :prefix="divisaCobro.simbolo"
                 type="number"
                 step="0.01"
                 min="0"
@@ -2176,12 +2244,10 @@
                 class="font-weight-bold cursor-pointer text-white"
                 @click="setMontoRecibidoExacto()"
               >
-                Exacto
+                Exacto ({{ divisaCobro.simbolo }} {{ cobroTotalEnMonedaSeleccionada.toFixed(2) }})
               </v-chip>
               <v-chip
-                v-for="billete in [
-                  50, 100, 200, 500, 1000
-                ]"
+                v-for="billete in denominacionesRapidas"
                 :key="billete"
                 size="small"
                 variant="tonal"
@@ -2191,7 +2257,7 @@
                   agregarDenominacion(billete)
                 "
               >
-                +{{ billete }}
+                +{{ divisaCobro.simbolo }}{{ billete }}
               </v-chip>
               <v-chip
                 v-if="
@@ -2213,50 +2279,61 @@
             <!-- Estado del Cambio / Vuelto -->
             <div
               v-if="cobroEstaCompleto"
-              class="pa-3 rounded-lg d-flex align-center justify-space-between"
+              class="pa-3 rounded-lg"
               style="
                 background-color: #f0fdf4;
                 border: 1px solid #86efac;
               "
             >
-              <span
-                class="text-caption font-weight-bold text-green-darken-4 text-uppercase"
-                >Cambio:</span
+              <div class="d-flex align-center justify-space-between">
+                <span
+                  class="text-caption font-weight-bold text-green-darken-4 text-uppercase"
+                  >Cambio a Entregar (C$):</span
+                >
+                <span
+                  class="text-h5 font-weight-black text-green-darken-4"
+                >
+                  {{
+                    formatedCurrency(
+                      cobroCambioCalculado,
+                      data.fornates.nio
+                    )
+                  }}
+                </span>
+              </div>
+              <div
+                v-if="divisaCobro && divisaCobro.codigo !== 'NIO' && cobroCambioCalculado > 0"
+                class="text-right text-caption text-green-darken-3 font-weight-medium mt-0.5"
               >
-              <span
-                class="text-h5 font-weight-black text-green-darken-4"
-              >
-                {{
-                  formatedCurrency(
-                    cobroCambioCalculado,
-                    data.fornates.nio
-                  )
-                }}
-              </span>
+                ≈ {{ divisaCobro.simbolo }} {{ cobroCambioCalculadoOriginal.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} {{ divisaCobro.codigo }}
+              </div>
             </div>
 
             <div
               v-else-if="cobroMontoRecibidoNumber > 0"
-              class="pa-3 rounded-lg d-flex align-center justify-space-between"
+              class="pa-3 rounded-lg"
               style="
                 background-color: #fff7ed;
                 border: 1px solid #fed7aa;
               "
             >
-              <span
-                class="text-caption font-weight-bold text-orange-darken-4 text-uppercase"
-                >Faltan:</span
+              <div class="d-flex align-center justify-space-between">
+                <span
+                  class="text-caption font-weight-bold text-orange-darken-4 text-uppercase"
+                  >Faltan:</span
+                >
+                <span
+                  class="text-subtitle-1 font-weight-bold text-orange-darken-4"
+                >
+                  {{ divisaCobro.simbolo }} {{ cobroMontoFaltante.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                </span>
+              </div>
+              <div
+                v-if="divisaCobro && divisaCobro.codigo !== 'NIO'"
+                class="text-right text-caption text-orange-darken-3 font-weight-medium mt-0.5"
               >
-              <span
-                class="text-subtitle-1 font-weight-bold text-orange-darken-4"
-              >
-                {{
-                  formatedCurrency(
-                    cobroMontoFaltante,
-                    data.fornates.nio
-                  )
-                }}
-              </span>
+                (≈ C$ {{ cobroMontoFaltantePrincipal.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }})
+              </div>
             </div>
 
             <div
@@ -2269,7 +2346,7 @@
                 class="font-weight-bold"
                 @click="setMontoRecibidoExacto()"
               >
-                Paga completo
+                Paga completo ({{ divisaCobro.simbolo }} {{ cobroTotalEnMonedaSeleccionada.toFixed(2) }})
               </v-btn>
             </div>
           </v-card-text>
@@ -2335,6 +2412,7 @@
 <script>
 import { formatters } from '@/helpers/formatters'
 import RequestHttp from '@/services/requestHttp'
+import { DEFAULT_DIVISAS } from '@/helpers/divisaHelper.js'
 import {
   computed,
   onMounted,
@@ -2351,6 +2429,70 @@ import AlertComp from '@/components/reutilizable/AlertComp.vue'
 import SuccessAlert from '@/components/widgets/SuccessAlert.vue'
 import OverlayComp from '@/components/reutilizable/OverlayComp.vue'
 
+function normalizarImpuestos(rawList) {
+  if (!rawList || !Array.isArray(rawList)) return []
+  return rawList
+    .map((imp) => {
+      if (!imp) return null
+      const nav =
+        imp.idImpuestoNavigation ||
+        imp.impuestoNavigation ||
+        imp.impuestoObj ||
+        (typeof imp.impuesto === 'object' ? imp.impuesto : null)
+
+      const nombre = (
+        imp.impuesto ||
+        imp.nombre ||
+        nav?.nombre ||
+        nav?.impuesto ||
+        (typeof imp.impuesto === 'string' ? imp.impuesto : '') ||
+        ''
+      )
+
+      let val =
+        imp.valorPorcentual ??
+        nav?.valorPorcentual ??
+        nav?.porcentaje ??
+        imp.porcentaje ??
+        imp.tasa ??
+        nav?.tasa
+
+      const upperNombre = nombre.toUpperCase()
+      const esIva =
+        upperNombre.includes('IVA') ||
+        imp.idImpuesto === 1 ||
+        imp.id === 1
+
+      if (val === undefined || val === null || val === '') {
+        val = esIva ? 15 : 0
+      }
+
+      const esAplicadoVenta =
+        imp.esAplicadoVenta !== false &&
+        imp.esAplicadoVenta !== 0 &&
+        imp.esAplicadoVenta !== 'false'
+
+      const esAplicadoCompra =
+        imp.esAplicadoCompra !== false &&
+        imp.esAplicadoCompra !== 0 &&
+        imp.esAplicadoCompra !== 'false'
+
+      return {
+        idImpuesto:
+          imp.idImpuesto ||
+          imp.id ||
+          nav?.idImpuesto ||
+          nav?.id ||
+          1,
+        impuesto: nombre || (esIva ? 'IVA' : 'Impuesto'),
+        valorPorcentual: Number(val) || 0,
+        esAplicadoCompra,
+        esAplicadoVenta
+      }
+    })
+    .filter(Boolean)
+}
+
 export default {
   mounted() {
     if (
@@ -2362,6 +2504,7 @@ export default {
     this.getProductos()
     this.getTipoVentas()
     this.getModalidades()
+    this.getDivisas()
     this.cargarSesionCajaActiva()
   },
 
@@ -2510,6 +2653,8 @@ export default {
         detalleCxcs: []
       },
 
+      divisas: [...DEFAULT_DIVISAS],
+
       // Detalle de Crédito Modal
       dialogCredito: {
         show: false,
@@ -2519,9 +2664,10 @@ export default {
         idClienteConsultado: null
       },
 
-      // Modal de Cobro y Cambio para el Cajero
+      // Modal de Cobro y Cambio para el Cajero (Multidivisa)
       dialogCobro: {
         show: false,
+        idDivisa: 1,
         montoRecibido: null,
         loading: false
       },
@@ -2645,8 +2791,26 @@ export default {
       return isNaN(n) ? 0 : Math.round(n * 100) / 100
     }
 
+    const divisaCobro = computed(() => {
+      const id = data.dialogCobro.idDivisa || 1
+      const found = (data.divisas || []).find((d) => d.idDivisa === id)
+      return found || { idDivisa: 1, codigo: 'NIO', nombre: 'Córdoba', simbolo: 'C$', tasaCambio: 1 }
+    })
+
+    const tasaCambioCobro = computed(() => {
+      return Number(divisaCobro.value?.tasaCambio) || 1
+    })
+
     const cobroTotalFactura = computed(() => {
       return round2(data.factura.total)
+    })
+
+    const cobroTotalEnMonedaSeleccionada = computed(() => {
+      const total = cobroTotalFactura.value
+      if (divisaCobro.value.codigo === 'NIO' || tasaCambioCobro.value <= 0) {
+        return total
+      }
+      return round2(total / tasaCambioCobro.value)
     })
 
     const cobroMontoRecibidoNumber = computed(() => {
@@ -2662,26 +2826,65 @@ export default {
       return isNaN(val) ? 0 : round2(val)
     })
 
+    // Monto recibido convertido a la moneda principal del sistema (C$)
+    const cobroMontoRecibidoMonedaPrincipal = computed(() => {
+      const monto = cobroMontoRecibidoNumber.value
+      if (divisaCobro.value.codigo === 'NIO') {
+        return monto
+      }
+      return round2(monto * tasaCambioCobro.value)
+    })
+
     const cobroEstaCompleto = computed(() => {
       const total = cobroTotalFactura.value
-      const recibido = cobroMontoRecibidoNumber.value
-      return total > 0 ? recibido >= total : recibido >= 0
+      const recibidoPrincipal = cobroMontoRecibidoMonedaPrincipal.value
+      return total > 0 ? (recibidoPrincipal >= (total - 0.009)) : (recibidoPrincipal >= 0)
     })
 
+    // Cambio calculado en moneda base del sistema (C$)
     const cobroCambioCalculado = computed(() => {
       const total = cobroTotalFactura.value
-      const recibido = cobroMontoRecibidoNumber.value
-      return Math.max(0, round2(recibido - total))
+      const recibidoPrincipal = cobroMontoRecibidoMonedaPrincipal.value
+      return Math.max(0, round2(recibidoPrincipal - total))
     })
 
-    const cobroMontoFaltante = computed(() => {
-      const total = cobroTotalFactura.value
-      const recibido = cobroMontoRecibidoNumber.value
-      return Math.max(0, round2(total - recibido))
+    // Cambio equivalente en la moneda seleccionada
+    const cobroCambioCalculadoOriginal = computed(() => {
+      const cambioNio = cobroCambioCalculado.value
+      const tasa = tasaCambioCobro.value
+      if (divisaCobro.value.codigo === 'NIO' || tasa <= 0) {
+        return cambioNio
+      }
+      return Math.max(0, round2(cambioNio / tasa))
     })
+
+    // Monto faltante en moneda seleccionada y moneda principal
+    const cobroMontoFaltante = computed(() => {
+      const totalMoneda = cobroTotalEnMonedaSeleccionada.value
+      const recibido = cobroMontoRecibidoNumber.value
+      return Math.max(0, round2(totalMoneda - recibido))
+    })
+
+    const cobroMontoFaltantePrincipal = computed(() => {
+      const total = cobroTotalFactura.value
+      const recibidoPrincipal = cobroMontoRecibidoMonedaPrincipal.value
+      return Math.max(0, round2(total - recibidoPrincipal))
+    })
+
+    const denominacionesRapidas = computed(() => {
+      if (divisaCobro.value.codigo === 'USD') {
+        return [1, 5, 10, 20, 50, 100]
+      }
+      return [20, 50, 100, 200, 500, 1000]
+    })
+
+    const cambiarDivisaCobro = (idDivisa) => {
+      data.dialogCobro.idDivisa = idDivisa
+      data.dialogCobro.montoRecibido = null
+    }
 
     const setMontoRecibidoExacto = () => {
-      data.dialogCobro.montoRecibido = cobroTotalFactura.value
+      data.dialogCobro.montoRecibido = cobroTotalEnMonedaSeleccionada.value
     }
 
     const agregarDenominacion = (monto) => {
@@ -2756,8 +2959,10 @@ export default {
           0
         )
       )
+      const divisaUsd = (data.divisas || []).find((d) => d.codigo === 'USD')
+      const tasaUsd = Number(divisaUsd?.tasaCambio) || 36.6243
       data.factura.usdTotal = round2(
-        data.factura.total / 36.6243
+        data.factura.total / tasaUsd
       )
     }
 
@@ -3002,9 +3207,12 @@ export default {
                     minimoVenta: item.minimoVenta,
                     preciosMayoristas:
                       item.preciosMayoristas ||
+                      item.precioMayorista ||
                       [],
                     impuestos:
-                      item.impuestos || []
+                      item.impuestos ||
+                      item.productoImpuestos ||
+                      []
                   }))
               }
             }
@@ -3031,6 +3239,47 @@ export default {
 
               const detalles =
                 result.data.detalleVenta || []
+
+              // Asegurar que todos los productos en el detalle tengan cargadas sus escalas e impuestos
+              for (const it of detalles) {
+                const p = data.productos.find(
+                  (x) => x.idProducto === it.idProducto
+                )
+                if (p && !p._detallesCargados) {
+                  try {
+                    const full = await data.requestHttp.getByIdProducto(
+                      p.idProducto
+                    )
+                    if (full) {
+                      p.esMayorista =
+                        full.esMayorista ?? p.esMayorista
+                      p.preciosMayoristas =
+                        full.precioMayorista ||
+                        full.preciosMayoristas ||
+                        []
+                      p.impuestos = normalizarImpuestos(
+                        full.productoImpuestos ||
+                        full.impuestos ||
+                        p.impuestos ||
+                        []
+                      )
+                      if (
+                        full.precio !== undefined &&
+                        full.precio !== null
+                      ) {
+                        p.precio = Number(full.precio)
+                      }
+                      p._detallesCargados = true
+                    }
+                  } catch (e) {
+                    console.warn(
+                      'Error precargando detalles en modo edición:',
+                      e
+                    )
+                  }
+                }
+              }
+
               const mappedItems = detalles.map(
                 (item) => {
                   const prod =
@@ -3055,31 +3304,46 @@ export default {
                   // Evaluación de Precios Mayoristas
                   let esMayoristaAplicado = false
                   let rangoMayoristaText = ''
+                  const mayoristas =
+                    prod?.preciosMayoristas ||
+                    prod?.precioMayorista ||
+                    item.preciosMayoristas ||
+                    []
                   if (
                     prod?.esMayorista &&
-                    prod?.preciosMayoristas &&
-                    prod.preciosMayoristas
-                      .length > 0
+                    mayoristas.length > 0
                   ) {
                     const matchingRange =
-                      prod.preciosMayoristas.find(
-                        (pm) =>
-                          qty >= pm.minimo &&
-                          (pm.rangoIndefinido ||
-                            qty <= pm.maximo)
+                      mayoristas.find(
+                        (pm) => {
+                          const min = Number(pm.minimo) || 0
+                          const max = Number(pm.maximo) || 0
+                          const esIndefinido = Boolean(
+                            pm.rangoIndefinido || max === 0
+                          )
+                          return (
+                            qty >= min &&
+                            (esIndefinido || qty <= max)
+                          )
+                        }
                       )
                     if (matchingRange) {
                       esMayoristaAplicado = true
-                      rangoMayoristaText = `(${matchingRange.minimo}${matchingRange.maximo ? ' - ' + matchingRange.maximo : ' o más'})`
+                      const minText = Number(matchingRange.minimo)
+                      const maxText = Number(matchingRange.maximo)
+                      rangoMayoristaText = `(${minText}${matchingRange.rangoIndefinido || !maxText ? ' o más' : ' - ' + maxText})`
                     }
                   }
 
                   // Evaluación y Cálculo de Impuestos aplicables a la venta
-                  const impuestosVenta = (
+                  const rawImpuestos = normalizarImpuestos(
                     prod?.impuestos ||
-                    item.impuestos ||
+                    prod?.productoImpuestos ||
+                    item?.impuestos ||
+                    item?.productoImpuestos ||
                     []
-                  ).filter(
+                  )
+                  const impuestosVenta = rawImpuestos.filter(
                     (i) => i.esAplicadoVenta
                   )
                   const porcentajeImpuestoTotal =
@@ -3141,6 +3405,9 @@ export default {
                       esMayoristaAplicado,
                     rangoMayorista:
                       rangoMayoristaText,
+                    preciosMayoristas:
+                      prod?.preciosMayoristas ||
+                      [],
                     impuestos: impuestosVenta,
                     porcentajeImpuesto:
                       porcentajeImpuestoTotal,
@@ -3189,6 +3456,50 @@ export default {
       () => data.isCredito,
       (val) => {
         data.venta.credito = val === 'credito'
+      }
+    )
+
+    watch(
+      () => data.producto.idProducto,
+      async (newId) => {
+        if (!newId) return
+        const prod = data.productos.find(
+          (p) => p.idProducto === newId
+        )
+        if (prod && !prod._detallesCargados) {
+          try {
+            const fullProd =
+              await data.requestHttp.getByIdProducto(
+                newId
+              )
+            if (fullProd) {
+              prod.esMayorista =
+                fullProd.esMayorista ?? prod.esMayorista
+              prod.preciosMayoristas =
+                fullProd.precioMayorista ||
+                fullProd.preciosMayoristas ||
+                []
+              prod.impuestos = normalizarImpuestos(
+                fullProd.productoImpuestos ||
+                fullProd.impuestos ||
+                prod.impuestos ||
+                []
+              )
+              if (
+                fullProd.precio !== undefined &&
+                fullProd.precio !== null
+              ) {
+                prod.precio = Number(fullProd.precio)
+              }
+              prod._detallesCargados = true
+            }
+          } catch (e) {
+            console.warn(
+              'Error precargando detalle del producto:',
+              e
+            )
+          }
+        }
       }
     )
 
@@ -3383,10 +3694,10 @@ export default {
           lineaDosColumnas('TOTAL:', this.formatedCurrency ? this.formatedCurrency(factura.total, fornates.nio) : factura.total),
           '\x1B\x45\x00',                                // negrita OFF
           dialogCobro?.montoRecibido
-            ? `Paga Con: ${this.formatedCurrency ? this.formatedCurrency(dialogCobro.montoRecibido, fornates.nio) : factura.usdTotal}\n`
+            ? `Paga Con: ${divisaCobro.value.simbolo} ${Number(dialogCobro.montoRecibido).toFixed(2)} ${divisaCobro.value.codigo !== 'NIO' ? `(≈ C$ ${cobroMontoRecibidoMonedaPrincipal.value.toFixed(2)})` : ''}\n`
             : '',
           cobroCambioCalculado?.value > 0
-            ? `Cambio: ${this.formatedCurrency ? this.formatedCurrency(cobroCambioCalculado.value, fornates.nio) : cobroCambioCalculado.value}\n`
+            ? `Cambio (C$): ${this.formatedCurrency ? this.formatedCurrency(cobroCambioCalculado.value, fornates.nio) : cobroCambioCalculado.value}${divisaCobro.value.codigo !== 'NIO' ? ` (≈ ${divisaCobro.value.simbolo} ${cobroCambioCalculadoOriginal.value.toFixed(2)})` : ''}\n`
             : '',
     
           venta.observaciones ? `\nObs: ${venta.observaciones}\n` : '',
@@ -3416,11 +3727,19 @@ export default {
       clienteTieneCredito,
       clienteTieneDescuento,
       clienteSeleccionado,
+      divisaCobro,
+      tasaCambioCobro,
       cobroTotalFactura,
+      cobroTotalEnMonedaSeleccionada,
       cobroEstaCompleto,
       cobroMontoRecibidoNumber,
+      cobroMontoRecibidoMonedaPrincipal,
       cobroCambioCalculado,
+      cobroCambioCalculadoOriginal,
       cobroMontoFaltante,
+      cobroMontoFaltantePrincipal,
+      denominacionesRapidas,
+      cambiarDivisaCobro,
       setMontoRecibidoExacto,
       agregarDenominacion,
       cerrarDialogCobro,
@@ -3438,6 +3757,25 @@ export default {
   },
 
   methods: {
+    async getDivisas() {
+      try {
+        const res = await this.data.requestHttp.getDivisas()
+        if (res.code === 200 && res.data && res.data.length > 0) {
+          this.data.divisas = res.data.map((d) => ({
+            idDivisa: d.idDivisa || d.id,
+            codigo: d.codigo,
+            nombre: d.nombre,
+            simbolo: d.simbolo,
+            tasaCambio: Number(d.tasaCambio) || 1,
+            esMonedaPrincipal: !!d.esMonedaPrincipal,
+            estado: d.estado ?? true
+          })).filter((d) => d.estado !== false)
+        }
+      } catch (e) {
+        console.warn('No se pudieron cargar divisas dinámicas, usando fallback:', e)
+      }
+    },
+
     async getClientes() {
       this.data.clientes = []
       this.data.loading = true
@@ -3518,8 +3856,14 @@ export default {
               item.esFacturarSinInventario,
             minimoVenta: item.minimoVenta,
             preciosMayoristas:
-              item.preciosMayoristas || [],
-            impuestos: item.impuestos || []
+              item.preciosMayoristas ||
+              item.precioMayorista ||
+              [],
+            impuestos: normalizarImpuestos(
+              item.impuestos ||
+              item.productoImpuestos ||
+              []
+            )
           })
         )
       } else if (result.data?.msg) {
@@ -3571,6 +3915,42 @@ export default {
           'warning'
         )
         return
+      }
+
+      // Cargar escalas mayoristas e impuestos completos si aún no están en memoria
+      if (!prod._detallesCargados) {
+        try {
+          const fullProd =
+            await this.data.requestHttp.getByIdProducto(
+              prod.idProducto
+            )
+          if (fullProd) {
+            prod.esMayorista =
+              fullProd.esMayorista ?? prod.esMayorista
+            prod.preciosMayoristas =
+              fullProd.precioMayorista ||
+              fullProd.preciosMayoristas ||
+              []
+            prod.impuestos = normalizarImpuestos(
+              fullProd.productoImpuestos ||
+              fullProd.impuestos ||
+              prod.impuestos ||
+              []
+            )
+            if (
+              fullProd.precio !== undefined &&
+              fullProd.precio !== null
+            ) {
+              prod.precio = Number(fullProd.precio)
+            }
+            prod._detallesCargados = true
+          }
+        } catch (e) {
+          console.warn(
+            'Error al obtener información completa del producto:',
+            e
+          )
+        }
       }
 
       const existingItemIndex =
@@ -3630,37 +4010,52 @@ export default {
       }
 
       // Evaluación de Precio (Regular vs Mayorista)
-      let precioUnitario = prod.precio
+      let precioUnitario = Number(prod.precio || 0)
       let esMayoristaAplicado = false
       let rangoMayoristaText = ''
+      const mayoristas =
+        prod.preciosMayoristas ||
+        prod.precioMayorista ||
+        []
 
       if (
         prod.esMayorista &&
-        prod.preciosMayoristas &&
-        prod.preciosMayoristas.length > 0
+        mayoristas.length > 0
       ) {
         const matchingRange =
-          prod.preciosMayoristas.find(
-            (pm) =>
-              totalQty >= pm.minimo &&
-              (pm.rangoIndefinido ||
-                totalQty <= pm.maximo)
-          )
+          mayoristas.find((pm) => {
+            const min = Number(pm.minimo) || 0
+            const max = Number(pm.maximo) || 0
+            const esIndefinido = Boolean(
+              pm.rangoIndefinido || max === 0
+            )
+            return (
+              totalQty >= min &&
+              (esIndefinido || totalQty <= max)
+            )
+          })
         if (matchingRange) {
-          precioUnitario = matchingRange.precio
+          precioUnitario = Number(matchingRange.precio)
           esMayoristaAplicado = true
-          rangoMayoristaText = `(${matchingRange.minimo}${matchingRange.maximo ? ' - ' + matchingRange.maximo : ' o más'})`
+          const minText = Number(matchingRange.minimo)
+          const maxText = Number(matchingRange.maximo)
+          rangoMayoristaText = `(${minText}${matchingRange.rangoIndefinido || !maxText ? ' o más' : ' - ' + maxText})`
         }
       }
 
       // Evaluación y Cálculo de Impuestos aplicables a la venta
-      const impuestosVenta = (
-        prod.impuestos || []
-      ).filter((i) => i.esAplicadoVenta)
+      const rawImpuestos = normalizarImpuestos(
+        prod.impuestos ||
+        prod.productoImpuestos ||
+        []
+      )
+      const impuestosVenta = rawImpuestos.filter(
+        (i) => i.esAplicadoVenta
+      )
       const porcentajeImpuestoTotal =
         impuestosVenta.reduce(
           (acc, imp) =>
-            acc + (imp.valorPorcentual || 0),
+            acc + (Number(imp.valorPorcentual) || 0),
           0
         )
       const subtotalBase =
@@ -3703,9 +4098,11 @@ export default {
         cantidad: totalQty,
         costoUnitario: precioUnitario,
         descuento: totalDescuentoLinea,
-        precioRegular: prod.precio,
+        precioRegular: Number(prod.precio || 0),
         esMayorista: esMayoristaAplicado,
         rangoMayorista: rangoMayoristaText,
+        preciosMayoristas:
+          prod.preciosMayoristas || [],
         impuestos: impuestosVenta,
         porcentajeImpuesto:
           porcentajeImpuestoTotal,
@@ -3731,7 +4128,7 @@ export default {
       this.data.producto.observaciones = null
     },
 
-    recalcularItem(item, nuevaCantidad) {
+    async recalcularItem(item, nuevaCantidad) {
       if (!item) return
       let qty = parseFloat(
         Number(nuevaCantidad).toFixed(4)
@@ -3744,6 +4141,41 @@ export default {
       const prod = this.data.productos.find(
         (p) => p.idProducto === item.idProducto
       )
+
+      if (prod && !prod._detallesCargados) {
+        try {
+          const fullProd =
+            await this.data.requestHttp.getByIdProducto(
+              prod.idProducto
+            )
+          if (fullProd) {
+            prod.esMayorista =
+              fullProd.esMayorista ?? prod.esMayorista
+            prod.preciosMayoristas =
+              fullProd.precioMayorista ||
+              fullProd.preciosMayoristas ||
+              []
+            prod.impuestos = normalizarImpuestos(
+              fullProd.productoImpuestos ||
+              fullProd.impuestos ||
+              prod.impuestos ||
+              []
+            )
+            if (
+              fullProd.precio !== undefined &&
+              fullProd.precio !== null
+            ) {
+              prod.precio = Number(fullProd.precio)
+            }
+            prod._detallesCargados = true
+          }
+        } catch (e) {
+          console.warn(
+            'Error al obtener detalle del producto:',
+            e
+          )
+        }
+      }
 
       if (prod) {
         // Validar stock si no es facturar sin inventario
@@ -3767,37 +4199,54 @@ export default {
         }
 
         // Evaluación de Precio (Regular vs Mayorista)
-        let precioUnitario = prod.precio
+        let precioUnitario = Number(prod.precio || 0)
         let esMayoristaAplicado = false
         let rangoMayoristaText = ''
+        const mayoristas =
+          prod.preciosMayoristas ||
+          prod.precioMayorista ||
+          item.preciosMayoristas ||
+          []
 
         if (
           prod.esMayorista &&
-          prod.preciosMayoristas &&
-          prod.preciosMayoristas.length > 0
+          mayoristas.length > 0
         ) {
           const matchingRange =
-            prod.preciosMayoristas.find(
-              (pm) =>
-                qty >= pm.minimo &&
-                (pm.rangoIndefinido ||
-                  qty <= pm.maximo)
-            )
+            mayoristas.find((pm) => {
+              const min = Number(pm.minimo) || 0
+              const max = Number(pm.maximo) || 0
+              const esIndefinido = Boolean(
+                pm.rangoIndefinido || max === 0
+              )
+              return (
+                qty >= min &&
+                (esIndefinido || qty <= max)
+              )
+            })
           if (matchingRange) {
-            precioUnitario = matchingRange.precio
+            precioUnitario = Number(matchingRange.precio)
             esMayoristaAplicado = true
-            rangoMayoristaText = `(${matchingRange.minimo}${matchingRange.maximo ? ' - ' + matchingRange.maximo : ' o más'})`
+            const minText = Number(matchingRange.minimo)
+            const maxText = Number(matchingRange.maximo)
+            rangoMayoristaText = `(${minText}${matchingRange.rangoIndefinido || !maxText ? ' o más' : ' - ' + maxText})`
           }
         }
 
         // Evaluación de Impuestos aplicables a la venta
-        const impuestosVenta = (
-          prod.impuestos || []
-        ).filter((i) => i.esAplicadoVenta)
+        const rawImpuestos = normalizarImpuestos(
+          prod.impuestos ||
+          prod.productoImpuestos ||
+          item.impuestos ||
+          []
+        )
+        const impuestosVenta = rawImpuestos.filter(
+          (i) => i.esAplicadoVenta
+        )
         const porcentajeImpuestoTotal =
           impuestosVenta.reduce(
             (acc, imp) =>
-              acc + (imp.valorPorcentual || 0),
+              acc + (Number(imp.valorPorcentual) || 0),
             0
           )
         const subtotalBase = qty * precioUnitario
@@ -4168,12 +4617,12 @@ export default {
       }
 
       const totalRound = Math.round((Number(this.data.factura.total) || 0) * 100) / 100
-      const recibidoRound = Math.round((Number(this.cobroMontoRecibidoNumber) || 0) * 100) / 100
+      const recibidoPrincipal = Math.round((Number(this.cobroMontoRecibidoMonedaPrincipal) || 0) * 100) / 100
 
-      if (totalRound > 0 && recibidoRound < totalRound) {
+      if (totalRound > 0 && recibidoPrincipal < (totalRound - 0.009)) {
         this.showAlert(
           2,
-          `El monto recibido (${this.formatedCurrency(recibidoRound, this.data.fornates.nio)}) es insuficiente para cubrir el total (${this.formatedCurrency(totalRound, this.data.fornates.nio)}).`,
+          `El monto recibido (${this.divisaCobro.simbolo} ${this.cobroMontoRecibidoNumber}) es insuficiente para cubrir el total (${this.formatedCurrency(totalRound, this.data.fornates.nio)}).`,
           'warning'
         )
         return
