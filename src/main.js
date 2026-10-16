@@ -92,7 +92,7 @@ qz.security.setSignaturePromise((toSing) => (resolve, reject) => {
 
 
 //Axios.defaults.baseURL = 'http://localhost:5091/'
-Axios.defaults.baseURL = 'https://inversiones-zafiro.com/devodigital/'
+Axios.defaults.baseURL = 'https://services.migdalias-market.com/'
 
 Axios.interceptors.request.use(
     (config) => {

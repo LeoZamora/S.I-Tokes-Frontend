@@ -1879,21 +1879,108 @@
                 <th class="text-center py-2">Ítems</th>
                 <th class="text-right py-2">Valor Total</th>
                 <th class="text-left py-2">Responsable</th>
+                <th class="text-center py-2">Estado</th>
                 <th class="text-left py-2">Observaciones</th>
+                <th class="text-center py-2" style="width: 110px;">Opciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in filteredHistorialCargas" :key="item.idMovInventario">
+              <tr
+                v-for="item in filteredHistorialCargas"
+                :key="item.idMovInventario"
+                :class="{ 'bg-red-lighten-5 text-grey-darken-1': item.esAnulado || item.estado === false }"
+              >
                 <td class="font-weight-medium text-caption">{{ formatDateTime(item.fechaRegistro) }}</td>
-                <td class="font-weight-bold text-caption text-indigo-darken-4">{{ item.referencia || '---' }}</td>
+                <td class="font-weight-bold text-caption text-indigo-darken-4">
+                  <div class="d-flex align-center">
+                    <span>{{ item.referencia || '---' }}</span>
+                    <v-tooltip v-if="item.esAnulado || item.estado === false" location="top">
+                      <template #activator="{ props }">
+                        <v-icon v-bind="props" size="16" color="error" class="ml-1">mdi-information-outline</v-icon>
+                      </template>
+                      <span>
+                        Anulado el {{ formatDateTime(item.fechaAnulacion) }} por {{ item.usuarioAnulacion || 'Sistema' }}
+                        <template v-if="item.motivoAnulacion"><br>Motivo: {{ item.motivoAnulacion }}</template>
+                      </span>
+                    </v-tooltip>
+                  </div>
+                </td>
                 <td class="text-caption">{{ item.bodegaOrigenNombre || '---' }}</td>
                 <td class="text-center font-weight-bold text-caption">{{ item.totalItems || 0 }}</td>
-                <td class="text-right font-weight-bold text-caption text-teal-darken-4">{{ formatCurrency(item.totalValor) }}</td>
+                <td class="text-right font-weight-bold text-caption text-teal-darken-4">
+                  <span :class="{ 'text-decoration-line-through text-grey': item.esAnulado || item.estado === false }">
+                    {{ formatCurrency(item.totalValor) }}
+                  </span>
+                </td>
                 <td class="text-caption text-grey-darken-3">{{ item.usuarioRegistro || 'Sistema' }}</td>
-                <td class="text-caption text-grey-darken-2">{{ item.observaciones || '---' }}</td>
+                <td class="text-center py-1">
+                  <v-chip
+                    v-if="item.esAnulado || item.estado === false"
+                    size="x-small"
+                    color="error"
+                    variant="flat"
+                    class="font-weight-bold"
+                  >
+                    <v-icon start size="12">mdi-cancel</v-icon>
+                    Anulado
+                  </v-chip>
+                  <v-chip
+                    v-else
+                    size="x-small"
+                    color="success"
+                    variant="flat"
+                    class="font-weight-bold"
+                  >
+                    <v-icon start size="12">mdi-check-circle</v-icon>
+                    Activo
+                  </v-chip>
+                </td>
+                <td class="text-caption text-grey-darken-2">
+                  <div>{{ item.observaciones || '---' }}</div>
+                  <div v-if="(item.esAnulado || item.estado === false) && item.motivoAnulacion" class="text-caption text-error font-italic">
+                    Motivo anulación: {{ item.motivoAnulacion }}
+                  </div>
+                </td>
+                <td class="text-center py-1">
+                  <div class="d-flex align-center justify-center ga-1">
+                    <v-btn
+                      icon
+                      variant="text"
+                      size="x-small"
+                      color="indigo-darken-3"
+                      title="Ver Detalle"
+                      @click="openDialogDetalleTraslado(item)"
+                    >
+                      <v-icon size="18">mdi-eye-outline</v-icon>
+                    </v-btn>
+
+                    <v-btn
+                      v-if="!item.esAnulado && item.estado !== false"
+                      icon
+                      variant="text"
+                      size="x-small"
+                      color="error"
+                      title="Anular Traslado"
+                      @click="openAnularTraslado(item, dialogHistorialCargas.camion?.bodegaNombre || `Camión ${dialogHistorialCargas.camion?.placa}`)"
+                    >
+                      <v-icon size="18">mdi-cancel</v-icon>
+                    </v-btn>
+                    <v-btn
+                      v-else
+                      icon
+                      variant="text"
+                      size="x-small"
+                      color="grey-lighten-1"
+                      disabled
+                      title="Traslado ya anulado"
+                    >
+                      <v-icon size="18">mdi-cancel</v-icon>
+                    </v-btn>
+                  </div>
+                </td>
               </tr>
               <tr v-if="filteredHistorialCargas.length === 0">
-                <td colspan="7" class="text-center py-6 text-grey text-caption">
+                <td colspan="9" class="text-center py-6 text-grey text-caption">
                   No hay registros de cargas anteriores para este camión.
                 </td>
               </tr>
@@ -2689,21 +2776,108 @@
                 <th class="text-center py-2">Ítems</th>
                 <th class="text-right py-2">Valor Total</th>
                 <th class="text-left py-2">Responsable</th>
+                <th class="text-center py-2">Estado</th>
                 <th class="text-left py-2">Observaciones</th>
+                <th class="text-center py-2" style="width: 110px;">Opciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in filteredHistorialSucursal" :key="item.idMovInventario">
+              <tr
+                v-for="item in filteredHistorialSucursal"
+                :key="item.idMovInventario"
+                :class="{ 'bg-red-lighten-5 text-grey-darken-1': item.esAnulado || item.estado === false }"
+              >
                 <td class="font-weight-medium text-caption">{{ formatDateTime(item.fechaRegistro) }}</td>
-                <td class="font-weight-bold text-caption text-indigo-darken-4">{{ item.referencia || '---' }}</td>
+                <td class="font-weight-bold text-caption text-indigo-darken-4">
+                  <div class="d-flex align-center">
+                    <span>{{ item.referencia || '---' }}</span>
+                    <v-tooltip v-if="item.esAnulado || item.estado === false" location="top">
+                      <template #activator="{ props }">
+                        <v-icon v-bind="props" size="16" color="error" class="ml-1">mdi-information-outline</v-icon>
+                      </template>
+                      <span>
+                        Anulado el {{ formatDateTime(item.fechaAnulacion) }} por {{ item.usuarioAnulacion || 'Sistema' }}
+                        <template v-if="item.motivoAnulacion"><br>Motivo: {{ item.motivoAnulacion }}</template>
+                      </span>
+                    </v-tooltip>
+                  </div>
+                </td>
                 <td class="text-caption">{{ item.bodegaOrigenNombre || '---' }}</td>
                 <td class="text-center font-weight-bold text-caption">{{ item.totalItems || 0 }}</td>
-                <td class="text-right font-weight-bold text-caption text-teal-darken-4">{{ formatCurrency(item.totalValor) }}</td>
+                <td class="text-right font-weight-bold text-caption text-teal-darken-4">
+                  <span :class="{ 'text-decoration-line-through text-grey': item.esAnulado || item.estado === false }">
+                    {{ formatCurrency(item.totalValor) }}
+                  </span>
+                </td>
                 <td class="text-caption text-grey-darken-3">{{ item.usuarioRegistro || 'Sistema' }}</td>
-                <td class="text-caption text-grey-darken-2">{{ item.observaciones || '---' }}</td>
+                <td class="text-center py-1">
+                  <v-chip
+                    v-if="item.esAnulado || item.estado === false"
+                    size="x-small"
+                    color="error"
+                    variant="flat"
+                    class="font-weight-bold"
+                  >
+                    <v-icon start size="12">mdi-cancel</v-icon>
+                    Anulado
+                  </v-chip>
+                  <v-chip
+                    v-else
+                    size="x-small"
+                    color="success"
+                    variant="flat"
+                    class="font-weight-bold"
+                  >
+                    <v-icon start size="12">mdi-check-circle</v-icon>
+                    Activo
+                  </v-chip>
+                </td>
+                <td class="text-caption text-grey-darken-2">
+                  <div>{{ item.observaciones || '---' }}</div>
+                  <div v-if="(item.esAnulado || item.estado === false) && item.motivoAnulacion" class="text-caption text-error font-italic">
+                    Motivo anulación: {{ item.motivoAnulacion }}
+                  </div>
+                </td>
+                <td class="text-center py-1">
+                  <div class="d-flex align-center justify-center ga-1">
+                    <v-btn
+                      icon
+                      variant="text"
+                      size="x-small"
+                      color="indigo-darken-3"
+                      title="Ver Detalle"
+                      @click="openDialogDetalleTraslado(item)"
+                    >
+                      <v-icon size="18">mdi-eye-outline</v-icon>
+                    </v-btn>
+
+                    <v-btn
+                      v-if="!item.esAnulado && item.estado !== false"
+                      icon
+                      variant="text"
+                      size="x-small"
+                      color="error"
+                      title="Anular Traslado"
+                      @click="openAnularTraslado(item, dialogHistorialSucursal.sucursal?.nombre || `Sucursal ${dialogHistorialSucursal.sucursal?.nombre}`)"
+                    >
+                      <v-icon size="18">mdi-cancel</v-icon>
+                    </v-btn>
+                    <v-btn
+                      v-else
+                      icon
+                      variant="text"
+                      size="x-small"
+                      color="grey-lighten-1"
+                      disabled
+                      title="Traslado ya anulado"
+                    >
+                      <v-icon size="18">mdi-cancel</v-icon>
+                    </v-btn>
+                  </div>
+                </td>
               </tr>
               <tr v-if="filteredHistorialSucursal.length === 0">
-                <td colspan="7" class="text-center py-6 text-grey text-caption">
+                <td colspan="9" class="text-center py-6 text-grey text-caption">
                   No hay registros de traslados anteriores para esta sucursal.
                 </td>
               </tr>
@@ -2720,6 +2894,314 @@
             density="comfortable"
             class="rounded font-weight-bold px-4 text-caption"
             @click="dialogHistorialSucursal.show = false"
+          >
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ================= DIÁLOGO CONFIRMACIÓN ANULAR TRASLADO ================= -->
+    <v-dialog
+      v-model="dialogAnularTraslado.show"
+      max-width="520"
+      persistent
+    >
+      <v-card class="rounded-lg overflow-hidden elevation-8">
+        <v-card-title
+          class="bg-red-darken-3 text-white font-weight-bold pa-3 d-flex align-center justify-space-between"
+        >
+          <div class="d-flex align-center">
+            <v-icon start class="mr-2">mdi-alert-circle-outline</v-icon>
+            <span class="text-subtitle-1 font-weight-bold">
+              Anular Traslado de Inventario
+            </span>
+          </div>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            size="small"
+            color="white"
+            :disabled="dialogAnularTraslado.loading"
+            @click="dialogAnularTraslado.show = false"
+          ></v-btn>
+        </v-card-title>
+
+        <v-card-text class="pa-4">
+          <!-- Advertencia de impacto -->
+          <v-alert
+            type="warning"
+            variant="tonal"
+            density="compact"
+            class="mb-3 text-caption font-weight-medium"
+          >
+            <template #prepend>
+              <v-icon size="20">mdi-alert</v-icon>
+            </template>
+            <div>
+              <strong>Esta acción es irreversible y realizará las siguientes operaciones:</strong>
+              <ul class="mt-1 pl-4" style="list-style-type: disc;">
+                <li>Descontará los productos ingresados en la bodega destino.</li>
+                <li>Reingresará los productos a la bodega de origen.</li>
+                <li>Registrará el movimiento de reversión en el Kardex.</li>
+              </ul>
+            </div>
+          </v-alert>
+
+          <!-- Resumen del Traslado a Anular -->
+          <v-card variant="outlined" class="pa-3 mb-3 bg-grey-lighten-5">
+            <div class="d-flex justify-space-between align-center mb-1">
+              <span class="text-caption text-grey-darken-2">Referencia:</span>
+              <span class="text-caption font-weight-bold text-indigo-darken-4">
+                {{ dialogAnularTraslado.item?.referencia }}
+              </span>
+            </div>
+            <div class="d-flex justify-space-between align-center mb-1">
+              <span class="text-caption text-grey-darken-2">Fecha Registro:</span>
+              <span class="text-caption font-weight-medium">
+                {{ formatDateTime(dialogAnularTraslado.item?.fechaRegistro) }}
+              </span>
+            </div>
+            <div class="d-flex justify-space-between align-center mb-1">
+              <span class="text-caption text-grey-darken-2">Bodega Origen:</span>
+              <span class="text-caption font-weight-medium">
+                {{ dialogAnularTraslado.item?.bodegaOrigenNombre || '---' }}
+              </span>
+            </div>
+            <div class="d-flex justify-space-between align-center mb-1">
+              <span class="text-caption text-grey-darken-2">Bodega Destino:</span>
+              <span class="text-caption font-weight-medium">
+                {{ dialogAnularTraslado.destinoNombre || 'Bodega Destino' }}
+              </span>
+            </div>
+            <v-divider class="my-1"></v-divider>
+            <div class="d-flex justify-space-between align-center">
+              <span class="text-caption text-grey-darken-2">Ítems / Total Valor:</span>
+              <span class="text-caption font-weight-bold text-teal-darken-4">
+                {{ dialogAnularTraslado.item?.totalItems || 0 }} productos | {{ formatCurrency(dialogAnularTraslado.item?.totalValor || dialogAnularTraslado.item?.totalDebitos) }}
+              </span>
+            </div>
+          </v-card>
+
+          <!-- Motivo de Anulación -->
+          <v-textarea
+            v-model="dialogAnularTraslado.motivo"
+            label="Motivo de la anulación (opcional pero recomendado)"
+            placeholder="Ej: Error en cantidad de productos, digitación incorrecta..."
+            variant="outlined"
+            density="compact"
+            color="red-darken-3"
+            rows="2"
+            counter="200"
+            maxlength="200"
+            auto-grow
+            hide-details="auto"
+            :disabled="dialogAnularTraslado.loading"
+          ></v-textarea>
+
+          <div class="d-flex align-center justify-end mt-2 text-caption text-grey">
+            <v-icon size="x-small" class="mr-1">mdi-account</v-icon>
+            <span>Usuario responsable: <strong>{{ usuarioLogueado }}</strong></span>
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="tonal"
+            color="grey-darken-1"
+            density="comfortable"
+            class="rounded font-weight-bold px-4 text-caption"
+            :disabled="dialogAnularTraslado.loading"
+            @click="dialogAnularTraslado.show = false"
+          >
+            Cancelar
+          </v-btn>
+          <v-btn
+            variant="flat"
+            color="error"
+            density="comfortable"
+            prepend-icon="mdi-cancel"
+            class="rounded font-weight-bold px-4 text-caption ml-2"
+            :loading="dialogAnularTraslado.loading"
+            @click="confirmAnularTraslado"
+          >
+            Confirmar Anulación
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ================= DIÁLOGO DETALLE DEL TRASLADO ================= -->
+    <v-dialog
+      v-model="dialogDetalleTraslado.show"
+      max-width="850"
+      persistent
+      scrollable
+    >
+      <v-card class="rounded overflow-hidden">
+        <v-card-title
+          class="bg-indigo-darken-4 text-white font-weight-bold pa-3 d-flex align-center justify-space-between flex-wrap"
+        >
+          <div class="d-flex align-center">
+            <v-icon start class="mr-2">mdi-file-document-outline</v-icon>
+            <span class="text-subtitle-1 font-weight-bold">
+              Detalle del Traslado: {{ dialogDetalleTraslado.traslado?.referencia || dialogDetalleTraslado.item?.referencia }}
+            </span>
+          </div>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            size="small"
+            color="white"
+            @click="dialogDetalleTraslado.show = false"
+          ></v-btn>
+        </v-card-title>
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4" style="max-height: 75vh;">
+          <!-- Loader -->
+          <div v-if="dialogDetalleTraslado.loading" class="d-flex justify-center my-6">
+            <v-progress-circular indeterminate color="indigo-darken-4" size="40"></v-progress-circular>
+          </div>
+
+          <template v-else-if="dialogDetalleTraslado.traslado">
+            <!-- Banner de Anulado si aplica -->
+            <v-alert
+              v-if="dialogDetalleTraslado.traslado.esAnulado || !dialogDetalleTraslado.traslado.estado"
+              type="error"
+              variant="tonal"
+              density="compact"
+              class="mb-3"
+            >
+              <div class="font-weight-bold">ESTE TRASLADO HA SIDO ANULADO</div>
+              <div class="text-caption">
+                Anulado el {{ formatDateTime(dialogDetalleTraslado.traslado.fechaAnulacion) }}
+                por <strong>{{ dialogDetalleTraslado.traslado.usuarioAnulacion || 'Sistema' }}</strong>.
+                <span v-if="dialogDetalleTraslado.traslado.motivoAnulacion">
+                  | Motivo: <em>{{ dialogDetalleTraslado.traslado.motivoAnulacion }}</em>
+                </span>
+              </div>
+            </v-alert>
+
+            <!-- Encabezado con información del traslado -->
+            <v-card variant="flat" color="grey-lighten-4" class="pa-3 mb-3 rounded">
+              <v-row dense>
+                <v-col cols="12" sm="6" md="3">
+                  <div class="text-caption text-grey-darken-2">Referencia:</div>
+                  <div class="text-subtitle-2 font-weight-bold text-indigo-darken-4">
+                    {{ dialogDetalleTraslado.traslado.referencia }}
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <div class="text-caption text-grey-darken-2">Fecha y Hora:</div>
+                  <div class="text-subtitle-2 font-weight-medium">
+                    {{ formatDateTime(dialogDetalleTraslado.traslado.fechaRegistro) }}
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <div class="text-caption text-grey-darken-2">Bodega Origen:</div>
+                  <div class="text-subtitle-2 font-weight-medium">
+                    {{ dialogDetalleTraslado.traslado.bodegaOrigenNombre || '---' }}
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <div class="text-caption text-grey-darken-2">Bodega Destino:</div>
+                  <div class="text-subtitle-2 font-weight-medium">
+                    {{ dialogDetalleTraslado.traslado.bodegaDestinoNombre || '---' }}
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6" md="3" class="mt-2">
+                  <div class="text-caption text-grey-darken-2">Responsable:</div>
+                  <div class="text-caption font-weight-medium">
+                    {{ dialogDetalleTraslado.traslado.usuarioRegistro || 'Sistema' }}
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6" md="3" class="mt-2">
+                  <div class="text-caption text-grey-darken-2">Estado:</div>
+                  <div>
+                    <v-chip
+                      v-if="dialogDetalleTraslado.traslado.esAnulado || !dialogDetalleTraslado.traslado.estado"
+                      size="x-small"
+                      color="error"
+                      variant="flat"
+                      class="font-weight-bold"
+                    >
+                      Anulado
+                    </v-chip>
+                    <v-chip
+                      v-else
+                      size="x-small"
+                      color="success"
+                      variant="flat"
+                      class="font-weight-bold"
+                    >
+                      Activo
+                    </v-chip>
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="12" md="6" class="mt-2">
+                  <div class="text-caption text-grey-darken-2">Observaciones:</div>
+                  <div class="text-caption text-grey-darken-3 font-italic">
+                    {{ dialogDetalleTraslado.traslado.observaciones || 'Sin observaciones' }}
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card>
+
+            <!-- Tabla de productos trasladados -->
+            <div class="text-subtitle-2 font-weight-bold mb-2 text-indigo-darken-4 d-flex align-center">
+              <v-icon size="18" class="mr-1">mdi-package-variant</v-icon>
+              Productos Trasladados ({{ productosDetalleTraslado.length }})
+            </div>
+
+            <v-table density="compact" class="border rounded mb-2">
+              <thead class="bg-grey-lighten-4 font-weight-bold">
+                <tr>
+                  <th class="text-left py-2">Código</th>
+                  <th class="text-left py-2">Producto</th>
+                  <th class="text-center py-2">Cantidad</th>
+                  <th class="text-right py-2">Costo Unit.</th>
+                  <th class="text-right py-2">Subtotal Costo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(det, idx) in productosDetalleTraslado" :key="idx">
+                  <td class="font-weight-medium text-caption text-indigo-darken-3">{{ det.productoCodigo || '---' }}</td>
+                  <td class="font-weight-bold text-caption">{{ det.productoNombre }}</td>
+                  <td class="text-center font-weight-bold text-caption text-indigo-darken-4">{{ Math.abs(det.cantidad) }}</td>
+                  <td class="text-right text-caption">{{ formatCurrency(det.costoUnitario) }}</td>
+                  <td class="text-right font-weight-bold text-caption text-teal-darken-4">
+                    {{ formatCurrency(Math.abs(det.cantidad) * det.costoUnitario) }}
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </template>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="pa-3 bg-grey-lighten-4 d-flex justify-space-between">
+          <div>
+            <!--<v-btn
+              v-if="dialogDetalleTraslado.traslado && !dialogDetalleTraslado.traslado.esAnulado && dialogDetalleTraslado.traslado.estado"
+              color="error"
+              variant="flat"
+              density="comfortable"
+              prepend-icon="mdi-cancel"
+              class="rounded font-weight-bold px-4 text-caption"
+              @click="openAnularTraslado(dialogDetalleTraslado.traslado, dialogDetalleTraslado.traslado.bodegaDestinoNombre)"
+            >
+              Anular Traslado
+            </v-btn>-->
+          </div>
+          <v-btn
+            color="indigo-darken-4"
+            variant="flat"
+            density="comfortable"
+            class="rounded font-weight-bold px-4 text-caption"
+            @click="dialogDetalleTraslado.show = false"
           >
             Cerrar
           </v-btn>
@@ -3214,6 +3696,23 @@ export default {
         items: []
       },
 
+      // Diálogo de Anulación de Traslado
+      dialogAnularTraslado: {
+        show: false,
+        loading: false,
+        item: null,
+        destinoNombre: '',
+        motivo: ''
+      },
+
+      // Diálogo de Detalle del Traslado
+      dialogDetalleTraslado: {
+        show: false,
+        loading: false,
+        item: null,
+        traslado: null
+      },
+
       // Diálogo de Inventario Consolidado de Sucursales
       dialogConsolidadoSucursales: {
         show: false,
@@ -3323,10 +3822,20 @@ export default {
           (h.referencia && h.referencia.toLowerCase().includes(s)) ||
           (h.bodegaOrigenNombre && h.bodegaOrigenNombre.toLowerCase().includes(s)) ||
           (h.usuarioRegistro && h.usuarioRegistro.toLowerCase().includes(s)) ||
-          (h.observaciones && h.observaciones.toLowerCase().includes(s))
+          (h.observaciones && h.observaciones.toLowerCase().includes(s)) ||
+          (h.motivoAnulacion && h.motivoAnulacion.toLowerCase().includes(s)) ||
+          (s === 'anulado' && (h.esAnulado || h.estado === false)) ||
+          (s === 'activo' && (!h.esAnulado && h.estado !== false))
         )
       }
       return list
+    },
+
+    productosDetalleTraslado() {
+      if (!this.dialogDetalleTraslado.traslado?.detalles) return []
+      const entradas = this.dialogDetalleTraslado.traslado.detalles.filter(d => Number(d.cantidad) > 0)
+      if (entradas.length > 0) return entradas
+      return this.dialogDetalleTraslado.traslado.detalles
     },
 
     usuarioLogueado() {
@@ -3479,7 +3988,10 @@ export default {
           (h.referencia && h.referencia.toLowerCase().includes(s)) ||
           (h.bodegaOrigenNombre && h.bodegaOrigenNombre.toLowerCase().includes(s)) ||
           (h.usuarioRegistro && h.usuarioRegistro.toLowerCase().includes(s)) ||
-          (h.observaciones && h.observaciones.toLowerCase().includes(s))
+          (h.observaciones && h.observaciones.toLowerCase().includes(s)) ||
+          (h.motivoAnulacion && h.motivoAnulacion.toLowerCase().includes(s)) ||
+          (s === 'anulado' && (h.esAnulado || h.estado === false)) ||
+          (s === 'activo' && (!h.esAnulado && h.estado !== false))
         )
       }
       return list
@@ -4137,8 +4649,51 @@ export default {
 
       try {
         const res = await this.requestHttp.getCamionHistorialCargas(camion.idCamion)
+        const idBodegaDest = camion.idBodega
+        const trasladosRes = idBodegaDest
+          ? await this.requestHttp.getTraslados({ idBodegaDestino: idBodegaDest })
+          : { code: 0, data: [] }
+
+        let trasladosMap = new Map()
+        if (trasladosRes.code === 200 && Array.isArray(trasladosRes.data)) {
+          trasladosRes.data.forEach((t) => {
+            trasladosMap.set(t.idMovInventario, t)
+            if (t.referencia) trasladosMap.set(t.referencia, t)
+          })
+        }
+
         if (res.code === 200 && Array.isArray(res.data)) {
-          this.dialogHistorialCargas.items = res.data
+          this.dialogHistorialCargas.items = res.data.map((item) => {
+            const t =
+              trasladosMap.get(item.idMovInventario) ||
+              (item.referencia ? trasladosMap.get(item.referencia) : null)
+            return {
+              ...item,
+              estado: t ? t.estado : (item.estado !== undefined ? item.estado : true),
+              esAnulado: t ? t.esAnulado : (item.esAnulado || false),
+              motivoAnulacion: t ? t.motivoAnulacion : item.motivoAnulacion,
+              fechaAnulacion: t ? t.fechaAnulacion : item.fechaAnulacion,
+              usuarioAnulacion: t ? t.usuarioAnulacion : item.usuarioAnulacion,
+              referenciaAnulacion: t ? t.referenciaAnulacion : item.referenciaAnulacion
+            }
+          })
+        } else if (trasladosRes.code === 200 && Array.isArray(trasladosRes.data)) {
+          this.dialogHistorialCargas.items = trasladosRes.data.map((t) => ({
+            idMovInventario: t.idMovInventario,
+            referencia: t.referencia,
+            fechaRegistro: t.fechaRegistro,
+            usuarioRegistro: t.usuarioRegistro,
+            bodegaOrigenNombre: t.bodegaOrigenNombre,
+            totalValor: t.totalDebitos || t.totalCreditos || 0,
+            totalItems: t.totalItems || 0,
+            observaciones: t.observaciones || '',
+            estado: t.estado,
+            esAnulado: t.esAnulado,
+            motivoAnulacion: t.motivoAnulacion,
+            fechaAnulacion: t.fechaAnulacion,
+            usuarioAnulacion: t.usuarioAnulacion,
+            referenciaAnulacion: t.referenciaAnulacion
+          }))
         }
       } catch (err) {
         this.showSnackbar('Error al cargar historial del camión.', 'error')
@@ -4740,13 +5295,149 @@ export default {
 
       try {
         const res = await this.requestHttp.getSucursalHistorialCargas(sucursal.idSucursal)
+        const idBodegaDest = sucursal.idBodega
+        const trasladosRes = idBodegaDest
+          ? await this.requestHttp.getTraslados({ idBodegaDestino: idBodegaDest })
+          : { code: 0, data: [] }
+
+        let trasladosMap = new Map()
+        if (trasladosRes.code === 200 && Array.isArray(trasladosRes.data)) {
+          trasladosRes.data.forEach((t) => {
+            trasladosMap.set(t.idMovInventario, t)
+            if (t.referencia) trasladosMap.set(t.referencia, t)
+          })
+        }
+
         if (res.code === 200 && Array.isArray(res.data)) {
-          this.dialogHistorialSucursal.items = res.data
+          this.dialogHistorialSucursal.items = res.data.map((item) => {
+            const t =
+              trasladosMap.get(item.idMovInventario) ||
+              (item.referencia ? trasladosMap.get(item.referencia) : null)
+            return {
+              ...item,
+              estado: t ? t.estado : (item.estado !== undefined ? item.estado : true),
+              esAnulado: t ? t.esAnulado : (item.esAnulado || false),
+              motivoAnulacion: t ? t.motivoAnulacion : item.motivoAnulacion,
+              fechaAnulacion: t ? t.fechaAnulacion : item.fechaAnulacion,
+              usuarioAnulacion: t ? t.usuarioAnulacion : item.usuarioAnulacion,
+              referenciaAnulacion: t ? t.referenciaAnulacion : item.referenciaAnulacion
+            }
+          })
+        } else if (trasladosRes.code === 200 && Array.isArray(trasladosRes.data)) {
+          this.dialogHistorialSucursal.items = trasladosRes.data.map((t) => ({
+            idMovInventario: t.idMovInventario,
+            referencia: t.referencia,
+            fechaRegistro: t.fechaRegistro,
+            usuarioRegistro: t.usuarioRegistro,
+            bodegaOrigenNombre: t.bodegaOrigenNombre,
+            totalValor: t.totalDebitos || t.totalCreditos || 0,
+            totalItems: t.totalItems || 0,
+            observaciones: t.observaciones || '',
+            estado: t.estado,
+            esAnulado: t.esAnulado,
+            motivoAnulacion: t.motivoAnulacion,
+            fechaAnulacion: t.fechaAnulacion,
+            usuarioAnulacion: t.usuarioAnulacion,
+            referenciaAnulacion: t.referenciaAnulacion
+          }))
         }
       } catch (err) {
         this.showSnackbar('Error al cargar historial de traslados de la sucursal.', 'error')
       } finally {
         this.dialogHistorialSucursal.loading = false
+      }
+    },
+
+    // ================= MÉTODOS DE ANULACIÓN Y DETALLE DE TRASLADO =================
+    openAnularTraslado(item, destinoNombre = '') {
+      this.dialogAnularTraslado.item = item
+      this.dialogAnularTraslado.destinoNombre = destinoNombre || item.bodegaDestinoNombre || ''
+      this.dialogAnularTraslado.motivo = ''
+      this.dialogAnularTraslado.loading = false
+      this.dialogAnularTraslado.show = true
+    },
+
+    async confirmAnularTraslado() {
+      if (!this.dialogAnularTraslado.item?.idMovInventario) {
+        this.showSnackbar('No se especificó el ID del traslado a anular.', 'error')
+        return
+      }
+
+      this.dialogAnularTraslado.loading = true
+      try {
+        const payload = {
+          idMovInventario: this.dialogAnularTraslado.item.idMovInventario,
+          motivo: this.dialogAnularTraslado.motivo ? this.dialogAnularTraslado.motivo.trim() : null,
+          usuarioRegistro: this.usuarioLogueado
+        }
+
+        const res = await this.requestHttp.anularTraslado(this.dialogAnularTraslado.item.idMovInventario, payload)
+
+        if (res.code === 200) {
+          const ref = this.dialogAnularTraslado.item.referencia || ''
+          this.showSnackbar(res.data?.msg || `Traslado ${ref} anulado correctamente.`, 'success')
+          this.dialogAnularTraslado.show = false
+
+          if (this.dialogDetalleTraslado.show) {
+            this.dialogDetalleTraslado.show = false
+          }
+
+          // Recargar historial y datos en pantalla
+          if (this.dialogHistorialCargas.show && this.dialogHistorialCargas.camion) {
+            await this.openDialogHistorialCargas(this.dialogHistorialCargas.camion)
+            await this.fetchCamiones()
+          }
+          if (this.dialogHistorialSucursal.show && this.dialogHistorialSucursal.sucursal) {
+            await this.openDialogHistorialSucursal(this.dialogHistorialSucursal.sucursal)
+            await this.fetchSucursales()
+          }
+          await this.fetchBodegas()
+        } else {
+          const errorMsg = res.data?.msg || res.data?.ex || 'Error al anular el traslado.'
+          this.showSnackbar(errorMsg, 'error')
+        }
+      } catch (err) {
+        this.showSnackbar('Error de conexión al anular el traslado.', 'error')
+      } finally {
+        this.dialogAnularTraslado.loading = false
+      }
+    },
+
+    async openDialogDetalleTraslado(item) {
+      this.dialogDetalleTraslado.item = item
+      this.dialogDetalleTraslado.traslado = null
+      this.dialogDetalleTraslado.show = true
+      this.dialogDetalleTraslado.loading = true
+
+      try {
+        const res = await this.requestHttp.getTrasladoById(item.idMovInventario)
+        if (res.code === 200 && res.data) {
+          this.dialogDetalleTraslado.traslado = res.data
+        } else {
+          this.dialogDetalleTraslado.traslado = {
+            idMovInventario: item.idMovInventario,
+            referencia: item.referencia,
+            fechaRegistro: item.fechaRegistro,
+            usuarioRegistro: item.usuarioRegistro,
+            bodegaOrigenNombre: item.bodegaOrigenNombre,
+            bodegaDestinoNombre:
+              item.bodegaDestinoNombre ||
+              (this.dialogHistorialCargas.show
+                ? this.dialogHistorialCargas.camion?.bodegaNombre || `Camión ${this.dialogHistorialCargas.camion?.placa}`
+                : this.dialogHistorialSucursal.sucursal?.nombre),
+            observaciones: item.observaciones,
+            estado: item.estado !== undefined ? item.estado : true,
+            esAnulado: item.esAnulado || false,
+            motivoAnulacion: item.motivoAnulacion,
+            fechaAnulacion: item.fechaAnulacion,
+            usuarioAnulacion: item.usuarioAnulacion,
+            detalles: []
+          }
+        }
+      } catch (err) {
+        this.showSnackbar('Error al cargar detalle del traslado.', 'error')
+      } finally {
+        this.dialogDetalleTraslado.loading = false
       }
     },
 

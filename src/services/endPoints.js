@@ -143,6 +143,8 @@ const endPoints = {
     // TRASLADOS
     postTraslado: 'api/traslados',
     getTraslados: 'api/traslados',
+    getTrasladoById: 'api/traslados',
+    anularTraslado: 'api/traslados',
 
     // BODEGAS COMBOBOX
     getBodegasCombobox: 'api/bodegas/combobox',

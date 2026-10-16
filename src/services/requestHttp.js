@@ -1487,6 +1487,22 @@ class RequestHttp {
             return { code: error.response?.status || 500, data: error.response?.data }
         }
     }
+    async getTrasladoById(id) {
+        try {
+            const result = await axios.get(`api/traslados/${id}`)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
+    async anularTraslado(id, data = {}) {
+        try {
+            const result = await axios.post(`api/traslados/${id}/anular`, data)
+            return { code: 200, data: result.data }
+        } catch (error) {
+            return { code: error.response?.status || 500, data: error.response?.data }
+        }
+    }
     async getTrasladoStockDisponible(idBodega, idProducto) {
         try {
             const result = await axios.get(`api/traslados/stock-disponible?idBodega=${idBodega}&idProducto=${idProducto}`)
