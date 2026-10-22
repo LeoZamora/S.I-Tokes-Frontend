@@ -130,7 +130,7 @@
     <!-- CARDS DE RESUMEN EJECUTIVO (KPIS) -->
     <v-row dense class="mb-4">
       <!-- Total Sesiones -->
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="6" md="4" lg>
         <v-card class="pa-3 rounded-xl elevation-1 bg-white border h-100 hover-card">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="text-caption text-grey-darken-1 font-weight-bold">Sesiones Evaluadas</span>
@@ -156,7 +156,7 @@
       </v-col>
 
       <!-- Total Facturado en Ventas -->
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="6" md="4" lg>
         <v-card class="pa-3 rounded-xl elevation-1 bg-white border h-100 hover-card">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="text-caption text-grey-darken-1 font-weight-bold">Total Facturado</span>
@@ -168,14 +168,33 @@
             {{ formatCurrency(resumen.totalVentas) }}
           </div>
           <div class="text-caption text-grey-darken-2 mt-1 d-flex justify-space-between">
-            <span>Efectivo: <strong class="text-success">{{ formatCurrency(resumen.totalVentasEfectivo ?? resumen.totalVentas) }}</strong></span>
-            <span>Otros: <strong class="text-teal-darken-3">{{ formatCurrency(resumen.totalVentasOtrasModalidades || 0) }}</strong></span>
+            <span>Efec: <strong class="text-success">{{ formatCurrency(resumen.totalVentasEfectivo ?? resumen.totalVentas) }}</strong></span>
+            <span>Otros: <strong class="text-indigo-darken-3">{{ formatCurrency(resumen.totalVentasOtrasModalidades || 0) }}</strong></span>
+          </div>
+        </v-card>
+      </v-col>
+
+      <!-- Total Abonos CXC -->
+      <v-col cols="12" sm="6" md="4" lg>
+        <v-card class="pa-3 rounded-xl elevation-1 bg-white border h-100 hover-card">
+          <div class="d-flex align-center justify-space-between mb-1">
+            <span class="text-caption text-grey-darken-1 font-weight-bold">Abonos CXC</span>
+            <v-avatar color="teal-lighten-5" size="32">
+              <v-icon color="teal-darken-3" size="18">mdi-account-cash</v-icon>
+            </v-avatar>
+          </div>
+          <div class="text-h5 font-weight-black text-teal-darken-4">
+            {{ formatCurrency(resumen.totalAbonos) }}
+          </div>
+          <div class="text-caption text-grey-darken-2 mt-1 d-flex justify-space-between">
+            <span>Efec: <strong class="text-teal-darken-3">{{ formatCurrency(resumen.totalAbonosEfectivo || 0) }}</strong></span>
+            <span>Otros: <strong class="text-blue-grey-darken-2">{{ formatCurrency(resumen.totalAbonosOtrasModalidades || 0) }}</strong></span>
           </div>
         </v-card>
       </v-col>
 
       <!-- Total Dinero Contado vs Esperado -->
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="6" md="4" lg>
         <v-card class="pa-3 rounded-xl elevation-1 bg-white border h-100 hover-card">
           <div class="d-flex align-center justify-space-between mb-1">
             <span class="text-caption text-grey-darken-1 font-weight-bold">Efectivo Físico Contado</span>
@@ -193,7 +212,7 @@
       </v-col>
 
       <!-- Balance Neto y Diferencias -->
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="6" md="4" lg>
         <v-card
           class="pa-3 rounded-xl elevation-1 border h-100 hover-card"
           :class="resumen.diferenciaNeta >= 0 ? (resumen.diferenciaNeta === 0 ? 'bg-indigo-lighten-5 border-indigo' : 'bg-green-lighten-5 border-green') : 'bg-red-lighten-5 border-red'"
@@ -385,6 +404,16 @@
                 </div>
               </template>
 
+              <!-- Abonos CXC -->
+              <template v-slot:item.abonos="{ item }">
+                <div>
+                  <span class="font-weight-medium text-teal-darken-3 d-block">{{ formatCurrency(item.abonos) }}</span>
+                  <span v-if="Number(item.abonosEfectivo) > 0" class="text-caption text-grey-darken-1" style="font-size: 10px;">
+                    Efec: {{ formatCurrency(item.abonosEfectivo) }}
+                  </span>
+                </div>
+              </template>
+
               <!-- Retiros -->
               <template v-slot:item.retiros="{ item }">
                 <span class="text-orange-darken-4">{{ formatCurrency(item.retiros) }}</span>
@@ -488,6 +517,10 @@
                     <span class="text-grey-darken-1">Ventas Facturadas:</span>
                     <span class="font-weight-bold text-success">{{ formatCurrency(cajero.totalVentas) }}</span>
                   </div>
+                  <div v-if="Number(cajero.totalAbonos) > 0" class="d-flex justify-space-between text-caption py-1">
+                    <span class="text-grey-darken-1">Abonos CXC:</span>
+                    <span class="font-weight-bold text-teal-darken-3">{{ formatCurrency(cajero.totalAbonos) }}</span>
+                  </div>
                   <div class="d-flex justify-space-between text-caption py-1">
                     <span class="text-grey-darken-1">Total Retiros:</span>
                     <span class="font-weight-bold text-orange-darken-4">{{ formatCurrency(cajero.totalRetiros) }}</span>
@@ -536,6 +569,9 @@
               </template>
               <template v-slot:item.totalVentas="{ item }">
                 <span class="text-success font-weight-medium">{{ formatCurrency(item.totalVentas) }}</span>
+              </template>
+              <template v-slot:item.totalAbonos="{ item }">
+                <span class="text-teal-darken-3 font-weight-medium">{{ formatCurrency(item.totalAbonos) }}</span>
               </template>
               <template v-slot:item.totalRetiros="{ item }">
                 <span class="text-orange-darken-4">{{ formatCurrency(item.totalRetiros) }}</span>
@@ -596,6 +632,9 @@
               </template>
               <template v-slot:item.totalVentas="{ item }">
                 <span class="text-success font-weight-medium">{{ formatCurrency(item.totalVentas) }}</span>
+              </template>
+              <template v-slot:item.totalAbonos="{ item }">
+                <span class="text-teal-darken-3 font-weight-medium">{{ formatCurrency(item.totalAbonos) }}</span>
               </template>
               <template v-slot:item.totalRetiros="{ item }">
                 <span class="text-orange-darken-4">{{ formatCurrency(item.totalRetiros) }}</span>
@@ -666,6 +705,18 @@
               <span class="font-weight-bold text-indigo-darken-4">{{ formatCurrency(dialogDetalle.item.ventas) }}</span>
             </div>
             <div class="d-flex justify-space-between py-1 border-bottom text-body-2">
+              <span class="text-grey-darken-1">Abonos en Efectivo (Caja):</span>
+              <span class="font-weight-bold text-teal-darken-3">{{ formatCurrency(dialogDetalle.item.abonosEfectivo) }}</span>
+            </div>
+            <div v-if="Number(dialogDetalle.item.abonosOtrasModalidades) > 0" class="d-flex justify-space-between py-1 border-bottom text-body-2">
+              <span class="text-grey-darken-1">Abonos Otras Modalidades:</span>
+              <span class="font-weight-bold text-blue-grey-darken-2">{{ formatCurrency(dialogDetalle.item.abonosOtrasModalidades) }}</span>
+            </div>
+            <div v-if="Number(dialogDetalle.item.abonos) > 0" class="d-flex justify-space-between py-1 border-bottom text-body-2">
+              <span class="text-grey-darken-1">Total Abonos CXC:</span>
+              <span class="font-weight-bold text-teal-darken-4">{{ formatCurrency(dialogDetalle.item.abonos) }}</span>
+            </div>
+            <div class="d-flex justify-space-between py-1 border-bottom text-body-2">
               <span class="text-grey-darken-1">Retiros / Gastos:</span>
               <span class="font-weight-bold text-orange-darken-4">-{{ formatCurrency(dialogDetalle.item.retiros) }}</span>
             </div>
@@ -686,6 +737,26 @@
                 >
                   <v-icon start size="12">{{ dm.esEfectivo ? 'mdi-cash' : 'mdi-credit-card' }}</v-icon>
                   <strong>{{ dm.modalidad }}:</strong>&nbsp;{{ formatCurrency(dm.total) }} ({{ dm.cantidadVentas }} fact.)
+                </v-chip>
+              </div>
+            </div>
+
+            <!-- Desglose de Abonos por Modalidad en Modal -->
+            <div v-if="dialogDetalle.item.desgloseAbonosModalidades && dialogDetalle.item.desgloseAbonosModalidades.length > 0" class="py-2 border-bottom">
+              <span class="text-caption font-weight-bold text-teal-darken-4 d-block mb-1">
+                Desglose Abonos CXC por Modalidad:
+              </span>
+              <div class="d-flex align-center ga-1 flex-wrap">
+                <v-chip
+                  v-for="dm in dialogDetalle.item.desgloseAbonosModalidades"
+                  :key="dm.idModalidad"
+                  size="x-small"
+                  :color="dm.esEfectivo ? 'green-darken-3' : 'teal-darken-3'"
+                  variant="tonal"
+                  class="font-weight-medium"
+                >
+                  <v-icon start size="12">{{ dm.esEfectivo ? 'mdi-cash' : 'mdi-bank-transfer' }}</v-icon>
+                  <strong>{{ dm.modalidad }}:</strong>&nbsp;{{ formatCurrency(dm.total) }} ({{ dm.cantidadAbonos }} abono{{ dm.cantidadAbonos > 1 ? 's' : '' }})
                 </v-chip>
               </div>
             </div>
@@ -868,6 +939,9 @@ export default {
         totalVentas: 0,
         totalVentasEfectivo: 0,
         totalVentasOtrasModalidades: 0,
+        totalAbonos: 0,
+        totalAbonosEfectivo: 0,
+        totalAbonosOtrasModalidades: 0,
         totalRetiros: 0,
         totalEsperado: 0,
         totalContado: 0,
@@ -891,6 +965,7 @@ export default {
         { title: 'Cajero / Responsable', key: 'nombreCajero', align: 'start', sortable: false },
         { title: 'Ef. Inicial', key: 'efectivoInicial', align: 'end', sortable: true },
         { title: 'Ventas', key: 'ventas', align: 'end', sortable: true },
+        { title: 'Abonos CXC', key: 'abonos', align: 'end', sortable: true },
         { title: 'Retiros', key: 'retiros', align: 'end', sortable: true },
         { title: 'Total Esperado', key: 'totalEsperado', align: 'end', sortable: true },
         { title: 'Total Contado', key: 'totalContado', align: 'end', sortable: true },
@@ -904,6 +979,7 @@ export default {
         { title: 'Sesiones', key: 'totalTurnos', align: 'center', sortable: true },
         { title: 'Efectividad', key: 'porcentajeEfectividad', align: 'center', sortable: true },
         { title: 'Total Ventas', key: 'totalVentas', align: 'end', sortable: true },
+        { title: 'Total Abonos', key: 'totalAbonos', align: 'end', sortable: true },
         { title: 'Total Retiros', key: 'totalRetiros', align: 'end', sortable: true },
         { title: 'Faltantes Acum.', key: 'totalFaltantes', align: 'end', sortable: true },
         { title: 'Sobrantes Acum.', key: 'totalSobrantes', align: 'end', sortable: true },
@@ -916,6 +992,7 @@ export default {
         { title: 'Sesiones', key: 'totalTurnos', align: 'center', sortable: true },
         { title: 'Efectividad', key: 'porcentajeEfectividad', align: 'center', sortable: true },
         { title: 'Total Ventas', key: 'totalVentas', align: 'end', sortable: true },
+        { title: 'Total Abonos', key: 'totalAbonos', align: 'end', sortable: true },
         { title: 'Total Retiros', key: 'totalRetiros', align: 'end', sortable: true },
         { title: 'Balance Neto', key: 'diferenciaAcumulada', align: 'center', sortable: true }
       ],
@@ -1157,6 +1234,8 @@ export default {
           { header: 'Usuario', key: 'usuario', width: 15 },
           { header: 'Efectivo Inicial (C$)', key: 'efectivoInicial', width: 18 },
           { header: 'Ventas (C$)', key: 'ventas', width: 18 },
+          { header: 'Abonos CXC (C$)', key: 'abonos', width: 18 },
+          { header: 'Abonos Efec. (C$)', key: 'abonosEfectivo', width: 18 },
           { header: 'Retiros (C$)', key: 'retiros', width: 18 },
           { header: 'Total Esperado (C$)', key: 'totalEsperado', width: 18 },
           { header: 'Total Contado (C$)', key: 'totalContado', width: 18 },
@@ -1183,6 +1262,8 @@ export default {
             usuario: i.usuario,
             efectivoInicial: i.efectivoInicial,
             ventas: i.ventas,
+            abonos: i.abonos || 0,
+            abonosEfectivo: i.abonosEfectivo || 0,
             retiros: i.retiros,
             totalEsperado: i.totalEsperado,
             totalContado: i.totalContado,
@@ -1200,6 +1281,8 @@ export default {
           { header: 'Turnos Trabajados', key: 'totalTurnos', width: 18 },
           { header: 'Efectividad (%)', key: 'porcentajeEfectividad', width: 18 },
           { header: 'Total Ventas (C$)', key: 'totalVentas', width: 18 },
+          { header: 'Total Abonos (C$)', key: 'totalAbonos', width: 18 },
+          { header: 'Abonos Efec. (C$)', key: 'totalAbonosEfectivo', width: 18 },
           { header: 'Total Retiros (C$)', key: 'totalRetiros', width: 18 },
           { header: 'Total Faltantes (C$)', key: 'totalFaltantes', width: 18 },
           { header: 'Total Sobrantes (C$)', key: 'totalSobrantes', width: 18 },
@@ -1219,12 +1302,50 @@ export default {
             totalTurnos: c.totalTurnos,
             porcentajeEfectividad: c.porcentajeEfectividad,
             totalVentas: c.totalVentas,
+            totalAbonos: c.totalAbonos || 0,
+            totalAbonosEfectivo: c.totalAbonosEfectivo || 0,
             totalRetiros: c.totalRetiros,
             totalFaltantes: c.totalFaltantes,
             totalSobrantes: c.totalSobrantes,
             diferenciaAcumulada: c.diferenciaAcumulada
           });
         });
+
+        // HOJA 3: CONSOLIDADO POR CAJA
+        if (this.consolidadoCajas && this.consolidadoCajas.length > 0) {
+          const wsCajas = workbook.addWorksheet('Consolidado por Caja');
+          wsCajas.columns = [
+            { header: 'Caja', key: 'nombreCaja', width: 25 },
+            { header: 'Sesiones', key: 'totalTurnos', width: 15 },
+            { header: 'Total Ventas (C$)', key: 'totalVentas', width: 18 },
+            { header: 'Total Abonos (C$)', key: 'totalAbonos', width: 18 },
+            { header: 'Abonos Efec. (C$)', key: 'totalAbonosEfectivo', width: 18 },
+            { header: 'Total Retiros (C$)', key: 'totalRetiros', width: 18 },
+            { header: 'Total Faltantes (C$)', key: 'totalFaltantes', width: 18 },
+            { header: 'Total Sobrantes (C$)', key: 'totalSobrantes', width: 18 },
+            { header: 'Balance Neto (C$)', key: 'diferenciaAcumulada', width: 18 }
+          ];
+          wsCajas.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+          wsCajas.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF0288D1' }
+          };
+
+          this.consolidadoCajas.forEach(c => {
+            wsCajas.addRow({
+              nombreCaja: c.nombreCaja || c.cajaNombre || '—',
+              totalTurnos: c.totalTurnos || 0,
+              totalVentas: c.totalVentas || 0,
+              totalAbonos: c.totalAbonos || 0,
+              totalAbonosEfectivo: c.totalAbonosEfectivo || 0,
+              totalRetiros: c.totalRetiros || 0,
+              totalFaltantes: c.totalFaltantes || 0,
+              totalSobrantes: c.totalSobrantes || 0,
+              diferenciaAcumulada: c.diferenciaAcumulada || 0
+            });
+          });
+        }
 
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -1309,35 +1430,42 @@ export default {
         doc.text(`Cajas Cuadradas: ${cajero.turnosCuadrados || 0} (${cajero.porcentajeEfectividad || 0}% efectividad)`, 18, currentY + 23);
 
         // Right KPI summary column in box
-        const col2X = pageWidth - 72;
-        doc.setFontSize(8);
+        const col2X = pageWidth - 76;
+        doc.setFontSize(7.5);
         doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-        doc.text('Total Ventas:', col2X, currentY + 7);
+        doc.text('Total Ventas:', col2X, currentY + 6);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(successColor[0], successColor[1], successColor[2]);
-        doc.text(this.formatCurrency(cajero.totalVentas), pageWidth - 18, currentY + 7, { align: 'right' });
+        doc.text(this.formatCurrency(cajero.totalVentas), pageWidth - 18, currentY + 6, { align: 'right' });
 
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-        doc.text('Total Retiros:', col2X, currentY + 12);
+        doc.text('Total Abonos CXC:', col2X, currentY + 10.5);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.text(this.formatCurrency(cajero.totalAbonos || 0), pageWidth - 18, currentY + 10.5, { align: 'right' });
+
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+        doc.text('Total Retiros:', col2X, currentY + 15);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(190, 80, 0);
-        doc.text(this.formatCurrency(cajero.totalRetiros), pageWidth - 18, currentY + 12, { align: 'right' });
+        doc.text(this.formatCurrency(cajero.totalRetiros), pageWidth - 18, currentY + 15, { align: 'right' });
 
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-        doc.text('Balance Neto:', col2X, currentY + 18);
+        doc.text('Balance Neto:', col2X, currentY + 19.5);
         doc.setFont('helvetica', 'bold');
         const difVal = Number(cajero.diferenciaAcumulada) || 0;
         const difColor = difVal >= 0 ? (difVal === 0 ? primaryColor : successColor) : errorColor;
         doc.setTextColor(difColor[0], difColor[1], difColor[2]);
         const balanceSign = difVal > 0 ? '+' : '';
-        doc.text(`${balanceSign}${this.formatCurrency(difVal)}`, pageWidth - 18, currentY + 18, { align: 'right' });
+        doc.text(`${balanceSign}${this.formatCurrency(difVal)}`, pageWidth - 18, currentY + 19.5, { align: 'right' });
 
-        doc.setFontSize(7);
+        doc.setFontSize(6.8);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(120, 120, 120);
-        doc.text(`Sobrantes: +${this.formatCurrency(cajero.totalSobrantes)} | Faltantes: -${this.formatCurrency(cajero.totalFaltantes)}`, col2X - 18, currentY + 23);
+        doc.text(`Sobrantes: +${this.formatCurrency(cajero.totalSobrantes)} | Faltantes: -${this.formatCurrency(cajero.totalFaltantes)}`, col2X - 22, currentY + 24.5);
 
         currentY += 31;
 
@@ -1358,7 +1486,7 @@ export default {
         // Prepare table data
         const tableHeaders = [[
           '#', 'Fecha Cierre', 'No. Cierre', 'Caja',
-          'Ef. Inicial', 'Ventas', 'Retiros',
+          'Ef. Inicial', 'Ventas', 'Abonos', 'Retiros',
           'Esperado', 'Contado', 'Diferencia', 'Condición'
         ]];
 
@@ -1369,6 +1497,7 @@ export default {
           s.cajaNombre || '—',
           this.formatCurrency(s.efectivoInicial),
           this.formatCurrency(s.ventas),
+          this.formatCurrency(s.abonos || 0),
           this.formatCurrency(s.retiros),
           this.formatCurrency(s.totalEsperado),
           this.formatCurrency(s.totalContado),
@@ -1379,6 +1508,7 @@ export default {
         // Totales al pie de la tabla
         const totalEfInicial = sesiones.reduce((acc, s) => acc + (Number(s.efectivoInicial) || 0), 0);
         const totalVentas = sesiones.reduce((acc, s) => acc + (Number(s.ventas) || 0), 0);
+        const totalAbonos = sesiones.reduce((acc, s) => acc + (Number(s.abonos) || 0), 0);
         const totalRetiros = sesiones.reduce((acc, s) => acc + (Number(s.retiros) || 0), 0);
         const totalEsperado = sesiones.reduce((acc, s) => acc + (Number(s.totalEsperado) || 0), 0);
         const totalContado = sesiones.reduce((acc, s) => acc + (Number(s.totalContado) || 0), 0);
@@ -1391,6 +1521,7 @@ export default {
           '',
           this.formatCurrency(totalEfInicial),
           this.formatCurrency(totalVentas),
+          this.formatCurrency(totalAbonos),
           this.formatCurrency(totalRetiros),
           this.formatCurrency(totalEsperado),
           this.formatCurrency(totalContado),
@@ -1425,21 +1556,22 @@ export default {
             halign: 'right'
           },
           columnStyles: {
-            0: { cellWidth: 7, halign: 'center' },
-            1: { cellWidth: 26, halign: 'left' },
-            2: { cellWidth: 22, halign: 'left' },
-            3: { cellWidth: 22, halign: 'left' },
-            4: { cellWidth: 16, halign: 'right' },
-            5: { cellWidth: 16, halign: 'right' },
-            6: { cellWidth: 16, halign: 'right' },
-            7: { cellWidth: 17, halign: 'right' },
-            8: { cellWidth: 17, halign: 'right' },
-            9: { cellWidth: 17, halign: 'right' },
-            10: { cellWidth: 16, halign: 'center' }
+            0: { cellWidth: 6, halign: 'center' },
+            1: { cellWidth: 24, halign: 'left' },
+            2: { cellWidth: 19, halign: 'left' },
+            3: { cellWidth: 19, halign: 'left' },
+            4: { cellWidth: 14, halign: 'right' },
+            5: { cellWidth: 15, halign: 'right' },
+            6: { cellWidth: 15, halign: 'right' },
+            7: { cellWidth: 14, halign: 'right' },
+            8: { cellWidth: 15, halign: 'right' },
+            9: { cellWidth: 15, halign: 'right' },
+            10: { cellWidth: 15, halign: 'right' },
+            11: { cellWidth: 15, halign: 'center' }
           },
           margin: { left: 14, right: 14, bottom: 20 },
           didParseCell: (data) => {
-            if (data.section === 'body' && data.column.index === 9) {
+            if (data.section === 'body' && data.column.index === 10) {
               const rawVal = Number(sesiones[data.row.index]?.diferencia) || 0;
               if (rawVal < 0) {
                 data.cell.styles.textColor = errorColor;
@@ -1587,7 +1719,7 @@ export default {
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
         doc.text(`Sesiones Evaluadas: ${this.resumen.totalCierres} (${this.resumen.cantidadCuadradas} cuadradas, ${this.resumen.cantidadSobrantes} con sobrante, ${this.resumen.cantidadFaltantes} con faltante)`, 18, currentY + 11);
-        doc.text(`Total Facturado: ${this.formatCurrency(this.resumen.totalVentas)}   |   Total Retiros: ${this.formatCurrency(this.resumen.totalRetiros)}`, 18, currentY + 16.5);
+        doc.text(`Ventas: ${this.formatCurrency(this.resumen.totalVentas)}   |   Abonos CXC: ${this.formatCurrency(this.resumen.totalAbonos)}   |   Retiros: ${this.formatCurrency(this.resumen.totalRetiros)}`, 18, currentY + 16.5);
 
         doc.setFont('helvetica', 'bold');
         const difVal = Number(this.resumen.diferenciaNeta) || 0;
@@ -1613,7 +1745,7 @@ export default {
 
           const headersCaj = [[
             'Cajero', 'Usuario', 'Sesiones', 'Cuadre %',
-            'Ventas Fact.', 'Total Retiros', 'Faltantes', 'Sobrantes', 'Balance Neto'
+            'Ventas Fact.', 'Abonos CXC', 'Total Retiros', 'Faltantes', 'Sobrantes', 'Balance Neto'
           ]];
 
           const rowsCaj = this.consolidadoCajeros.map(c => [
@@ -1622,6 +1754,7 @@ export default {
             (c.totalTurnos || 0).toString(),
             `${c.porcentajeEfectividad || 0}%`,
             this.formatCurrency(c.totalVentas),
+            this.formatCurrency(c.totalAbonos || 0),
             this.formatCurrency(c.totalRetiros),
             `-${this.formatCurrency(c.totalFaltantes)}`,
             `+${this.formatCurrency(c.totalSobrantes)}`,
@@ -1636,15 +1769,16 @@ export default {
             styles: { fontSize: 7.5, cellPadding: 1.8 },
             headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold', halign: 'center' },
             columnStyles: {
-              0: { cellWidth: 35, halign: 'left' },
-              1: { cellWidth: 20, halign: 'left' },
-              2: { cellWidth: 16, halign: 'center' },
-              3: { cellWidth: 16, halign: 'center' },
-              4: { cellWidth: 20, halign: 'right' },
-              5: { cellWidth: 20, halign: 'right' },
-              6: { cellWidth: 18, halign: 'right', textColor: errorColor },
-              7: { cellWidth: 18, halign: 'right', textColor: successColor },
-              8: { cellWidth: 19, halign: 'right', fontStyle: 'bold' }
+              0: { cellWidth: 30, halign: 'left' },
+              1: { cellWidth: 18, halign: 'left' },
+              2: { cellWidth: 14, halign: 'center' },
+              3: { cellWidth: 14, halign: 'center' },
+              4: { cellWidth: 18, halign: 'right' },
+              5: { cellWidth: 18, halign: 'right' },
+              6: { cellWidth: 18, halign: 'right' },
+              7: { cellWidth: 17, halign: 'right', textColor: errorColor },
+              8: { cellWidth: 17, halign: 'right', textColor: successColor },
+              9: { cellWidth: 18, halign: 'right', fontStyle: 'bold' }
             },
             margin: { left: 14, right: 14, bottom: 20 }
           });
@@ -1666,7 +1800,7 @@ export default {
 
         const headersSes = [[
           '#', 'Fecha Cierre', 'No. Cierre', 'Caja', 'Cajero',
-          'Ef. Inicial', 'Ventas', 'Retiros', 'Esperado', 'Contado', 'Diferencia', 'Condición'
+          'Ef. Inicial', 'Ventas', 'Abonos', 'Retiros', 'Esperado', 'Contado', 'Diferencia', 'Condición'
         ]];
 
         const rowsSes = this.filteredItems.map((s, idx) => [
@@ -1677,6 +1811,7 @@ export default {
           s.nombreCajero || s.usuario || '—',
           this.formatCurrency(s.efectivoInicial),
           this.formatCurrency(s.ventas),
+          this.formatCurrency(s.abonos || 0),
           this.formatCurrency(s.retiros),
           this.formatCurrency(s.totalEsperado),
           this.formatCurrency(s.totalContado),
@@ -1693,17 +1828,18 @@ export default {
           headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold', halign: 'center' },
           columnStyles: {
             0: { cellWidth: 6, halign: 'center' },
-            1: { cellWidth: 22, halign: 'left' },
-            2: { cellWidth: 18, halign: 'left' },
-            3: { cellWidth: 18, halign: 'left' },
-            4: { cellWidth: 22, halign: 'left' },
-            5: { cellWidth: 14, halign: 'right' },
-            6: { cellWidth: 14, halign: 'right' },
-            7: { cellWidth: 14, halign: 'right' },
-            8: { cellWidth: 15, halign: 'right' },
-            9: { cellWidth: 15, halign: 'right' },
+            1: { cellWidth: 20, halign: 'left' },
+            2: { cellWidth: 16, halign: 'left' },
+            3: { cellWidth: 16, halign: 'left' },
+            4: { cellWidth: 20, halign: 'left' },
+            5: { cellWidth: 13, halign: 'right' },
+            6: { cellWidth: 13, halign: 'right' },
+            7: { cellWidth: 13, halign: 'right' },
+            8: { cellWidth: 13, halign: 'right' },
+            9: { cellWidth: 14, halign: 'right' },
             10: { cellWidth: 14, halign: 'right' },
-            11: { cellWidth: 12, halign: 'center' }
+            11: { cellWidth: 13, halign: 'right' },
+            12: { cellWidth: 13, halign: 'center' }
           },
           margin: { left: 14, right: 14, bottom: 20 }
         });

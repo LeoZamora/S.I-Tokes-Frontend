@@ -56,6 +56,20 @@ const routes = createRouter({
       }
     },
     {
+      path: '/control-abonos',
+      name: 'Control abonos',
+      component: () =>
+        import(
+          '@/views/general/por-cobrar/control-abonos/control-abonos.vue'
+        ),
+      meta: {
+        protected: true,
+        keepAlive: true,
+        requiredAuth: true,
+        title: 'Control de Abonos | DevoDigital'
+      }
+    },
+    {
       path: '/empresa/movimientos/conceptos',
       name: 'Conceptos',
       component: () =>

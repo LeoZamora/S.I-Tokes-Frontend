@@ -250,8 +250,34 @@
               <span class="text-caption font-weight-medium text-indigo-darken-3">{{ formatCurrency(item.montoArqueoVentas) }}</span>
             </template>
 
+            <template v-slot:item.montoArqueoAbonos="{ item }">
+              <div>
+                <span class="text-caption font-weight-bold text-teal-darken-3 d-block">{{ formatCurrency(item.montoArqueoAbonos) }}</span>
+                <span v-if="Number(item.montoArqueoAbonosEfectivo) > 0" class="text-caption text-grey" style="font-size: 10px;">
+                  Efec: {{ formatCurrency(item.montoArqueoAbonosEfectivo) }}
+                </span>
+              </div>
+            </template>
+
             <template v-slot:item.montoArqueoRetiros="{ item }">
               <span class="text-caption text-red-darken-3">{{ formatCurrency(item.montoArqueoRetiros) }}</span>
+            </template>
+
+            <template v-slot:item.totalEsperado="{ item }">
+              <span class="text-caption font-weight-bold text-grey-darken-4">{{ formatCurrency(item.totalEsperado) }}</span>
+            </template>
+
+            <template v-slot:item.diferencia="{ item }">
+              <v-chip
+                v-if="item.estadoLiquidacion || item.diferencia !== undefined"
+                size="x-small"
+                :color="item.estadoLiquidacion === 'Cuadrada' ? 'indigo-darken-3' : (item.estadoLiquidacion === 'Sobrante' ? 'success' : 'error')"
+                variant="flat"
+                class="font-weight-bold"
+              >
+                {{ item.diferencia >= 0 ? (item.diferencia === 0 ? '' : '+') : '' }}{{ formatCurrency(item.diferencia) }}
+              </v-chip>
+              <span v-else class="text-caption text-grey">—</span>
             </template>
 
             <template v-slot:item.montoArqueoMercaderia="{ item }">
@@ -310,21 +336,25 @@
                 <span class="text-grey-darken-1 d-block">Ventas Efectivo:</span>
                 <strong class="text-body-2 text-green-darken-4">{{ formatCurrency(resumenVigente.totalVentasEfectivo) }}</strong>
               </v-col>
-              <v-col cols="6" sm="3">
+              <v-col cols="6" sm="2">
+                <span class="text-grey-darken-1 d-block">Abonos Efectivo:</span>
+                <strong class="text-body-2 text-teal-darken-3">{{ formatCurrency(resumenVigente.totalAbonosEfectivo) }}</strong>
+              </v-col>
+              <v-col cols="6" sm="2">
                 <span class="text-grey-darken-1 d-block">Otras Modalidades:</span>
-                <strong class="text-body-2 text-teal-darken-3">{{ formatCurrency(resumenVigente.totalVentasOtrasModalidades) }}</strong>
+                <strong class="text-body-2 text-blue-grey-darken-3">{{ formatCurrency((resumenVigente.totalVentasOtrasModalidades || 0) + (resumenVigente.totalAbonosOtrasModalidades || 0)) }}</strong>
               </v-col>
               <v-col cols="6" sm="2">
                 <span class="text-grey-darken-1 d-block">Retiros Turno:</span>
-                <strong class="text-body-2 text-red-darken-4">{{ formatCurrency(resumenVigente.totalRetiros) }}</strong>
+                <strong class="text-body-2 text-red-darken-4">{{ formatCurrency(formArqueo.montoRetiros) }}</strong>
               </v-col>
-              <v-col cols="6" sm="3">
-                <span class="text-grey-darken-1 d-block">Teórico en Caja (Efectivo):</span>
-                <strong class="text-body-2 text-indigo-darken-4 font-weight-black">{{ formatCurrency(resumenVigente.totalEnCaja) }}</strong>
+              <v-col cols="6" sm="2">
+                <span class="text-grey-darken-1 d-block">Total Esperado (Efec):</span>
+                <strong class="text-body-2 text-indigo-darken-4 font-weight-black">{{ formatCurrency(totalEsperado) }}</strong>
               </v-col>
             </v-row>
 
-            <!-- DESGLOSE POR MODALIDAD DE PAGO EN ARQUEO -->
+            <!-- DESGLOSE POR MODALIDAD DE PAGO EN VENTAS -->
             <div v-if="resumenVigente.desgloseModalidades && resumenVigente.desgloseModalidades.length > 0" class="mt-2 pt-2 border-t">
               <div class="d-flex align-center justify-space-between mb-1">
                 <span class="text-caption font-weight-bold text-indigo-darken-4 d-flex align-center">
@@ -349,6 +379,70 @@
                 </v-chip>
               </div>
             </div>
+
+            <!-- DESGLOSE DE ABONOS CXC POR MODALIDAD -->
+            <div v-if="resumenVigente.desgloseAbonosModalidades && resumenVigente.desgloseAbonosModalidades.length > 0" class="mt-2 pt-2 border-t">
+              <div class="d-flex align-center justify-space-between mb-1">
+                <span class="text-caption font-weight-bold text-teal-darken-4 d-flex align-center">
+                  <v-icon size="14" class="mr-1">mdi-account-cash</v-icon>
+                  Desglose de Abonos CXC por Modalidad:
+                </span>
+                <span class="text-caption font-weight-bold text-grey-darken-3">
+                  Total Abonos: {{ formatCurrency(resumenVigente.totalAbonos) }}
+                </span>
+              </div>
+              <div class="d-flex align-center ga-1.5 flex-wrap">
+                <v-chip
+                  v-for="mod in resumenVigente.desgloseAbonosModalidades"
+                  :key="mod.idModalidad"
+                  size="x-small"
+                  :color="mod.esEfectivo ? 'green-darken-3' : 'teal-darken-3'"
+                  variant="tonal"
+                  class="font-weight-medium"
+                >
+                  <v-icon start size="12">{{ mod.esEfectivo ? 'mdi-cash' : 'mdi-bank-transfer' }}</v-icon>
+                  <strong>{{ mod.modalidad }}:</strong>&nbsp;{{ formatCurrency(mod.total) }} ({{ mod.cantidadAbonos }} abono{{ mod.cantidadAbonos > 1 ? 's' : '' }})
+                </v-chip>
+              </div>
+            </div>
+
+            <!-- LISTADO RÁPIDO DE ABONOS DEL TURNO -->
+            <v-expansion-panels v-if="resumenVigente.abonos && resumenVigente.abonos.length > 0" variant="accordion" class="mt-2">
+              <v-expansion-panel elevation="0" class="border">
+                <v-expansion-panel-title class="py-1 px-3 text-caption font-weight-bold text-indigo-darken-4 bg-white">
+                  <v-icon size="14" class="mr-1 text-teal">mdi-format-list-bulleted</v-icon>
+                  Ver Listado de Abonos del Turno ({{ resumenVigente.abonos.length }})
+                </v-expansion-panel-title>
+                <v-expansion-panel-text class="pa-0">
+                  <v-table density="compact" class="text-caption border-t">
+                    <thead>
+                      <tr class="bg-grey-lighten-4">
+                        <th class="py-1">Factura</th>
+                        <th class="py-1">Cliente</th>
+                        <th class="py-1">Modalidad</th>
+                        <th class="py-1 text-right">Monto</th>
+                        <th class="py-1">Referencia</th>
+                        <th class="py-1">Hora</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="ab in resumenVigente.abonos" :key="ab.idAbonoCXC">
+                        <td class="font-weight-bold text-indigo py-1">{{ ab.noFactura || '—' }}</td>
+                        <td class="py-1">{{ ab.cliente || '—' }}</td>
+                        <td class="py-1">
+                          <v-chip size="x-small" :color="ab.esEfectivo ? 'success' : 'teal'" variant="tonal" class="font-weight-bold">
+                            {{ ab.modalidad }}
+                          </v-chip>
+                        </td>
+                        <td class="text-right font-weight-bold py-1">{{ formatCurrency(ab.monto) }}</td>
+                        <td class="text-caption text-grey py-1">{{ ab.numReferencia || '—' }}</td>
+                        <td class="text-caption text-grey py-1">{{ formateDate(ab.fechaMovimiento) }}</td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </v-card>
 
           <!-- TABLA DE DESGLOSE DE EFECTIVO MULTIDIVISA -->
@@ -601,9 +695,40 @@
                 </div>
               </v-col>
               <v-col cols="6" sm="3">
+                <span class="text-caption text-grey font-weight-bold">ABONOS CXC:</span>
+                <div class="text-subtitle-2 font-weight-bold text-teal-darken-3">
+                  {{ formatCurrency(detalleArqueo.montoArqueoAbonos) }}
+                </div>
+                <div v-if="Number(detalleArqueo.montoArqueoAbonosEfectivo) > 0" class="text-caption text-grey" style="font-size: 10px;">
+                  Efec: {{ formatCurrency(detalleArqueo.montoArqueoAbonosEfectivo) }}
+                </div>
+              </v-col>
+              <v-col cols="6" sm="3">
                 <span class="text-caption text-grey font-weight-bold">RETIROS:</span>
                 <div class="text-subtitle-2 font-weight-bold text-red-darken-3">
                   {{ formatCurrency(detalleArqueo.montoArqueoRetiros) }}
+                </div>
+              </v-col>
+              <v-col cols="6" sm="3">
+                <span class="text-caption text-grey font-weight-bold">TOTAL ESPERADO:</span>
+                <div class="text-subtitle-2 font-weight-bold text-grey-darken-4">
+                  {{ formatCurrency(detalleArqueo.totalEsperado) }}
+                </div>
+              </v-col>
+              <v-col cols="6" sm="3">
+                <span class="text-caption text-grey font-weight-bold">DIFERENCIA:</span>
+                <div>
+                  <v-chip
+                    v-if="detalleArqueo.estadoLiquidacion || detalleArqueo.diferencia !== undefined"
+                    size="x-small"
+                    :color="detalleArqueo.estadoLiquidacion === 'Cuadrada' ? 'indigo-darken-3' : (detalleArqueo.estadoLiquidacion === 'Sobrante' ? 'success' : 'error')"
+                    variant="flat"
+                    class="font-weight-bold"
+                  >
+                    {{ detalleArqueo.diferencia >= 0 ? (detalleArqueo.diferencia === 0 ? '' : '+') : '' }}{{ formatCurrency(detalleArqueo.diferencia) }}
+                    ({{ detalleArqueo.estadoLiquidacion }})
+                  </v-chip>
+                  <span v-else class="text-caption text-grey">—</span>
                 </div>
               </v-col>
               <v-col cols="6" sm="3">
@@ -620,6 +745,61 @@
                 </div>
               </v-col>
             </v-row>
+          </v-card>
+
+          <!-- Desglose de Abonos CXC por Modalidad -->
+          <v-card v-if="detalleArqueo.desgloseAbonosModalidades && detalleArqueo.desgloseAbonosModalidades.length > 0" variant="flat" class="pa-3 rounded-lg border bg-white mb-3" elevation="0">
+            <div class="text-caption font-weight-bold text-teal-darken-4 mb-2 d-flex align-center">
+              <v-icon size="small" class="mr-1">mdi-account-cash</v-icon>
+              DESGLOSE DE ABONOS CXC POR MODALIDAD
+            </div>
+            <div class="d-flex align-center ga-1.5 flex-wrap">
+              <v-chip
+                v-for="mod in detalleArqueo.desgloseAbonosModalidades"
+                :key="mod.idModalidad"
+                size="small"
+                :color="mod.esEfectivo ? 'green-darken-3' : 'teal-darken-3'"
+                variant="tonal"
+                class="font-weight-medium"
+              >
+                <v-icon start size="14">{{ mod.esEfectivo ? 'mdi-cash' : 'mdi-bank-transfer' }}</v-icon>
+                <strong>{{ mod.modalidad }}:</strong>&nbsp;{{ formatCurrency(mod.total) }} ({{ mod.cantidadAbonos }} abono{{ mod.cantidadAbonos > 1 ? 's' : '' }})
+              </v-chip>
+            </div>
+          </v-card>
+
+          <!-- Listado de Abonos del Arqueo -->
+          <v-card v-if="detalleArqueo.abonos && detalleArqueo.abonos.length > 0" variant="flat" class="pa-3 rounded-lg border bg-white mb-3" elevation="0">
+            <div class="text-caption font-weight-bold text-indigo-darken-4 mb-2 d-flex align-center">
+              <v-icon size="small" class="mr-1">mdi-receipt-text-outline</v-icon>
+              DETALLE DE ABONOS DEL TURNO ({{ detalleArqueo.abonos.length }})
+            </div>
+            <v-table density="compact" class="border rounded text-caption">
+              <thead>
+                <tr class="bg-indigo-lighten-5 text-indigo-darken-4">
+                  <th class="py-1">Factura</th>
+                  <th class="py-1">Cliente</th>
+                  <th class="py-1">Modalidad</th>
+                  <th class="py-1 text-right">Monto</th>
+                  <th class="py-1">Referencia</th>
+                  <th class="py-1">Hora</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="ab in detalleArqueo.abonos" :key="ab.idAbonoCXC">
+                  <td class="font-weight-bold text-indigo py-1">{{ ab.noFactura || '—' }}</td>
+                  <td class="py-1">{{ ab.cliente || '—' }}</td>
+                  <td class="py-1">
+                    <v-chip size="x-small" :color="ab.esEfectivo ? 'success' : 'teal'" variant="tonal" class="font-weight-bold">
+                      {{ ab.modalidad }}
+                    </v-chip>
+                  </td>
+                  <td class="text-right font-weight-bold py-1">{{ formatCurrency(ab.monto) }}</td>
+                  <td class="text-caption text-grey py-1">{{ ab.numReferencia || '—' }}</td>
+                  <td class="text-caption text-grey py-1">{{ formateDate(ab.fechaMovimiento) }}</td>
+                </tr>
+              </tbody>
+            </v-table>
           </v-card>
 
           <!-- Resumen por Divisas -->
@@ -753,11 +933,16 @@ export default {
       totalVentas: 0,
       totalVentasEfectivo: 0,
       totalVentasOtrasModalidades: 0,
+      totalAbonos: 0,
+      totalAbonosEfectivo: 0,
+      totalAbonosOtrasModalidades: 0,
       totalMercaderia: 0,
       efectivoApertura: 0,
       totalRetiros: 0,
       totalEnCaja: 0,
-      desgloseModalidades: []
+      desgloseModalidades: [],
+      desgloseAbonosModalidades: [],
+      abonos: []
     })
 
     const formArqueo = reactive({
@@ -832,11 +1017,18 @@ export default {
       formArqueo.observaciones = ''
     }
 
+    const totalEsperado = computed(() => {
+      const fondo = Number(cajaSeleccionada.value?.apertura?.montoAperturaEfectivo) || 0
+      const ventasEf = Number(resumenVigente.totalVentasEfectivo) || 0
+      const abonosEf = Number(resumenVigente.totalAbonosEfectivo) || 0
+      const retiros = Number(formArqueo.montoRetiros) || 0
+      return (fondo + ventasEf + abonosEf) - retiros
+    })
+
     const diferenciaArqueo = computed(() => {
-      const teorico = Number(resumenVigente.totalEnCaja) || 0
-      const retirosIngresados = Number(formArqueo.montoRetiros) || 0
+      const esperado = Number(totalEsperado.value) || 0
       const fisico = Number(totalEfectivoContado.value) || 0
-      return (fisico + retirosIngresados) - teorico
+      return fisico - esperado
     })
 
     const cajasAperturadas = computed(() => {
@@ -873,7 +1065,10 @@ export default {
       { title: 'Usuario', key: 'usuarioArqueo', align: 'start' },
       { title: 'Efectivo Contado', key: 'montoArqueoEfectivo', align: 'end' },
       { title: 'Ventas Turno', key: 'montoArqueoVentas', align: 'end' },
+      { title: 'Abonos CXC', key: 'montoArqueoAbonos', align: 'end' },
       { title: 'Retiros', key: 'montoArqueoRetiros', align: 'end' },
+      { title: 'Total Esperado', key: 'totalEsperado', align: 'end' },
+      { title: 'Diferencia', key: 'diferencia', align: 'center' },
       { title: 'Mercadería', key: 'montoArqueoMercaderia', align: 'end' },
       { title: 'Fecha Arqueo', key: 'fechaArqueo', align: 'center' },
       { title: 'Acción', key: 'acciones', align: 'center', sortable: false }
@@ -982,20 +1177,32 @@ export default {
           resumenVigente.totalVentas = resResumen.data.totalVentas || 0
           resumenVigente.totalVentasEfectivo = resResumen.data.totalVentasEfectivo ?? (resResumen.data.totalVentas || 0)
           resumenVigente.totalVentasOtrasModalidades = resResumen.data.totalVentasOtrasModalidades || 0
+          resumenVigente.totalAbonos = resResumen.data.totalAbonos || 0
+          resumenVigente.totalAbonosEfectivo = resResumen.data.totalAbonosEfectivo || 0
+          resumenVigente.totalAbonosOtrasModalidades = resResumen.data.totalAbonosOtrasModalidades || 0
           resumenVigente.totalMercaderia = resResumen.data.totalMercaderia || 0
           resumenVigente.efectivoApertura = resResumen.data.efectivoApertura || 0
           resumenVigente.totalRetiros = resResumen.data.totalRetiros || 0
           resumenVigente.totalEnCaja = resResumen.data.totalEnCaja || 0
           resumenVigente.desgloseModalidades = resResumen.data.desgloseModalidades || []
+          resumenVigente.desgloseAbonosModalidades = resResumen.data.desgloseAbonosModalidades || []
+          resumenVigente.abonos = resResumen.data.abonos || []
+          formArqueo.montoRetiros = resResumen.data.totalRetiros || 0
         } else {
           resumenVigente.totalVentas = 0
           resumenVigente.totalVentasEfectivo = 0
           resumenVigente.totalVentasOtrasModalidades = 0
+          resumenVigente.totalAbonos = 0
+          resumenVigente.totalAbonosEfectivo = 0
+          resumenVigente.totalAbonosOtrasModalidades = 0
           resumenVigente.totalMercaderia = 0
           resumenVigente.efectivoApertura = 0
           resumenVigente.totalRetiros = 0
           resumenVigente.totalEnCaja = 0
           resumenVigente.desgloseModalidades = []
+          resumenVigente.desgloseAbonosModalidades = []
+          resumenVigente.abonos = []
+          formArqueo.montoRetiros = 0
         }
       } catch (e) {
         console.error('Error cargando resumen vigente:', e)
@@ -1114,6 +1321,7 @@ export default {
       subtotalDivisaMonedaPrincipal,
       totalEfectivoContado,
       resumenPorDivisas,
+      totalEsperado,
       diferenciaArqueo,
       ultimoArqueoTexto,
       loadAllData,

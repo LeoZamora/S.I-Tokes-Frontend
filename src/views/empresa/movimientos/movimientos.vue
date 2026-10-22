@@ -59,6 +59,9 @@
           </template>
           <template v-slot:item.monto="{ item }">
             <div>{{ formatedCurrency(item.monto) }}</div>
+            <div v-if="item.saldoResultante !== undefined && item.saldoResultante !== null" class="text-caption text-grey" title="Saldo Resultante (CXC)">
+              Saldo: {{ formatedCurrency(item.saldoResultante) }}
+            </div>
           </template>
           <template v-slot:item.fechaMovimiento="{ item }">
             <div>{{ formatedDate(item.fechaMovimiento) }}</div>

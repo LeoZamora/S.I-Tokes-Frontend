@@ -289,6 +289,14 @@
                       <span class="text-caption text-grey">Otras Modalidades:</span>
                       <span class="text-caption font-weight-bold text-indigo">{{ formatCurrency(caja.resumen.totalVentasOtrasModalidades || 0) }}</span>
                     </div>
+                    <div v-if="Number(caja.resumen.totalAbonos) > 0" class="d-flex justify-space-between py-0.5">
+                      <span class="text-caption text-grey">Abonos CXC (Efec):</span>
+                      <span class="text-caption font-weight-bold text-teal-darken-3">{{ formatCurrency(caja.resumen.totalAbonosEfectivo || 0) }}</span>
+                    </div>
+                    <div v-if="Number(caja.resumen.totalAbonosOtrasModalidades) > 0" class="d-flex justify-space-between py-0.5">
+                      <span class="text-caption text-grey">Abonos Otras Mod.:</span>
+                      <span class="text-caption font-weight-bold text-blue-grey-darken-2">{{ formatCurrency(caja.resumen.totalAbonosOtrasModalidades || 0) }}</span>
+                    </div>
                     <div v-if="Number(caja.resumen.totalRetiros) > 0" class="d-flex justify-space-between py-0.5">
                       <span class="text-caption text-grey">Retiros Realizados:</span>
                       <span class="text-caption font-weight-bold text-orange-darken-4">-{{ formatCurrency(caja.resumen.totalRetiros) }}</span>
@@ -316,7 +324,7 @@
                     <div class="d-flex justify-space-between py-0.5">
                       <span class="text-caption text-grey-darken-3 font-weight-bold">Estimado en Caja (Efectivo):</span>
                       <span class="text-body-2 font-weight-black text-indigo">
-                        {{ formatCurrency(caja.resumen.totalEnCaja !== undefined ? caja.resumen.totalEnCaja : (Number(caja.resumen.efectivoApertura) + Number(caja.resumen.totalVentasEfectivo ?? caja.resumen.totalVentas) - Number(caja.resumen.totalRetiros || 0))) }}
+                        {{ formatCurrency(caja.resumen.totalEnCaja !== undefined ? caja.resumen.totalEnCaja : (Number(caja.resumen.efectivoApertura) + Number(caja.resumen.totalVentasEfectivo ?? caja.resumen.totalVentas) + Number(caja.resumen.totalAbonosEfectivo || 0) - Number(caja.resumen.totalRetiros || 0))) }}
                       </span>
                     </div>
                   </div>
@@ -433,7 +441,7 @@
             </template>
             <template v-slot:item.totalEnCaja="{ item }">
               <span v-if="item.isOpen && item.resumen" class="font-weight-bold text-indigo">
-                {{ formatCurrency(item.resumen.totalEnCaja !== undefined ? item.resumen.totalEnCaja : (Number(item.resumen.efectivoApertura) + Number(item.resumen.totalVentasEfectivo ?? item.resumen.totalVentas) - Number(item.resumen.totalRetiros || 0))) }}
+                {{ formatCurrency(item.resumen.totalEnCaja !== undefined ? item.resumen.totalEnCaja : (Number(item.resumen.efectivoApertura) + Number(item.resumen.totalVentasEfectivo ?? item.resumen.totalVentas) + Number(item.resumen.totalAbonosEfectivo || 0) - Number(item.resumen.totalRetiros || 0))) }}
               </span>
               <span v-else-if="item.isOpen">
                 <v-progress-circular indeterminate size="16" color="indigo" />
@@ -626,6 +634,16 @@
               <span class="text-body-2 font-weight-medium" :class="Number(item.montoCierreRetiros) > 0 ? 'text-orange-darken-4' : 'text-grey'">
                 {{ Number(item.montoCierreRetiros) > 0 ? '-' + formatCurrency(item.montoCierreRetiros) : 'C$ 0.00' }}
               </span>
+            </template>
+
+            <!-- Abonos CXC -->
+            <template v-slot:item.totalAbonos="{ item }">
+              <div>
+                <span class="text-body-2 font-weight-bold text-teal-darken-3 d-block">{{ formatCurrency(item.totalAbonos) }}</span>
+                <span v-if="Number(item.totalAbonosEfectivo) > 0" class="text-caption text-grey" style="font-size: 10px;">
+                  Efec: {{ formatCurrency(item.totalAbonosEfectivo) }}
+                </span>
+              </div>
             </template>
 
             <!-- Total Esperado -->
@@ -1057,6 +1075,10 @@
               <v-icon start size="18">mdi-package-variant-closed</v-icon>
               Mercadería Vendida ({{ mercaderiaVendidaItems.length }})
             </v-tab>
+            <v-tab :value="4" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-account-cash</v-icon>
+              Abonos CXC ({{ abonosTurno.length }})
+            </v-tab>
           </v-tabs>
 
           <v-window v-model="tabCierre">
@@ -1088,6 +1110,18 @@
                       <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(activeCaja.resumen?.totalVentas ?? totalVentasTurno) }}</span>
                     </div>
                     <div class="py-2 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Abonos Efectivo (Caja):</span>
+                      <span class="text-body-2 font-weight-bold text-teal-darken-3">{{ formatCurrency(activeCaja.resumen?.totalAbonosEfectivo ?? totalAbonosEfectivo) }}</span>
+                    </div>
+                    <div v-if="Number(activeCaja.resumen?.totalAbonosOtrasModalidades ?? totalAbonosOtrasModalidades) > 0" class="py-2 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Abonos Otras Modalidades:</span>
+                      <span class="text-body-2 font-weight-bold text-blue-grey-darken-2">{{ formatCurrency(activeCaja.resumen?.totalAbonosOtrasModalidades ?? totalAbonosOtrasModalidades) }}</span>
+                    </div>
+                    <div v-if="Number(activeCaja.resumen?.totalAbonos ?? totalAbonos) > 0" class="py-2 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Total Abonos Turno:</span>
+                      <span class="text-body-2 font-weight-bold text-teal-darken-4">{{ formatCurrency(activeCaja.resumen?.totalAbonos ?? totalAbonos) }}</span>
+                    </div>
+                    <div class="py-2 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Mercadería Inicial:</span>
                       <span class="text-body-2 font-weight-bold text-blue-grey-darken-3">{{ formatCurrency(activeCaja.apertura?.montoAperturaMercaderia) }}</span>
                     </div>
@@ -1099,7 +1133,7 @@
                     <!-- DESGLOSE POR MODALIDADES EN RESUMEN -->
                     <div v-if="desgloseModalidadesVentas.length > 0" class="mt-2 pt-2 border-top">
                       <span class="text-caption font-weight-bold text-grey-darken-2 d-block mb-1">
-                        Desglose de Modalidades:
+                        Desglose de Ventas:
                       </span>
                       <div class="d-flex align-center ga-1 flex-wrap">
                         <v-chip
@@ -1111,6 +1145,25 @@
                           class="font-weight-medium"
                         >
                           {{ mod.modalidad }}: {{ formatCurrency(mod.total) }}
+                        </v-chip>
+                      </div>
+                    </div>
+
+                    <!-- DESGLOSE POR MODALIDADES EN ABONOS -->
+                    <div v-if="desgloseAbonosModalidades.length > 0" class="mt-2 pt-2 border-top">
+                      <span class="text-caption font-weight-bold text-grey-darken-2 d-block mb-1">
+                        Desglose Abonos CXC:
+                      </span>
+                      <div class="d-flex align-center ga-1 flex-wrap">
+                        <v-chip
+                          v-for="mod in desgloseAbonosModalidades"
+                          :key="mod.idModalidad"
+                          size="x-small"
+                          :color="mod.esEfectivo ? 'green-darken-3' : 'teal-darken-3'"
+                          variant="tonal"
+                          class="font-weight-medium"
+                        >
+                          {{ mod.modalidad }}: {{ formatCurrency(mod.total) }} ({{ mod.cantidadAbonos }})
                         </v-chip>
                       </div>
                     </div>
@@ -1560,6 +1613,89 @@
                 </v-data-table>
               </v-card>
             </v-window-item>
+
+            <!-- TAB 4: DETALLE DE ABONOS CXC DEL TURNO -->
+            <v-window-item :value="4">
+              <v-card class="pa-3 border bg-white" elevation="0" rounded="lg">
+                <!-- Métricas de Abonos -->
+                <v-row dense class="mb-3">
+                  <v-col cols="12" sm="4">
+                    <v-card variant="flat" color="teal-lighten-5" class="pa-2 rounded text-center">
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Total Abonos Recaudados</div>
+                      <div class="text-h6 font-weight-bold text-teal-darken-4">{{ formatCurrency(totalAbonos) }}</div>
+                      <div class="text-caption text-grey-darken-1">{{ abonosTurno.length }} abono(s)</div>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="12" sm="4">
+                    <v-card variant="flat" color="green-lighten-5" class="pa-2 rounded text-center">
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Abonos Efectivo (Gaveta)</div>
+                      <div class="text-h6 font-weight-bold text-green-darken-4">{{ formatCurrency(totalAbonosEfectivo) }}</div>
+                      <div class="text-caption text-green-darken-3 font-weight-medium">Afecta Arqueo y Cierre</div>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="12" sm="4">
+                    <v-card variant="flat" color="blue-grey-lighten-5" class="pa-2 rounded text-center">
+                      <div class="text-caption text-grey-darken-1 font-weight-medium">Abonos Otras Modalidades</div>
+                      <div class="text-h6 font-weight-bold text-blue-grey-darken-4">{{ formatCurrency(totalAbonosOtrasModalidades) }}</div>
+                      <div class="text-caption text-blue-grey-darken-3 font-weight-medium">Bancos / Transferencias</div>
+                    </v-card>
+                  </v-col>
+                </v-row>
+
+                <v-text-field
+                  v-model="searchAbonosTurno"
+                  label="Buscar abono por factura, cliente o referencia..."
+                  prepend-inner-icon="mdi-magnify"
+                  density="compact"
+                  variant="outlined"
+                  color="indigo"
+                  hide-details
+                  clearable
+                  class="mb-3"
+                />
+
+                <v-data-table
+                  :headers="headersAbonosTurno"
+                  :items="filteredAbonosTurno"
+                  density="compact"
+                  class="border rounded"
+                  :items-per-page="5"
+                >
+                  <template v-slot:item.noFactura="{ item }">
+                    <span class="font-weight-bold text-indigo">{{ item.noFactura || '—' }}</span>
+                  </template>
+                  <template v-slot:item.cliente="{ item }">
+                    <div>
+                      <span class="font-weight-medium text-grey-darken-4">{{ item.cliente || '—' }}</span>
+                      <small v-if="item.codigoCliente" class="text-caption text-grey d-block">({{ item.codigoCliente }})</small>
+                    </div>
+                  </template>
+                  <template v-slot:item.modalidad="{ item }">
+                    <v-chip
+                      size="x-small"
+                      :color="item.esEfectivo ? 'green-darken-3' : 'teal-darken-3'"
+                      variant="tonal"
+                      class="font-weight-medium"
+                    >
+                      <v-icon start size="12">{{ item.esEfectivo ? 'mdi-cash' : 'mdi-bank-transfer' }}</v-icon>
+                      {{ item.modalidad }}
+                    </v-chip>
+                  </template>
+                  <template v-slot:item.monto="{ item }">
+                    <span class="font-weight-bold text-teal-darken-3">{{ formatCurrency(item.monto) }}</span>
+                  </template>
+                  <template v-slot:item.saldoResultante="{ item }">
+                    <span class="text-caption text-grey-darken-2">{{ item.saldoResultante !== undefined ? formatCurrency(item.saldoResultante) : '—' }}</span>
+                  </template>
+                  <template v-slot:item.fechaMovimiento="{ item }">
+                    <span class="text-caption">{{ formatDate(item.fechaMovimiento) }}</span>
+                  </template>
+                  <template v-slot:item.usuarioRegistro="{ item }">
+                    <span class="text-caption font-weight-medium">{{ item.usuarioRegistro || '—' }}</span>
+                  </template>
+                </v-data-table>
+              </v-card>
+            </v-window-item>
           </v-window>
         </v-card-text>
 
@@ -1670,6 +1806,10 @@
               <v-icon start size="18">mdi-cash-minus</v-icon>
               Detalle de Retiros ({{ historialRetiros.length }})
             </v-tab>
+            <v-tab :value="4" class="text-none font-weight-bold">
+              <v-icon start size="18">mdi-account-cash</v-icon>
+              Detalle de Abonos CXC ({{ (cierreHistorialSeleccionado.abonos || []).length }})
+            </v-tab>
           </v-tabs>
 
           <v-window v-model="tabHistorialDetalle">
@@ -1699,6 +1839,18 @@
                     <div class="py-1.5 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Total Ventas Turno:</span>
                       <span class="text-body-2 font-weight-bold text-indigo-darken-4">{{ formatCurrency(cierreHistorialSeleccionado.montoCierreVentas) }}</span>
+                    </div>
+                    <div class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Abonos en Efectivo:</span>
+                      <span class="text-body-2 font-weight-bold text-teal-darken-3">{{ formatCurrency(cierreHistorialSeleccionado.totalAbonosEfectivo) }}</span>
+                    </div>
+                    <div v-if="Number(cierreHistorialSeleccionado.totalAbonosOtrasModalidades) > 0" class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Abonos Otras Modalidades:</span>
+                      <span class="text-body-2 font-weight-bold text-blue-grey-darken-2">{{ formatCurrency(cierreHistorialSeleccionado.totalAbonosOtrasModalidades) }}</span>
+                    </div>
+                    <div v-if="Number(cierreHistorialSeleccionado.totalAbonos) > 0" class="py-1.5 border-bottom d-flex justify-space-between">
+                      <span class="text-caption text-grey-darken-1">Total Abonos CXC:</span>
+                      <span class="text-body-2 font-weight-bold text-teal-darken-4">{{ formatCurrency(cierreHistorialSeleccionado.totalAbonos) }}</span>
                     </div>
                     <div class="py-1.5 border-bottom d-flex justify-space-between">
                       <span class="text-caption text-grey-darken-1">Retiros / Egresos:</span>
@@ -1884,6 +2036,46 @@
                     </v-card>
                   </v-col>
                 </v-row>
+
+                <!-- DESGLOSE DE ABONOS CXC POR MODALIDAD -->
+                <div v-if="cierreHistorialSeleccionado.desgloseAbonosModalidades && cierreHistorialSeleccionado.desgloseAbonosModalidades.length > 0" class="mt-4 pt-3 border-top">
+                  <div class="text-subtitle-2 font-weight-bold text-teal-darken-4 mb-3 d-flex align-center">
+                    <v-icon size="small" class="mr-1">mdi-account-cash</v-icon>
+                    Resumen de Abonos CXC por Modalidad de Pago
+                  </div>
+                  <v-row dense>
+                    <v-col
+                      v-for="mod in cierreHistorialSeleccionado.desgloseAbonosModalidades"
+                      :key="mod.idModalidad"
+                      cols="12"
+                      sm="6"
+                      md="4"
+                    >
+                      <v-card
+                        variant="flat"
+                        :color="mod.esEfectivo ? 'green-lighten-5' : 'teal-lighten-5'"
+                        class="pa-3 rounded border"
+                      >
+                        <div class="d-flex align-center justify-space-between">
+                          <div class="d-flex align-center">
+                            <v-avatar :color="mod.esEfectivo ? 'green-darken-3' : 'teal-darken-3'" size="32" class="mr-2 text-white">
+                              <v-icon size="18">{{ mod.esEfectivo ? 'mdi-cash' : 'mdi-bank-transfer' }}</v-icon>
+                            </v-avatar>
+                            <div>
+                              <span class="text-caption font-weight-bold d-block" :class="mod.esEfectivo ? 'text-green-darken-4' : 'text-teal-darken-4'">
+                                {{ mod.modalidad }}
+                              </span>
+                              <span class="text-caption text-grey-darken-1">{{ mod.cantidadAbonos }} abono(s)</span>
+                            </div>
+                          </div>
+                          <span class="text-subtitle-1 font-weight-black" :class="mod.esEfectivo ? 'text-green-darken-4' : 'text-teal-darken-4'">
+                            {{ formatCurrency(mod.total) }}
+                          </span>
+                        </div>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </div>
               </v-card>
             </v-window-item>
 
@@ -1976,6 +2168,57 @@
                   </template>
                   <template v-slot:item.observaciones="{ item }">
                     <span class="text-caption text-grey-darken-1">{{ item.observaciones || '—' }}</span>
+                  </template>
+                </v-data-table>
+              </v-card>
+            </v-window-item>
+
+            <!-- TAB 4: DETALLE DE ABONOS CXC -->
+            <v-window-item :value="4">
+              <v-card class="pa-3 border bg-white rounded-lg" elevation="0">
+                <div v-if="!cierreHistorialSeleccionado.abonos || cierreHistorialSeleccionado.abonos.length === 0" class="text-center py-6 text-grey">
+                  <v-icon size="36">mdi-account-cash-outline</v-icon>
+                  <div class="text-caption mt-1">No se registraron abonos CXC en esta sesión de caja.</div>
+                </div>
+                <v-data-table
+                  v-else
+                  :headers="headersAbonosTurno"
+                  :items="cierreHistorialSeleccionado.abonos"
+                  density="compact"
+                  class="border rounded"
+                  :items-per-page="5"
+                >
+                  <template v-slot:item.noFactura="{ item }">
+                    <span class="font-weight-bold text-indigo">{{ item.noFactura || '—' }}</span>
+                  </template>
+                  <template v-slot:item.cliente="{ item }">
+                    <div>
+                      <span class="font-weight-medium text-grey-darken-4">{{ item.cliente || '—' }}</span>
+                      <small v-if="item.codigoCliente" class="text-caption text-grey d-block">({{ item.codigoCliente }})</small>
+                    </div>
+                  </template>
+                  <template v-slot:item.modalidad="{ item }">
+                    <v-chip
+                      size="x-small"
+                      :color="item.esEfectivo ? 'green-darken-3' : 'teal-darken-3'"
+                      variant="tonal"
+                      class="font-weight-medium"
+                    >
+                      <v-icon start size="12">{{ item.esEfectivo ? 'mdi-cash' : 'mdi-bank-transfer' }}</v-icon>
+                      {{ item.modalidad }}
+                    </v-chip>
+                  </template>
+                  <template v-slot:item.monto="{ item }">
+                    <span class="font-weight-bold text-teal-darken-3">{{ formatCurrency(item.monto) }}</span>
+                  </template>
+                  <template v-slot:item.saldoResultante="{ item }">
+                    <span class="text-caption text-grey-darken-2">{{ item.saldoResultante !== undefined ? formatCurrency(item.saldoResultante) : '—' }}</span>
+                  </template>
+                  <template v-slot:item.fechaMovimiento="{ item }">
+                    <span class="text-caption">{{ formatDate(item.fechaMovimiento) }}</span>
+                  </template>
+                  <template v-slot:item.usuarioRegistro="{ item }">
+                    <span class="text-caption font-weight-medium">{{ item.usuarioRegistro || '—' }}</span>
                   </template>
                 </v-data-table>
               </v-card>
@@ -2143,6 +2386,7 @@ export default {
         { title: 'Ventas Efectivo', key: 'totalVentasEfectivo', align: 'end', sortable: true },
         { title: 'Otras Modalidades', key: 'totalVentasOtrasModalidades', align: 'end', sortable: true },
         { title: 'Total Ventas', key: 'montoCierreVentas', align: 'end', sortable: true },
+        { title: 'Abonos CXC', key: 'totalAbonos', align: 'end', sortable: true },
         { title: 'Retiros', key: 'montoCierreRetiros', align: 'end', sortable: true },
         { title: 'Total Esperado', key: 'totalEsperado', align: 'end', sortable: true },
         { title: 'Total Contado', key: 'montoCierreEfectivo', align: 'end', sortable: true },
@@ -2178,6 +2422,19 @@ export default {
       ],
       retirosTurno: [],
       loadingRetiros: false,
+
+      // Detalle de Abonos CXC (Tab 4)
+      headersAbonosTurno: [
+        { title: 'No. Factura', key: 'noFactura', align: 'start', sortable: true },
+        { title: 'Cliente', key: 'cliente', align: 'start', sortable: true },
+        { title: 'Modalidad', key: 'modalidad', align: 'center', sortable: false },
+        { title: 'Monto Abono', key: 'monto', align: 'end', sortable: true },
+        { title: 'Referencia', key: 'numReferencia', align: 'start', sortable: false },
+        { title: 'Saldo Resultante', key: 'saldoResultante', align: 'end', sortable: false },
+        { title: 'Fecha / Hora', key: 'fechaMovimiento', align: 'center', sortable: true },
+        { title: 'Registrado Por', key: 'usuarioRegistro', align: 'start', sortable: false },
+      ],
+      searchAbonosTurno: '',
 
       // Detalle de Mercadería Vendida (Tab 4)
       headersMercaderiaVendida: [
@@ -2410,6 +2667,67 @@ export default {
     totalRetirosSum() {
       return this.retirosTurno.reduce((sum, r) => sum + (Number(r.monto) || 0), 0);
     },
+
+    abonosTurno() {
+      return this.activeCaja?.resumen?.abonos || [];
+    },
+
+    filteredAbonosTurno() {
+      if (!this.searchAbonosTurno || this.searchAbonosTurno.trim() === '') {
+        return this.abonosTurno;
+      }
+      const q = this.searchAbonosTurno.toLowerCase().trim();
+      return this.abonosTurno.filter(a =>
+        (a.noFactura && a.noFactura.toLowerCase().includes(q)) ||
+        (a.cliente && a.cliente.toLowerCase().includes(q)) ||
+        (a.codigoCliente && a.codigoCliente.toLowerCase().includes(q)) ||
+        (a.modalidad && a.modalidad.toLowerCase().includes(q)) ||
+        (a.numReferencia && a.numReferencia.toLowerCase().includes(q)) ||
+        (a.usuarioRegistro && a.usuarioRegistro.toLowerCase().includes(q))
+      );
+    },
+
+    totalAbonos() {
+      if (this.activeCaja?.resumen?.totalAbonos !== undefined) {
+        return Number(this.activeCaja.resumen.totalAbonos);
+      }
+      return this.abonosTurno.reduce((sum, a) => sum + (Number(a.monto) || 0), 0);
+    },
+
+    totalAbonosEfectivo() {
+      if (this.activeCaja?.resumen?.totalAbonosEfectivo !== undefined) {
+        return Number(this.activeCaja.resumen.totalAbonosEfectivo);
+      }
+      return this.abonosTurno
+        .filter(a => a.esEfectivo)
+        .reduce((sum, a) => sum + (Number(a.monto) || 0), 0);
+    },
+
+    totalAbonosOtrasModalidades() {
+      if (this.activeCaja?.resumen?.totalAbonosOtrasModalidades !== undefined) {
+        return Number(this.activeCaja.resumen.totalAbonosOtrasModalidades);
+      }
+      return this.abonosTurno
+        .filter(a => !a.esEfectivo)
+        .reduce((sum, a) => sum + (Number(a.monto) || 0), 0);
+    },
+
+    desgloseAbonosModalidades() {
+      if (this.activeCaja?.resumen?.desgloseAbonosModalidades && this.activeCaja.resumen.desgloseAbonosModalidades.length > 0) {
+        return this.activeCaja.resumen.desgloseAbonosModalidades;
+      }
+      const groups = {};
+      this.abonosTurno.forEach(a => {
+        const id = a.idModalidad || 1;
+        const nombre = a.modalidad || (id === 1 ? 'Efectivo' : `Modalidad ${id}`);
+        if (!groups[id]) {
+          groups[id] = { idModalidad: id, modalidad: nombre, cantidadAbonos: 0, total: 0, esEfectivo: a.esEfectivo ?? (id === 1) };
+        }
+        groups[id].cantidadAbonos++;
+        groups[id].total += (Number(a.monto) || 0);
+      });
+      return Object.values(groups);
+    },
     
     totalEfectivoEnCajas() {
       return this.data.cajas
@@ -2417,7 +2735,7 @@ export default {
         .reduce((sum, c) => {
           const enCaja = c.resumen.totalEnCaja !== undefined
             ? Number(c.resumen.totalEnCaja)
-            : (Number(c.resumen.efectivoApertura || 0) + Number(c.resumen.totalVentasEfectivo ?? c.resumen.totalVentas ?? 0) - Number(c.resumen.totalRetiros || 0));
+            : (Number(c.resumen.efectivoApertura || 0) + Number(c.resumen.totalVentasEfectivo ?? c.resumen.totalVentas ?? 0) + Number(c.resumen.totalAbonosEfectivo || 0) - Number(c.resumen.totalRetiros || 0));
           return sum + enCaja;
         }, 0);
     },
@@ -2439,7 +2757,10 @@ export default {
       const ventasEfectivo = res.totalVentasEfectivo !== undefined
         ? Number(res.totalVentasEfectivo)
         : this.totalVentasEfectivo;
-      const expected = (Number(res.efectivoApertura || 0) + ventasEfectivo) - retiros;
+      const abonosEfectivo = res.totalAbonosEfectivo !== undefined
+        ? Number(res.totalAbonosEfectivo)
+        : this.totalAbonosEfectivo;
+      const expected = (Number(res.efectivoApertura || 0) + ventasEfectivo + abonosEfectivo) - retiros;
       return expected;
     },
     
@@ -3190,6 +3511,9 @@ export default {
       const ventasEfectivo = Number(cierreObj?.totalVentasEfectivo ?? cierreObj?.resumen?.totalVentasEfectivo ?? this.totalVentasEfectivo);
       const ventasOtras = Number(cierreObj?.totalVentasOtrasModalidades ?? cierreObj?.resumen?.totalVentasOtrasModalidades ?? this.totalVentasOtrasModalidades);
       const totalVentas = Number(cierreObj?.montoCierreVentas ?? cierreObj?.resumen?.totalVentas ?? this.totalVentasTurno);
+      const abonosEfectivo = Number(cierreObj?.totalAbonosEfectivo ?? cierreObj?.resumen?.totalAbonosEfectivo ?? this.totalAbonosEfectivo);
+      const abonosOtras = Number(cierreObj?.totalAbonosOtrasModalidades ?? cierreObj?.resumen?.totalAbonosOtrasModalidades ?? this.totalAbonosOtrasModalidades);
+      const totalAbonos = Number(cierreObj?.totalAbonos ?? cierreObj?.resumen?.totalAbonos ?? this.totalAbonos);
       const pedidosTurno = Number(cierreObj?.totalPedidos ?? cierreObj?.resumen?.totalPedidos ?? 0);
       const retiros = Number(cierreObj?.montoCierreRetiros ?? this.form.montoCierreRetiros ?? 0);
       const totalEsperado = Number(cierreObj?.totalEsperado ?? this.totalEsperado);
@@ -3220,11 +3544,27 @@ export default {
       lineas += this.lineaDosColumnas('Ventas Efectivo:', this.formatCurrency(ventasEfectivo));
       lineas += this.lineaDosColumnas('Otras Modalidades:', this.formatCurrency(ventasOtras));
       lineas += this.lineaDosColumnas('Total Ventas Turno:', this.formatCurrency(totalVentas));
+      if (totalAbonos > 0) {
+        lineas += this.lineaDosColumnas('Abonos CXC (Efec):', this.formatCurrency(abonosEfectivo));
+        if (abonosOtras > 0) {
+          lineas += this.lineaDosColumnas('Abonos Otras Mod.:', this.formatCurrency(abonosOtras));
+        }
+        lineas += this.lineaDosColumnas('Total Abonos CXC:', this.formatCurrency(totalAbonos));
+      }
       if (pedidosTurno > 0) {
         lineas += this.lineaDosColumnas('Pedidos Turno:', this.formatCurrency(pedidosTurno));
       }
       lineas += this.lineaDosColumnas('Retiros / Egresos:', this.formatCurrency(retiros));
       lineas += separador;
+
+      const desgloseAbonos = cierreObj?.desgloseAbonosModalidades || (this.activeCaja?.resumen?.desgloseAbonosModalidades) || this.desgloseAbonosModalidades || [];
+      if (desgloseAbonos.length > 0) {
+        lineas += `DESGLOSE ABONOS CXC\n`;
+        desgloseAbonos.forEach(mod => {
+          lineas += this.lineaDosColumnas(`  ${mod.modalidad}:`, `${this.formatCurrency(mod.total)} (${mod.cantidadAbonos || 1})`);
+        });
+        lineas += separador;
+      }
 
       // Resumen por Divisa si existe
       if (Array.isArray(cierreObj?.desglocePorDivisa) && cierreObj.desglocePorDivisa.length > 0) {
@@ -3356,6 +3696,9 @@ export default {
         const ventasEfectivo = Number(targetCierre.totalVentasEfectivo ?? targetCierre.resumen?.totalVentasEfectivo ?? this.totalVentasEfectivo);
         const ventasOtras = Number(targetCierre.totalVentasOtrasModalidades ?? targetCierre.resumen?.totalVentasOtrasModalidades ?? this.totalVentasOtrasModalidades);
         const totalVentas = Number(targetCierre.montoCierreVentas ?? targetCierre.resumen?.totalVentas ?? this.totalVentasTurno);
+        const abonosEfectivo = Number(targetCierre.totalAbonosEfectivo ?? targetCierre.resumen?.totalAbonosEfectivo ?? this.totalAbonosEfectivo);
+        const abonosOtras = Number(targetCierre.totalAbonosOtrasModalidades ?? targetCierre.resumen?.totalAbonosOtrasModalidades ?? this.totalAbonosOtrasModalidades);
+        const totalAbonos = Number(targetCierre.totalAbonos ?? targetCierre.resumen?.totalAbonos ?? this.totalAbonos);
         const pedidosTurno = Number(targetCierre.totalPedidos ?? targetCierre.resumen?.totalPedidos ?? 0);
         const retiros = Number(targetCierre.montoCierreRetiros ?? this.form.montoCierreRetiros ?? 0);
         const totalEsperado = Number(targetCierre.totalEsperado ?? this.totalEsperado);
@@ -3387,6 +3730,16 @@ export default {
               }
             });
           });
+        }
+
+        const desgloseAbonos = targetCierre.desgloseAbonosModalidades || (this.activeCaja?.resumen?.desgloseAbonosModalidades) || this.desgloseAbonosModalidades || [];
+        const lineasDesgloseAbonos = [];
+        if (desgloseAbonos.length > 0) {
+          lineasDesgloseAbonos.push('\x1B\x45\x01', 'DESGLOSE ABONOS CXC\n', '\x1B\x45\x00');
+          desgloseAbonos.forEach(mod => {
+            lineasDesgloseAbonos.push(this.lineaDosColumnas(`  ${mod.modalidad}:`, `${this.formatCurrency(mod.total)} (${mod.cantidadAbonos || 1})`));
+          });
+          lineasDesgloseAbonos.push(separador);
         }
 
         const ticket = [
@@ -3422,9 +3775,14 @@ export default {
           this.lineaDosColumnas('Ventas Efectivo:', this.formatCurrency(ventasEfectivo)),
           this.lineaDosColumnas('Otras Modalidades:', this.formatCurrency(ventasOtras)),
           this.lineaDosColumnas('Total Ventas Turno:', this.formatCurrency(totalVentas)),
+          totalAbonos > 0 ? this.lineaDosColumnas('Abonos CXC (Efec):', this.formatCurrency(abonosEfectivo)) : '',
+          (totalAbonos > 0 && abonosOtras > 0) ? this.lineaDosColumnas('Abonos Otras Mod.:', this.formatCurrency(abonosOtras)) : '',
+          totalAbonos > 0 ? this.lineaDosColumnas('Total Abonos CXC:', this.formatCurrency(totalAbonos)) : '',
           pedidosTurno > 0 ? this.lineaDosColumnas('Pedidos Turno:', this.formatCurrency(pedidosTurno)) : '',
           this.lineaDosColumnas('Retiros / Egresos:', this.formatCurrency(retiros)),
           separador,
+
+          ...lineasDesgloseAbonos,
 
           '\x1B\x45\x01',
           'DESGLOSE DE EFECTIVO CONTADO\n',

@@ -1,7 +1,8 @@
 <template>
   <div class="pa-2">
-    <!-- DIÁLOGO DE CONFIGURACIÓN -->
+    <!-- DIÁLOGO DE CONFIGURACIÓN (SOLO ADMINISTRADOR) -->
     <v-dialog
+      v-if="esAdmin"
       v-model="displayCtrl.config"
       max-width="450"
     >
@@ -87,7 +88,7 @@
 
     <!-- HEADER DEL DASHBOARD -->
     <v-row class="align-center ma-0" dense>
-      <v-col cols="12" md="7">
+      <v-col cols="12" :md="esAdmin ? 7 : 12">
         <v-card class="welcome-card pa-4 border-0" rounded="xl" elevation="2">
           <div class="d-flex align-center flex-wrap ga-3">
             <v-avatar
@@ -102,7 +103,7 @@
                 class="wave-animation"
               ></v-icon>
             </v-avatar>
-            <div>
+            <div class="flex-grow-1">
               <h1 class="text-h4 font-weight-bold greeting-title mb-1">
                 ¡Hola, {{ username }}!
               </h1>
@@ -110,10 +111,21 @@
                 Te damos la bienvenida al Sistema de Información
               </p>
             </div>
+            <v-chip
+              v-if="!esAdmin && rol"
+              color="indigo-darken-4"
+              variant="tonal"
+              prepend-icon="mdi-badge-account-outline"
+              class="font-weight-bold px-3 py-4"
+              rounded="lg"
+            >
+              Rol: {{ rol }}
+            </v-chip>
           </div>
         </v-card>
       </v-col>
       <v-col
+        v-if="esAdmin"
         cols="12"
         md="5"
         class="d-flex justify-md-end align-center gap-3 mt-3 mt-md-0"
@@ -139,381 +151,313 @@
       </v-col>
     </v-row>
 
-    <!-- TARJETAS DE MÉTRICAS (KPIs) -->
-    <v-row dense class="px-2">
-      <!-- Ventas POS -->
-      <v-col cols="12" sm="4" lg="4">
-        <v-card
-          class="mx-auto border-0 metric-card"
-          elevation="2"
-          rounded="xl"
-        >
-          <v-card-item class="pa-5">
-            <div class="d-flex align-center mb-4">
-              <v-avatar
-                color="indigo-lighten-5"
-                size="48"
-                class="mr-3"
-                rounded="lg"
-              >
-                <v-icon
-                  color="indigo-darken-1"
-                  icon="mdi-monitor-dashboard"
-                  size="24"
-                ></v-icon>
-              </v-avatar>
-              <div>
-                <span
-                  class="text-caption text-grey font-weight-bold text-uppercase"
-                  >Ventas POS</span
-                >
-                <div
-                  class="d-flex align-center mt-1"
+    <!-- DASHBOARD COMPLETO (SOLO ADMINISTRADOR) -->
+    <template v-if="esAdmin">
+      <!-- TARJETAS DE MÉTRICAS (KPIs) -->
+      <v-row dense class="px-2 mt-2">
+        <!-- Ventas POS -->
+        <v-col cols="12" sm="4" lg="4">
+          <v-card
+            class="mx-auto border-0 metric-card"
+            elevation="2"
+            rounded="xl"
+          >
+            <v-card-item class="pa-5">
+              <div class="d-flex align-center mb-4">
+                <v-avatar
+                  color="indigo-lighten-5"
+                  size="48"
+                  class="mr-3"
+                  rounded="lg"
                 >
                   <v-icon
-                    icon="mdi-trending-up"
-                    color="success"
-                    size="16"
-                    class="mr-1"
+                    color="indigo-darken-1"
+                    icon="mdi-monitor-dashboard"
+                    size="24"
                   ></v-icon>
+                </v-avatar>
+                <div>
                   <span
-                    class="text-caption text-success font-weight-bold"
-                    >--.-%</span
+                    class="text-caption text-grey font-weight-bold text-uppercase"
+                    >Ventas POS</span
                   >
+                  <div
+                    class="d-flex align-center mt-1"
+                  >
+                    <v-icon
+                      icon="mdi-trending-up"
+                      color="success"
+                      size="16"
+                      class="mr-1"
+                    ></v-icon>
+                    <span
+                      class="text-caption text-success font-weight-bold"
+                      >--.-%</span
+                    >
+                  </div>
                 </div>
               </div>
-            </div>
-            <h2
-              class="text-h5 font-weight-bold text-grey-darken-4 mb-3"
-            >
-              {{
-                formatedCurrency(valorVentasPOS)
-              }}
-            </h2>
-            <v-chip
-              size="small"
-              color="indigo-lighten-1"
-              variant="flat"
-              class="font-weight-bold text-white"
-              rounded="lg"
-            >
-              {{ cantidadVentasPOS }}
-              Transacciones
-            </v-chip>
-          </v-card-item>
-        </v-card>
-      </v-col>
-
-      <!-- Ventas Local -->
-      <v-col cols="12" sm="4" lg="4">
-        <v-card
-          class="mx-auto border-0 metric-card"
-          elevation="2"
-          rounded="xl"
-        >
-          <v-card-item class="pa-5">
-            <div class="d-flex align-center mb-4">
-              <v-avatar
-                color="pink-lighten-5"
-                size="48"
-                class="mr-3"
-                rounded="lg"
+              <h2
+                class="text-h5 font-weight-bold text-grey-darken-4 mb-3"
               >
-                <v-icon
-                  color="pink-darken-1"
-                  icon="mdi-storefront"
-                  size="24"
-                ></v-icon>
-              </v-avatar>
-              <div>
-                <span
-                  class="text-caption text-grey font-weight-bold text-uppercase"
-                  >Ventas Local</span
-                >
-                <div
-                  class="d-flex align-center mt-1"
-                >
-                  <v-icon
-                    icon="mdi-trending-down"
-                    color="error"
-                    size="16"
-                    class="mr-1"
-                  ></v-icon>
-                  <span
-                    class="text-caption text-error font-weight-bold"
-                    >--.-%</span
-                  >
-                </div>
-              </div>
-            </div>
-            <h2
-              class="text-h5 font-weight-bold text-grey-darken-4 mb-3"
-            >
-              {{
-                formatedCurrency(valorVentasLocal)
-              }}
-            </h2>
-            <v-chip
-              size="small"
-              color="pink-lighten-1"
-              variant="flat"
-              class="font-weight-bold text-white"
-              rounded="lg"
-            >
-              {{ cantidadVentasLocal }}
-              Transacciones
-            </v-chip>
-          </v-card-item>
-        </v-card>
-      </v-col>
-
-      <!-- Total Ventas -->
-      <v-col cols="12" sm="4" lg="4">
-        <v-card
-          class="mx-auto border-0 metric-card"
-          elevation="2"
-          rounded="xl"
-        >
-          <v-card-item class="pa-5">
-            <div class="d-flex align-center mb-4">
-              <v-avatar
-                color="teal-lighten-5"
-                size="48"
-                class="mr-3"
-                rounded="lg"
-              >
-                <v-icon
-                  color="teal-darken-1"
-                  icon="mdi-chart-line"
-                  size="24"
-                ></v-icon>
-              </v-avatar>
-              <div>
-                <span
-                  class="text-caption text-grey font-weight-bold text-uppercase"
-                  >Total Ventas</span
-                >
-                <div
-                  class="d-flex align-center mt-1"
-                >
-                  <v-icon
-                    icon="mdi-trending-up"
-                    color="success"
-                    size="16"
-                    class="mr-1"
-                  ></v-icon>
-                  <span
-                    class="text-caption text-success font-weight-bold"
-                    >--.-%</span
-                  >
-                </div>
-              </div>
-            </div>
-            <h2
-              class="text-h5 font-weight-bold text-grey-darken-4 mb-3"
-            >
-              {{ formatedCurrency(valorVentas) }}
-            </h2>
-            <div class="d-flex align-center justify-space-between mt-2">
+                {{
+                  formatedCurrency(valorVentasPOS)
+                }}
+              </h2>
               <v-chip
                 size="small"
-                color="teal-lighten-1"
+                color="indigo-lighten-1"
                 variant="flat"
                 class="font-weight-bold text-white"
                 rounded="lg"
               >
-                {{ cantidadVentas }} Totales
+                {{ cantidadVentasPOS }}
+                Transacciones
               </v-chip>
-              <v-btn
-                color="blue"
-                @click="nameTab('Facturación')"
-                variant="tonal"
+            </v-card-item>
+          </v-card>
+        </v-col>
+
+        <!-- Ventas Local -->
+        <v-col cols="12" sm="4" lg="4">
+          <v-card
+            class="mx-auto border-0 metric-card"
+            elevation="2"
+            rounded="xl"
+          >
+            <v-card-item class="pa-5">
+              <div class="d-flex align-center mb-4">
+                <v-avatar
+                  color="pink-lighten-5"
+                  size="48"
+                  class="mr-3"
+                  rounded="lg"
+                >
+                  <v-icon
+                    color="pink-darken-1"
+                    icon="mdi-storefront"
+                    size="24"
+                  ></v-icon>
+                </v-avatar>
+                <div>
+                  <span
+                    class="text-caption text-grey font-weight-bold text-uppercase"
+                    >Ventas Local</span
+                  >
+                  <div
+                    class="d-flex align-center mt-1"
+                  >
+                    <v-icon
+                      icon="mdi-trending-down"
+                      color="error"
+                      size="16"
+                      class="mr-1"
+                    ></v-icon>
+                    <span
+                      class="text-caption text-error font-weight-bold"
+                      >--.-%</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <h2
+                class="text-h5 font-weight-bold text-grey-darken-4 mb-3"
+              >
+                {{
+                  formatedCurrency(valorVentasLocal)
+                }}
+              </h2>
+              <v-chip
                 size="small"
-                rounded
-              >
-                <v-icon start>mdi-arrow-top-right</v-icon>
-                Ir a ver detalle
-              </v-btn>
-            </div>
-          </v-card-item>
-        </v-card>
-      </v-col>
-
-      <!-- Utilidades -->
-<!--      <v-col cols="12" sm="6" lg="3">-->
-<!--        <v-card-->
-<!--          class="mx-auto border-0 metric-card"-->
-<!--          elevation="2"-->
-<!--          rounded="xl"-->
-<!--        >-->
-<!--          <v-card-item class="pa-5">-->
-<!--            <div class="d-flex align-center mb-4">-->
-<!--              <v-avatar-->
-<!--                color="amber-lighten-5"-->
-<!--                size="48"-->
-<!--                class="mr-3"-->
-<!--                rounded="lg"-->
-<!--              >-->
-<!--                <v-icon-->
-<!--                  color="amber-darken-2"-->
-<!--                  icon="mdi-currency-usd"-->
-<!--                  size="24"-->
-<!--                ></v-icon>-->
-<!--              </v-avatar>-->
-<!--              <div>-->
-<!--                <span-->
-<!--                  class="text-caption text-grey font-weight-bold text-uppercase"-->
-<!--                  >Utilidades</span-->
-<!--                >-->
-<!--                <div-->
-<!--                  class="d-flex align-center mt-1"-->
-<!--                >-->
-<!--                  <v-icon-->
-<!--                    icon="mdi-trending-up"-->
-<!--                    color="success"-->
-<!--                    size="16"-->
-<!--                    class="mr-1"-->
-<!--                  ></v-icon>-->
-<!--                  <span-->
-<!--                    class="text-caption text-success font-weight-bold"-->
-<!--                    >&#45;&#45;.-%</span-->
-<!--                  >-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--            <h2-->
-<!--              class="text-h5 font-weight-bold text-grey-darken-4 mb-3"-->
-<!--            >-->
-<!--              {{ formatedCurrency(utilidades) }}-->
-<!--            </h2>-->
-<!--            <div class="d-flex align-center justify-space-between mt-2">-->
-<!--              <v-chip-->
-<!--                size="small"-->
-<!--                color="amber-darken-2"-->
-<!--                variant="flat"-->
-<!--                class="font-weight-bold text-white"-->
-<!--                rounded="lg"-->
-<!--              >-->
-<!--                Margen Activo-->
-<!--              </v-chip>-->
-<!--              <v-btn-->
-<!--                color="blue"-->
-<!--                @click="nameTab('Detalle de Ventas')"-->
-<!--                variant="tonal"-->
-<!--                size="small"-->
-<!--                rounded-->
-<!--              >-->
-<!--                <v-icon start>mdi-arrow-top-right</v-icon>-->
-<!--                Ir a ver detalle-->
-<!--              </v-btn>-->
-<!--            </div>-->
-<!--          </v-card-item>-->
-<!--        </v-card>-->
-<!--      </v-col>-->
-    </v-row>
-
-    <!-- SECCIÓN DE GRÁFICOS -->
-    <v-row dense class="px-2">
-      <!-- Gráfico de Ventas Principal -->
-      <v-col cols="12" lg="6">
-        <v-card
-          class="border-0 pa-6 chart-card"
-          elevation="2"
-          rounded="xl"
-        >
-          <v-card-item class="pa-0 mb-6">
-            <div
-              class="d-flex justify-space-between align-center flex-wrap ga-4"
-            >
-              <div>
-                <div
-                  class="text-h6 font-weight-bold text-grey-darken-4 mb-1"
-                >
-                  Analítica de Ventas
-                </div>
-                <span
-                  class="text-caption text-grey font-weight-medium"
-                  >Tendencia del período
-                  seleccionado</span
-                >
-              </div>
-              <v-btn-toggle
-                mandatory
-                density="comfortable"
-                divided
+                color="pink-lighten-1"
+                variant="flat"
+                class="font-weight-bold text-white"
                 rounded="lg"
-                color="primary"
               >
-                <v-btn
-                  value="day"
-                  size="small"
-                  class="text-none px-4"
-                  >Día</v-btn
-                >
-                <v-btn
-                  value="week"
-                  size="small"
-                  class="text-none px-4"
-                  >Semana</v-btn
-                >
-                <v-btn
-                  value="month"
-                  size="small"
-                  class="text-none px-4"
-                  >Mes</v-btn
-                >
-              </v-btn-toggle>
-            </div>
-          </v-card-item>
-          <v-chart
-            :option="ventas"
-            autoresize
-            style="height: 330px; width: 100%"
-          />
-        </v-card>
-      </v-col>
+                {{ cantidadVentasLocal }}
+                Transacciones
+              </v-chip>
+            </v-card-item>
+          </v-card>
+        </v-col>
 
-      <!-- Gráfico de Pastel / Distribución -->
-      <v-col cols="12" lg="6">
-        <v-card
-          class="border-0 pa-6 chart-card"
-          elevation="2"
-          rounded="xl"
-        >
-          <v-card-item class="pa-0 mb-6">
-            <div
-              class="d-flex justify-space-between align-center"
-            >
-              <div>
-                <div
-                  class="text-h6 font-weight-bold text-grey-darken-4 mb-1"
+        <!-- Total Ventas -->
+        <v-col cols="12" sm="4" lg="4">
+          <v-card
+            class="mx-auto border-0 metric-card"
+            elevation="2"
+            rounded="xl"
+          >
+            <v-card-item class="pa-5">
+              <div class="d-flex align-center mb-4">
+                <v-avatar
+                  color="teal-lighten-5"
+                  size="48"
+                  class="mr-3"
+                  rounded="lg"
                 >
-                  Distribución por Rutas
+                  <v-icon
+                    color="teal-darken-1"
+                    icon="mdi-chart-line"
+                    size="24"
+                  ></v-icon>
+                </v-avatar>
+                <div>
+                  <span
+                    class="text-caption text-grey font-weight-bold text-uppercase"
+                    >Total Ventas</span
+                  >
+                  <div
+                    class="d-flex align-center mt-1"
+                  >
+                    <v-icon
+                      icon="mdi-trending-up"
+                      color="success"
+                      size="16"
+                      class="mr-1"
+                    ></v-icon>
+                    <span
+                      class="text-caption text-success font-weight-bold"
+                      >--.-%</span
+                    >
+                  </div>
                 </div>
-                <span
-                  class="text-caption text-grey font-weight-medium"
-                  >Proporción de ventas por
-                  tipo</span
-                >
               </div>
-              <v-icon
-                icon="mdi-dots-horizontal"
-                color="grey-lighten-1"
-              ></v-icon>
-            </div>
-          </v-card-item>
-          <v-chart
-            :option="pieChart"
-            autoresize
-            style="height: 330px; width: 100%"
-          />
-        </v-card>
-      </v-col>
-    </v-row>
+              <h2
+                class="text-h5 font-weight-bold text-grey-darken-4 mb-3"
+              >
+                {{ formatedCurrency(valorVentas) }}
+              </h2>
+              <div class="d-flex align-center justify-space-between mt-2">
+                <v-chip
+                  size="small"
+                  color="teal-lighten-1"
+                  variant="flat"
+                  class="font-weight-bold text-white"
+                  rounded="lg"
+                >
+                  {{ cantidadVentas }} Totales
+                </v-chip>
+                <v-btn
+                  color="blue"
+                  @click="nameTab('Facturación')"
+                  variant="tonal"
+                  size="small"
+                  rounded
+                >
+                  <v-icon start>mdi-arrow-top-right</v-icon>
+                  Ir a ver detalle
+                </v-btn>
+              </div>
+            </v-card-item>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- SECCIÓN DE GRÁFICOS -->
+      <v-row dense class="px-2 mt-1">
+        <!-- Gráfico de Ventas Principal -->
+        <v-col cols="12" lg="6">
+          <v-card
+            class="border-0 pa-6 chart-card"
+            elevation="2"
+            rounded="xl"
+          >
+            <v-card-item class="pa-0 mb-6">
+              <div
+                class="d-flex justify-space-between align-center flex-wrap ga-4"
+              >
+                <div>
+                  <div
+                    class="text-h6 font-weight-bold text-grey-darken-4 mb-1"
+                  >
+                    Analítica de Ventas
+                  </div>
+                  <span
+                    class="text-caption text-grey font-weight-medium"
+                    >Tendencia del período
+                    seleccionado</span
+                  >
+                </div>
+                <v-btn-toggle
+                  mandatory
+                  density="comfortable"
+                  divided
+                  rounded="lg"
+                  color="primary"
+                >
+                  <v-btn
+                    value="day"
+                    size="small"
+                    class="text-none px-4"
+                    >Día</v-btn
+                  >
+                  <v-btn
+                    value="week"
+                    size="small"
+                    class="text-none px-4"
+                    >Semana</v-btn
+                  >
+                  <v-btn
+                    value="month"
+                    size="small"
+                    class="text-none px-4"
+                    >Mes</v-btn
+                  >
+                </v-btn-toggle>
+              </div>
+            </v-card-item>
+            <v-chart
+              :option="ventas"
+              autoresize
+              style="height: 330px; width: 100%"
+            />
+          </v-card>
+        </v-col>
+
+        <!-- Gráfico de Pastel / Distribución -->
+        <v-col cols="12" lg="6">
+          <v-card
+            class="border-0 pa-6 chart-card"
+            elevation="2"
+            rounded="xl"
+          >
+            <v-card-item class="pa-0 mb-6">
+              <div
+                class="d-flex justify-space-between align-center"
+              >
+                <div>
+                  <div
+                    class="text-h6 font-weight-bold text-grey-darken-4 mb-1"
+                  >
+                    Distribución por Rutas
+                  </div>
+                  <span
+                    class="text-caption text-grey font-weight-medium"
+                    >Proporción de ventas por
+                    tipo</span
+                  >
+                </div>
+                <v-icon
+                  icon="mdi-dots-horizontal"
+                  color="grey-lighten-1"
+                ></v-icon>
+              </div>
+            </v-card-item>
+            <v-chart
+              :option="pieChart"
+              autoresize
+              style="height: 330px; width: 100%"
+            />
+          </v-card>
+        </v-col>
+      </v-row>
+    </template>
   </div>
 </template>
 
 <script>
+import { computed } from 'vue'
 import { use } from 'echarts'
 import { BarChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -537,7 +481,14 @@ use([
 
 export default {
   activated() {
-    this.loadDataVentas()
+    if (this.esAdmin) {
+      this.loadDataVentas()
+    }
+  },
+  mounted() {
+    if (this.esAdmin) {
+      this.loadDataVentas()
+    }
   },
   data() {
     return {
@@ -657,6 +608,7 @@ export default {
 
   methods: {
     async loadDataVentas() {
+      if (!this.esAdmin) return
       var result = await httpGet(
         `api/estadisticas/ventas-mes?desde=${this.desde}&hasta=${this.hasta}`
       )
@@ -705,6 +657,14 @@ export default {
     const store = useStore()
     const token = store.getInfoUser()
     const username = token ? token.usuario : ''
+    const rol = token ? token.rol : (store.getRolUser() || '')
+
+    const esAdmin = computed(() => {
+      const currentToken = store.getInfoUser()
+      const rawRol = currentToken?.rol || store.getRolUser() || ''
+      const normalized = String(rawRol).trim().toLowerCase()
+      return normalized === 'administrador' || normalized === 'admin'
+    })
 
     function nameTab(name) {
       router.push({ name: name })
@@ -712,7 +672,9 @@ export default {
 
     return {
       nameTab,
-      username
+      username,
+      rol,
+      esAdmin
     }
   }
 }

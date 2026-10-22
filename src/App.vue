@@ -661,6 +661,11 @@ export default {
           title: 'Cuentas por Cobrar',
           route: 'Cuentas por Cobrar',
           idVentana: '8'
+        },
+        {
+          title: 'Control abonos',
+          route: 'Control abonos',
+          idVentana: '8'
         }
       ],
       clientes: [

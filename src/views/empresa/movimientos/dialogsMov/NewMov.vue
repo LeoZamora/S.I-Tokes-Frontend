@@ -65,6 +65,11 @@
                                 persistent-placeholder :rules="data.rules.rule" :readonly="readonlyOption()" type="date" />
                         </v-col>
 
+                        <v-col v-if="data.movimiento.saldoResultante !== undefined && data.movimiento.saldoResultante !== null" cols="12" md="6" sm="6">
+                            <v-text-field :model-value="formatedCurrency(data.movimiento.saldoResultante)" prepend-inner-icon="mdi-cash-check" density="compact"
+                                variant="outlined" hide-details label="Saldo Resultante (CXC)" readonly />
+                        </v-col>
+
                         <v-col cols="12" md="12" sm="12">
                             <v-textarea v-model="data.movimiento.observaciones" prepend-inner-icon="mdi-text-box-outline" density="compact" rows="2"
                                 variant="outlined" :hide-details="data.hide ? true : false" label="Observaciones" 
@@ -353,6 +358,10 @@ export default {
             } else if(!this.editar && !this.localView) {
                 return false
             }
+        },
+
+        formatedCurrency(key) {
+            return formatters.formatCurrency(key || 0)
         }
     },
 }
