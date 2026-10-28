@@ -115,7 +115,7 @@
                           class="text-h6 font-weight-bold text-green"
                         >
                           {{
-                            data.facturas.length
+                            data.totalItems !== undefined ? data.totalItems : data.facturas.length
                           }}
                         </div>
                       </div>
@@ -128,7 +128,7 @@
                         <div
                           class="text-caption text-grey"
                         >
-                          Ventas Anuladas
+                          Anuladas (Pág)
                         </div>
                         <div
                           class="text-h6 font-weight-bold text-red"
@@ -181,7 +181,7 @@
                         <div
                           class="text-caption text-grey"
                         >
-                          Total Facturas Anuladas
+                          Monto Anulado (Pág)
                         </div>
                         <div
                           class="font-weight-bold text-red"
@@ -225,10 +225,13 @@
 
       <v-card-text class="pt-0 px-0">
         <!-- :mobile="isMobile" -->
-        <v-data-table
-          :search="data.search"
+        <v-data-table-server
+          v-model:items-per-page="data.itemsPerPage"
+          v-model:page="data.page"
+          v-model:sort-by="data.sortBy"
           :headers="data.header"
           :items="data.facturas"
+          :items-length="data.totalItems"
           class="font detalleVentas border-t"
           density="compact"
           :loading="data.loading"
@@ -236,8 +239,9 @@
           :header-props="{
             class: 'font-weight-bold'
           }"
-          items-per-page="10"
+          :items-per-page-options="[10, 25, 50, 100]"
           hover
+          @update:options="cargarTabla"
         >
           <template v-slot:top>
             <v-row dense class="px-4 py-2">
@@ -265,10 +269,12 @@
                   prepend-inner-icon="mdi-magnify"
                   label="Buscar ventas"
                   hide-details
-                  placeholder="Cliente, número, producto..."
+                  placeholder="Cliente, Nº venta, observaciones..."
                   clearable
                   persistent-placeholder
-                  @click:clear="data.search = ''"
+                  @click:clear="clearSearch"
+                  @update:model-value="onSearchInput"
+                  @keyup.enter="onSearchEnter"
                 />
               </v-col>
             </v-row>
@@ -620,7 +626,15 @@
               }}
             </v-chip>
           </template>
-        </v-data-table>
+
+          <template v-slot:no-data>
+            <div class="pa-6 text-center text-grey">
+              <v-icon size="40" class="mb-2" color="grey-lighten-1">mdi-file-search-outline</v-icon>
+              <div class="text-subtitle-1 font-weight-medium">No se encontraron ventas</div>
+              <div class="text-caption">Intenta ajustar los filtros de búsqueda o fechas.</div>
+            </div>
+          </template>
+        </v-data-table-server>
       </v-card-text>
     </v-card>
 
@@ -787,6 +801,9 @@ export default {
 
   computed: {
     totalFacturado() {
+      if (this.data.totalVendido !== undefined && this.data.totalVendido !== null && this.data.totalVendido > 0) {
+        return this.data.totalVendido
+      }
       return this.data.facturas.reduce(
         (acc, factura) => {
           if (factura.estado) {
@@ -813,6 +830,7 @@ export default {
   data() {
     return {
       snackbar: useSnackbar(),
+      searchTimeout: null,
 
       cmb: {
         clientes: [],
@@ -962,7 +980,7 @@ export default {
         {
           title: 'Nº Venta',
           key: 'noVenta',
-          sortable: false,
+          sortable: true,
           align: 'center',
           headerProps: {
             class: 'pa-1'
@@ -1060,7 +1078,7 @@ export default {
           title: 'Descuento',
           key: 'descuento',
           align: 'end',
-          sortable: true,
+          sortable: false,
           headerProps: {
             class: 'pa-1'
           },
@@ -1072,7 +1090,7 @@ export default {
           title: 'IVA',
           key: 'iva',
           align: 'end',
-          sortable: true,
+          sortable: false,
           headerProps: {
             class: 'pa-1'
           },
@@ -1102,6 +1120,7 @@ export default {
           title: 'Observaciones',
           key: 'observaciones',
           align: 'center',
+          sortable: false,
           headerProps: {
             class: 'pa-1'
           },
@@ -1143,6 +1162,7 @@ export default {
           title: 'Fecha Registro',
           key: 'fechaRegistro',
           align: 'center',
+          sortable: true,
           cellProps: {
             class: 'pa-0',
             width: '1px'
@@ -1158,6 +1178,7 @@ export default {
           title: 'Usuario Registro',
           key: 'usuarioRegistro',
           align: 'center',
+          sortable: true,
           cellProps: {
             class: 'pa-0',
             width: '1px'
@@ -1173,6 +1194,7 @@ export default {
           title: 'Condición',
           key: 'credito',
           align: 'center',
+          sortable: true,
           cellProps: {
             class: 'pa-0',
             width: '1px'
@@ -1188,6 +1210,7 @@ export default {
           title: 'Tipo Pago',
           key: 'tipoPago',
           align: 'center',
+          sortable: true,
           cellProps: {
             class: 'pa-0',
             width: '1px'
@@ -1203,6 +1226,7 @@ export default {
           title: 'Estado',
           key: 'estado',
           align: 'center',
+          sortable: true,
           cellProps: {
             class: 'pa-0',
             width: '1px'
@@ -1216,6 +1240,11 @@ export default {
         }
       ],
       facturas: [],
+      totalItems: 0,
+      totalVendido: 0,
+      page: 1,
+      itemsPerPage: 10,
+      sortBy: [{ key: 'idVenta', order: 'desc' }],
       visibleDialog: false,
 
       options: [
@@ -1387,16 +1416,88 @@ export default {
       })
     },
 
-    async getVentas() {
-      this.data.facturas = []
-      this.data.loading = true
-      const result = await httpPost(
-        'api/venta/lista',
-        this.search
-      )
+    cargarTabla({ page, itemsPerPage, sortBy }) {
+      if (page) this.data.page = page
+      if (itemsPerPage) this.data.itemsPerPage = itemsPerPage
+      if (sortBy && sortBy.length > 0) {
+        this.data.sortBy = sortBy
+      }
+      this.getVentas()
+    },
 
-      this.data.facturas = result.data
-      this.data.loading = false
+    onSearchInput() {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout)
+      }
+      this.searchTimeout = setTimeout(() => {
+        this.data.page = 1
+        this.getVentas()
+      }, 400)
+    },
+
+    onSearchEnter() {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout)
+      }
+      this.data.page = 1
+      this.getVentas()
+    },
+
+    clearSearch() {
+      this.data.search = ''
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout)
+      }
+      this.data.page = 1
+      this.getVentas()
+    },
+
+    async getVentas() {
+      this.data.loading = true
+      try {
+        const sort = (this.data.sortBy && this.data.sortBy.length > 0)
+          ? this.data.sortBy[0]
+          : { key: 'idVenta', order: 'desc' }
+
+        const payload = {
+          page: this.data.page || 1,
+          itemsPerPage: this.data.itemsPerPage || 10,
+          sortBy: sort.key || 'idVenta',
+          sortOrder: sort.order || 'desc',
+          search: this.data.search ? this.data.search.trim() : null,
+          desde: this.search.desde || null,
+          hasta: this.search.hasta || null,
+          idCliente: this.search.idCliente || null,
+          idRuta: this.search.idRuta || null,
+          idBodega: this.search.idBodega || null,
+          idCaja: this.search.idCaja || null,
+          idAperturaCaja: this.search.idAperturaCaja || null
+        }
+
+        const result = await httpPost('api/Venta/v2/lista', payload)
+        const resData = result?.data || {}
+
+        if (Array.isArray(resData.items)) {
+          this.data.facturas = resData.items
+          this.data.totalItems = resData.totalItems ?? resData.items.length
+          this.data.totalVendido = Number(resData.totalVendido ?? resData.total ?? 0)
+        } else if (Array.isArray(resData)) {
+          this.data.facturas = resData
+          this.data.totalItems = resData.length
+          this.data.totalVendido = resData.reduce((acc, f) => f.estado ? acc + (Number(f.total) || 0) : acc, 0)
+        } else {
+          this.data.facturas = []
+          this.data.totalItems = 0
+          this.data.totalVendido = 0
+        }
+      } catch (err) {
+        console.error('Error al obtener ventas paginadas:', err)
+        this.data.facturas = []
+        this.data.totalItems = 0
+        this.data.totalVendido = 0
+      } finally {
+        this.data.loading = false
+      }
     },
 
     formatedCurrency(key) {
@@ -1533,9 +1634,16 @@ export default {
     }
   },
 
+  beforeUnmount() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout)
+    }
+  },
+
   watch: {
     search: {
       handler() {
+        this.data.page = 1
         this.getVentas()
       },
       deep: true

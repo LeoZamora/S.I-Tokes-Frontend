@@ -91,8 +91,8 @@ qz.security.setSignaturePromise((toSing) => (resolve, reject) => {
 })
 
 
-//Axios.defaults.baseURL = 'http://localhost:5091/'
-Axios.defaults.baseURL = 'https://services.migdalias-market.com/'
+Axios.defaults.baseURL = 'http://localhost:5091/'
+//Axios.defaults.baseURL = 'https://services.migdalias-market.com/'
 //Axios.defaults.baseURL = 'https://migdalias-market-gzcedqbjb4h0a3fu.centralus-01.azurewebsites.net'
 
 Axios.interceptors.request.use(

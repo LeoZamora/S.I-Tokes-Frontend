@@ -997,10 +997,10 @@
                 <span>N° Factura:</span>
                 <span class="font-weight-bold">{{ ticketActual.credito?.noFactura || 'N/A' }}</span>
               </div>
-              <div class="d-flex justify-space-between text-caption py-1">
+              <!--<div class="d-flex justify-space-between text-caption py-1">
                 <span>Total Facturado:</span>
                 <span>{{ ticketActual.credito?.totalFacturadoFormateado || formatCurrency(ticketActual.credito?.totalFacturado || 0) }}</span>
-              </div>
+              </div>-->
               <div class="d-flex justify-space-between text-caption py-1">
                 <span>Saldo Anterior:</span>
                 <span>{{ ticketActual.saldoAnteriorFormateado || formatCurrency(ticketActual.saldoAnterior || 0) }}</span>
