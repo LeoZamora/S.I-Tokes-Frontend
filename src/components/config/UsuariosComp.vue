@@ -57,33 +57,64 @@
                         ></v-skeleton-loader>
                     </template>
                     <template v-slot:item.opc="{ item }">
-                        <v-menu :close-on-content-click="false" location="right center"
-                            origin="auto">
-                            <template v-slot:activator="{ props }">
-                                <v-tooltip text="Opciones" location="top">
-                                    <template v-slot:activator="{ props: tooltipProps }">
-                                        <v-btn size="small" icon variant="text" color="grey-darken-1"
-                                            v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
-                                            <v-icon>mdi-dots-vertical</v-icon>
-                                        </v-btn>
-                                    </template>
-                                </v-tooltip>
-                            </template>
+                        <div class="d-flex align-center justify-center">
+                            <v-tooltip text="Editar usuario" location="top">
+                                <template v-slot:activator="{ props }">
+                                    <v-icon v-if="hasAccessToFunct('52')" v-bind="props" size="small" color="primary" 
+                                            @click="openEditDialog(item)" class="mr-1 cursor-pointer">
+                                        mdi-pencil
+                                    </v-icon>
+                                </template>
+                            </v-tooltip>
 
-                            <v-list nav rounded="lg" >
-                                <v-list-item-subtitle class="pa-1">
-                                    Opciones
-                                </v-list-item-subtitle>
-                                <v-list-item v-if="hasAccessToFunct('52')" rounded density="compact" 
-                                    :prepend-icon="item.estado ? 'mdi-cancel' : 'mdi-check-circle-outline'" 
-                                    color="indigo" @click="showAlert(item)">
-                                    <template v-slot:title>
-                                        <v-divider vertical />
-                                        {{ item.estado ? 'Desactivar usuario' : 'Activar Usuario' }}
-                                    </template>
-                                </v-list-item>
-                            </v-list>
-                        </v-menu>
+                            <v-menu :close-on-content-click="false" location="right center"
+                                origin="auto">
+                                <template v-slot:activator="{ props }">
+                                    <v-tooltip text="Opciones" location="top">
+                                        <template v-slot:activator="{ props: tooltipProps }">
+                                            <v-btn size="small" icon variant="text" color="grey-darken-1"
+                                                v-bind="{ ...props, ...tooltipProps }" class="hover-scale">
+                                                <v-icon>mdi-dots-vertical</v-icon>
+                                            </v-btn>
+                                        </template>
+                                    </v-tooltip>
+                                </template>
+
+                                <v-list nav rounded="lg" >
+                                    <v-list-item-subtitle class="pa-1">
+                                        Opciones
+                                    </v-list-item-subtitle>
+                                    <v-list-item v-if="hasAccessToFunct('52')" rounded density="compact" 
+                                        prepend-icon="mdi-pencil" 
+                                        color="primary" @click="openEditDialog(item)">
+                                        <template v-slot:title>
+                                            <v-divider vertical />
+                                            Editar usuario
+                                        </template>
+                                    </v-list-item>
+                                    <v-list-item v-if="hasAccessToFunct('52')" rounded density="compact" 
+                                        :prepend-icon="item.estado ? 'mdi-cancel' : 'mdi-check-circle-outline'" 
+                                        color="indigo" @click="showAlert(item)">
+                                        <template v-slot:title>
+                                            <v-divider vertical />
+                                            {{ item.estado ? 'Desactivar usuario' : 'Activar Usuario' }}
+                                        </template>
+                                    </v-list-item>
+                                </v-list>
+                            </v-menu>
+                        </div>
+                    </template>
+
+                    <template v-slot:item.nombre="{ item }">
+                        <span class="font-weight-medium">{{ item.nombre || '—' }}</span>
+                    </template>
+
+                    <template v-slot:item.username="{ item }">
+                        <span class="font-weight-bold">{{ item.username }}</span>
+                    </template>
+
+                    <template v-slot:item.rol="{ item }">
+                        <v-chip size="small" variant="tonal" color="primary">{{ item.rol || '—' }}</v-chip>
                     </template>
 
                     <template v-slot:item.fechaRegistro="{ item }">
@@ -104,6 +135,11 @@
         />
 
         <NewUsuario :show="data.show" @closeDialog="closeDialog"/>
+        <EditUsuario 
+            :show="data.showEdit" 
+            :usuario="data.selectedUserToEdit" 
+            @closeDialog="closeEditDialog"
+        />
         <AlertComp :show="data.viewAlert" @deleteItem="deleteAction"/>
     </div>
 </template>
@@ -112,6 +148,7 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { formatters } from '@/helpers/formatters';
 import NewUsuario from './dialogsUsuario/NewUsuario.vue';
+import EditUsuario from './dialogsUsuario/EditUsuario.vue';
 import RequestHttp from '@/services/requestHttp';
 import { useStore } from '@/store';
 import { hasAccessToFunct } from '@/scripts/Seguridad.js'
@@ -125,6 +162,7 @@ export default {
 
     components: {
         NewUsuario,
+        EditUsuario,
         AlertComp,
         SuccessAlert,        
     },
@@ -153,8 +191,10 @@ export default {
                         class: 'pa-0'
                     }
                 },
+                {title: 'Nombre', key: 'nombre', align: 'center'},
                 {title: 'Usuario', key: 'username', align: 'center'},
-                {title: 'Roles', key: 'rol', align: 'center'},
+                {title: 'Rol', key: 'rol', align: 'center'},
+                {title: 'Usuario Registro', key: 'usuarioRegistro', align: 'center'},
                 {title: 'Fecha Registro', key: 'fechaRegistro', align: 'center'},
                 {title: 'Estado', key: 'estado', align: 'center'},
             ],
@@ -168,6 +208,8 @@ export default {
             search: null,
             loading: false, 
             show: false,
+            showEdit: false,
+            selectedUserToEdit: null,
             viewAlert: false,
             selectedItem: null,
             requestHttp: new RequestHttp()
@@ -230,8 +272,9 @@ export default {
 
         async changeStateUser() {
             try {
+                const id = this.data.selectedItem.idusuario ?? this.data.selectedItem.idUsuario
                 const result = await this.data.requestHttp.putUser(
-                    this.data.selectedItem.idusuario,
+                    id,
                     this.data.selectedItem.estado ? false : true
                 )
 
@@ -260,10 +303,22 @@ export default {
             this.data.show = true
         },
 
-
         closeDialog(val) {
             this.data.show = val
             this.getUsuarios()
+        },
+
+        openEditDialog(item) {
+            this.data.selectedUserToEdit = { ...item }
+            this.data.showEdit = true
+        },
+
+        closeEditDialog(val) {
+            this.data.showEdit = false
+            this.data.selectedUserToEdit = null
+            if (val === true) {
+                this.getUsuarios()
+            }
         },
     }
 }

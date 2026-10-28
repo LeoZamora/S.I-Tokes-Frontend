@@ -689,6 +689,21 @@ class RequestHttp {
         }
     }
 
+    async putUsuario(id, data) {
+        try {
+            const result = await axios.put(`${endPoints.getUsuario}/${id}`, data)
+            return {
+                code: 200,
+                data: result.data
+            }
+        } catch (error) {
+            return {
+                code: error.response?.status || 500,
+                data: error.response?.data
+            }
+        }
+    }
+
     // ROLES
     async getRoles() {
         try {

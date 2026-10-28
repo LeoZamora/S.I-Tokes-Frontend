@@ -35,8 +35,13 @@
                 <v-form ref="form">
                     <v-row dense>
                         <v-col cols="12" md="12" sm="12" class="py-2">
+                            <v-text-field v-model="data.usuario.nombre" prepend-inner-icon="mdi-account-details" density="compact" 
+                                variant="outlined" label="Nombre Completo" placeholder="Ingrese el nombre completo" 
+                                persistent-placeholder color="indigo" :rules="data.rules.rule"/>
+                        </v-col>
+                        <v-col cols="12" md="12" sm="12" class="py-2">
                             <v-text-field v-model="data.usuario.username" prepend-inner-icon="mdi-account" density="compact" 
-                                variant="outlined" label="Usuario" placeholder="ingrese el Usuario" 
+                                variant="outlined" label="Usuario" placeholder="Ingrese el usuario" 
                                 persistent-placeholder color="indigo" :rules="data.rules.rule"/>
                         </v-col>
                         <v-col cols="12" md="12" sm="12" class="py-2">
@@ -143,6 +148,7 @@ export default {
             nowDate: new Date(),
             usuario: {
                 idrol: null,
+                nombre: null,
                 username: null,
                 password: null,
                 usuarioRegistro: null,
@@ -221,7 +227,16 @@ export default {
 
         closeDialog() {
             this.$emit('closeDialog', false)
-            this.data.usuario = {}
+            this.data.usuario = {
+                idrol: null,
+                nombre: null,
+                username: null,
+                password: null,
+                usuarioRegistro: null,
+            }
+            if (this.$refs.form) {
+                this.$refs.form.resetValidation()
+            }
         },
     },
 }
